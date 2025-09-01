@@ -8,7 +8,7 @@ import Klienci from './pages/Klienci'
 import Projektowanie from './pages/Projektowanie'
 import CNC from './pages/CNC'
 import Produkcja from './pages/Produkcja'
-import Magazyn from './pages/Magazyn'
+import MagazynNew from './pages/MagazynNew'
 import './App.css'
 
 function App() {
@@ -45,7 +45,7 @@ function App() {
                             <Route path="/projektowanie" element={<Projektowanie />} />
                             <Route path="/cnc" element={<CNC />} />
                             <Route path="/produkcja" element={<Produkcja />} />
-                            <Route path="/magazyn" element={<Magazyn />} />
+                            <Route path="/magazyn" element={<MagazynNew />} />
                         </Routes>
                     </main>
                 </div>

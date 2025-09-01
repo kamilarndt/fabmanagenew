@@ -1,0 +1,284 @@
+/* Style dla modułu magazynowego */
+
+/* Drzewo kategorii */
+.category-tree {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.category-row:hover:not(.bg-primary) {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.hover-bg-light:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.category-children {
+  position: relative;
+}
+
+.category-children::before {
+  content: '';
+  position: absolute;
+  left: 24px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Karty materiałów */
+.material-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.material-card:hover {
+  transform: translateY(-2px);
+}
+
+.hover-shadow:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+}
+
+.hover-shadow-lg:hover {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+/* Kolory dodatkowe */
+.bg-purple {
+  background-color: #6610f2;
+  color: white;
+}
+
+.bg-purple:hover {
+  background-color: #5a0fd4;
+}
+
+.bg-purple-subtle {
+  background-color: rgba(102, 16, 242, 0.1);
+}
+
+.text-purple {
+  color: #6610f2;
+}
+
+.btn-purple {
+  background-color: #6610f2;
+  border-color: #6610f2;
+  color: white;
+}
+
+.btn-purple:hover {
+  background-color: #5a0fd4;
+  border-color: #5a0fd4;
+  color: white;
+}
+
+.btn-outline-purple {
+  color: #6610f2;
+  border-color: #6610f2;
+}
+
+.btn-outline-purple:hover {
+  background-color: #6610f2;
+  border-color: #6610f2;
+  color: white;
+}
+
+/* Tagi */
+.tag-button {
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tag-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Panel szczegółów */
+.btn-ghost {
+  background: transparent;
+  border: none;
+  padding: 0.5rem;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-ghost:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Timeline */
+.timeline-item {
+  position: relative;
+  padding-left: 0;
+}
+
+.timeline-connector {
+  position: absolute;
+  left: 19px;
+  top: 40px;
+  bottom: -20px;
+  width: 2px;
+  background-color: #dee2e6;
+}
+
+.timeline-badge {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Progress bars */
+.progress {
+  position: relative;
+  overflow: visible;
+}
+
+.bg-danger-subtle {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.bg-warning-subtle {
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.bg-success-subtle {
+  background-color: rgba(25, 135, 84, 0.1);
+}
+
+.bg-info-subtle {
+  background-color: rgba(13, 202, 240, 0.1);
+}
+
+.bg-primary-subtle {
+  background-color: rgba(13, 110, 253, 0.1);
+}
+
+.bg-secondary-subtle {
+  background-color: rgba(108, 117, 125, 0.1);
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.text-success {
+  color: #198754 !important;
+}
+
+.text-info {
+  color: #0dcaf0 !important;
+}
+
+.text-primary {
+  color: #0d6efd !important;
+}
+
+/* Animacje */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.material-details-panel.open {
+  animation: slideIn 0.3s ease;
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+  .category-tree {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background-color: white;
+    z-index: 1040;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .category-tree.show {
+    transform: translateX(0);
+  }
+  
+  .material-details-panel {
+    width: 100% !important;
+  }
+}
+
+/* Scrollbar styling */
+.category-tree::-webkit-scrollbar {
+  width: 6px;
+}
+
+.category-tree::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.category-tree::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.category-tree::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Material grid layout */
+.material-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* Sticky elements */
+.sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: white;
+}
+
+/* Print styles */
+@media print {
+  .btn,
+  .nav-tabs,
+  .category-tree,
+  .material-details-panel {
+    display: none !important;
+  }
+  
+  .material-card {
+    break-inside: avoid;
+  }
+}
