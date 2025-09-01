@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useProjects } from '../stores/projectsStore'
-// import { useTileStatus } from '../stores/tilesStore' // Unused for now
+import { useProjectsStore } from '../stores/projectsStore'
+// import { useTilesStore } from '../stores/tilesStore' // Unused for now
 
 interface Task {
   id: number

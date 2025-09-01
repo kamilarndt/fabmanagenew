@@ -1,4 +1,4 @@
-import { useTileStatus } from '../stores/tilesStore'
+import { useTilesStore } from '../stores/tilesStore'
 
 export default function Produkcja() {
     const { tiles } = useTilesStore()

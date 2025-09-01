@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useProjectsStore } from '../stores/projectsStore'
+import { showToast } from '../lib/toast'
 
 export default function CreateProjectModal() {
     const { add } = useProjectsStore()

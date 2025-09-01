@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useProjects } from '../stores/projectsStore'
-import { useTileStatus } from '../stores/tilesStore'
+import { useProjectsStore } from '../stores/projectsStore'
+import { useTilesStore } from '../stores/tilesStore'
 
 type Suggestion = { type: 'project' | 'tile'; id: string; label: string; route?: string }
 

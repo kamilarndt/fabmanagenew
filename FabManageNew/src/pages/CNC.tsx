@@ -1,4 +1,4 @@
-import { useTileStatus } from '../stores/tilesStore'
+import { useTilesStore } from '../stores/tilesStore'
 import { useDrag, useDrop } from 'react-dnd'
 import { useCallback, useMemo, useState } from 'react'
 import TileEditModal from '../components/TileEditModal'
