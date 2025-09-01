@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
 import { listProjects, createProject, updateProject as sbUpdate, deleteProject as sbDelete } from '../services/projects'
+import type { ProjectModuleKey } from '../types/modules'
 
 export type GroupFile = {
     id: string
@@ -30,6 +31,7 @@ export type Project = {
     description?: string
     progress?: number
     groups?: ProjectGroup[]
+    modules?: ProjectModuleKey[]
 }
 
 // Sample projects data - will be automatically loaded
@@ -43,7 +45,8 @@ const sampleProjects: Project[] = [
         budget: 45000,
         manager: 'Anna Kowalska',
         description: 'Kompleksowa modernizacja recepcji z elementami interaktywnymi dla dzieci',
-        progress: 75
+        progress: 75,
+        modules: ['wycena', 'koncepcja']
     },
     {
         id: 'P-002',
@@ -54,7 +57,8 @@ const sampleProjects: Project[] = [
         budget: 120000,
         manager: 'Paweł Nowak',
         description: 'Stoisko targowe na London Tech Week z systemem LED i interaktywnymi ekranami',
-        progress: 45
+        progress: 45,
+        modules: ['wycena', 'koncepcja', 'projektowanieTechniczne']
     },
     {
         id: 'P-003',
@@ -65,7 +69,8 @@ const sampleProjects: Project[] = [
         budget: 85000,
         manager: 'Ola Wiśniewska',
         description: 'Scenografia do programu telewizyjnego z elementami modułowymi',
-        progress: 30
+        progress: 30,
+        modules: ['wycena']
     },
     {
         id: 'P-004',
@@ -76,7 +81,8 @@ const sampleProjects: Project[] = [
         budget: 28000,
         manager: 'Kamil Zieliński',
         description: 'Wnętrze kawiarni z niestandardowymi elementami dekoracyjnymi',
-        progress: 10
+        progress: 10,
+        modules: ['wycena', 'koncepcja']
     },
     {
         id: 'P-005',
@@ -87,7 +93,8 @@ const sampleProjects: Project[] = [
         budget: 95000,
         manager: 'Maria Lis',
         description: 'Sala interaktywna z elementami multimedialnymi i rekonstrukcjami historycznymi',
-        progress: 60
+        progress: 60,
+        modules: ['wycena', 'koncepcja', 'projektowanieTechniczne', 'materialy']
     },
     {
         id: 'P-006',
@@ -98,7 +105,8 @@ const sampleProjects: Project[] = [
         budget: 65000,
         manager: 'Tomasz Kowal',
         description: 'Strefa zabaw dla dzieci z elementami bezpiecznymi i edukacyjnymi',
-        progress: 100
+        progress: 100,
+        modules: ['wycena', 'koncepcja', 'projektowanieTechniczne', 'produkcja', 'materialy', 'logistykaMontaz']
     },
     {
         id: 'P-007',
@@ -109,7 +117,8 @@ const sampleProjects: Project[] = [
         budget: 150000,
         manager: 'Anna Kowalska',
         description: 'Lobby hotelowe z luksusowymi elementami dekoracyjnymi i oświetleniem',
-        progress: 25
+        progress: 25,
+        modules: ['wycena', 'koncepcja']
     },
     {
         id: 'P-008',
@@ -120,7 +129,8 @@ const sampleProjects: Project[] = [
         budget: 75000,
         manager: 'Paweł Nowak',
         description: 'Wyposażenie sali gimnastycznej z elementami sportowymi i bezpieczeństwa',
-        progress: 15
+        progress: 15,
+        modules: ['wycena']
     },
     {
         id: 'P-009',
@@ -131,7 +141,8 @@ const sampleProjects: Project[] = [
         budget: 55000,
         manager: 'Ola Wiśniewska',
         description: 'Wyposażenie kuchni z elementami funkcjonalnymi i estetycznymi',
-        progress: 80
+        progress: 80,
+        modules: ['wycena', 'koncepcja', 'projektowanieTechniczne', 'produkcja']
     },
     {
         id: 'P-010',
@@ -142,7 +153,8 @@ const sampleProjects: Project[] = [
         budget: 42000,
         manager: 'Kamil Zieliński',
         description: 'Przestrzeń biurowa z elementami kreatywnymi i funkcjonalnymi',
-        progress: 55
+        progress: 55,
+        modules: ['wycena', 'koncepcja']
     }
 ]
 

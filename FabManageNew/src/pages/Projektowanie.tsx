@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
-import { useTileStatus, type Tile } from '../stores/tilesStore'
+import { useTilesStore, type Tile } from '../stores/tilesStore'
 import TileEditModal from '../components/TileEditModal'
 
 type DesignStatus = 'Projektowanie' | 'W trakcie projektowania' | 'Do akceptacji' | 'Zaakceptowane' | 'Wymagają poprawek'

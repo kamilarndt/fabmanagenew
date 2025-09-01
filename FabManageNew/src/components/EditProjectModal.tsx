@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useProjectsStore, type Project } from '../stores/projectsStore'
+import { PROJECT_MODULES, type ProjectModuleKey } from '../types/modules'
 import { showToast } from '../lib/toast'
 
 type Props = {
@@ -16,6 +17,7 @@ export default function EditProjectModal({ open, projectId, onClose }: Props) {
     const [client, setClient] = useState('')
     const [status, setStatus] = useState<Project['status']>('Active')
     const [deadline, setDeadline] = useState('')
+    const [modules, setModules] = useState<ProjectModuleKey[]>([])
 
     useEffect(() => {
         if (project) {
@@ -23,13 +25,14 @@ export default function EditProjectModal({ open, projectId, onClose }: Props) {
             setClient(project.client)
             setStatus(project.status)
             setDeadline(project.deadline)
+            setModules(project.modules || [])
         }
     }, [project])
 
     if (!open || !project) return null
 
     const save = async () => {
-        await update(project.id, { name, client, status, deadline })
+        await update(project.id, { name, client, status, deadline, modules })
         showToast('Zaktualizowano projekt', 'success')
         onClose()
     }
@@ -63,6 +66,30 @@ export default function EditProjectModal({ open, projectId, onClose }: Props) {
                             <div className="col-6">
                                 <label className="form-label">Deadline</label>
                                 <input type="date" className="form-control" value={deadline} onChange={e => setDeadline(e.target.value)} />
+                            </div>
+                        </div>
+                        <div className="mb-2 mt-2">
+                            <label className="form-label">Moduły</label>
+                            <div className="d-flex flex-column gap-1">
+                                {PROJECT_MODULES.map(m => (
+                                    <label key={m.id} className="form-check">
+                                        <input
+                                            type="checkbox"
+                                            className="form-check-input me-2"
+                                            checked={modules.includes(m.id)}
+                                            onChange={(e) => {
+                                                setModules(prev => e.currentTarget.checked
+                                                    ? [...prev, m.id]
+                                                    : prev.filter(x => x !== m.id)
+                                                )
+                                            }}
+                                        />
+                                        <span className="form-check-label">
+                                            <strong>{m.label}</strong>
+                                            <span className="text-muted small ms-2">{m.description}</span>
+                                        </span>
+                                    </label>
+                                ))}
                             </div>
                         </div>
                     </div>
