@@ -68,8 +68,8 @@ FabManageNew/
 
 1. **Klonowanie repozytorium**
    ```bash
-   git clone https://github.com/your-username/fabmanage.git
-   cd fabmanage
+   git clone https://github.com/kamilarndt/fabmanagenew.git
+   cd fabmanagenew
    ```
 
 2. **Instalacja zależności**
