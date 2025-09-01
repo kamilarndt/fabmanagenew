@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { showToast } from '../lib/toast'
-import { useProjects } from '../state/ProjectsContext'
+import { useProjectsStore } from '../stores/projectsStore'
 
 export default function CreateProjectModal() {
-    const { add } = useProjects()
+    const { add } = useProjectsStore()
     const [open, setOpen] = useState(false)
     const [name, setName] = useState('')
     const [client, setClient] = useState('')

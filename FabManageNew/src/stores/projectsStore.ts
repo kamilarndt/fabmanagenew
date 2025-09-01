@@ -161,7 +161,7 @@ interface ProjectsState {
 
 export const useProjectsStore = create<ProjectsState>()(
     persist(
-        (set, get) => ({
+        (set) => ({
             projects: [],
             isLoading: false,
             isInitialized: false,
@@ -201,7 +201,7 @@ export const useProjectsStore = create<ProjectsState>()(
             },
 
             add: async (project: Omit<Project, 'id'>) => {
-                const nextId = `P-${(get().projects.length + 1).toString().padStart(3, '0')}`
+                const nextId = `P-${(useProjectsStore.getState().projects.length + 1).toString().padStart(3, '0')}`
                 const newProject = { id: nextId, ...project }
                 
                 set(state => ({ projects: [...state.projects, newProject] }))

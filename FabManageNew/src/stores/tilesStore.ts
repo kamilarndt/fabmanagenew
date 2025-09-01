@@ -66,7 +66,7 @@ interface TilesState {
 
 export const useTilesStore = create<TilesState>()(
     persist(
-        (set, get) => ({
+        (set) => ({
             tiles: [],
             isLoading: false,
             isInitialized: false,

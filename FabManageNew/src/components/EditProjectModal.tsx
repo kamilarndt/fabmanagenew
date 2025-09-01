@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
-import { useProjects } from '../state/ProjectsContext'
-import type { Project } from '../state/ProjectsContext'
+import { useState, useEffect } from 'react'
+import { useProjectsStore, type Project } from '../stores/projectsStore'
 import { showToast } from '../lib/toast'
 
 type Props = {
@@ -10,7 +9,7 @@ type Props = {
 }
 
 export default function EditProjectModal({ open, projectId, onClose }: Props) {
-    const { projects, update } = useProjects()
+    const { projects, update } = useProjectsStore()
     const project = projects.find(p => p.id === projectId)
 
     const [name, setName] = useState('')

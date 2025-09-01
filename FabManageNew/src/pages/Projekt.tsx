@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useProjectsStore } from '../stores/projectsStore'
 import { showToast } from '../lib/toast'
@@ -332,8 +332,13 @@ export default function Projekt() {
             item: { id: tile.id },
             collect: (monitor) => ({ isDragging: monitor.isDragging() })
         }), [tile.id])
+        
+        const dragRef = useCallback((el: HTMLDivElement | null) => {
+            drag(el as any)
+        }, [drag])
+        
         return (
-            <div ref={drag} className="card border-0 bg-light" style={{ opacity: isDragging ? 0.5 : 1, cursor: 'grab' }} onClick={() => handleTileClick(tile)}>
+            <div ref={dragRef} className="card border-0 bg-light" style={{ opacity: isDragging ? 0.5 : 1, cursor: 'grab' }} onClick={() => handleTileClick(tile)}>
                 <div className="card-body p-2">
                     <h6 className="mb-1 text-truncate">{tile.name}</h6>
                     <small className="text-muted d-block">{tile.id}</small>
@@ -354,10 +359,15 @@ export default function Projekt() {
                 updateTile(item.id, { status: newStatus })
             }
         }), [columnId])
+        
+        const dropRef = useCallback((el: HTMLDivElement | null) => {
+            drop(el as any)
+        }, [drop])
+        
         const tilesInColumn = projectTiles.filter(t => getKanbanStatus(t.status) === columnId)
         return (
             <div className="col-12 col-md-6 col-lg-3">
-                <div className="card h-100" ref={drop}>
+                <div className="card h-100" ref={dropRef}>
                     <div className={`card-header ${color} text-white d-flex justify-content-between align-items-center`}>
                         <h6 className="mb-0">{title}</h6>
                         <span className="badge bg-light text-dark">{tilesInColumn.length}</span>
