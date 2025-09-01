@@ -1,5 +1,5 @@
-import React from 'react'
-import { MaterialData } from '../../data/materialsMockData'
+import type { MaterialData } from '../../data/materialsMockData'
+import { memo } from 'react'
 
 interface Tag {
   id: string
@@ -18,25 +18,25 @@ interface TagFilterProps {
   onClearAll: () => void
 }
 
-export default function TagFilter({ materials, activeTags, onTagToggle, onClearAll }: TagFilterProps) {
+function TagFilter({ materials, activeTags, onTagToggle, onClearAll }: TagFilterProps) {
   // Generowanie tagów na podstawie materiałów
   const generateTags = (): Tag[] => {
     const tags: Tag[] = []
-    
+
     // Zliczanie wystąpień
     const categoryCounts: Record<string, number> = {}
     const supplierCounts: Record<string, number> = {}
     const propertyCounts: Record<string, number> = {}
-    
+
     materials.forEach(material => {
       // Kategorie
       material.category.forEach(cat => {
         categoryCounts[cat] = (categoryCounts[cat] || 0) + 1
       })
-      
+
       // Dostawcy
       supplierCounts[material.supplier] = (supplierCounts[material.supplier] || 0) + 1
-      
+
       // Właściwości
       if (material.properties) {
         if (material.properties.fireResistant) {
@@ -50,12 +50,12 @@ export default function TagFilter({ materials, activeTags, onTagToggle, onClearA
         }
       }
     })
-    
+
     // Najpopularniejsze kategorie
     const topCategories = Object.entries(categoryCounts)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 8)
-    
+
     topCategories.forEach(([cat, count]) => {
       const categoryIcons: Record<string, string> = {
         'MDF': 'ri-stack-line',
@@ -67,7 +67,7 @@ export default function TagFilter({ materials, activeTags, onTagToggle, onClearA
         'OSB': 'ri-grid-line',
         'PLYTA_WIÓROWA': 'ri-layout-3-line'
       }
-      
+
       tags.push({
         id: `cat-${cat}`,
         label: cat.replace(/_/g, ' '),
@@ -78,7 +78,7 @@ export default function TagFilter({ materials, activeTags, onTagToggle, onClearA
         color: 'primary'
       })
     })
-    
+
     // Tagi właściwości
     if (propertyCounts['fireResistant'] > 0) {
       tags.push({
@@ -91,7 +91,7 @@ export default function TagFilter({ materials, activeTags, onTagToggle, onClearA
         color: 'danger'
       })
     }
-    
+
     if (propertyCounts['waterResistant'] > 0) {
       tags.push({
         id: 'prop-waterResistant',
@@ -103,7 +103,7 @@ export default function TagFilter({ materials, activeTags, onTagToggle, onClearA
         color: 'info'
       })
     }
-    
+
     if (propertyCounts['flexible'] > 0) {
       tags.push({
         id: 'prop-flexible',
@@ -115,14 +115,14 @@ export default function TagFilter({ materials, activeTags, onTagToggle, onClearA
         color: 'purple'
       })
     }
-    
+
     // Tagi statusu
     const criticalCount = materials.filter(m => m.stock / m.minStock < 0.5).length
     const lowCount = materials.filter(m => {
       const ratio = m.stock / m.minStock
       return ratio >= 0.5 && ratio < 1
     }).length
-    
+
     if (criticalCount > 0) {
       tags.push({
         id: 'status-critical',
@@ -134,7 +134,7 @@ export default function TagFilter({ materials, activeTags, onTagToggle, onClearA
         color: 'danger'
       })
     }
-    
+
     if (lowCount > 0) {
       tags.push({
         id: 'status-low',
@@ -146,18 +146,18 @@ export default function TagFilter({ materials, activeTags, onTagToggle, onClearA
         color: 'warning'
       })
     }
-    
+
     return tags
   }
-  
+
   const tags = generateTags()
-  
+
   return (
     <div className="tag-filter-container">
       <div className="d-flex align-items-center justify-content-between mb-2">
         <h6 className="mb-0 text-muted small">Szybkie filtry</h6>
         {activeTags.length > 0 && (
-          <button 
+          <button
             className="btn btn-link btn-sm text-decoration-none p-0"
             onClick={onClearAll}
           >
@@ -166,22 +166,21 @@ export default function TagFilter({ materials, activeTags, onTagToggle, onClearA
           </button>
         )}
       </div>
-      
+
       <div className="d-flex flex-wrap gap-2">
         {tags.map(tag => {
           const isActive = activeTags.includes(tag.id)
           const colorClass = tag.color === 'purple' ? 'purple' : tag.color || 'secondary'
-          
+
           return (
             <button
               key={tag.id}
-              className={`btn btn-sm ${
-                isActive 
-                  ? `btn-${colorClass}` 
-                  : `btn-outline-${colorClass}`
-              } tag-button d-flex align-items-center gap-1`}
+              className={`btn btn-sm ${isActive
+                ? `btn-${colorClass}`
+                : `btn-outline-${colorClass}`
+                } tag-button d-flex align-items-center gap-1`}
               onClick={() => onTagToggle(tag.id)}
-              style={{ 
+              style={{
                 transition: 'all 0.2s ease',
                 borderRadius: '20px',
                 padding: '4px 12px'
@@ -190,11 +189,10 @@ export default function TagFilter({ materials, activeTags, onTagToggle, onClearA
               <i className={`${tag.icon} ${!isActive ? 'opacity-75' : ''}`}></i>
               <span>{tag.label}</span>
               {tag.count !== undefined && (
-                <span className={`badge ${
-                  isActive 
-                    ? 'bg-white text-dark' 
-                    : `bg-${colorClass}-subtle text-${colorClass}`
-                } ms-1`}>
+                <span className={`badge ${isActive
+                  ? 'bg-white text-dark'
+                  : `bg-${colorClass}-subtle text-${colorClass}`
+                  } ms-1`}>
                   {tag.count}
                 </span>
               )}
@@ -206,46 +204,5 @@ export default function TagFilter({ materials, activeTags, onTagToggle, onClearA
   )
 }
 
-// Style CSS
-const styles = `
-  .tag-button {
-    font-size: 0.875rem;
-    font-weight: 500;
-    white-space: nowrap;
-  }
-  
-  .tag-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .btn-purple {
-    background-color: #6610f2;
-    border-color: #6610f2;
-    color: white;
-  }
-  
-  .btn-purple:hover {
-    background-color: #5a0fd4;
-    border-color: #5a0fd4;
-  }
-  
-  .btn-outline-purple {
-    color: #6610f2;
-    border-color: #6610f2;
-  }
-  
-  .btn-outline-purple:hover {
-    background-color: #6610f2;
-    border-color: #6610f2;
-    color: white;
-  }
-  
-  .bg-purple-subtle {
-    background-color: rgba(102, 16, 242, 0.1);
-  }
-  
-  .text-purple {
-    color: #6610f2;
-  }
-`
+export default memo(TagFilter)
+

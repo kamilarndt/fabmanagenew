@@ -2,7 +2,6 @@ import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProjectsStore } from '../stores/projectsStore'
 import { useTilesStore } from '../stores/tilesStore'
-import CreateProjectModal from '../components/CreateProjectModal'
 import { showToast } from '../lib/toast'
 import EditProjectModal from '../components/EditProjectModal'
 
@@ -15,7 +14,7 @@ export default function Projects() {
     const [status, setStatus] = useState<'All' | 'Active' | 'On Hold' | 'Done'>('All')
     const [client, setClient] = useState<'All' | string>('All')
     const [query, setQuery] = useState('')
-    const [view, setView] = useState<'Lista' | 'Kanban' | 'Gantt' | 'Kalendarz'>('Lista')
+    const [view, setView] = useState<'Lista' | 'Kafelki' | 'Kanban' | 'Gantt' | 'Kalendarz'>('Lista')
 
     // Advanced filters
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
@@ -91,7 +90,7 @@ export default function Projects() {
     // Sorting
     const sortedAndFiltered = useMemo(() => {
         const sorted = [...filtered].sort((a, b) => {
-            let aVal: any, bVal: any
+            let aVal: unknown, bVal: unknown
 
             switch (sortBy) {
                 case 'name':
@@ -114,8 +113,8 @@ export default function Projects() {
                     return 0
             }
 
-            if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1
-            if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1
+            if ((aVal as any) < (bVal as any)) return sortOrder === 'asc' ? -1 : 1
+            if ((aVal as any) > (bVal as any)) return sortOrder === 'asc' ? 1 : -1
             return 0
         })
 
@@ -247,7 +246,9 @@ export default function Projects() {
                             </button>
                         </div>
                     )}
-                    <CreateProjectModal />
+                    <button className="btn btn-primary" onClick={() => navigate('/projekty/nowy')}>
+                        <i className="ri-add-line me-1"></i>Nowy Projekt
+                    </button>
                 </div>
             </div>
 
@@ -258,7 +259,7 @@ export default function Projects() {
                     <div className="row g-3 mb-3">
                         <div className="col-12 col-md-3">
                             <label className="form-label small">Status projektu</label>
-                            <select value={status} onChange={e => setStatus(e.currentTarget.value as any)} className="form-select form-select-sm">
+                            <select value={status} onChange={e => setStatus(e.currentTarget.value as typeof status)} className="form-select form-select-sm">
                                 <option value="All">Wszystkie ({projects.length})</option>
                                 <option value="Active">Active ({projects.filter(p => p.status === 'Active').length})</option>
                                 <option value="On Hold">On Hold ({projects.filter(p => p.status === 'On Hold').length})</option>
@@ -267,7 +268,7 @@ export default function Projects() {
                         </div>
                         <div className="col-12 col-md-3">
                             <label className="form-label small">Klient</label>
-                            <select value={client} onChange={e => setClient(e.currentTarget.value as any)} className="form-select form-select-sm">
+                            <select value={client} onChange={e => setClient(e.currentTarget.value)} className="form-select form-select-sm">
                                 <option value="All">Wszyscy klienci</option>
                                 {uniqueClients.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
@@ -292,13 +293,13 @@ export default function Projects() {
                         <div className="col-12 col-md-2">
                             <label className="form-label small">Widok</label>
                             <div className="btn-group w-100" role="group">
-                                {(['Lista', 'Kanban'] as const).map(v => (
+                                {(['Lista', 'Kafelki', 'Kanban'] as const).map(v => (
                                     <button
                                         key={v}
                                         className={`btn btn-outline-secondary btn-sm ${view === v ? 'active' : ''}`}
                                         onClick={() => setView(v)}
                                     >
-                                        <i className={`ri-${v === 'Lista' ? 'list-check' : 'layout-grid'}-line`}></i>
+                                        <i className={`ri-${v === 'Lista' ? 'list-check' : v === 'Kafelki' ? 'grid-fill' : 'layout-column'}-line`}></i>
                                     </button>
                                 ))}
                             </div>
@@ -345,7 +346,7 @@ export default function Projects() {
                                 </div>
                                 <div className="col-12 col-md-3">
                                     <label className="form-label small">Priorytet</label>
-                                    <select value={priorityFilter} onChange={e => setPriorityFilter(e.currentTarget.value as any)} className="form-select form-select-sm">
+                                    <select value={priorityFilter} onChange={e => setPriorityFilter(e.currentTarget.value as typeof priorityFilter)} className="form-select form-select-sm">
                                         <option value="All">Wszystkie</option>
                                         <option value="High">Wysoki</option>
                                         <option value="Medium">Średni</option>
@@ -354,7 +355,7 @@ export default function Projects() {
                                 </div>
                                 <div className="col-12 col-md-3">
                                     <label className="form-label small">Termin</label>
-                                    <select value={dateFilter} onChange={e => setDateFilter(e.currentTarget.value as any)} className="form-select form-select-sm">
+                                    <select value={dateFilter} onChange={e => setDateFilter(e.currentTarget.value as typeof dateFilter)} className="form-select form-select-sm">
                                         <option value="All">Wszystkie terminy</option>
                                         <option value="This Week">Ten tydzień</option>
                                         <option value="This Month">Ten miesiąc</option>
@@ -432,7 +433,7 @@ export default function Projects() {
                     <label className="text-muted small">Sortuj:</label>
                     <select
                         value={sortBy}
-                        onChange={e => setSortBy(e.target.value as any)}
+                        onChange={e => setSortBy(e.target.value as typeof sortBy)}
                         className="form-select form-select-sm"
                         style={{ width: 'auto' }}
                     >
@@ -580,6 +581,172 @@ export default function Projects() {
                         <div className="d-flex justify-content-between align-items-center mt-3">
                             <div className="text-muted small">
                                 Strona {currentPage} z {totalPages}
+                            </div>
+                            <nav>
+                                <ul className="pagination pagination-sm mb-0">
+                                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => setCurrentPage(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                        >
+                                            <i className="ri-arrow-left-line"></i>
+                                        </button>
+                                    </li>
+                                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                        const page = i + 1
+                                        return (
+                                            <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
+                                                <button
+                                                    className="page-link"
+                                                    onClick={() => setCurrentPage(page)}
+                                                >
+                                                    {page}
+                                                </button>
+                                            </li>
+                                        )
+                                    })}
+                                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => setCurrentPage(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                        >
+                                            <i className="ri-arrow-right-line"></i>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    )}
+                </>
+            ) : view === 'Kafelki' ? (
+                <>
+                    {/* Project Tiles */}
+                    <div className="row g-3">
+                        {paginatedProjects.map(project => {
+                            const mockProgress = Math.floor(Math.random() * 100)
+                            const isOverdue = new Date(project.deadline) < new Date() && project.status !== 'Done'
+                            const mockBudget = Math.floor(Math.random() * 500000)
+
+                            return (
+                                <div key={project.id} className="col-12 col-md-6 col-lg-4">
+                                    <div className="card h-100 shadow-sm border">
+                                        <div className="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+                                            <div className="d-flex align-items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    className="form-check-input me-2"
+                                                    checked={selectedProjects.includes(project.id)}
+                                                    onChange={() => handleSelectProject(project.id)}
+                                                />
+                                                <div className="d-flex align-items-center">
+                                                    <div
+                                                        className="rounded-circle me-2 d-flex align-items-center justify-content-center"
+                                                        style={{
+                                                            width: 32,
+                                                            height: 32,
+                                                            backgroundColor: project.status === 'Active' ? '#28a745' :
+                                                                project.status === 'On Hold' ? '#ffc107' :
+                                                                    project.status === 'Done' ? '#17a2b8' : '#6c757d'
+                                                        }}
+                                                    >
+                                                        <i className={`ri-${project.status === 'Active' ? 'play' :
+                                                                project.status === 'On Hold' ? 'pause' :
+                                                                    project.status === 'Done' ? 'check' : 'time'
+                                                            }-fill text-white`}></i>
+                                                    </div>
+                                                    <span className={`badge ${getStatusBadgeClass(project.status)} px-2 py-1`}>
+                                                        {project.status}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="dropdown">
+                                                <button className="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                                    <i className="ri-more-line"></i>
+                                                </button>
+                                                <ul className="dropdown-menu dropdown-menu-end">
+                                                    <li><a className="dropdown-item" href="#" onClick={() => navigate(`/projekt/${project.id}`)}>
+                                                        <i className="ri-eye-line me-2"></i>Zobacz szczegóły
+                                                    </a></li>
+                                                    <li><a className="dropdown-item" href="#" onClick={() => setEditId(project.id)}>
+                                                        <i className="ri-edit-line me-2"></i>Edytuj
+                                                    </a></li>
+                                                    <li><hr className="dropdown-divider" /></li>
+                                                    <li><a className="dropdown-item text-danger" href="#" onClick={() => {
+                                                        if (confirm(`Czy na pewno chcesz usunąć projekt "${project.name}"?`)) {
+                                                            remove(project.id)
+                                                            showToast('Projekt został usunięty', 'success')
+                                                        }
+                                                    }}>
+                                                        <i className="ri-delete-bin-line me-2"></i>Usuń
+                                                    </a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div className="card-body p-3">
+                                            <div className="mb-3">
+                                                <h6 className="card-title mb-1 fw-bold">{project.name}</h6>
+                                                <div className="text-muted small mb-2">{project.client}</div>
+                                                <div className="text-muted small">{project.id}</div>
+                                            </div>
+
+                                            <div className="row g-2 mb-3 small">
+                                                <div className="col-6">
+                                                    <div className="text-muted">Postęp</div>
+                                                    <div className="fw-medium text-primary">{mockProgress}%</div>
+                                                </div>
+                                                <div className="col-6">
+                                                    <div className="text-muted">Budżet</div>
+                                                    <div className="fw-medium">${mockBudget.toLocaleString()}</div>
+                                                </div>
+                                            </div>
+
+                                            <div className="progress mb-3" style={{ height: 8 }}>
+                                                <div
+                                                    className={`progress-bar ${mockProgress >= 80 ? 'bg-success' :
+                                                            mockProgress >= 50 ? 'bg-primary' :
+                                                                mockProgress >= 25 ? 'bg-warning' : 'bg-danger'
+                                                        }`}
+                                                    style={{ width: `${mockProgress}%` }}
+                                                ></div>
+                                            </div>
+
+                                            <div className="d-flex justify-content-between align-items-center mb-3">
+                                                <div>
+                                                    <div className="text-muted small">Deadline</div>
+                                                    <div className={`small fw-medium ${isOverdue ? 'text-danger' : ''}`}>
+                                                        <i className={`ri-calendar-line me-1 ${isOverdue ? 'text-danger' : 'text-muted'}`}></i>
+                                                        {project.deadline}
+                                                        {isOverdue && <i className="ri-alarm-warning-line ms-1 text-danger"></i>}
+                                                    </div>
+                                                </div>
+                                                <div className="d-flex">
+                                                    {Array.from({ length: 4 }).map((_, i) => (
+                                                        <img
+                                                            key={i}
+                                                            src={`https://i.pravatar.cc/28?img=${i + 1}`}
+                                                            alt="Team member"
+                                                            className="rounded-circle border border-2 border-white"
+                                                            width="28"
+                                                            height="28"
+                                                            style={{ marginLeft: i > 0 ? -8 : 0, zIndex: 4 - i }}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+
+                    {/* Pagination for Tiles */}
+                    {totalPages > 1 && (
+                        <div className="d-flex justify-content-between align-items-center mt-4">
+                            <div className="text-muted small">
+                                Strona {currentPage} z {totalPages} • {paginatedProjects.length} z {sortedAndFiltered.length} projektów
                             </div>
                             <nav>
                                 <ul className="pagination pagination-sm mb-0">

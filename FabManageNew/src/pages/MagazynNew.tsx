@@ -1,11 +1,12 @@
-import React, { useState, useMemo, useEffect } from 'react'
-import { mockMaterials, MaterialData, filterMaterials, calculateMaterialStats } from '../data/materialsMockData'
+import { useState, useMemo, useEffect } from 'react'
+import { mockMaterials, filterMaterials, calculateMaterialStats } from '../data/materialsMockData'
+import type { MaterialData } from '../data/materialsMockData'
 import CategoryTree from '../components/Magazyn/CategoryTree'
 import MaterialCard from '../components/Magazyn/MaterialCard'
 import TagFilter from '../components/Magazyn/TagFilter'
 import MaterialDetailsPanel from '../components/Magazyn/MaterialDetailsPanel'
 import CriticalStockPanel from '../components/Magazyn/CriticalStockPanel'
-import { ViewMode, SortField, SortOrder } from '../types/magazyn.types'
+import type { ViewMode, SortField, SortOrder } from '../types/magazyn.types'
 import { showToast } from '../lib/toast'
 
 export default function MagazynNew() {
@@ -13,7 +14,7 @@ export default function MagazynNew() {
   const [materials] = useState<MaterialData[]>(mockMaterials)
   const [selectedMaterial, setSelectedMaterial] = useState<MaterialData | null>(null)
   const [detailsPanelOpen, setDetailsPanelOpen] = useState(false)
-  
+
   // Filtry i widok
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
@@ -25,7 +26,7 @@ export default function MagazynNew() {
   const [activeTab, setActiveTab] = useState<'overview' | 'materials' | 'critical' | 'movement'>('overview')
   const [sortField, setSortField] = useState<SortField>('name')
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
-  
+
   // Przetwarzanie tagów na filtry
   useEffect(() => {
     activeTags.forEach(tagId => {
@@ -39,7 +40,7 @@ export default function MagazynNew() {
       }
     })
   }, [activeTags])
-  
+
   // Filtrowane materiały
   const filteredMaterials = useMemo(() => {
     return filterMaterials(materials, {
@@ -50,13 +51,13 @@ export default function MagazynNew() {
       abcClass: selectedAbcClass !== 'all' ? selectedAbcClass : undefined
     })
   }, [materials, searchQuery, selectedCategories, selectedStatus, selectedSupplier, selectedAbcClass])
-  
+
   // Sortowane materiały
   const sortedMaterials = useMemo(() => {
     const sorted = [...filteredMaterials]
     sorted.sort((a, b) => {
-      let aVal: any, bVal: any
-      
+      let aVal: unknown, bVal: unknown
+
       switch (sortField) {
         case 'code':
           aVal = a.code
@@ -86,50 +87,43 @@ export default function MagazynNew() {
           aVal = a.name
           bVal = b.name
       }
-      
-      const result = aVal < bVal ? -1 : aVal > bVal ? 1 : 0
+
+      const result = (aVal as any) < (bVal as any) ? -1 : (aVal as any) > (bVal as any) ? 1 : 0
       return sortOrder === 'asc' ? result : -result
     })
-    
+
     return sorted
   }, [filteredMaterials, sortField, sortOrder])
-  
+
   // Statystyki
   const stats = useMemo(() => calculateMaterialStats(filteredMaterials), [filteredMaterials])
-  
+
   // Lista unikalnych dostawców
   const suppliers = useMemo(() => {
     const uniqueSuppliers = new Set(materials.map(m => m.supplier))
     return Array.from(uniqueSuppliers).sort()
   }, [materials])
-  
+
   // Handlers
   const handleMaterialSelect = (material: MaterialData) => {
     setSelectedMaterial(material)
     setDetailsPanelOpen(true)
   }
-  
+
   const handleQuickOrder = (material: MaterialData) => {
     showToast(`Zamówienie dla ${material.name} zostało utworzone`, 'success')
   }
-  
+
   const handleTagToggle = (tagId: string) => {
-    setActiveTags(prev => 
-      prev.includes(tagId) 
+    setActiveTags(prev =>
+      prev.includes(tagId)
         ? prev.filter(id => id !== tagId)
         : [...prev, tagId]
     )
   }
-  
-  const handleClearFilters = () => {
-    setSearchQuery('')
-    setSelectedCategories([])
-    setSelectedSupplier('')
-    setSelectedStatus('all')
-    setSelectedAbcClass('all')
-    setActiveTags([])
-  }
-  
+
+
+
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
@@ -155,7 +149,7 @@ export default function MagazynNew() {
             </div>
           </div>
         </div>
-        
+
         {/* Główna treść */}
         <div className="col-12 col-lg-9 col-xl-10">
           {/* Nagłówek */}
@@ -166,7 +160,7 @@ export default function MagazynNew() {
                 Zarządzaj stanami magazynowymi i monitoruj zapasy
               </p>
             </div>
-            
+
             <div className="d-flex gap-2">
               <button className="btn btn-primary">
                 <i className="ri-download-2-line me-2"></i>
@@ -182,7 +176,7 @@ export default function MagazynNew() {
               </button>
             </div>
           </div>
-          
+
           {/* Zakładki nawigacyjne */}
           <ul className="nav nav-tabs mb-4">
             <li className="nav-item">
@@ -206,9 +200,8 @@ export default function MagazynNew() {
             </li>
             <li className="nav-item">
               <button
-                className={`nav-link ${activeTab === 'critical' ? 'active' : ''} ${
-                  stats.criticalCount > 0 ? 'text-danger' : ''
-                }`}
+                className={`nav-link ${activeTab === 'critical' ? 'active' : ''} ${stats.criticalCount > 0 ? 'text-danger' : ''
+                  }`}
                 onClick={() => setActiveTab('critical')}
               >
                 <i className="ri-error-warning-line me-1"></i>
@@ -228,7 +221,7 @@ export default function MagazynNew() {
               </button>
             </li>
           </ul>
-          
+
           {/* Zawartość zakładek */}
           {activeTab === 'overview' && (
             <>
@@ -255,7 +248,7 @@ export default function MagazynNew() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="col-6 col-md-3">
                   <div className="card">
                     <div className="card-body">
@@ -271,7 +264,7 @@ export default function MagazynNew() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="col-6 col-md-3">
                   <div className="card">
                     <div className="card-body">
@@ -287,7 +280,7 @@ export default function MagazynNew() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="col-6 col-md-3">
                   <div className="card">
                     <div className="card-body">
@@ -304,7 +297,7 @@ export default function MagazynNew() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Wykresy i podsumowania */}
               <div className="row g-3">
                 <div className="col-12 col-xl-8">
@@ -319,7 +312,7 @@ export default function MagazynNew() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="col-12 col-xl-4">
                   <div className="card">
                     <div className="card-header">
@@ -335,7 +328,7 @@ export default function MagazynNew() {
                           <div className="progress-bar bg-success" style={{ width: '60%' }}></div>
                         </div>
                       </div>
-                      
+
                       <div className="mb-3">
                         <div className="d-flex justify-content-between align-items-center mb-2">
                           <span>Klasa B</span>
@@ -345,7 +338,7 @@ export default function MagazynNew() {
                           <div className="progress-bar bg-warning" style={{ width: '30%' }}></div>
                         </div>
                       </div>
-                      
+
                       <div>
                         <div className="d-flex justify-content-between align-items-center mb-2">
                           <span>Klasa C</span>
@@ -361,7 +354,7 @@ export default function MagazynNew() {
               </div>
             </>
           )}
-          
+
           {activeTab === 'materials' && (
             <>
               {/* Filtry i wyszukiwanie */}
@@ -383,7 +376,7 @@ export default function MagazynNew() {
                         />
                       </div>
                     </div>
-                    
+
                     <div className="col-6 col-md-2">
                       <select
                         className="form-select"
@@ -396,12 +389,12 @@ export default function MagazynNew() {
                         ))}
                       </select>
                     </div>
-                    
+
                     <div className="col-6 col-md-2">
                       <select
                         className="form-select"
                         value={selectedStatus}
-                        onChange={(e) => setSelectedStatus(e.target.value as any)}
+                        onChange={(e) => setSelectedStatus(e.target.value as typeof selectedStatus)}
                       >
                         <option value="all">Wszystkie stany</option>
                         <option value="critical">Krytyczne</option>
@@ -410,12 +403,12 @@ export default function MagazynNew() {
                         <option value="excess">Nadmiar</option>
                       </select>
                     </div>
-                    
+
                     <div className="col-6 col-md-2">
                       <select
                         className="form-select"
                         value={selectedAbcClass}
-                        onChange={(e) => setSelectedAbcClass(e.target.value as any)}
+                        onChange={(e) => setSelectedAbcClass(e.target.value as typeof selectedAbcClass)}
                       >
                         <option value="all">Wszystkie klasy</option>
                         <option value="A">Klasa A</option>
@@ -423,7 +416,7 @@ export default function MagazynNew() {
                         <option value="C">Klasa C</option>
                       </select>
                     </div>
-                    
+
                     <div className="col-6 col-md-2">
                       <div className="btn-group w-100">
                         <button
@@ -443,7 +436,7 @@ export default function MagazynNew() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Tagi filtrujące */}
                   <TagFilter
                     materials={materials}
@@ -453,13 +446,13 @@ export default function MagazynNew() {
                   />
                 </div>
               </div>
-              
+
               {/* Informacja o wynikach */}
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <p className="text-muted mb-0">
                   Znaleziono <strong>{sortedMaterials.length}</strong> z {materials.length} materiałów
                 </p>
-                
+
                 {viewMode === 'list' && (
                   <div className="d-flex gap-2">
                     <small className="text-muted">Sortuj po:</small>
@@ -492,7 +485,7 @@ export default function MagazynNew() {
                   </div>
                 )}
               </div>
-              
+
               {/* Lista/Siatka materiałów */}
               {viewMode === 'grid' ? (
                 <div className="row g-3">
@@ -526,9 +519,9 @@ export default function MagazynNew() {
                         {sortedMaterials.map(material => {
                           const stockRatio = material.stock / material.minStock
                           const stockPercentage = Math.min(100, Math.round(stockRatio * 100))
-                          
+
                           return (
-                            <tr 
+                            <tr
                               key={material.id}
                               className="cursor-pointer"
                               onClick={() => handleMaterialSelect(material)}
@@ -554,26 +547,24 @@ export default function MagazynNew() {
                                     {material.stock} / {material.minStock} {material.unit}
                                   </div>
                                   <div className="progress" style={{ height: '6px' }}>
-                                    <div 
-                                      className={`progress-bar ${
-                                        stockRatio < 0.5 ? 'bg-danger' : 
-                                        stockRatio < 1 ? 'bg-warning' : 
-                                        'bg-success'
-                                      }`}
+                                    <div
+                                      className={`progress-bar ${stockRatio < 0.5 ? 'bg-danger' :
+                                        stockRatio < 1 ? 'bg-warning' :
+                                          'bg-success'
+                                        }`}
                                       style={{ width: `${stockPercentage}%` }}
                                     ></div>
                                   </div>
                                 </div>
                               </td>
                               <td>
-                                <span className={`badge ${
-                                  stockRatio < 0.5 ? 'bg-danger' : 
-                                  stockRatio < 1 ? 'bg-warning' : 
-                                  'bg-success'
-                                }`}>
-                                  {stockRatio < 0.5 ? 'Krytyczny' : 
-                                   stockRatio < 1 ? 'Niski' : 
-                                   'OK'}
+                                <span className={`badge ${stockRatio < 0.5 ? 'bg-danger' :
+                                  stockRatio < 1 ? 'bg-warning' :
+                                    'bg-success'
+                                  }`}>
+                                  {stockRatio < 0.5 ? 'Krytyczny' :
+                                    stockRatio < 1 ? 'Niski' :
+                                      'OK'}
                                 </span>
                               </td>
                               <td>{material.supplier}</td>
@@ -586,7 +577,7 @@ export default function MagazynNew() {
                               </td>
                               <td>
                                 {stockRatio < 1 && (
-                                  <button 
+                                  <button
                                     className="btn btn-sm btn-danger"
                                     onClick={(e) => {
                                       e.stopPropagation()
@@ -607,7 +598,7 @@ export default function MagazynNew() {
               )}
             </>
           )}
-          
+
           {activeTab === 'critical' && (
             <CriticalStockPanel
               materials={materials}
@@ -615,7 +606,7 @@ export default function MagazynNew() {
               onQuickOrder={handleQuickOrder}
             />
           )}
-          
+
           {activeTab === 'movement' && (
             <div className="card">
               <div className="card-header">
@@ -628,7 +619,7 @@ export default function MagazynNew() {
           )}
         </div>
       </div>
-      
+
       {/* Panel szczegółów */}
       <MaterialDetailsPanel
         material={selectedMaterial}

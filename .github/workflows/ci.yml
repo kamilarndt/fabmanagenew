@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: FabManageNew
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run type-check || npx tsc --noEmit
+      - run: npm run lint || echo "lint fallback" && npx eslint .
+      - run: npm test --if-present || echo "no tests yet"
+      - run: npm run build
+

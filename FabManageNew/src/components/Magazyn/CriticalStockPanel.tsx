@@ -1,5 +1,4 @@
-import React from 'react'
-import { MaterialData } from '../../data/materialsMockData'
+import type { MaterialData } from '../../data/materialsMockData'
 
 interface CriticalStockPanelProps {
   materials: MaterialData[]
@@ -7,12 +6,12 @@ interface CriticalStockPanelProps {
   onQuickOrder: (material: MaterialData) => void
 }
 
-export default function CriticalStockPanel({ 
-  materials, 
-  onMaterialSelect, 
-  onQuickOrder 
+export default function CriticalStockPanel({
+  materials,
+  onMaterialSelect,
+  onQuickOrder
 }: CriticalStockPanelProps) {
-  
+
   // Filtrowanie materiałów krytycznych i z niskim stanem
   const criticalMaterials = materials.filter(m => {
     const ratio = m.stock / m.minStock
@@ -23,7 +22,7 @@ export default function CriticalStockPanel({
     const ratioB = b.stock / b.minStock
     return ratioA - ratioB
   })
-  
+
   // Statystyki
   const stats = {
     critical: criticalMaterials.filter(m => m.stock / m.minStock < 0.5).length,
@@ -33,13 +32,13 @@ export default function CriticalStockPanel({
     }).length,
     totalValue: criticalMaterials.reduce((sum, m) => sum + (m.minStock - m.stock) * m.price, 0)
   }
-  
+
   // Renderowanie paska postępu z gradientem
   const renderStockBar = (material: MaterialData) => {
     const ratio = material.stock / material.minStock
     const percentage = Math.min(100, Math.round(ratio * 100))
     const missing = material.minStock - material.stock
-    
+
     // Kolory w zależności od poziomu
     let barColor = 'bg-danger'
     let bgColor = 'bg-danger-subtle'
@@ -47,11 +46,11 @@ export default function CriticalStockPanel({
       barColor = 'bg-warning'
       bgColor = 'bg-warning-subtle'
     }
-    
+
     return (
       <div className="position-relative">
         <div className={`progress ${bgColor}`} style={{ height: '24px' }}>
-          <div 
+          <div
             className={`progress-bar ${barColor}`}
             style={{ width: `${percentage}%` }}
             role="progressbar"
@@ -72,7 +71,7 @@ export default function CriticalStockPanel({
       </div>
     )
   }
-  
+
   return (
     <div className="critical-stock-panel">
       {/* Nagłówek z statystykami */}
@@ -83,7 +82,7 @@ export default function CriticalStockPanel({
             Materiały wymagające pilnego uzupełnienia
           </p>
         </div>
-        
+
         <div className="d-flex gap-3">
           <div className="text-center">
             <div className="fs-4 fw-bold text-danger">{stats.critical}</div>
@@ -105,7 +104,7 @@ export default function CriticalStockPanel({
           </div>
         </div>
       </div>
-      
+
       {/* Alert dla krytycznych przypadków */}
       {stats.critical > 0 && (
         <div className="alert alert-danger d-flex align-items-center mb-3" role="alert">
@@ -116,16 +115,16 @@ export default function CriticalStockPanel({
           </div>
         </div>
       )}
-      
+
       {/* Lista materiałów */}
       {criticalMaterials.length > 0 ? (
         <div className="critical-materials-list">
           {criticalMaterials.map(material => {
             const ratio = material.stock / material.minStock
             const daysLeft = Math.max(0, Math.round(material.stock / 0.83)) // Założenie dziennego zużycia
-            
+
             return (
-              <div 
+              <div
                 key={material.id}
                 className="card mb-3 border-0 shadow-sm hover-shadow cursor-pointer"
                 onClick={() => onMaterialSelect(material)}
@@ -149,19 +148,18 @@ export default function CriticalStockPanel({
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="col-md-4">
                       {renderStockBar(material)}
                     </div>
-                    
+
                     <div className="col-md-3 text-end">
                       <div className="mb-2">
                         {daysLeft > 0 ? (
-                          <span className={`badge ${
-                            daysLeft < 7 ? 'bg-danger' : 
-                            daysLeft < 14 ? 'bg-warning' : 
-                            'bg-info'
-                          }`}>
+                          <span className={`badge ${daysLeft < 7 ? 'bg-danger' :
+                              daysLeft < 14 ? 'bg-warning' :
+                                'bg-info'
+                            }`}>
                             <i className="ri-time-line me-1"></i>
                             ~{daysLeft} dni zapasu
                           </span>
@@ -172,8 +170,8 @@ export default function CriticalStockPanel({
                           </span>
                         )}
                       </div>
-                      
-                      <button 
+
+                      <button
                         className="btn btn-danger btn-sm"
                         onClick={(e) => {
                           e.stopPropagation()
@@ -185,7 +183,7 @@ export default function CriticalStockPanel({
                       </button>
                     </div>
                   </div>
-                  
+
                   {/* Dodatkowe informacje */}
                   {material.lastDelivery && (
                     <div className="mt-2 pt-2 border-top">
@@ -213,7 +211,7 @@ export default function CriticalStockPanel({
           <p className="text-muted">Nie ma materiałów wymagających pilnego uzupełnienia</p>
         </div>
       )}
-      
+
       {/* Podsumowanie akcji */}
       {criticalMaterials.length > 0 && (
         <div className="card bg-light border-0 mt-4">
@@ -237,28 +235,3 @@ export default function CriticalStockPanel({
   )
 }
 
-// Style CSS
-const styles = `
-  .hover-shadow:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-    transform: translateY(-2px);
-    transition: all 0.2s ease;
-  }
-  
-  .cursor-pointer {
-    cursor: pointer;
-  }
-  
-  .progress {
-    position: relative;
-    overflow: visible;
-  }
-  
-  .bg-danger-subtle {
-    background-color: rgba(220, 53, 69, 0.1);
-  }
-  
-  .bg-warning-subtle {
-    background-color: rgba(255, 193, 7, 0.1);
-  }
-`

@@ -114,15 +114,16 @@ const { tiles, setStatus, updateTile, addTile } = useTilesStore()
 
 ### Zmienne środowiskowe
 
-Utwórz plik `.env`:
+Utwórz plik `.env` (lub `.env.local`) – przykładowe klucze:
 
 ```env
 # Supabase (opcjonalnie)
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
 
-# Docker
-NODE_ENV=development
+# Aplikacja
+VITE_APP_NAME=FabrykaManage
+VITE_API_BASE_URL=
 ```
 
 ### Docker Environment

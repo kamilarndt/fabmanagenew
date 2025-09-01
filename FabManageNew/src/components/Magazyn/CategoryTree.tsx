@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react'
-import { MaterialCategory } from '../../types/magazyn.types'
-import { materialCategories, MaterialData } from '../../data/materialsMockData'
+import { useState, useMemo, memo } from 'react'
+import type { MaterialCategory } from '../../types/magazyn.types'
+import { materialCategories } from '../../data/materialsMockData'
+import type { MaterialData } from '../../data/materialsMockData'
 
 interface CategoryTreeProps {
   materials: MaterialData[]
@@ -9,9 +10,9 @@ interface CategoryTreeProps {
   className?: string
 }
 
-export default function CategoryTree({ 
-  materials, 
-  selectedCategories, 
+function CategoryTreeCmp({
+  materials,
+  selectedCategories,
   onCategorySelect,
   className = ''
 }: CategoryTreeProps) {
@@ -20,12 +21,11 @@ export default function CategoryTree({
   // Budowanie struktury drzewa z licznikami
   const categoryTree = useMemo(() => {
     const tree: MaterialCategory[] = []
-    
+
     // Zliczanie materiałów w kategoriach
     const counts: Record<string, number> = {}
     materials.forEach(material => {
-      const path = material.category.join('/')
-      material.category.forEach((cat, index) => {
+      material.category.forEach((_, index) => {
         const currentPath = material.category.slice(0, index + 1).join('/')
         counts[currentPath] = (counts[currentPath] || 0) + 1
       })
@@ -64,7 +64,7 @@ export default function CategoryTree({
 
   const handleCategoryClick = (category: MaterialCategory, parent?: string) => {
     const path = parent ? [parent, category.id] : [category.id]
-    
+
     // Jeśli kategoria jest już wybrana, usuń ją
     if (selectedCategories.join('/') === path.join('/')) {
       onCategorySelect([])
@@ -82,11 +82,10 @@ export default function CategoryTree({
 
     return (
       <div key={category.id} className="category-item">
-        <div 
-          className={`category-row d-flex align-items-center py-2 px-3 rounded-2 mb-1 ${
-            isSelected ? 'bg-primary text-white' : isParentSelected ? 'bg-primary-subtle' : 'hover-bg-light'
-          }`}
-          style={{ 
+        <div
+          className={`category-row d-flex align-items-center py-2 px-3 rounded-2 mb-1 ${isSelected ? 'bg-primary text-white' : isParentSelected ? 'bg-primary-subtle' : 'hover-bg-light'
+            }`}
+          style={{
             paddingLeft: `${16 + level * 20}px`,
             cursor: 'pointer',
             transition: 'all 0.2s ease'
@@ -106,19 +105,19 @@ export default function CategoryTree({
             </button>
           )}
           {!hasChildren && <span style={{ width: '28px' }}></span>}
-          
+
           <span className="flex-grow-1 fw-medium">{category.name}</span>
-          
+
           {category.materialsCount !== undefined && category.materialsCount > 0 && (
             <span className={`badge ${isSelected ? 'bg-white text-primary' : 'bg-secondary-subtle text-secondary'} ms-2`}>
               {category.materialsCount}
             </span>
           )}
         </div>
-        
+
         {hasChildren && isExpanded && (
           <div className="category-children">
-            {category.children.map(child => renderCategory(child, level + 1, category.id))}
+            {category.children?.map(child => renderCategory(child, level + 1, category.id))}
           </div>
         )}
       </div>
@@ -130,7 +129,7 @@ export default function CategoryTree({
       <div className="d-flex justify-content-between align-items-center mb-3 px-3">
         <h6 className="mb-0 fw-bold">Kategorie</h6>
         {selectedCategories.length > 0 && (
-          <button 
+          <button
             className="btn btn-sm btn-link text-decoration-none p-0"
             onClick={() => onCategorySelect([])}
           >
@@ -138,12 +137,11 @@ export default function CategoryTree({
           </button>
         )}
       </div>
-      
+
       <div className="category-list">
-        <div 
-          className={`category-row d-flex align-items-center py-2 px-3 rounded-2 mb-1 ${
-            selectedCategories.length === 0 ? 'bg-primary text-white' : 'hover-bg-light'
-          }`}
+        <div
+          className={`category-row d-flex align-items-center py-2 px-3 rounded-2 mb-1 ${selectedCategories.length === 0 ? 'bg-primary text-white' : 'hover-bg-light'
+            }`}
           style={{ cursor: 'pointer' }}
           onClick={() => onCategorySelect([])}
         >
@@ -153,41 +151,14 @@ export default function CategoryTree({
             {materials.length}
           </span>
         </div>
-        
+
         <hr className="my-2" />
-        
+
         {categoryTree.map(category => renderCategory(category))}
       </div>
     </div>
   )
 }
 
-// Dodatkowe style CSS (można przenieść do osobnego pliku)
-const styles = `
-  .category-tree {
-    height: 100%;
-    overflow-y: auto;
-  }
-  
-  .category-row:hover:not(.bg-primary) {
-    background-color: rgba(0, 0, 0, 0.04);
-  }
-  
-  .hover-bg-light:hover {
-    background-color: rgba(0, 0, 0, 0.04);
-  }
-  
-  .category-children {
-    position: relative;
-  }
-  
-  .category-children::before {
-    content: '';
-    position: absolute;
-    left: 24px;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background-color: rgba(0, 0, 0, 0.1);
-  }
-`
+export default memo(CategoryTreeCmp)
+

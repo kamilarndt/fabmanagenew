@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
-import { useTileStatus, type Tile } from '../stores/tilesStore'
+import { useTilesStore, type Tile } from '../stores/tilesStore'
 import TileEditModal from '../components/TileEditModal'
 
 type DesignStatus = 'Projektowanie' | 'W trakcie projektowania' | 'Do akceptacji' | 'Zaakceptowane' | 'Wymagają poprawek'
@@ -11,13 +11,18 @@ export default function Projektowanie() {
     const [showTileModal, setShowTileModal] = useState(false)
     const [editingTile, setEditingTile] = useState<Tile | null>(null)
 
-    // Filter tiles that are in design phase
-    const designTiles = useMemo(() => 
-        tiles.filter(tile => 
-            tile.status === 'W KOLEJCE' && 
-            (!tile.assignee || tile.assignee === '')
-        ), [tiles]
-    )
+    // Filter tiles that are relevant for the design board
+    // Include any tile already moved into one of the design statuses
+    const designTiles = useMemo(() => {
+        const designStatuses: DesignStatus[] = [
+            'Projektowanie',
+            'W trakcie projektowania',
+            'Do akceptacji',
+            'Zaakceptowane',
+            'Wymagają poprawek'
+        ]
+        return tiles.filter(tile => designStatuses.includes(tile.status as DesignStatus))
+    }, [tiles])
 
     const columns: { key: DesignStatus; label: string; color: string }[] = [
         { key: 'Projektowanie', label: 'Nowe Zlecenia', color: 'text-muted' },
@@ -33,7 +38,7 @@ export default function Projektowanie() {
     )
 
     const moveTile = (id: string, status: DesignStatus) => {
-        updateTile(id, { status: status as any })
+        updateTile(id, { status })
     }
 
     const handleEditTile = (tile: Tile) => {
@@ -73,13 +78,13 @@ export default function Projektowanie() {
                                     </div>
                                     <ColumnDrop onDrop={(id) => moveTile(id, col.key)}>
                                         {byColumn[col.key].map(tile => (
-                                            <DesignCardItem 
-                                                key={tile.id} 
-                                                tile={tile} 
-                                                onSelect={() => setSelected(tile)} 
+                                            <DesignCardItem
+                                                key={tile.id}
+                                                tile={tile}
+                                                onSelect={() => setSelected(tile)}
                                                 onEdit={() => handleEditTile(tile)}
-                                                onAccept={() => moveTile(tile.id, 'Zaakceptowane')} 
-                                                onNeedsFix={() => moveTile(tile.id, 'Wymagają poprawek')} 
+                                                onAccept={() => moveTile(tile.id, 'Zaakceptowane')}
+                                                onNeedsFix={() => moveTile(tile.id, 'Wymagają poprawek')}
                                             />
                                         ))}
                                         {byColumn[col.key].length === 0 && <p className="text-muted">Brak zadań</p>}
@@ -146,21 +151,21 @@ export default function Projektowanie() {
     )
 }
 
-function DesignCardItem({ tile, onSelect, onEdit, onAccept, onNeedsFix }: { 
-    tile: Tile; 
-    onSelect: () => void; 
+function DesignCardItem({ tile, onSelect, onEdit, onAccept, onNeedsFix }: {
+    tile: Tile;
+    onSelect: () => void;
     onEdit: () => void;
-    onAccept?: () => void; 
-    onNeedsFix?: () => void 
+    onAccept?: () => void;
+    onNeedsFix?: () => void
 }) {
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'DESIGN_CARD',
         item: { id: tile.id },
         collect: m => ({ isDragging: m.isDragging() })
     }), [tile.id])
-    
+
     const refCb = useCallback((el: HTMLDivElement | null) => { if (el) drag(el) }, [drag])
-    
+
     return (
         <div ref={refCb} className="card m-2 border" style={{ opacity: isDragging ? 0.5 : 1 }} onClick={onSelect}>
             <div className="card-body py-2">
@@ -195,9 +200,9 @@ function ColumnDrop({ onDrop, children }: { onDrop: (id: string) => void; childr
         accept: 'DESIGN_CARD',
         drop: (item: any) => onDrop(item.id)
     }), [onDrop])
-    
+
     const refCb = useCallback((el: HTMLDivElement | null) => { if (el) drop(el) }, [drop])
-    
+
     return <div ref={refCb} className="card-body">{children}</div>
 }
 

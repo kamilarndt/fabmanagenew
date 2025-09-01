@@ -55,13 +55,14 @@ interface TilesState {
     tiles: Tile[]
     isLoading: boolean
     isInitialized: boolean
-    
+
     // Actions
     initialize: () => Promise<void>
     setStatus: (id: string, status: Tile['status']) => Promise<void>
     updateTile: (id: string, patch: Partial<Tile>) => Promise<void>
     addTile: (tile: Tile) => Promise<void>
     setTiles: (tiles: Tile[]) => void
+    pushAcceptedTilesToQueue: (projectId: string) => Promise<void>
 }
 
 export const useTilesStore = create<TilesState>()(
@@ -73,7 +74,7 @@ export const useTilesStore = create<TilesState>()(
 
             initialize: async () => {
                 set({ isLoading: true })
-                
+
                 try {
                     if (!isSupabaseConfigured) {
                         // If no database, use demo tiles
@@ -89,7 +90,8 @@ export const useTilesStore = create<TilesState>()(
                         set({ tiles: demoTiles, isInitialized: true })
                     }
                 } catch (error) {
-                    console.error('Błąd podczas ładowania kafelków:', error)
+                    const { logger } = await import('../lib/logger')
+                    logger.error('Błąd podczas ładowania kafelków:', error)
                     // Fallback to demo tiles
                     set({ tiles: demoTiles, isInitialized: true })
                 } finally {
@@ -99,17 +101,18 @@ export const useTilesStore = create<TilesState>()(
 
             setStatus: async (id: string, status: Tile['status']) => {
                 set(state => ({
-                    tiles: state.tiles.map(t => 
+                    tiles: state.tiles.map(t =>
                         t.id === id ? { ...t, status } : t
                     )
                 }))
-                
+
                 if (isSupabaseConfigured) {
                     try {
                         await sbUpdate(id, { status })
                         showToast(`Zmieniono status kafelka ${id} → ${status}`, 'success')
                     } catch (error) {
-                        console.error('Błąd podczas aktualizacji statusu:', error)
+                        const { logger } = await import('../lib/logger')
+                        logger.error('Błąd podczas aktualizacji statusu:', error)
                         showToast('Błąd zapisu statusu kafelka', 'danger')
                     }
                 }
@@ -117,29 +120,31 @@ export const useTilesStore = create<TilesState>()(
 
             updateTile: async (id: string, patch: Partial<Tile>) => {
                 set(state => ({
-                    tiles: state.tiles.map(t => 
+                    tiles: state.tiles.map(t =>
                         t.id === id ? { ...t, ...patch } : t
                     )
                 }))
-                
+
                 if (isSupabaseConfigured) {
                     try {
-                        await sbUpdate(id, patch as any)
+                        await sbUpdate(id, patch)
                     } catch (error) {
-                        console.error('Błąd podczas aktualizacji kafelka:', error)
+                        const { logger } = await import('../lib/logger')
+                        logger.error('Błąd podczas aktualizacji kafelka:', error)
                     }
                 }
             },
 
             addTile: async (tile: Tile) => {
                 set(state => ({ tiles: [...state.tiles, tile] }))
-                
+
                 if (isSupabaseConfigured) {
                     try {
                         await sbCreate(tile)
                         showToast('Kafelek dodany pomyślnie', 'success')
                     } catch (error) {
-                        console.error('Błąd podczas dodawania kafelka:', error)
+                        const { logger } = await import('../lib/logger')
+                        logger.error('Błąd podczas dodawania kafelka:', error)
                         showToast('Błąd podczas dodawania kafelka', 'danger')
                     }
                 }
@@ -147,6 +152,37 @@ export const useTilesStore = create<TilesState>()(
 
             setTiles: (tiles: Tile[]) => {
                 set({ tiles })
+            },
+
+            pushAcceptedTilesToQueue: async (projectId: string) => {
+                set(state => ({
+                    tiles: state.tiles.map(t =>
+                        t.project === projectId && t.status === 'Zaakceptowane'
+                            ? { ...t, status: 'W KOLEJCE' as Tile['status'] }
+                            : t
+                    )
+                }))
+
+                if (isSupabaseConfigured) {
+                    try {
+                        // Update all accepted tiles for this project to 'W KOLEJCE'
+                        const acceptedTiles = useTilesStore.getState().tiles.filter(
+                            t => t.project === projectId && t.status === 'Zaakceptowane'
+                        )
+
+                        for (const tile of acceptedTiles) {
+                            await sbUpdate(tile.id, { status: 'W KOLEJCE' })
+                        }
+
+                        if (acceptedTiles.length > 0) {
+                            showToast(`${acceptedTiles.length} zaakceptowanych elementów przeniesiono do kolejki produkcji`, 'success')
+                        }
+                    } catch (error) {
+                        const { logger } = await import('../lib/logger')
+                        logger.error('Błąd podczas przenoszenia elementów do kolejki:', error)
+                        showToast('Błąd podczas przenoszenia elementów do kolejki', 'danger')
+                    }
+                }
             }
         }),
         {
@@ -171,7 +207,8 @@ if (isSupabaseConfigured) {
                     useTilesStore.getState().setTiles(data)
                 }
             } catch (error) {
-                console.error('Błąd podczas synchronizacji kafelków:', error)
+                const { logger } = await import('../lib/logger')
+                logger.error('Błąd podczas synchronizacji kafelków:', error)
             }
         })
         .subscribe()

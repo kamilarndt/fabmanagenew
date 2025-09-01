@@ -4,6 +4,7 @@ import { useProjectsStore } from '../stores/projectsStore'
 import { showToast } from '../lib/toast'
 import { useTilesStore, type Tile } from '../stores/tilesStore'
 import TileEditModal from '../components/TileEditModal'
+import EditProjectModal from '../components/EditProjectModal'
 import { useDrag, useDrop } from 'react-dnd'
 
 interface ProjectStage {
@@ -52,7 +53,7 @@ export default function Projekt() {
     const { tiles, updateTile, addTile } = useTilesStore()
     const project = useMemo(() => projects.find(p => p.id === id), [projects, id])
 
-    const [activeTab, setActiveTab] = useState<'overview' | 'tasks' | 'documents' | 'team' | 'timeline' | 'elementy' | 'zakupy'>('overview')
+    const [activeTab, setActiveTab] = useState<'overview' | 'list' | 'board' | 'timeline' | 'attachment' | 'tasks' | 'documents' | 'team' | 'elementy' | 'zakupy'>('overview')
     const [newComment, setNewComment] = useState('')
     const [showTileModal, setShowTileModal] = useState(false)
     const [editingTile, setEditingTile] = useState<Tile | null>(null)
@@ -62,6 +63,9 @@ export default function Projekt() {
     const [groupDesc, setGroupDesc] = useState('')
     const [groupThumb, setGroupThumb] = useState<string | undefined>(undefined)
     const [groupFiles, setGroupFiles] = useState<{ id: string; name: string; url: string; type: string }[]>([])
+    const [showAddMember, setShowAddMember] = useState(false)
+    const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([])
+    const [showEditProject, setShowEditProject] = useState(false)
 
     // Mock data based on prototyp2 structure
     const stages: ProjectStage[] = [
@@ -251,10 +255,7 @@ export default function Projekt() {
         setNewComment('')
     }
 
-    const handleStatusChange = async (newStatus: 'Active' | 'On Hold' | 'Done') => {
-        await update(project.id, { status: newStatus })
-        showToast(`Status projektu zmieniony na: ${newStatus}`, 'success')
-    }
+    // Status change handled elsewhere in simplified header actions
 
     const handleAddTile = () => {
         setEditingTile(null)
@@ -332,11 +333,11 @@ export default function Projekt() {
             item: { id: tile.id },
             collect: (monitor) => ({ isDragging: monitor.isDragging() })
         }), [tile.id])
-        
+
         const dragRef = useCallback((el: HTMLDivElement | null) => {
-            drag(el as any)
+            if (el) drag(el)
         }, [drag])
-        
+
         return (
             <div ref={dragRef} className="card border-0 bg-light" style={{ opacity: isDragging ? 0.5 : 1, cursor: 'grab' }} onClick={() => handleTileClick(tile)}>
                 <div className="card-body p-2">
@@ -359,11 +360,11 @@ export default function Projekt() {
                 updateTile(item.id, { status: newStatus })
             }
         }), [columnId])
-        
+
         const dropRef = useCallback((el: HTMLDivElement | null) => {
-            drop(el as any)
+            if (el) drop(el)
         }, [drop])
-        
+
         const tilesInColumn = projectTiles.filter(t => getKanbanStatus(t.status) === columnId)
         return (
             <div className="col-12 col-md-6 col-lg-3">
@@ -389,36 +390,110 @@ export default function Projekt() {
 
     return (
         <div>
-            {/* Project Header */}
-            <div className="d-flex justify-content-between align-items-start mb-4">
-                <div>
-                    <div className="d-flex align-items-center mb-2">
-                        <button className="btn btn-sm btn-outline-secondary me-3" onClick={() => navigate('/projekty')}>
+            {/* Modern Project Header */}
+            <div className="mb-4">
+                {/* Gradient Header Background */}
+                <div
+                    className="rounded-3 position-relative overflow-hidden mb-3 p-4"
+                    style={{
+                        height: 180,
+                        background: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%)',
+                        backgroundImage: 'url("data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="white" fill-opacity="0.1"%3E%3Cpath d="m0 40 40-40v40z"/%3E%3C/g%3E%3C/svg%3E")'
+                    }}
+                >
+                    {/* Navigation Breadcrumb */}
+                    <div className="d-flex align-items-center text-white mb-3">
+                        <button className="btn btn-sm text-white p-0 me-2" onClick={() => navigate('/projekty')}>
                             <i className="ri-arrow-left-line"></i>
                         </button>
-                        <h4 className="mb-0">{project.name}</h4>
-                        <span className={`badge ms-2 ${getStatusBadgeClass(project.status)}`}>{project.status}</span>
+                        <nav className="text-white small opacity-75">
+                            <span className="me-1">Dashboard</span>
+                            <i className="ri-arrow-right-s-line mx-1"></i>
+                            <span className="me-1">Project</span>
+                            <i className="ri-arrow-right-s-line mx-1"></i>
+                            <span>Project {project.id}</span>
+                        </nav>
                     </div>
-                    <div className="text-muted">
-                        <span className="me-3"><i className="ri-building-line me-1"></i>{project.client}</span>
-                        <span className="me-3"><i className="ri-calendar-line me-1"></i>Deadline: {project.deadline}</span>
-                        <span><i className="ri-user-line me-1"></i>PM: Anna Kowalska</span>
+
+                    {/* Google Logo Style Icon */}
+                    <div className="position-absolute" style={{ bottom: '20px', left: '20px' }}>
+                        <div
+                            className="rounded-circle d-flex align-items-center justify-content-center bg-white shadow"
+                            style={{ width: 48, height: 48 }}
+                        >
+                            <i className="ri-briefcase-line h5 mb-0 text-primary"></i>
+                        </div>
                     </div>
                 </div>
-                <div className="d-flex gap-2">
-                    <div className="dropdown">
-                        <button className="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
-                            Zmień status
-                        </button>
-                        <ul className="dropdown-menu">
-                            <li><a className="dropdown-item" href="#" onClick={() => handleStatusChange('Active')}>Active</a></li>
-                            <li><a className="dropdown-item" href="#" onClick={() => handleStatusChange('On Hold')}>On Hold</a></li>
-                            <li><a className="dropdown-item" href="#" onClick={() => handleStatusChange('Done')}>Done</a></li>
-                        </ul>
+
+                {/* Project Info Section */}
+                <div className="position-relative" style={{ marginTop: '-40px', zIndex: 10 }}>
+                    <div className="card border-0 shadow-sm">
+                        <div className="card-body p-4">
+                            <div className="d-flex justify-content-between align-items-start">
+                                <div className="flex-grow-1">
+                                    <div className="d-flex align-items-center mb-2">
+                                        <h3 className="mb-0 me-3">{project.name}</h3>
+                                        <span className={`badge fs-6 px-3 py-2 ${getStatusBadgeClass(project.status)}`}>
+                                            {project.status}
+                                        </span>
+                                    </div>
+                                    <div className="d-flex align-items-center text-muted mb-3">
+                                        <i className="ri-calendar-line me-2"></i>
+                                        <span className="me-4">{project.deadline}</span>
+                                        <i className="ri-user-line me-2"></i>
+                                        <span>{project.manager || 'Anna Kowalska'}</span>
+                                    </div>
+                                </div>
+
+                                {/* Team Avatars and Actions */}
+                                <div className="d-flex align-items-center gap-3">
+                                    <div className="d-flex align-items-center">
+                                        {teamMembers.slice(0, 4).map((m, index) => (
+                                            <img
+                                                key={m.id}
+                                                src={m.avatar}
+                                                alt={m.name}
+                                                className="rounded-circle border border-2 border-white shadow-sm"
+                                                width="36"
+                                                height="36"
+                                                style={{
+                                                    marginLeft: index > 0 ? -12 : 0,
+                                                    zIndex: teamMembers.length - index
+                                                }}
+                                                title={m.name}
+                                            />
+                                        ))}
+                                        {teamMembers.length > 4 && (
+                                            <div
+                                                className="rounded-circle bg-light border border-2 border-white d-flex align-items-center justify-content-center text-muted small fw-medium shadow-sm"
+                                                style={{
+                                                    width: 36,
+                                                    height: 36,
+                                                    marginLeft: -12,
+                                                    zIndex: 0
+                                                }}
+                                            >
+                                                +{teamMembers.length - 4}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button
+                                        className="btn btn-outline-secondary btn-sm"
+                                        onClick={() => setShowAddMember(true)}
+                                    >
+                                        <i className="ri-user-add-line me-1"></i>Invite
+                                    </button>
+                                    <button
+                                        className="btn btn-primary btn-sm"
+                                        onClick={() => setShowEditProject(true)}
+                                    >
+                                        <i className="ri-edit-line me-1"></i>Edit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <button className="btn btn-primary">
-                        <i className="ri-edit-line me-1"></i>Edytuj
-                    </button>
                 </div>
             </div>
 
@@ -461,80 +536,422 @@ export default function Projekt() {
                 </div>
             </div>
 
-            {/* Navigation Tabs */}
-            <div className="card">
-                <div className="card-header">
-                    <ul className="nav nav-tabs card-header-tabs">
+            {/* Modern Navigation Tabs */}
+            <div className="card border-0 shadow-sm">
+                <div className="card-header bg-white border-bottom">
+                    <nav className="nav nav-tabs border-0" style={{ marginBottom: '-1px' }}>
                         {[
-                            { id: 'overview', label: 'Przegląd', icon: 'ri-dashboard-line' },
-                            { id: 'elementy', label: 'Elementy', icon: 'ri-layout-grid-line' },
-                            { id: 'zakupy', label: 'Zakupy', icon: 'ri-shopping-cart-line' },
-                            { id: 'tasks', label: 'Zadania', icon: 'ri-task-line' },
-                            { id: 'documents', label: 'Dokumenty', icon: 'ri-folder-line' },
-                            { id: 'team', label: 'Zespół', icon: 'ri-team-line' },
-                            { id: 'timeline', label: 'Oś Czasu', icon: 'ri-time-line' }
-                        ].map(tab => (
-                            <li className="nav-item" key={tab.id}>
-                                <button
-                                    className={`nav-link ${activeTab === tab.id ? 'active' : ''}`}
-                                    onClick={() => setActiveTab(tab.id as any)}
-                                >
-                                    <i className={`${tab.icon} me-1`}></i>{tab.label}
-                                </button>
-                            </li>
+                            { id: 'overview', label: 'Overview', icon: 'ri-dashboard-line', requiredModule: null },
+                            { id: 'list', label: 'List', icon: 'ri-list-check', requiredModule: null },
+                            { id: 'board', label: 'Board', icon: 'ri-layout-column-line', requiredModule: null },
+                            { id: 'timeline', label: 'Timeline', icon: 'ri-time-line', requiredModule: null },
+                            { id: 'attachment', label: 'Attachment', icon: 'ri-attachment-line', requiredModule: null },
+                            // legacy tabs kept for advanced views
+                            { id: 'elementy', label: 'Elementy', icon: 'ri-layout-grid-line', requiredModule: 'projektowanie_techniczne' },
+                            { id: 'zakupy', label: 'Zakupy', icon: 'ri-shopping-cart-line', requiredModule: 'materialy' }
+                        ].filter(tab => {
+                            // Always show main tabs, show other tabs only if required module is enabled
+                            if (tab.requiredModule === null) return true
+                            return project?.modules?.includes(tab.requiredModule as any)
+                        }).map(tab => (
+                            <button
+                                key={tab.id}
+                                className={`nav-link border-0 px-3 py-2 rounded-top ${activeTab === tab.id ? 'active bg-white text-primary border-bottom-0' : 'text-muted bg-transparent'}`}
+                                onClick={() => setActiveTab(tab.id as any)}
+                                style={{
+                                    marginRight: '4px',
+                                    borderBottom: activeTab === tab.id ? '2px solid #0d6efd' : '2px solid transparent',
+                                    fontWeight: activeTab === tab.id ? '600' : '400'
+                                }}
+                            >
+                                <i className={`${tab.icon} me-2`}></i>
+                                {tab.label}
+                            </button>
                         ))}
-                    </ul>
+                    </nav>
                 </div>
                 <div className="card-body">
-                    {/* Overview Tab */}
+                    {/* Modern Overview Tab */}
                     {activeTab === 'overview' && (
                         <div className="row g-4">
+                            {/* Main Content */}
                             <div className="col-12 col-lg-8">
-                                <h5 className="mb-3">Etapy Projektu</h5>
-                                <div className="list-group">
-                                    {stages.map(stage => (
-                                        <div key={stage.id} className="list-group-item">
-                                            <div className="d-flex justify-content-between align-items-center mb-2">
-                                                <div className="d-flex align-items-center">
-                                                    <span className={`badge me-2 ${getStageBadgeClass(stage.status)}`}>
-                                                        {stage.status === 'completed' ? '✓' : stage.status === 'active' ? '●' : '○'}
-                                                    </span>
-                                                    <strong>{stage.name}</strong>
+                                {/* About Project Section */}
+                                <div className="card border-0 shadow-sm mb-4">
+                                    <div className="card-body p-4">
+                                        <h5 className="mb-3">About Project</h5>
+                                        <p className="text-muted mb-3">
+                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nisl dui, fringilla ac venenatis
+                                            ut, varius et arcu. Duis non mollis nisl. Praesellus a facilisis ligula, sit amet ultrices arcu.
+                                            Vestibulum sit amet elit nisi. Vestibulum lacus massa, ultricies dictum accumsan gravida sit amet.
+                                            rutrum ut odio. Nulla lorem diam, euismod et condimentum eu, luctortis nec ex.
+                                        </p>
+
+                                        {/* Attachment Section */}
+                                        <div className="mb-4">
+                                            <h6 className="mb-3">Attachment</h6>
+                                            <div className="d-flex gap-3">
+                                                <div className="d-flex align-items-center p-2 bg-light rounded">
+                                                    <i className="ri-file-text-line text-primary me-2 h5 mb-0"></i>
+                                                    <div>
+                                                        <div className="fw-medium small">About Project.doc</div>
+                                                        <small className="text-muted">300 KB</small>
+                                                    </div>
                                                 </div>
-                                                <span className="text-muted small">{stage.progress}%</span>
-                                            </div>
-                                            <div className="progress mb-2" style={{ height: 6 }}>
-                                                <div
-                                                    className={`progress-bar ${getStageBadgeClass(stage.status).replace('bg-', 'bg-')}`}
-                                                    style={{ width: `${stage.progress}%` }}
-                                                ></div>
-                                            </div>
-                                            <div className="d-flex justify-content-between text-muted small">
-                                                <span><i className="ri-user-line me-1"></i>{stage.assignedTo}</span>
-                                                <span>{stage.startDate} - {stage.endDate}</span>
+                                                <div className="d-flex align-items-center p-2 bg-light rounded">
+                                                    <i className="ri-file-pdf-line text-danger me-2 h5 mb-0"></i>
+                                                    <div>
+                                                        <div className="fw-medium small">Requirement.pdf</div>
+                                                        <small className="text-muted">300 KB</small>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    ))}
+
+                                        {/* Activity Section */}
+                                        <h6 className="mb-3">Activity</h6>
+                                        <div className="list-group list-group-flush">
+                                            {[
+                                                {
+                                                    avatar: teamMembers[0]?.avatar,
+                                                    action: 'New Task Added',
+                                                    description: 'Doni Tan created new task',
+                                                    time: '05/02/23, 14:00'
+                                                },
+                                                {
+                                                    avatar: teamMembers[1]?.avatar,
+                                                    action: 'Task Status Changed',
+                                                    description: 'Josh Adam move Moodboard task to Done',
+                                                    time: '02/02/23, 10:00',
+                                                    badge: { from: 'In Progress', to: 'Done' }
+                                                },
+                                                {
+                                                    avatar: teamMembers[2]?.avatar,
+                                                    action: 'Comment Replied',
+                                                    description: 'Lisa Whitaker commented "Oke Veronica thank you --" in Wireframe Task',
+                                                    time: '28/01/23, 09:15'
+                                                },
+                                                {
+                                                    avatar: teamMembers[3]?.avatar,
+                                                    action: 'New File Uploaded',
+                                                    description: 'Jay Hargudson upload new attachment',
+                                                    time: '28/01/23, 09:15'
+                                                }
+                                            ].map((activity, index) => (
+                                                <div key={index} className="list-group-item border-0 px-0 py-3">
+                                                    <div className="d-flex">
+                                                        <img
+                                                            src={activity.avatar}
+                                                            alt="User"
+                                                            className="rounded-circle me-3"
+                                                            width="36"
+                                                            height="36"
+                                                        />
+                                                        <div className="flex-grow-1">
+                                                            <div className="d-flex justify-content-between align-items-start mb-1">
+                                                                <h6 className="mb-0 small fw-semibold">{activity.action}</h6>
+                                                                <small className="text-muted">{activity.time}</small>
+                                                            </div>
+                                                            <p className="text-muted small mb-0">{activity.description}</p>
+                                                            {activity.badge && (
+                                                                <div className="mt-2">
+                                                                    <span className="badge bg-warning text-dark me-2">{activity.badge.from}</span>
+                                                                    <i className="ri-arrow-right-line text-muted mx-1"></i>
+                                                                    <span className="badge bg-success">{activity.badge.to}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+
+                            {/* Sidebar */}
                             <div className="col-12 col-lg-4">
-                                <h5 className="mb-3">Ostatnie Komentarze</h5>
-                                <div className="list-group list-group-flush">
-                                    {comments.slice(0, 3).map(comment => (
-                                        <div key={comment.id} className="list-group-item px-0">
-                                            <div className="d-flex">
-                                                <img src={comment.avatar} alt={comment.author} className="rounded-circle me-3" width="32" height="32" />
-                                                <div className="flex-grow-1">
-                                                    <div className="d-flex justify-content-between">
-                                                        <strong className="text-primary">{comment.author}</strong>
-                                                        <small className="text-muted">{comment.timestamp}</small>
-                                                    </div>
-                                                    <p className="mb-0 small">{comment.content}</p>
-                                                </div>
+                                {/* Budget Card */}
+                                <div className="card border-0 shadow-sm mb-4">
+                                    <div className="card-body p-4">
+                                        <div className="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 className="mb-0">Budget</h6>
+                                            <button className="btn btn-sm btn-outline-primary">
+                                                <i className="ri-add-line me-1"></i>Add Transaction
+                                            </button>
+                                        </div>
+
+                                        <div className="mb-3">
+                                            <div className="d-flex justify-content-between align-items-center">
+                                                <span className="h4 mb-0 text-warning">$28,000</span>
+                                                <span className="text-muted">$50,000</span>
+                                            </div>
+                                            <div className="progress mt-2" style={{ height: 6 }}>
+                                                <div className="progress-bar bg-warning" style={{ width: '56%' }}></div>
                                             </div>
                                         </div>
-                                    ))}
+
+                                        <h6 className="mb-3">Transactions</h6>
+                                        <div className="list-group list-group-flush">
+                                            {[
+                                                { name: 'Jira Subscription', type: 'Expenses', amount: '-$500', color: 'primary' },
+                                                { name: 'Zoom Subscription', type: 'Expenses', amount: '-$500', color: 'success' },
+                                                { name: 'Hiring New Designer', type: 'Expenses', amount: '-$8,000', color: 'danger' },
+                                                { name: 'Cloud Server', type: 'Expenses', amount: '-$19,500', color: 'purple' }
+                                            ].map((transaction, index) => (
+                                                <div key={index} className="list-group-item border-0 px-0 py-2">
+                                                    <div className="d-flex align-items-center">
+                                                        <div
+                                                            className={`rounded-circle me-3 d-flex align-items-center justify-content-center bg-${transaction.color}`}
+                                                            style={{ width: 32, height: 32 }}
+                                                        >
+                                                            <i className="ri-arrow-down-line text-white small"></i>
+                                                        </div>
+                                                        <div className="flex-grow-1">
+                                                            <div className="fw-medium small">{transaction.name}</div>
+                                                            <small className="text-muted">{transaction.type}</small>
+                                                        </div>
+                                                        <div className="fw-medium">{transaction.amount}</div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
+
+                                {/* Team Card */}
+                                <div className="card border-0 shadow-sm">
+                                    <div className="card-body p-4">
+                                        <div className="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 className="mb-0">Team ({teamMembers.length + 1})</h6>
+                                            <button className="btn btn-sm btn-outline-primary">
+                                                <i className="ri-add-line me-1"></i>Add New
+                                            </button>
+                                        </div>
+
+                                        <div className="list-group list-group-flush">
+                                            {teamMembers.slice(0, 5).map(member => (
+                                                <div key={member.id} className="list-group-item border-0 px-0 py-2">
+                                                    <div className="d-flex align-items-center">
+                                                        <img
+                                                            src={member.avatar}
+                                                            alt={member.name}
+                                                            className="rounded-circle me-3"
+                                                            width="32"
+                                                            height="32"
+                                                        />
+                                                        <div className="flex-grow-1">
+                                                            <div className="fw-medium small">{member.name}</div>
+                                                            <small className="text-muted">{member.role}</small>
+                                                        </div>
+                                                        <div className="d-flex gap-1">
+                                                            <button className="btn btn-sm btn-outline-secondary">
+                                                                <i className="ri-phone-line"></i>
+                                                            </button>
+                                                            <button className="btn btn-sm btn-outline-secondary">
+                                                                <i className="ri-mail-line"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* List Tab - grouped tasks */}
+                    {activeTab === 'list' && (
+                        <div className="row g-3">
+                            {(['active', 'completed', 'pending'] as const).map(group => (
+                                <div key={group} className="col-12">
+                                    <div className="card">
+                                        <div className="card-header d-flex justify-content-between align-items-center">
+                                            <div className="fw-semibold text-capitalize">{group === 'active' ? 'In Progress' : group === 'completed' ? 'Done' : 'To Do'}</div>
+                                            <span className="badge bg-label-secondary">{stages.filter(s => s.status === group).length}</span>
+                                        </div>
+                                        <div className="table-responsive">
+                                            <table className="table align-middle mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Assign</th>
+                                                        <th>Due Date</th>
+                                                        <th>Priority</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {stages.filter(s => s.status === group).map(s => (
+                                                        <tr key={s.id}>
+                                                            <td>{s.name}</td>
+                                                            <td>{s.assignedTo}</td>
+                                                            <td>{s.endDate}</td>
+                                                            <td>
+                                                                <span className={`badge ${getStageBadgeClass(s.status)}`}>{s.status}</span>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                    {stages.filter(s => s.status === group).length === 0 && (
+                                                        <tr><td colSpan={4} className="text-muted">Brak zadań</td></tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Modern Board Tab */}
+                    {activeTab === 'board' && (
+                        <div>
+                            {/* Board Header */}
+                            <div className="d-flex justify-content-between align-items-center mb-4">
+                                <div className="d-flex align-items-center gap-3">
+                                    <button className="btn btn-sm btn-outline-secondary">
+                                        <i className="ri-add-line me-1"></i>
+                                        Add New
+                                    </button>
+                                </div>
+                                <div className="d-flex align-items-center gap-2">
+                                    <button className="btn btn-sm btn-outline-secondary">
+                                        <i className="ri-equalizer-line me-1"></i>
+                                        Filters
+                                    </button>
+                                    <button className="btn btn-sm btn-outline-secondary">
+                                        <i className="ri-sort-desc me-1"></i>
+                                        Sort by
+                                    </button>
+                                    <button className="btn btn-sm btn-outline-secondary">
+                                        <i className="ri-more-line"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Kanban Columns */}
+                            <div className="row g-4">
+                                {([
+                                    { key: 'pending', title: 'To Do', count: 3, color: '#6c757d', bgColor: '#f8f9fa' },
+                                    { key: 'active', title: 'In Progress', count: 3, color: '#fd7e14', bgColor: '#fff3cd' },
+                                    { key: 'completed', title: 'Done', count: 2, color: '#198754', bgColor: '#d1e7dd' },
+                                    { key: 'pending', title: 'Pending', count: 3, color: '#dc3545', bgColor: '#f8d7da' }
+                                ] as const).map((col, colIndex) => (
+                                    <div key={`${col.key}-${colIndex}`} className="col-12 col-md-6 col-lg-3">
+                                        {/* Column Header */}
+                                        <div className="d-flex justify-content-between align-items-center mb-3">
+                                            <div className="d-flex align-items-center">
+                                                <div
+                                                    className="rounded-circle me-2"
+                                                    style={{
+                                                        width: 12,
+                                                        height: 12,
+                                                        backgroundColor: col.color
+                                                    }}
+                                                ></div>
+                                                <h6 className="mb-0">{col.title}</h6>
+                                                <span className="badge bg-light text-muted ms-2">{col.count}</span>
+                                            </div>
+                                            <button className="btn btn-sm btn-outline-secondary">
+                                                <i className="ri-add-line"></i>
+                                            </button>
+                                        </div>
+
+                                        {/* Task Cards */}
+                                        <div className="d-flex flex-column gap-3">
+                                            {stages.filter(s => s.status === col.key).slice(0, 3).map((stage, index) => {
+                                                const priorities = ['Medium', 'High', 'Medium', 'High', 'Low']
+                                                const priority = priorities[index] || 'Medium'
+                                                const progressColors = ['#dc3545', '#fd7e14', '#198754']
+                                                const progressColor = progressColors[index % progressColors.length]
+                                                const mockProgress = [90, 50, 100][index] || stage.progress
+
+                                                return (
+                                                    <div key={stage.id} className="card border-0 shadow-sm">
+                                                        <div className="card-body p-3">
+                                                            {/* Priority Badge */}
+                                                            <div className="d-flex justify-content-between align-items-start mb-2">
+                                                                <span className={`badge ${priority === 'High' ? 'bg-danger' :
+                                                                    priority === 'Medium' ? 'bg-warning' : 'bg-success'
+                                                                    } text-white small`}>
+                                                                    {priority}
+                                                                </span>
+                                                                <button className="btn btn-sm btn-link text-muted p-0">
+                                                                    <i className="ri-more-line"></i>
+                                                                </button>
+                                                            </div>
+
+                                                            {/* Task Title */}
+                                                            <h6 className="mb-2 fw-semibold">{stage.name}</h6>
+                                                            <p className="text-muted small mb-3 lh-sm">
+                                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ut lorem et mauris tempor...
+                                                            </p>
+
+                                                            {/* Progress Bar */}
+                                                            <div className="mb-3">
+                                                                <div className="d-flex justify-content-between align-items-center mb-1">
+                                                                    <small className="text-muted">Progress</small>
+                                                                    <small className="fw-medium">{mockProgress}%</small>
+                                                                </div>
+                                                                <div className="progress" style={{ height: 6 }}>
+                                                                    <div
+                                                                        className="progress-bar"
+                                                                        style={{
+                                                                            width: `${mockProgress}%`,
+                                                                            backgroundColor: progressColor
+                                                                        }}
+                                                                    ></div>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Footer with Team and Date */}
+                                                            <div className="d-flex justify-content-between align-items-center">
+                                                                <div className="d-flex align-items-center">
+                                                                    {teamMembers.slice(0, 3).map((member, memberIndex) => (
+                                                                        <img
+                                                                            key={member.id}
+                                                                            src={member.avatar}
+                                                                            alt={member.name}
+                                                                            className="rounded-circle border border-2 border-white"
+                                                                            width="24"
+                                                                            height="24"
+                                                                            style={{
+                                                                                marginLeft: memberIndex > 0 ? -8 : 0,
+                                                                                zIndex: 3 - memberIndex
+                                                                            }}
+                                                                            title={member.name}
+                                                                        />
+                                                                    ))}
+                                                                    <span className="badge bg-light text-muted border border-2 border-white ms-1" style={{ marginLeft: -8 }}>
+                                                                        +1
+                                                                    </span>
+                                                                </div>
+                                                                <div className="d-flex align-items-center text-muted small">
+                                                                    <i className="ri-calendar-line me-1"></i>
+                                                                    21 Oct 2022
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
+
+                                            {/* Add New Card */}
+                                            {colIndex === 0 && (
+                                                <div className="card border-2 border-dashed border-secondary bg-light">
+                                                    <div className="card-body p-3 text-center">
+                                                        <button className="btn btn-sm btn-outline-secondary">
+                                                            <i className="ri-add-line me-1"></i>
+                                                            Add New Task
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     )}
@@ -562,6 +979,17 @@ export default function Projekt() {
                                     <button className="btn btn-success btn-sm ms-2" onClick={() => setCreatingGroup(true)}>
                                         <i className="ri-add-circle-line me-1"></i>Stwórz grupę
                                     </button>
+                                    {project.modules?.includes('produkcja') && (
+                                        <button
+                                            className="btn btn-warning btn-sm ms-2"
+                                            onClick={() => {
+                                                const { pushAcceptedTilesToQueue } = useTilesStore.getState()
+                                                pushAcceptedTilesToQueue(project.id)
+                                            }}
+                                        >
+                                            <i className="ri-send-plane-line me-1"></i>Wyślij do produkcji
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
@@ -692,7 +1120,142 @@ export default function Projekt() {
                         </div>
                     )}
 
-                    {/* Documents Tab */}
+                    {/* Modern Attachment Tab */}
+                    {activeTab === 'attachment' && (
+                        <div>
+                            {/* Header with Search and Actions */}
+                            <div className="d-flex justify-content-between align-items-center mb-4">
+                                <div className="input-group" style={{ maxWidth: 350 }}>
+                                    <span className="input-group-text bg-transparent border-end-0">
+                                        <i className="ri-search-line text-muted"></i>
+                                    </span>
+                                    <input
+                                        className="form-control border-start-0"
+                                        placeholder="Search..."
+                                        style={{ boxShadow: 'none' }}
+                                    />
+                                </div>
+                                <div className="d-flex gap-2">
+                                    <button className="btn btn-outline-secondary btn-sm">
+                                        <i className="ri-equalizer-line me-1"></i>Filters
+                                    </button>
+                                    <button className="btn btn-outline-secondary btn-sm">
+                                        <i className="ri-sort-desc me-1"></i>Sort by
+                                    </button>
+                                    <button className="btn btn-outline-secondary btn-sm">
+                                        <i className="ri-more-line"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Files Grid */}
+                            <div className="row g-3">
+                                {[
+                                    {
+                                        id: 'doc-1',
+                                        name: 'Meeting MOM.doc',
+                                        size: '300 KB',
+                                        type: 'DOC',
+                                        icon: 'ri-file-word-line',
+                                        color: 'primary'
+                                    },
+                                    {
+                                        id: 'doc-2',
+                                        name: 'Requirement.pdf',
+                                        size: '300 KB',
+                                        type: 'PDF',
+                                        icon: 'ri-file-pdf-line',
+                                        color: 'danger'
+                                    },
+                                    {
+                                        id: 'doc-3',
+                                        name: 'Design Inspiration.zip',
+                                        size: '300 KB',
+                                        type: 'ZIP',
+                                        icon: 'ri-file-zip-line',
+                                        color: 'warning'
+                                    },
+                                    {
+                                        id: 'doc-4',
+                                        name: 'User Flows.eps',
+                                        size: '300 KB',
+                                        type: 'EPS',
+                                        icon: 'ri-file-3-line',
+                                        color: 'success'
+                                    },
+                                    {
+                                        id: 'doc-5',
+                                        name: 'Meeting MOM.doc',
+                                        size: '300 KB',
+                                        type: 'DOC',
+                                        icon: 'ri-file-word-line',
+                                        color: 'primary'
+                                    },
+                                    {
+                                        id: 'doc-6',
+                                        name: 'User Flows.eps',
+                                        size: '300 KB',
+                                        type: 'EPS',
+                                        icon: 'ri-file-3-line',
+                                        color: 'success'
+                                    }
+                                ].map(doc => (
+                                    <div key={doc.id} className="col-12 col-sm-6 col-md-4 col-lg-3">
+                                        <div className="card border-0 shadow-sm h-100">
+                                            <div className="card-body p-3">
+                                                {/* File Icon and Checkbox */}
+                                                <div className="d-flex justify-content-between align-items-start mb-3">
+                                                    <div
+                                                        className={`rounded d-flex align-items-center justify-content-center text-${doc.color}`}
+                                                        style={{
+                                                            width: 48,
+                                                            height: 48,
+                                                            backgroundColor: `rgba(var(--bs-${doc.color}-rgb), 0.1)`
+                                                        }}
+                                                    >
+                                                        <i className={`${doc.icon} h4 mb-0`}></i>
+                                                    </div>
+                                                    <div className="form-check">
+                                                        <input className="form-check-input" type="checkbox" />
+                                                    </div>
+                                                </div>
+
+                                                {/* File Info */}
+                                                <div className="mb-3">
+                                                    <h6 className="mb-1 fw-semibold small">{doc.name}</h6>
+                                                    <small className="text-muted">{doc.size}</small>
+                                                </div>
+
+                                                {/* Action Buttons */}
+                                                <div className="d-flex gap-1">
+                                                    <button
+                                                        className="btn btn-sm btn-outline-secondary flex-fill"
+                                                        title="Download"
+                                                    >
+                                                        <i className="ri-download-line"></i>
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-sm btn-outline-secondary flex-fill"
+                                                        title="Preview"
+                                                    >
+                                                        <i className="ri-eye-line"></i>
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-sm btn-outline-secondary"
+                                                        title="More actions"
+                                                    >
+                                                        <i className="ri-more-line"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Documents Tab (legacy) */}
                     {activeTab === 'documents' && (
                         <div>
                             <div className="d-flex justify-content-between align-items-center mb-3">
@@ -898,6 +1461,60 @@ export default function Projekt() {
                     onClose={() => setShowTileModal(false)}
                     onSave={handleSaveTile}
                 />
+            )}
+
+            {/* Add Member Modal */}
+            {showAddMember && (
+                <div className="modal d-block" tabIndex={-1} role="dialog" aria-modal="true">
+                    <div className="modal-dialog modal-lg">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Dodaj członków</h5>
+                                <button className="btn-close" onClick={() => setShowAddMember(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="mb-3">
+                                    <div className="text-muted small mb-1">Wybrani:</div>
+                                    <div className="d-flex flex-wrap gap-1">
+                                        {teamMembers.filter(m => selectedMemberIds.includes(m.id)).map(m => (
+                                            <span key={m.id} className="badge bg-light text-dark border">{m.name}</span>
+                                        ))}
+                                        {selectedMemberIds.length === 0 && <span className="text-muted">Brak</span>}
+                                    </div>
+                                </div>
+                                <div className="input-group mb-2">
+                                    <span className="input-group-text"><i className="ri-search-line"></i></span>
+                                    <input className="form-control" placeholder="Szukaj członków..." />
+                                </div>
+                                <div className="list-group" style={{ maxHeight: 360, overflowY: 'auto' }}>
+                                    {teamMembers.map(m => (
+                                        <label key={m.id} className="list-group-item d-flex align-items-center justify-content-between">
+                                            <div className="d-flex align-items-center">
+                                                <img src={m.avatar} alt={m.name} className="rounded-circle me-3" width="36" height="36" />
+                                                <div>
+                                                    <div className="fw-semibold">{m.name}</div>
+                                                    <small className="text-muted">{m.role}</small>
+                                                </div>
+                                            </div>
+                                            <input className="form-check-input" type="checkbox"
+                                                checked={selectedMemberIds.includes(m.id)}
+                                                onChange={() => setSelectedMemberIds(prev => prev.includes(m.id) ? prev.filter(id => id !== m.id) : [...prev, m.id])} />
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-outline-secondary" onClick={() => setShowAddMember(false)}>Anuluj</button>
+                                <button className="btn btn-primary" onClick={() => { setShowAddMember(false); showToast('Dodano członków', 'success') }}>Dodaj</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Project Modal */}
+            {showEditProject && (
+                <EditProjectModal open={showEditProject} projectId={project.id} onClose={() => setShowEditProject(false)} />
             )}
 
             {/* Create Group Modal */}

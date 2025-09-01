@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
-import { MaterialData, MaterialMovement } from '../../data/materialsMockData'
+import { useState } from 'react'
+import type { MaterialData } from '../../data/materialsMockData'
+import type { MaterialMovement } from '../../types/magazyn.types'
 
 interface MaterialDetailsPanelProps {
   material: MaterialData | null
@@ -17,12 +18,12 @@ export default function MaterialDetailsPanel({
   onOrder
 }: MaterialDetailsPanelProps) {
   const [activeTab, setActiveTab] = useState<'details' | 'history' | 'analytics'>('details')
-  
+
   if (!material) return null
-  
+
   const stockRatio = material.stock / material.minStock
   const stockPercentage = Math.min(100, Math.round(stockRatio * 100))
-  
+
   // Mock historia ruchów
   const mockMovements: MaterialMovement[] = [
     {
@@ -56,7 +57,7 @@ export default function MaterialDetailsPanel({
       notes: 'Projekt #2448'
     }
   ]
-  
+
   // Obliczenia analityczne
   const analytics = {
     avgMonthlyUsage: 25,
@@ -71,18 +72,17 @@ export default function MaterialDetailsPanel({
     <>
       {/* Overlay */}
       {isOpen && (
-        <div 
+        <div
           className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50"
           style={{ zIndex: 1040 }}
           onClick={onClose}
         />
       )}
-      
+
       {/* Panel */}
-      <div 
-        className={`material-details-panel position-fixed top-0 end-0 h-100 bg-white shadow-lg ${
-          isOpen ? 'open' : ''
-        }`}
+      <div
+        className={`material-details-panel position-fixed top-0 end-0 h-100 bg-white shadow-lg ${isOpen ? 'open' : ''
+          }`}
         style={{
           width: '480px',
           maxWidth: '90vw',
@@ -96,18 +96,18 @@ export default function MaterialDetailsPanel({
         <div className="sticky-top bg-white border-bottom">
           <div className="d-flex justify-content-between align-items-center p-3">
             <h5 className="mb-0">Szczegóły materiału</h5>
-            <button 
+            <button
               className="btn btn-sm btn-ghost rounded-circle"
               onClick={onClose}
             >
               <i className="ri-close-line fs-5"></i>
             </button>
           </div>
-          
+
           {/* Zakładki */}
           <ul className="nav nav-tabs px-3">
             <li className="nav-item">
-              <button 
+              <button
                 className={`nav-link ${activeTab === 'details' ? 'active' : ''}`}
                 onClick={() => setActiveTab('details')}
               >
@@ -116,7 +116,7 @@ export default function MaterialDetailsPanel({
               </button>
             </li>
             <li className="nav-item">
-              <button 
+              <button
                 className={`nav-link ${activeTab === 'history' ? 'active' : ''}`}
                 onClick={() => setActiveTab('history')}
               >
@@ -125,7 +125,7 @@ export default function MaterialDetailsPanel({
               </button>
             </li>
             <li className="nav-item">
-              <button 
+              <button
                 className={`nav-link ${activeTab === 'analytics' ? 'active' : ''}`}
                 onClick={() => setActiveTab('analytics')}
               >
@@ -135,7 +135,7 @@ export default function MaterialDetailsPanel({
             </li>
           </ul>
         </div>
-        
+
         {/* Zawartość */}
         <div className="p-3">
           {activeTab === 'details' && (
@@ -148,22 +148,21 @@ export default function MaterialDetailsPanel({
                     <h4 className="mb-0">{material.name}</h4>
                   </div>
                   {material.abcClass && (
-                    <span className={`badge bg-${
-                      material.abcClass === 'A' ? 'success' : 
-                      material.abcClass === 'B' ? 'warning' : 'danger'
-                    }`}>
+                    <span className={`badge bg-${material.abcClass === 'A' ? 'success' :
+                        material.abcClass === 'B' ? 'warning' : 'danger'
+                      }`}>
                       Klasa {material.abcClass}
                     </span>
                   )}
                 </div>
-                
+
                 {/* Kategoria */}
                 <div className="text-muted small">
                   <i className="ri-folder-line me-1"></i>
                   {material.category.join(' > ')}
                 </div>
               </div>
-              
+
               {/* Stan magazynowy */}
               <div className="card mb-3">
                 <div className="card-body">
@@ -188,15 +187,14 @@ export default function MaterialDetailsPanel({
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="mt-3">
                     <div className="progress" style={{ height: '10px' }}>
-                      <div 
-                        className={`progress-bar ${
-                          stockRatio < 0.5 ? 'bg-danger' : 
-                          stockRatio < 1 ? 'bg-warning' : 
-                          'bg-success'
-                        }`}
+                      <div
+                        className={`progress-bar ${stockRatio < 0.5 ? 'bg-danger' :
+                            stockRatio < 1 ? 'bg-warning' :
+                              'bg-success'
+                          }`}
                         style={{ width: `${stockPercentage}%` }}
                       ></div>
                     </div>
@@ -206,7 +204,7 @@ export default function MaterialDetailsPanel({
                   </div>
                 </div>
               </div>
-              
+
               {/* Informacje dodatkowe */}
               <div className="card mb-3">
                 <div className="card-body">
@@ -214,10 +212,10 @@ export default function MaterialDetailsPanel({
                   <dl className="row mb-0">
                     <dt className="col-5">Jednostka:</dt>
                     <dd className="col-7">{material.unit}</dd>
-                    
+
                     <dt className="col-5">Dostawca:</dt>
                     <dd className="col-7">{material.supplier}</dd>
-                    
+
                     <dt className="col-5">Cena jednostkowa:</dt>
                     <dd className="col-7">
                       {material.price.toLocaleString('pl-PL', {
@@ -225,7 +223,7 @@ export default function MaterialDetailsPanel({
                         currency: 'PLN'
                       })}
                     </dd>
-                    
+
                     <dt className="col-5">Wartość zapasu:</dt>
                     <dd className="col-7 fw-bold">
                       {(material.stock * material.price).toLocaleString('pl-PL', {
@@ -233,16 +231,16 @@ export default function MaterialDetailsPanel({
                         currency: 'PLN'
                       })}
                     </dd>
-                    
+
                     <dt className="col-5">Lokalizacja:</dt>
                     <dd className="col-7">
                       <i className="ri-map-pin-line me-1"></i>
                       {material.location || 'Nieprzypisana'}
                     </dd>
-                    
+
                     <dt className="col-5">Ostatnia dostawa:</dt>
                     <dd className="col-7">
-                      {material.lastDelivery 
+                      {material.lastDelivery
                         ? new Date(material.lastDelivery).toLocaleDateString('pl-PL')
                         : 'Brak danych'
                       }
@@ -250,7 +248,7 @@ export default function MaterialDetailsPanel({
                   </dl>
                 </div>
               </div>
-              
+
               {/* Właściwości */}
               {material.properties && (
                 <div className="card mb-3">
@@ -291,11 +289,11 @@ export default function MaterialDetailsPanel({
                   </div>
                 </div>
               )}
-              
+
               {/* Akcje */}
               <div className="d-grid gap-2">
                 {stockRatio < 1 && onOrder && (
-                  <button 
+                  <button
                     className="btn btn-danger"
                     onClick={() => onOrder(material)}
                   >
@@ -304,7 +302,7 @@ export default function MaterialDetailsPanel({
                   </button>
                 )}
                 {onEdit && (
-                  <button 
+                  <button
                     className="btn btn-outline-primary"
                     onClick={() => onEdit(material)}
                   >
@@ -315,7 +313,7 @@ export default function MaterialDetailsPanel({
               </div>
             </>
           )}
-          
+
           {activeTab === 'history' && (
             <>
               <h6 className="mb-3">Historia ruchów magazynowych</h6>
@@ -323,14 +321,11 @@ export default function MaterialDetailsPanel({
                 {mockMovements.map((movement, index) => (
                   <div key={movement.id} className="timeline-item mb-3">
                     <div className="d-flex align-items-start">
-                      <div className={`timeline-badge rounded-circle p-2 me-3 bg-${
-                        movement.type === 'IN' ? 'success' : 'danger'
-                      }-subtle`}>
-                        <i className={`ri-${
-                          movement.type === 'IN' ? 'download' : 'upload'
-                        }-2-line text-${
-                          movement.type === 'IN' ? 'success' : 'danger'
-                        }`}></i>
+                      <div className={`timeline-badge rounded-circle p-2 me-3 bg-${movement.type === 'IN' ? 'success' : 'danger'
+                        }-subtle`}>
+                        <i className={`ri-${movement.type === 'IN' ? 'download' : 'upload'
+                          }-2-line text-${movement.type === 'IN' ? 'success' : 'danger'
+                          }`}></i>
                       </div>
                       <div className="flex-grow-1">
                         <div className="d-flex justify-content-between align-items-start">
@@ -362,11 +357,11 @@ export default function MaterialDetailsPanel({
               </div>
             </>
           )}
-          
+
           {activeTab === 'analytics' && (
             <>
               <h6 className="mb-3">Analityka zużycia</h6>
-              
+
               {/* Wskaźniki */}
               <div className="row g-3 mb-4">
                 <div className="col-6">
@@ -386,7 +381,7 @@ export default function MaterialDetailsPanel({
                   </div>
                 </div>
               </div>
-              
+
               {/* Wykres (placeholder) */}
               <div className="card mb-3">
                 <div className="card-body">
@@ -394,7 +389,7 @@ export default function MaterialDetailsPanel({
                   <div className="bg-light rounded" style={{ height: '200px' }}></div>
                 </div>
               </div>
-              
+
               {/* Dodatkowe metryki */}
               <div className="card">
                 <div className="card-body">
@@ -402,13 +397,13 @@ export default function MaterialDetailsPanel({
                   <dl className="row mb-0">
                     <dt className="col-7">Rotacja zapasów:</dt>
                     <dd className="col-5 text-end">{analytics.turnoverRate}x/rok</dd>
-                    
+
                     <dt className="col-7">Punkt zamawiania:</dt>
                     <dd className="col-5 text-end">{analytics.orderPoint} {material.unit}</dd>
-                    
+
                     <dt className="col-7">Zużycie w tym roku:</dt>
                     <dd className="col-5 text-end">{analytics.yearToDateUsage} {material.unit}</dd>
-                    
+
                     <dt className="col-7">Zużycie ostatni miesiąc:</dt>
                     <dd className="col-5 text-end">{analytics.lastMonthUsage} {material.unit}</dd>
                   </dl>
@@ -422,48 +417,3 @@ export default function MaterialDetailsPanel({
   )
 }
 
-// Style CSS
-const styles = `
-  .btn-ghost {
-    background: transparent;
-    border: none;
-    padding: 0.5rem;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .btn-ghost:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-  
-  .timeline-item {
-    position: relative;
-    padding-left: 0;
-  }
-  
-  .timeline-connector {
-    position: absolute;
-    left: 19px;
-    top: 40px;
-    bottom: -20px;
-    width: 2px;
-    background-color: #dee2e6;
-  }
-  
-  .timeline-badge {
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  
-  .bg-purple {
-    background-color: #6610f2;
-    color: white;
-  }
-`

@@ -3,6 +3,8 @@ import { persist } from 'zustand/middleware'
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
 import { listProjects, createProject, updateProject as sbUpdate, deleteProject as sbDelete } from '../services/projects'
 
+export type ProjectModule = 'wycena' | 'koncepcja' | 'projektowanie_techniczne' | 'produkcja' | 'materialy' | 'logistyka_montaz'
+
 export type GroupFile = {
     id: string
     name: string
@@ -30,6 +32,7 @@ export type Project = {
     description?: string
     progress?: number
     groups?: ProjectGroup[]
+    modules?: ProjectModule[]
 }
 
 // Sample projects data - will be automatically loaded
@@ -43,7 +46,8 @@ const sampleProjects: Project[] = [
         budget: 45000,
         manager: 'Anna Kowalska',
         description: 'Kompleksowa modernizacja recepcji z elementami interaktywnymi dla dzieci',
-        progress: 75
+        progress: 75,
+        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy']
     },
     {
         id: 'P-002',
@@ -54,7 +58,8 @@ const sampleProjects: Project[] = [
         budget: 120000,
         manager: 'Paweł Nowak',
         description: 'Stoisko targowe na London Tech Week z systemem LED i interaktywnymi ekranami',
-        progress: 45
+        progress: 45,
+        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne']
     },
     {
         id: 'P-003',
@@ -65,7 +70,8 @@ const sampleProjects: Project[] = [
         budget: 85000,
         manager: 'Ola Wiśniewska',
         description: 'Scenografia do programu telewizyjnego z elementami modułowymi',
-        progress: 30
+        progress: 30,
+        modules: ['wycena', 'koncepcja']
     },
     {
         id: 'P-004',
@@ -76,7 +82,8 @@ const sampleProjects: Project[] = [
         budget: 28000,
         manager: 'Kamil Zieliński',
         description: 'Wnętrze kawiarni z niestandardowymi elementami dekoracyjnymi',
-        progress: 10
+        progress: 10,
+        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy', 'logistyka_montaz']
     },
     {
         id: 'P-005',
@@ -87,7 +94,8 @@ const sampleProjects: Project[] = [
         budget: 95000,
         manager: 'Maria Lis',
         description: 'Sala interaktywna z elementami multimedialnymi i rekonstrukcjami historycznymi',
-        progress: 60
+        progress: 60,
+        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja']
     },
     {
         id: 'P-006',
@@ -98,51 +106,56 @@ const sampleProjects: Project[] = [
         budget: 65000,
         manager: 'Tomasz Kowal',
         description: 'Strefa zabaw dla dzieci z elementami bezpiecznymi i edukacyjnymi',
-        progress: 100
+        progress: 100,
+        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy', 'logistyka_montaz']
     },
     {
         id: 'P-007',
-        name: 'Hotel Premium - Lobby',
-        client: 'Premium Hotels',
+        name: 'Restauracja Fusion - Kraków',
+        client: 'Fusion Group',
         status: 'Active',
-        deadline: '2025-06-30',
-        budget: 150000,
-        manager: 'Anna Kowalska',
-        description: 'Lobby hotelowe z luksusowymi elementami dekoracyjnymi i oświetleniem',
-        progress: 25
+        deadline: '2025-03-10',
+        budget: 55000,
+        manager: 'Karolina Nowak',
+        description: 'Wnętrze restauracji z elementami azjatyckimi i europejskimi',
+        progress: 25,
+        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne']
     },
     {
         id: 'P-008',
-        name: 'Szkoła Podstawowa - Sala Gimnastyczna',
-        client: 'Miasto Warszawa',
-        status: 'On Hold',
-        deadline: '2025-07-15',
+        name: 'Biuro TechCorp - Warszawa',
+        client: 'TechCorp',
+        status: 'Active',
+        deadline: '2025-04-05',
         budget: 75000,
-        manager: 'Paweł Nowak',
-        description: 'Wyposażenie sali gimnastycznej z elementami sportowymi i bezpieczeństwa',
-        progress: 15
+        manager: 'Adam Wiśniewski',
+        description: 'Nowoczesne biuro z elementami smart office',
+        progress: 40,
+        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy']
     },
     {
         id: 'P-009',
-        name: 'Restauracja Fusion - Kuchnia',
-        client: 'Fusion Restaurant',
-        status: 'Active',
-        deadline: '2025-02-28',
-        budget: 55000,
-        manager: 'Ola Wiśniewska',
-        description: 'Wyposażenie kuchni z elementami funkcjonalnymi i estetycznymi',
-        progress: 80
+        name: 'Hotel Marina - Gdańsk',
+        client: 'Marina Hotels',
+        status: 'On Hold',
+        deadline: '2025-06-15',
+        budget: 180000,
+        manager: 'Ewa Kowalczyk',
+        description: 'Lobby hotelu z elementami morskimi',
+        progress: 15,
+        modules: ['wycena', 'koncepcja']
     },
     {
         id: 'P-010',
-        name: 'Biuro Startup - Przestrzeń Kreatywna',
-        client: 'TechStart Inc.',
+        name: 'Centrum Konferencyjne - Poznań',
+        client: 'Poznań Congress Center',
         status: 'Active',
-        deadline: '2025-03-10',
-        budget: 42000,
-        manager: 'Kamil Zieliński',
-        description: 'Przestrzeń biurowa z elementami kreatywnymi i funkcjonalnymi',
-        progress: 55
+        deadline: '2025-05-20',
+        budget: 220000,
+        manager: 'Piotr Zieliński',
+        description: 'Sala konferencyjna z systemem multimedialnym',
+        progress: 35,
+        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy', 'logistyka_montaz']
     }
 ]
 
@@ -150,7 +163,7 @@ interface ProjectsState {
     projects: Project[]
     isLoading: boolean
     isInitialized: boolean
-    
+
     // Actions
     initialize: () => Promise<void>
     add: (project: Omit<Project, 'id'>) => Promise<void>
@@ -168,7 +181,7 @@ export const useProjectsStore = create<ProjectsState>()(
 
             initialize: async () => {
                 set({ isLoading: true })
-                
+
                 try {
                     if (!isSupabaseConfigured) {
                         // If no database, use sample projects
@@ -181,18 +194,21 @@ export const useProjectsStore = create<ProjectsState>()(
                         set({ projects: data, isInitialized: true })
                     } else {
                         // If database is empty, populate with sample projects
-                        console.log('Baza danych jest pusta, dodaję przykładowe projekty...')
+                        const { logger } = await import('../lib/logger')
+                        logger.info('Baza danych jest pusta, dodaję przykładowe projekty...')
                         for (const project of sampleProjects) {
                             try {
                                 await createProject(project)
                             } catch (error) {
-                                console.error('Błąd podczas dodawania projektu:', error)
+                                const { logger } = await import('../lib/logger')
+                                logger.error('Błąd podczas dodawania projektu:', error)
                             }
                         }
                         set({ projects: sampleProjects, isInitialized: true })
                     }
                 } catch (error) {
-                    console.error('Błąd podczas ładowania projektów:', error)
+                    const { logger } = await import('../lib/logger')
+                    logger.error('Błąd podczas ładowania projektów:', error)
                     // Fallback to sample projects
                     set({ projects: sampleProjects, isInitialized: true })
                 } finally {
@@ -203,30 +219,32 @@ export const useProjectsStore = create<ProjectsState>()(
             add: async (project: Omit<Project, 'id'>) => {
                 const nextId = `P-${(useProjectsStore.getState().projects.length + 1).toString().padStart(3, '0')}`
                 const newProject = { id: nextId, ...project }
-                
+
                 set(state => ({ projects: [...state.projects, newProject] }))
-                
+
                 if (isSupabaseConfigured) {
                     try {
                         await createProject(project)
                     } catch (error) {
-                        console.error('Błąd podczas dodawania projektu:', error)
+                        const { logger } = await import('../lib/logger')
+                        logger.error('Błąd podczas dodawania projektu:', error)
                     }
                 }
             },
 
             update: async (id: string, project: Partial<Project>) => {
                 set(state => ({
-                    projects: state.projects.map(p => 
+                    projects: state.projects.map(p =>
                         p.id === id ? { ...p, ...project } : p
                     )
                 }))
-                
+
                 if (isSupabaseConfigured) {
                     try {
                         await sbUpdate(id, project)
                     } catch (error) {
-                        console.error('Błąd podczas aktualizacji projektu:', error)
+                        const { logger } = await import('../lib/logger')
+                        logger.error('Błąd podczas aktualizacji projektu:', error)
                     }
                 }
             },
@@ -235,12 +253,13 @@ export const useProjectsStore = create<ProjectsState>()(
                 set(state => ({
                     projects: state.projects.filter(p => p.id !== id)
                 }))
-                
+
                 if (isSupabaseConfigured) {
                     try {
                         await sbDelete(id)
                     } catch (error) {
-                        console.error('Błąd podczas usuwania projektu:', error)
+                        const { logger } = await import('../lib/logger')
+                        logger.error('Błąd podczas usuwania projektu:', error)
                     }
                 }
             },
