@@ -1,11 +1,11 @@
-import { useTileStatus } from '../state/TileStatusContext'
+import { useTileStatus } from '../stores/tilesStore'
 import { useDrag, useDrop } from 'react-dnd'
 import { useCallback, useMemo, useState } from 'react'
 import TileEditModal from '../components/TileEditModal'
 import { showToast } from '../lib/toast'
 
 export default function CNC() {
-    const { tiles, setStatus, updateTile } = useTileStatus()
+    const { tiles, setStatus, updateTile } = useTilesStore()
     const [selectedMachine, setSelectedMachine] = useState<string | null>(null)
     const [editing, setEditing] = useState<any | null>(null)
     const columns: { key: 'W KOLEJCE' | 'W TRAKCIE CIĘCIA' | 'WYCIĘTE'; label: string }[] = [

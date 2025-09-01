@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
-import type { Project } from '../state/ProjectsContext'
+import type { Project } from '../stores/projectsStore'
 
 const table = 'projects'
 

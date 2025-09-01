@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useProjects } from '../state/ProjectsContext'
-// import { useTileStatus } from '../state/TileStatusContext' // Unused for now
+import { useProjects } from '../stores/projectsStore'
+// import { useTileStatus } from '../stores/tilesStore' // Unused for now
 
 interface Task {
   id: number
@@ -12,8 +12,8 @@ interface Task {
 }
 
 export default function Dashboard() {
-  const { projects } = useProjects()
-  // const { tiles } = useTileStatus() // Unused for now
+  const { projects } = useProjectsStore()
+  // const { tiles } = useTilesStore() // Unused for now
   
   const [tasks, setTasks] = useState<Task[]>([
     {

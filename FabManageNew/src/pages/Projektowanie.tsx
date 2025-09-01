@@ -1,12 +1,12 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
-import { useTileStatus, type Tile } from '../state/TileStatusContext'
+import { useTileStatus, type Tile } from '../stores/tilesStore'
 import TileEditModal from '../components/TileEditModal'
 
 type DesignStatus = 'Projektowanie' | 'W trakcie projektowania' | 'Do akceptacji' | 'Zaakceptowane' | 'Wymagają poprawek'
 
 export default function Projektowanie() {
-    const { tiles, updateTile } = useTileStatus()
+    const { tiles, updateTile } = useTilesStore()
     const [selected, setSelected] = useState<Tile | null>(null)
     const [showTileModal, setShowTileModal] = useState(false)
     const [editingTile, setEditingTile] = useState<Tile | null>(null)

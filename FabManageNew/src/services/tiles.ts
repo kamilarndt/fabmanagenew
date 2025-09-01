@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
-import type { Tile } from '../state/TileStatusContext'
+import type { Tile } from '../stores/tilesStore'
 
 const table = 'tiles'
 

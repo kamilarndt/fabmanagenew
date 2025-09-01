@@ -1,7 +1,7 @@
-import { useTileStatus } from '../state/TileStatusContext'
+import { useTileStatus } from '../stores/tilesStore'
 
 export default function Produkcja() {
-    const { tiles } = useTileStatus()
+    const { tiles } = useTilesStore()
 
     // Filter tiles ready for assembly
     const assemblyTiles = tiles.filter(tile => tile.status === 'Gotowy do montażu')

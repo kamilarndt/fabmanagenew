@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Tile, BomItem } from '../state/TileStatusContext'
+import type { Tile, BomItem } from '../stores/tilesStore'
 import MaterialsSelectionModal from './MaterialsSelectionModal'
 
 export default function TileEditModal({ tile, onClose, onSave }: { tile: Tile; onClose: () => void; onSave: (t: Partial<Tile>) => void }) {

@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useProjects } from '../state/ProjectsContext'
-import { useTileStatus } from '../state/TileStatusContext'
+import { useProjects } from '../stores/projectsStore'
+import { useTileStatus } from '../stores/tilesStore'
 
 type Suggestion = { type: 'project' | 'tile'; id: string; label: string; route?: string }
 
 export default function GlobalSearch() {
-    const { projects } = useProjects()
-    const { tiles } = useTileStatus()
+    const { projects } = useProjectsStore()
+    const { tiles } = useTilesStore()
     const [query, setQuery] = useState('')
     const [open, setOpen] = useState(false)
     const [history, setHistory] = useState<string[]>(() => JSON.parse(localStorage.getItem('global_search_history') || '[]'))
