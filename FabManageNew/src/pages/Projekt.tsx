@@ -5,6 +5,7 @@ import { showToast } from '../lib/toast'
 import { useTilesStore, type Tile } from '../stores/tilesStore'
 import TileEditModal from '../components/TileEditModal'
 import { useDrag, useDrop } from 'react-dnd'
+import { isModuleActive } from '../types/modules'
 
 interface ProjectStage {
     id: string
@@ -416,7 +417,7 @@ export default function Projekt() {
                             <li><a className="dropdown-item" href="#" onClick={() => handleStatusChange('Done')}>Done</a></li>
                         </ul>
                     </div>
-                    <button className="btn btn-primary">
+                    <button className="btn btn-primary" onClick={() => showToast('Edytuj projekt w widoku listy projektów', 'info')}>
                         <i className="ri-edit-line me-1"></i>Edytuj
                     </button>
                 </div>
@@ -542,6 +543,15 @@ export default function Projekt() {
                     {/* Elementy Tab */}
                     {activeTab === 'elementy' && (
                         <div>
+                            {!isModuleActive(project.modules, 'projektowanieTechniczne') && (
+                                <div className="alert alert-warning d-flex align-items-start">
+                                    <i className="ri-lock-2-line me-2 mt-1"></i>
+                                    <div>
+                                        <strong>Moduł Projektowanie Techniczne nie jest aktywny.</strong>
+                                        <div className="small">Aktywuj w ustawieniach projektu, aby odblokować tablicę kafelków i grup.</div>
+                                    </div>
+                                </div>
+                            )}
                             <div className="d-flex justify-content-between align-items-center mb-3">
                                 <div>
                                     <h5 className="mb-0">Elementy Projektu</h5>
@@ -564,8 +574,7 @@ export default function Projekt() {
                                     </button>
                                 </div>
                             </div>
-
-                            {viewMode === 'kanban' && (
+                            {isModuleActive(project.modules, 'projektowanieTechniczne') && viewMode === 'kanban' && (
                                 <div className="row g-3">
                                     <KanbanColumn columnId="nowy" title="Nowy" color="bg-secondary" />
                                     <KanbanColumn columnId="projektowanie" title="Projektowanie" color="bg-warning" />
@@ -573,8 +582,7 @@ export default function Projekt() {
                                     <KanbanColumn columnId="montaz" title="Składanie (Produkcja)" color="bg-success" />
                                 </div>
                             )}
-
-                            {viewMode === 'groups' && (
+                            {isModuleActive(project.modules, 'projektowanieTechniczne') && viewMode === 'groups' && (
                                 <div className="row g-3">
                                     {groups.map(group => (
                                         <div key={group.id} className="col-12 col-md-6 col-lg-4">
@@ -604,6 +612,15 @@ export default function Projekt() {
                     {/* Zakupy Tab */}
                     {activeTab === 'zakupy' && (
                         <div>
+                            {!isModuleActive(project.modules, 'materialy') && (
+                                <div className="alert alert-warning d-flex align-items-start">
+                                    <i className="ri-lock-2-line me-2 mt-1"></i>
+                                    <div>
+                                        <strong>Moduł Zarządzanie Materiałami nie jest aktywny.</strong>
+                                        <div className="small">Aktywuj w ustawieniach projektu, aby generować listy zakupowe.</div>
+                                    </div>
+                                </div>
+                            )}
                             <div className="d-flex justify-content-between align-items-center mb-3">
                                 <h5 className="mb-0">Lista zakupowa (Do zamówienia)</h5>
                                 <button className="btn btn-sm btn-outline-info" onClick={() => {
@@ -616,6 +633,7 @@ export default function Projekt() {
                                     <i className="ri-file-download-line me-1"></i>Export CSV
                                 </button>
                             </div>
+                            {isModuleActive(project.modules, 'materialy') && (
                             <div className="table-responsive">
                                 <table className="table table-sm align-middle">
                                     <thead><tr><th>Pozycja</th><th>Jm</th><th>Ilość</th><th>Dostawca</th></tr></thead>
@@ -629,6 +647,7 @@ export default function Projekt() {
                                     </tbody>
                                 </table>
                             </div>
+                            )}
                         </div>
                     )}
 
