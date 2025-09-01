@@ -1,0 +1,10 @@
+        {/* Create Project Modal */}
+        <CreateProjectModal 
+          open={isCreateModalOpen}
+          onOpenChange={setIsCreateModalOpen}
+          onProjectCreate={handleProjectCreate}
+        />
+      </div>
+    </DndProvider>
+  );
+}

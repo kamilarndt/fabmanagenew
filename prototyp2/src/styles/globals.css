@@ -1,0 +1,290 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Base font size for the application */
+  --font-size: 15px;
+  
+  /* Typography variables */
+  --text-h1: 46px;
+  --text-h2: 38px;
+  --text-h3: 28px;
+  --text-h4: 24px;
+  --text-p: 15px;
+  --text-label: 13px;
+  
+  /* Font weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  
+  /* The default background color for the application. */
+  --background: rgba(247, 247, 249, 1.00);
+  /* The default color for elements or text that appears on top of the background. */
+  --foreground: rgba(38, 43, 67, 0.90);
+  /* The background color for cards, modals, and other containers. */
+  --card: rgba(255, 255, 255, 1.00);
+  /* The default color for text or elements that appear on top of cards, modals and other background containers. */
+  --card-foreground: rgba(38, 43, 67, 0.90);
+  /* The background color for dropdowns and tooltips. */
+  --popover: rgba(40, 42, 66, 1.00);
+  /* The default color for text or elements that appear on top of dropdowns and tooltips. */
+  --popover-foreground: rgba(255, 255, 255, 1.00);
+  /* The primary color used for buttons, links, and other interactive elements. */
+  --primary: rgba(102, 108, 255, 1.00);
+  /* The default color for text or elements that appear on top of primary colored elements. */
+  --primary-foreground: rgba(255, 255, 255, 1.00);
+  /* The secondary color used for secondary(but NOT-DESTRUCTIVE) buttons and interactive elements. */
+  --secondary: rgba(109, 120, 141, 1.00);
+  /* The default color for text or elements that appear on top of secondary colored elements. */
+  --secondary-foreground: rgba(255, 255, 255, 1.00);
+  /* The muted color used for less prominent elements, such as disabled buttons or disabled text. */
+  --muted: rgba(38, 43, 67, 0.06);
+  /* The default color for text or elements that appear on top of muted colored elements. */
+  --muted-foreground: rgba(38, 43, 67, 0.70);
+  /* The accent color used for highlights, links, and other interactive elements. */
+  --accent: rgba(102, 108, 255, 0.16);
+  /* The default color for text or elements that appear on top of accent colored elements. */
+  --accent-foreground: rgba(102, 108, 255, 1.00);
+  /* The color used for background in destructive actions, such as delete buttons or error messages. */
+  --destructive: rgba(255, 77, 73, 1.00);
+  /* The default color for text or elements that appear on top of destructive colored elements. */
+  --destructive-foreground: rgba(255, 255, 255, 1.00);
+  /* The default border color for elements such as inputs, buttons, and other containers. */
+  --border: rgba(38, 43, 67, 0.12);
+  /* The default background color for input fields once the text has been filled. Should be either transparent or match the input-background. */
+  --input: rgba(255, 255, 255, 1.00);
+  /* The default background color for input fields, text areas, and other input elements. */
+  --input-background: rgba(38, 43, 67, 0.06);
+  /* The default color for focus rings, outlines, and other focus indicators. */
+  --ring: rgba(102, 108, 255, 1.00);
+  /* Shadow for small elevations, such as cards or modals. */
+  --elevation-sm: 0px 4px 14px 0px rgba(38, 43, 67, 0.16);
+  /* The color for chart elements, such as a bar or line in a chart. */
+  --chart-1: rgba(102, 108, 255, 1.00);
+  /* The color for another chart element, such as a bar or line in a chart. */
+  --chart-2: rgba(114, 225, 40, 1.00);
+  /* The color for another chart element, such as a bar or line in a chart. */
+  --chart-3: rgba(253, 181, 40, 1.00);
+  /* The color for another chart element, such as a bar or line in a chart. */
+  --chart-4: rgba(255, 77, 73, 1.00);
+  /* The color for another chart element, such as a bar or line in a chart. */
+  --chart-5: rgba(38, 198, 249, 1.00);
+  /* The default border radius for elements such as buttons, tooltip, and other containers. */
+  --radius: 10px;
+  /* Specific border radius for buttons */
+  --radius-button: 10px;
+  /* Specific border radius for cards */
+  --radius-card: 10px;
+  /* Specific border radius for input fields */
+  --radius-input: 8px;
+  /* Specific border radius for badges and chips */
+  --radius-badge: 500px;
+  /* The background color for sidebars, navigation menus, and other persistent elements. */
+  --sidebar: rgba(247, 247, 249, 1.00);
+  /* The default color for text or elements that appear on top of sidebars, navigation menus, and other persistent elements. */
+  --sidebar-foreground: rgba(38, 43, 67, 0.90);
+  /* The primary color used for buttons, links, and other interactive elements in sidebars and navigation menus. */
+  --sidebar-primary: rgba(102, 108, 255, 1.00);
+  /* The default color for text or elements that appear on top of primary colored elements in sidebars and navigation menus. */
+  --sidebar-primary-foreground: rgba(255, 255, 255, 1.00);
+  /* The accent color used for highlights, links, and other interactive elements in sidebars and navigation menus. */
+  --sidebar-accent: rgba(38, 43, 67, 0.08);
+  /* The default color for text or elements that appear on top of accent colored elements in sidebars and navigation menus. */
+  --sidebar-accent-foreground: rgba(38, 43, 67, 0.90);
+  /* The default border color for elements in sidebars and navigation menus. */
+  --sidebar-border: rgba(38, 43, 67, 0.12);
+  /* The default color for focus rings, outlines, and other focus indicators in sidebars and navigation menus. */
+  --sidebar-ring: rgba(102, 108, 255, 1.00);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-ring: var(--ring);
+  --color-elevation-sm: var(--elevation-sm);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-button: var(--radius-button);
+  --radius-card: var(--radius-card);
+  --radius-input: var(--radius-input);
+  --radius-badge: var(--radius-badge);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+    font-size: var(--font-size);
+  }
+}
+
+h1 {
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+h2 {
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.35;
+}
+
+h3 {
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.4;
+}
+
+h4 {
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.4;
+}
+
+p {
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-p);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.5;
+}
+
+span {
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-p);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.5;
+}
+
+label {
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-label);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.5;
+}
+
+button {
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-p);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.5;
+}
+
+input {
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-p);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.5;
+}
+
+html {
+  font-size: var(--font-size);
+  font-family: 'Inter', sans-serif;
+}
+
+/* Card styles */
+.card {
+  background-color: var(--card);
+  color: var(--card-foreground);
+  border-radius: var(--radius-card);
+  box-shadow: var(--elevation-sm);
+}
+
+/* Button styles */
+.btn {
+  border-radius: var(--radius-button);
+}
+
+/* Input styles */
+.input {
+  border-radius: var(--radius-input);
+  background-color: var(--input-background);
+}
+
+/* Badge styles */
+.badge {
+  border-radius: var(--radius-badge);
+}
+
+/* Project modal styles */
+.project-modal-gradient-btn {
+  background: linear-gradient(135deg, #4d4d4d 0%, #2e2e2e 50%, #1f1f1f 75%, #101010 100%);
+}
+
+.project-modal-blue-gradient {
+  background: linear-gradient(to bottom, #93c2fd 0%, #6fabfe 25%, #4a94fe 50%, #267eff 75%, #1372ff 87.5%, #0167ff 100%);
+}
+
+/* Plus Jakarta Sans font utilities */
+.font-plus-jakarta {
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
+
+/* Custom scrollbar for project modal */
+.project-modal-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.project-modal-scroll::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+.project-modal-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #93c2fd, #0167ff);
+  border-radius: 2px;
+}
+
+/* Project detail page specific styles */
+.project-detail-gradient-bg {
+  background: linear-gradient(135deg, #ff9a56 0%, #ff6b9d 50%, #c471ed 75%, #12c2e9 100%);
+}
+
+/* Scrollbar hide utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

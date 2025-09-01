@@ -1,0 +1,5 @@
+# Skrypt do znalezienia TileEditModal w ProjektDetail.tsx
+
+grep -n "TileEditModal" /components/sections/ProjektDetail.tsx || echo "Not found"
+grep -n "materials=" /components/sections/ProjektDetail.tsx || echo "Not found"
+grep -n "onSave={handleSaveTile}" /components/sections/ProjektDetail.tsx || echo "Not found"
