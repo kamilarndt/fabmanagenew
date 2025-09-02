@@ -1,0 +1,438 @@
+/* Modern Theme 2025 - Przyjazny dla oczu */
+
+:root {
+    /* === LIGHT MODE - Materialize Theme === */
+    /* Primary Color System - Materialized */
+    --primary-main: #666CFF;
+    --primary-light: #8589FF;
+    --primary-dark: #5C61E6;
+
+    /* Background Colors */
+    --bg-primary: #F7F7F9;
+    /* Materialize bodyBg */
+    --bg-secondary: #F5F5F7;
+    /* Materialize tableHeaderBg */
+    --bg-card: #FFFFFF;
+
+    /* Text Colors - Material inspired */
+    --text-primary: rgba(47, 43, 61, 0.9);
+    /* Material text primary */
+    --text-secondary: rgba(47, 43, 61, 0.7);
+    --text-muted: rgba(47, 43, 61, 0.4);
+
+    /* Semantic Colors - Materialize palette */
+    --accent-primary: var(--primary-main);
+    --accent-success: #72E128;
+    --accent-warning: #FDB528;
+    --accent-error: #FF4D49;
+    --accent-info: #26C6F9;
+
+    /* Borders & Dividers - Material */
+    --border-light: rgba(47, 43, 61, 0.12);
+    --border-medium: rgba(47, 43, 61, 0.22);
+
+    /* Material Design Shadow System */
+    --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.05);
+    --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.1), 0 1px 2px rgba(16, 24, 40, 0.06);
+    --shadow-md: 0 4px 8px -2px rgba(16, 24, 40, 0.1), 0 2px 4px -2px rgba(16, 24, 40, 0.06);
+    --shadow-lg: 0 12px 16px -4px rgba(16, 24, 40, 0.08), 0 4px 6px -2px rgba(16, 24, 40, 0.03);
+    --shadow-xl: 0 20px 24px -4px rgba(16, 24, 40, 0.08), 0 8px 8px -4px rgba(16, 24, 40, 0.03);
+    --shadow-2xl: 0 24px 48px -12px rgba(16, 24, 40, 0.18);
+    --shadow-3xl: 0 32px 64px -12px rgba(16, 24, 40, 0.14);
+
+    /* Status colors - lepszy kontrast */
+    --status-available-bg: #f0fff4;
+    --status-available-text: #22543d;
+    --status-available-border: #9ae6b4;
+
+    --status-low-bg: #fffbeb;
+    --status-low-text: #7c2d12;
+    --status-low-border: #fcd34d;
+
+    --status-critical-bg: #fed7d7;
+    --status-critical-text: #742a2a;
+    --status-critical-border: #fc8181;
+
+    --status-info-bg: #bee3f8;
+    --status-info-text: #2a69ac;
+    --status-info-border: #63b3ed;
+}
+
+/* === DARK MODE - Materialize Dark === */
+[data-theme="dark"] {
+    /* Dark Theme Colors - Materialize */
+    --bg-primary: #282A42;
+    /* Materialize dark bodyBg */
+    --bg-secondary: #30334E;
+    /* Materialize dark paper */
+    --bg-card: #30334E;
+
+    /* Dark Text Colors - better readability */
+    --text-primary: rgba(231, 227, 252, 0.95);
+    --text-secondary: rgba(231, 227, 252, 0.8);
+    --text-muted: rgba(231, 227, 252, 0.6);
+
+    /* Dark Mode Semantic Colors */
+    --accent-primary: var(--primary-main);
+    --accent-success: #72E128;
+    --accent-warning: #FDB528;
+    --accent-error: #FF4D49;
+    --accent-info: #26C6F9;
+
+    /* Dark Borders */
+    --border-light: rgba(231, 227, 252, 0.12);
+    --border-medium: rgba(231, 227, 252, 0.22);
+
+    /* Dark Mode Material Shadows */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.12);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.12);
+    --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 12px 16px -4px rgba(0, 0, 0, 0.16), 0 4px 6px -2px rgba(0, 0, 0, 0.06);
+    --shadow-xl: 0 20px 24px -4px rgba(0, 0, 0, 0.16), 0 8px 8px -4px rgba(0, 0, 0, 0.06);
+    --shadow-2xl: 0 24px 48px -12px rgba(0, 0, 0, 0.36);
+    --shadow-3xl: 0 32px 64px -12px rgba(0, 0, 0, 0.28);
+
+    /* Dark mode status colors */
+    --status-available-bg: #2d5016;
+    --status-available-text: #c6f6d5;
+    --status-available-border: #68d391;
+
+    --status-low-bg: #744210;
+    --status-low-text: #fbd38d;
+    --status-low-border: #f6ad55;
+
+    --status-critical-bg: #742a2a;
+    --status-critical-text: #fed7d7;
+    --status-critical-border: #fc8181;
+
+    /* Dark mode info colors */
+    --status-info-bg: #2a69ac;
+    --status-info-text: #bee3f8;
+    --status-info-border: #63b3ed;
+}
+
+/* === SKIN VARIATIONS === */
+[data-skin="bordered"] {
+    --bg-primary: #FFFFFF;
+    --bg-card: #FFFFFF;
+}
+
+[data-skin="bordered"][data-theme="dark"] {
+    --bg-primary: #30334E;
+    --bg-card: #30334E;
+}
+
+/* === RESPONSIVE GRID SYSTEM === */
+.dashboard-container {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  grid-template-rows: 64px 1fr;
+  grid-template-areas: 
+    "sidebar header"
+    "sidebar main";
+  min-height: 100vh;
+  gap: 0;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .dashboard-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr;
+        grid-template-areas:
+            "header"
+            "sidebar"
+            "main";
+    }
+}
+
+/* === MODERN CARD SYSTEM - Material Inspired === */
+.modern-card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    /* Material-style radius */
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-light);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Material easing */
+}
+
+.modern-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+}
+
+/* Material Card Elevations */
+.card-elevation-1 {
+    box-shadow: var(--shadow-sm);
+}
+
+.card-elevation-2 {
+    box-shadow: var(--shadow-md);
+}
+
+.card-elevation-3 {
+    box-shadow: var(--shadow-lg);
+}
+
+.card-elevation-4 {
+    box-shadow: var(--shadow-xl);
+}
+
+/* Bordered Skin Cards */
+[data-skin="bordered"] .modern-card {
+    border: 1px solid var(--border-light);
+    box-shadow: none;
+}
+
+[data-skin="bordered"] .modern-card:hover {
+    box-shadow: var(--shadow-sm);
+}
+
+/* Preference dla reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .modern-card {
+        transition: none;
+    }
+
+    .modern-card:hover {
+        transform: none;
+    }
+}
+
+/* === STATUS INDICATORS === */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid;
+}
+
+.status-available {
+    background: var(--status-available-bg);
+    color: var(--status-available-text);
+    border-color: var(--status-available-border);
+}
+
+.status-low {
+    background: var(--status-low-bg);
+    color: var(--status-low-text);
+    border-color: var(--status-low-border);
+}
+
+.status-critical {
+    background: var(--status-critical-bg);
+    color: var(--status-critical-text);
+    border-color: var(--status-critical-border);
+}
+
+.status-info {
+    background: var(--status-info-bg);
+    color: var(--status-info-text);
+    border-color: var(--status-info-border);
+}
+
+/* === RESPONSIVE GRID LAYOUTS === */
+.main-content {
+  grid-area: main;
+  padding: 0;
+  overflow-y: auto;
+  background: var(--bg-primary);
+}
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.materials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Mobile responsive grids */
+@media (max-width: 640px) {
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .materials-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+/* === ACCESSIBILITY === */
+/* Focus indicators dla keyboard navigation */
+.focusable:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+[tabindex]:focus {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Screen reader support */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* === TOUCH-FRIENDLY MOBILE === */
+@media (max-width: 768px) {
+
+    .touch-button,
+    .btn,
+    button {
+        min-height: 44px;
+        /* Apple guidelines */
+        padding: 12px 16px;
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+        border-radius: 8px;
+    }
+}
+
+/* === LOADING STATES === */
+.loading-skeleton {
+    background: linear-gradient(90deg,
+            var(--border-light) 25%,
+            var(--border-medium) 50%,
+            var(--border-light) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* === SMOOTH ANIMATIONS === */
+@media (prefers-reduced-motion: no-preference) {
+    * {
+        transition: background-color 0.2s ease,
+            color 0.2s ease,
+            border-color 0.2s ease,
+            box-shadow 0.2s ease,
+            transform 0.2s ease;
+    }
+}
+
+/* === UTILITIES === */
+.text-primary {
+    color: var(--text-primary);
+}
+
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.bg-primary {
+    background-color: var(--bg-primary);
+}
+
+.bg-secondary {
+    background-color: var(--bg-secondary);
+}
+
+.bg-card {
+    background-color: var(--bg-card);
+}
+
+.border-light {
+    border-color: var(--border-light);
+}
+
+.border-medium {
+    border-color: var(--border-medium);
+}
+
+.shadow-sm {
+    box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+    box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+    box-shadow: var(--shadow-lg);
+}
+
+/* === PROGRESSIVE DISCLOSURE === */
+.progressive-disclosure {
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--bg-card);
+    overflow: hidden;
+}
+
+.progressive-disclosure .btn-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.progressive-disclosure .btn-link:hover {
+    background: var(--bg-secondary);
+    color: var(--accent-primary);
+}
+
+.progressive-disclosure .btn-link:focus {
+    box-shadow: inset 0 0 0 2px var(--accent-primary);
+}
+
+.disclosure-content {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.disclosure-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+}
+
+.disclosure-content.expanded {
+    max-height: 500px;
+    opacity: 1;
+    padding: 0 1rem 1rem 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .disclosure-content {
+        transition: none;
+    }
+}

@@ -7,8 +7,12 @@ import EditProjectModal from '../components/EditProjectModal'
 
 export default function Projects() {
     const navigate = useNavigate()
-    const { projects, update, remove } = useProjectsStore()
-    const { tiles, setStatus: setTileStatus } = useTilesStore()
+    // Use Zustand selectors to reduce re-renders
+    const projects = useProjectsStore(s => s.projects)
+    const update = useProjectsStore(s => s.update)
+    const remove = useProjectsStore(s => s.remove)
+    const tiles = useTilesStore(s => s.tiles)
+    const setTileStatus = useTilesStore(s => s.setStatus)
 
     // Basic filters
     const [status, setStatus] = useState<'All' | 'Active' | 'On Hold' | 'Done'>('All')
@@ -67,15 +71,18 @@ export default function Projects() {
                 const oneMonth = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000)
 
                 switch (dateFilter) {
-                    case 'This Week':
+                    case 'This Week': {
                         byDate = deadline <= oneWeek
                         break
-                    case 'This Month':
+                    }
+                    case 'This Month': {
                         byDate = deadline <= oneMonth
                         break
-                    case 'Overdue':
+                    }
+                    case 'Overdue': {
                         byDate = deadline < today && p.status !== 'Done'
                         break
+                    }
                 }
             }
 
@@ -311,17 +318,20 @@ export default function Projects() {
                         <button
                             className="btn btn-sm btn-outline-secondary"
                             onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                            aria-expanded={showAdvancedFilters}
+                            aria-controls="advanced-filters"
+                            aria-label="Pokaż lub ukryj filtry zaawansowane"
                         >
                             <i className={`ri-${showAdvancedFilters ? 'subtract' : 'add'}-line me-1`}></i>
                             Filtry zaawansowane
                         </button>
                         <div className="d-flex gap-2">
                             {(status !== 'All' || client !== 'All' || query || managerFilter !== 'All' || priorityFilter !== 'All' || dateFilter !== 'All') && (
-                                <button className="btn btn-sm btn-outline-warning" onClick={clearAllFilters}>
+                                <button className="btn btn-sm btn-outline-warning" onClick={clearAllFilters} aria-label="Wyczyść wszystkie filtry">
                                     <i className="ri-refresh-line me-1"></i>Wyczyść filtry
                                 </button>
                             )}
-                            <button className="btn btn-sm btn-outline-info" onClick={() => {
+                            <button className="btn btn-sm btn-outline-info" aria-label="Eksportuj projekty do CSV" onClick={() => {
                                 const csv = ['id,name,client,status,deadline', ...sortedAndFiltered.map(r => `${r.id},"${r.name}",${r.client},${r.status},${r.deadline}`)].join('\n')
                                 const blob = new Blob([csv], { type: 'text/csv' })
                                 const url = URL.createObjectURL(blob)
@@ -335,7 +345,7 @@ export default function Projects() {
 
                     {/* Advanced Filters */}
                     {showAdvancedFilters && (
-                        <div className="border-top pt-3">
+                        <div id="advanced-filters" className="border-top pt-3">
                             <div className="row g-3">
                                 <div className="col-12 col-md-3">
                                     <label className="form-label small">Kierownik projektu</label>
@@ -445,11 +455,25 @@ export default function Projects() {
                     <button
                         className="btn btn-sm btn-outline-secondary"
                         onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                        aria-label="Zmień kierunek sortowania"
                     >
                         <i className={`ri-sort-${sortOrder === 'asc' ? 'asc' : 'desc'}-line`}></i>
                     </button>
                 </div>
             </div>
+
+            {/* Empty state */}
+            {sortedAndFiltered.length === 0 && (
+                <div className="card mb-3">
+                    <div className="card-body text-center">
+                        <h5 className="mb-1">Brak wyników</h5>
+                        <p className="text-muted mb-3">Dostosuj filtry lub utwórz nowy projekt.</p>
+                        <button className="btn btn-primary" onClick={() => navigate('/projekty/nowy')} aria-label="Utwórz nowy projekt">
+                            <i className="ri-add-line me-1"></i>Nowy projekt
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {view === 'Lista' ? (
                 <>
@@ -652,8 +676,8 @@ export default function Projects() {
                                                         }}
                                                     >
                                                         <i className={`ri-${project.status === 'Active' ? 'play' :
-                                                                project.status === 'On Hold' ? 'pause' :
-                                                                    project.status === 'Done' ? 'check' : 'time'
+                                                            project.status === 'On Hold' ? 'pause' :
+                                                                project.status === 'Done' ? 'check' : 'time'
                                                             }-fill text-white`}></i>
                                                     </div>
                                                     <span className={`badge ${getStatusBadgeClass(project.status)} px-2 py-1`}>
@@ -705,8 +729,8 @@ export default function Projects() {
                                             <div className="progress mb-3" style={{ height: 8 }}>
                                                 <div
                                                     className={`progress-bar ${mockProgress >= 80 ? 'bg-success' :
-                                                            mockProgress >= 50 ? 'bg-primary' :
-                                                                mockProgress >= 25 ? 'bg-warning' : 'bg-danger'
+                                                        mockProgress >= 50 ? 'bg-primary' :
+                                                            mockProgress >= 25 ? 'bg-warning' : 'bg-danger'
                                                         }`}
                                                     style={{ width: `${mockProgress}%` }}
                                                 ></div>
@@ -835,7 +859,7 @@ export default function Projects() {
                                                         <div className="fw-medium">{p.name}</div>
                                                         <div className="text-muted small">{p.id} • {p.client}</div>
                                                     </div>
-                                                    <button className="btn btn-sm btn-outline-primary" onClick={() => navigate(`/projekt/${p.id}`)}>
+                                                    <button className="btn btn-sm btn-outline-primary" onClick={() => navigate(`/projekt/${p.id}`)} aria-label={`Otwórz projekt ${p.name}`}>
                                                         <i className="ri-eye-line"></i>
                                                     </button>
                                                 </div>

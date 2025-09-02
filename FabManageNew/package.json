@@ -21,6 +21,8 @@
     "@mui/icons-material": "^7.3.1",
     "@mui/material": "^7.3.1",
     "@supabase/supabase-js": "^2.56.1",
+    "dxf-parser": "1.1.2",
+    "dxf-viewer": "1.0.43",
     "materialize-css": "^1.0.0",
     "puppeteer": "^23.11.1",
     "react": "^19.1.1",
@@ -28,6 +30,7 @@
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.8.2",
+    "three": "0.179.1",
     "zustand": "^4.5.2"
   },
   "devDependencies": {

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
-import { mockMaterials, filterMaterials, calculateMaterialStats } from '../data/materialsMockData'
+import { filterMaterials, calculateMaterialStats } from '../data/materialsMockData'
 import type { MaterialData } from '../data/materialsMockData'
+import { useMaterialsStore } from '../stores/materialsStore'
 import CategoryTree from '../components/Magazyn/CategoryTree'
 import MaterialCard from '../components/Magazyn/MaterialCard'
 import TagFilter from '../components/Magazyn/TagFilter'
@@ -11,7 +12,7 @@ import { showToast } from '../lib/toast'
 
 export default function MagazynNew() {
   // Stan główny
-  const [materials] = useState<MaterialData[]>(mockMaterials)
+  const materials = useMaterialsStore(state => state.materials)
   const [selectedMaterial, setSelectedMaterial] = useState<MaterialData | null>(null)
   const [detailsPanelOpen, setDetailsPanelOpen] = useState(false)
 
@@ -579,6 +580,7 @@ export default function MagazynNew() {
                                 {stockRatio < 1 && (
                                   <button
                                     className="btn btn-sm btn-danger"
+                                    aria-label={`Szybkie zamówienie: ${material.name}`}
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       handleQuickOrder(material)

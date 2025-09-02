@@ -1,23 +1,28 @@
 import { useState } from 'react'
 import { useProjectsStore, type ProjectModule } from '../stores/projectsStore'
+import { useClientsStore } from '../stores/clientsStore'
 import { showToast } from '../lib/toast'
 
 const projectModules: { id: ProjectModule; name: string; description: string }[] = [
-    { id: 'wycena', name: 'Wycena', description: 'Kalkulacja kosztów i przygotowanie oferty' },
-    { id: 'koncepcja', name: 'Koncepcja', description: 'Projektowanie koncepcyjne i wizualizacje' },
-    { id: 'projektowanie_techniczne', name: 'Projektowanie Techniczne', description: 'Szczegółowe projekty techniczne i dokumentacja' },
-    { id: 'produkcja', name: 'Produkcja', description: 'Wycinka CNC i produkcja elementów' },
-    { id: 'materialy', name: 'Materiały', description: 'Zarządzanie materiałami i zakupami' },
-    { id: 'logistyka_montaz', name: 'Logistyka i Montaż', description: 'Transport i montaż na miejscu' }
+    { id: 'wycena', name: 'Wycena', description: 'Przygotowanie wyceny projektu' },
+    { id: 'koncepcja', name: 'Koncepcja', description: 'Opracowanie koncepcji projektowej' },
+    { id: 'projektowanie_techniczne', name: 'Projektowanie techniczne', description: 'Szczegółowe projektowanie techniczne' },
+    { id: 'produkcja', name: 'Produkcja', description: 'Wytwarzanie elementów projektu' },
+    { id: 'materialy', name: 'Materiały', description: 'Zakup i zarządzanie materiałami' },
+    { id: 'logistyka_montaz', name: 'Logistyka i montaż', description: 'Transport i montaż na miejscu' }
 ]
 
 export default function CreateProjectModal() {
     const { add } = useProjectsStore()
+    const { clients } = useClientsStore()
     const [open, setOpen] = useState(false)
     const [name, setName] = useState('')
-    const [client, setClient] = useState('')
+    const [clientId, setClientId] = useState('')
     const [deadline, setDeadline] = useState('')
     const [selectedModules, setSelectedModules] = useState<ProjectModule[]>([])
+
+    // Pobierz nazwę klienta na podstawie ID
+    const selectedClient = clients.find(c => c.id === clientId)
 
     const toggleModule = (moduleId: ProjectModule) => {
         setSelectedModules(prev =>
@@ -28,7 +33,7 @@ export default function CreateProjectModal() {
     }
 
     const onSubmit = () => {
-        if (!name || !client || !deadline) {
+        if (!name || !clientId || !deadline) {
             showToast('Uzupełnij wszystkie wymagane pola', 'warning');
             return
         }
@@ -36,17 +41,23 @@ export default function CreateProjectModal() {
             showToast('Wybierz przynajmniej jeden moduł', 'warning')
             return
         }
+        if (!selectedClient) {
+            showToast('Wybrany klient nie istnieje', 'danger')
+            return
+        }
 
         add({
             name,
-            client,
+            clientId: clientId,
+            client: selectedClient.companyName,
             status: 'Active',
             deadline,
-            modules: selectedModules
+            modules: selectedModules,
+            clientColor: selectedClient.cardColor
         })
         showToast('Projekt utworzony', 'success')
         setOpen(false)
-        setName(''); setClient(''); setDeadline(''); setSelectedModules([])
+        setName(''); setClientId(''); setDeadline(''); setSelectedModules([])
     }
 
     return (
@@ -68,7 +79,22 @@ export default function CreateProjectModal() {
                                     </div>
                                     <div className="col-12">
                                         <label className="form-label">Klient *</label>
-                                        <input className="form-control" value={client} onChange={e => setClient(e.currentTarget.value)} />
+                                        <div className="mb-3">
+                                            <label className="form-label">Klient</label>
+                                            <select
+                                                className="form-select"
+                                                value={clientId}
+                                                onChange={e => setClientId(e.target.value)}
+                                                required
+                                            >
+                                                <option value="">Wybierz klienta</option>
+                                                {clients.map(client => (
+                                                    <option key={client.id} value={client.id}>
+                                                        {client.companyName} ({client.segment}, {client.region})
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
                                     </div>
                                     <div className="col-12">
                                         <label className="form-label">Deadline *</label>

@@ -1,37 +1,47 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProjectsStore, type ProjectModule } from '../stores/projectsStore'
+import { useClientsStore } from '../stores/clientsStore'
 
 export default function AddProject() {
     const navigate = useNavigate()
     const { add } = useProjectsStore()
+    const { clients } = useClientsStore()
 
     const [name, setName] = useState('')
     const [description, setDescription] = useState('')
     const [deadline, setDeadline] = useState('')
-    const [client, setClient] = useState('')
+    const [clientId, setClientId] = useState('')
     const [budget, setBudget] = useState<number | ''>('')
     const [manager, setManager] = useState('')
     const [status, setStatus] = useState<'Active' | 'On Hold' | 'Done'>('Active')
     const [modules, setModules] = useState<ProjectModule[]>([])
 
-    const isValid = useMemo(() => name.trim() && client.trim() && deadline.trim(), [name, client, deadline])
+    // Pobierz nazwę klienta na podstawie ID
+    const selectedClient = useMemo(() => 
+        clients.find(c => c.id === clientId), [clients, clientId]
+    )
+
+    const isValid = useMemo(() => name.trim() && clientId && deadline.trim(), [name, clientId, deadline])
 
     const toggleModule = (m: ProjectModule) => {
         setModules(prev => prev.includes(m) ? prev.filter(x => x !== m) : [...prev, m])
     }
 
     const handleSubmit = async () => {
-        if (!isValid) return
+        if (!isValid || !selectedClient) return
+        
         await add({
             name: name.trim(),
-            client: client.trim(),
-            status,
-            deadline,
-            budget: typeof budget === 'number' ? budget : undefined,
+            clientId: clientId,
+            client: selectedClient.companyName,
+            status: status,
+            deadline: deadline,
+            budget: budget || undefined,
             manager: manager || undefined,
             description: description || undefined,
-            modules: modules.length ? modules : undefined
+            modules: modules.length ? modules : undefined,
+            clientColor: selectedClient.cardColor
         })
         navigate('/projekty')
     }
@@ -74,7 +84,19 @@ export default function AddProject() {
                                 </div>
                                 <div className="col-sm-6">
                                     <label className="form-label">Klient</label>
-                                    <input className="form-control" placeholder="Nazwa klienta" value={client} onChange={e => setClient(e.currentTarget.value)} />
+                                    <select 
+                                        className="form-select" 
+                                        value={clientId} 
+                                        onChange={e => setClientId(e.target.value)}
+                                        required
+                                    >
+                                        <option value="">Wybierz klienta</option>
+                                        {clients.map(client => (
+                                            <option key={client.id} value={client.id}>
+                                                {client.companyName} ({client.segment}, {client.region})
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div className="col-sm-6">
                                     <label className="form-label">Budżet (PLN)</label>

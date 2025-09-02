@@ -2,8 +2,9 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
 import { listProjects, createProject, updateProject as sbUpdate, deleteProject as sbDelete } from '../services/projects'
+import { generateProjectColorScheme } from '../lib/clientUtils'
 
-export type ProjectModule = 'wycena' | 'koncepcja' | 'projektowanie_techniczne' | 'produkcja' | 'materialy' | 'logistyka_montaz'
+export type ProjectModule = 'wycena' | 'koncepcja' | 'projektowanie_techniczne' | 'produkcja' | 'materialy' | 'logistyka_montaz' | 'zakwaterowanie'
 
 export type GroupFile = {
     id: string
@@ -24,7 +25,8 @@ export type ProjectGroup = {
 export type Project = {
     id: string
     name: string
-    client: string
+    clientId: string // ID klienta zamiast client string
+    client: string // Nazwa klienta (dla kompatybilności wstecznej)
     status: 'Active' | 'On Hold' | 'Done'
     deadline: string
     budget?: number
@@ -33,131 +35,119 @@ export type Project = {
     progress?: number
     groups?: ProjectGroup[]
     modules?: ProjectModule[]
+    // Nowe pola dla kolorów projektu
+    clientColor?: string // Kolor klienta
+    colorScheme?: {
+        primary: string
+        light: string
+        dark: string
+        accent: string
+    }
 }
 
-// Sample projects data - will be automatically loaded
+// Sample projects data - Projekty dla stacji telewizyjnych
 const sampleProjects: Project[] = [
     {
         id: 'P-001',
-        name: 'Smart Kids Planet - Recepcja',
-        client: 'Smart Kids Planet',
+        name: 'TVP - Studio Wiadomości',
+        clientId: 'C-001', // Telewizja Polska S.A.
+        client: 'Telewizja Polska S.A.',
         status: 'Active',
         deadline: '2025-02-15',
-        budget: 45000,
+        budget: 450000,
         manager: 'Anna Kowalska',
-        description: 'Kompleksowa modernizacja recepcji z elementami interaktywnymi dla dzieci',
+        description: 'Modernizacja studia wiadomości z systemem LED i interaktywnymi elementami',
         progress: 75,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy']
+        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy'],
+        clientColor: '#e60012',
+        colorScheme: {
+            primary: '#e60012',
+            light: '#ff4d4d',
+            dark: '#cc0000',
+            accent: '#00cc00'
+        }
     },
     {
         id: 'P-002',
-        name: 'Stoisko GR8 TECH - Londyn 2025',
-        client: 'GR8 TECH',
+        name: 'Polsat - Studio Rozrywki',
+        clientId: 'C-002', // Polsat
+        client: 'Polsat',
         status: 'Active',
         deadline: '2025-03-20',
-        budget: 120000,
-        manager: 'Paweł Nowak',
-        description: 'Stoisko targowe na London Tech Week z systemem LED i interaktywnymi ekranami',
-        progress: 45,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne']
+        budget: 380000,
+        manager: 'Piotr Nowak',
+        description: 'Nowe studio rozrywkowe z systemem oświetlenia i scenografią',
+        progress: 60,
+        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja'],
+        clientColor: '#ff6b35',
+        colorScheme: {
+            primary: '#ff6b35',
+            light: '#ff8f66',
+            dark: '#e55a2b',
+            accent: '#00cc00'
+        }
     },
     {
         id: 'P-003',
-        name: 'Studio TV - Les 12 Coups de Midi',
-        client: 'France Television',
+        name: 'TVN - Studio Informacyjne',
+        clientId: 'C-003', // TVN
+        client: 'TVN',
         status: 'On Hold',
         deadline: '2025-04-10',
-        budget: 85000,
-        manager: 'Ola Wiśniewska',
-        description: 'Scenografia do programu telewizyjnego z elementami modułowymi',
+        budget: 320000,
+        manager: 'Marek Wiśniewski',
+        description: 'Remont studia informacyjnego z nowoczesnym systemem telewizyjnym',
         progress: 30,
-        modules: ['wycena', 'koncepcja']
+        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne'],
+        clientColor: '#1e3a8a',
+        colorScheme: {
+            primary: '#1e3a8a',
+            light: '#3b82f6',
+            dark: '#1e40af',
+            accent: '#00cc00'
+        }
     },
     {
         id: 'P-004',
-        name: 'Kawiarnia Nowa Oferta - Warszawa',
-        client: 'Nowa Oferta',
-        status: 'Active',
-        deadline: '2025-01-30',
-        budget: 28000,
-        manager: 'Kamil Zieliński',
-        description: 'Wnętrze kawiarni z niestandardowymi elementami dekoracyjnymi',
-        progress: 10,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy', 'logistyka_montaz']
+        name: 'TV Puls - Studio Religijne',
+        clientId: 'C-004', // TV Puls
+        client: 'TV Puls',
+        status: 'Done',
+        deadline: '2024-12-15',
+        budget: 280000,
+        manager: 'Katarzyna Zielińska',
+        description: 'Studio do programów religijnych z systemem oświetlenia',
+        progress: 100,
+        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy'],
+        clientColor: '#7c3aed',
+        colorScheme: {
+            primary: '#7c3aed',
+            light: '#a78bfa',
+            dark: '#6d28d9',
+            accent: '#00cc00'
+        }
     },
     {
         id: 'P-005',
-        name: 'Muzeum Historii - Sala Interaktywna',
-        client: 'Muzeum Narodowe',
+        name: 'TV4 - Studio Show',
+        clientId: 'C-005', // TV4
+        client: 'TV4',
         status: 'Active',
-        deadline: '2025-05-15',
-        budget: 95000,
-        manager: 'Maria Lis',
-        description: 'Sala interaktywna z elementami multimedialnymi i rekonstrukcjami historycznymi',
-        progress: 60,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja']
-    },
-    {
-        id: 'P-006',
-        name: 'Centrum Handlowe Galaxy - Strefa Dzieci',
-        client: 'Galaxy Mall',
-        status: 'Done',
-        deadline: '2024-12-20',
-        budget: 65000,
-        manager: 'Tomasz Kowal',
-        description: 'Strefa zabaw dla dzieci z elementami bezpiecznymi i edukacyjnymi',
-        progress: 100,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy', 'logistyka_montaz']
-    },
-    {
-        id: 'P-007',
-        name: 'Restauracja Fusion - Kraków',
-        client: 'Fusion Group',
-        status: 'Active',
-        deadline: '2025-03-10',
-        budget: 55000,
-        manager: 'Karolina Nowak',
-        description: 'Wnętrze restauracji z elementami azjatyckimi i europejskimi',
-        progress: 25,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne']
-    },
-    {
-        id: 'P-008',
-        name: 'Biuro TechCorp - Warszawa',
-        client: 'TechCorp',
-        status: 'Active',
-        deadline: '2025-04-05',
-        budget: 75000,
-        manager: 'Adam Wiśniewski',
-        description: 'Nowoczesne biuro z elementami smart office',
-        progress: 40,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy']
-    },
-    {
-        id: 'P-009',
-        name: 'Hotel Marina - Gdańsk',
-        client: 'Marina Hotels',
-        status: 'On Hold',
-        deadline: '2025-06-15',
-        budget: 180000,
-        manager: 'Ewa Kowalczyk',
-        description: 'Lobby hotelu z elementami morskimi',
-        progress: 15,
-        modules: ['wycena', 'koncepcja']
-    },
-    {
-        id: 'P-010',
-        name: 'Centrum Konferencyjne - Poznań',
-        client: 'Poznań Congress Center',
-        status: 'Active',
-        deadline: '2025-05-20',
-        budget: 220000,
-        manager: 'Piotr Zieliński',
-        description: 'Sala konferencyjna z systemem multimedialnym',
-        progress: 35,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy', 'logistyka_montaz']
+        deadline: '2025-01-30',
+        budget: 250000,
+        manager: 'Tomasz Kowalczyk',
+        description: 'Studio do programów rozrywkowych z systemem dźwięku',
+        progress: 80,
+        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy'],
+        clientColor: '#059669',
+        colorScheme: {
+            primary: '#059669',
+            light: '#10b981',
+            dark: '#047857',
+            accent: '#00cc00'
+        }
     }
-]
+];
 
 interface ProjectsState {
     projects: Project[]
@@ -170,11 +160,16 @@ interface ProjectsState {
     update: (id: string, project: Partial<Project>) => Promise<void>
     remove: (id: string) => Promise<void>
     setProjects: (projects: Project[]) => void
+
+    // Client integration
+    getProjectsByClient: (clientId: string) => Project[]
+    updateProjectColors: (clientId: string, newColor: string) => void
+    syncProjectWithClient: (clientId: string, clientName: string, clientColor: string) => void
 }
 
 export const useProjectsStore = create<ProjectsState>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             projects: [],
             isLoading: false,
             isInitialized: false,
@@ -186,12 +181,44 @@ export const useProjectsStore = create<ProjectsState>()(
                     if (!isSupabaseConfigured) {
                         // If no database, use sample projects
                         set({ projects: sampleProjects, isInitialized: true })
+
+                        // Synchronizuj projekty z klientami
+                        setTimeout(() => {
+                            if (typeof window !== 'undefined') {
+                                import('../stores/clientsStore').then(({ useClientsStore }) => {
+                                    const clients = useClientsStore.getState().clients
+                                    clients.forEach(client => {
+                                        get().syncProjectWithClient(
+                                            client.id,
+                                            client.companyName,
+                                            client.cardColor
+                                        )
+                                    })
+                                })
+                            }
+                        }, 100)
                         return
                     }
 
                     const data = await listProjects()
                     if (data.length > 0) {
                         set({ projects: data, isInitialized: true })
+
+                        // Synchronizuj projekty z klientami
+                        setTimeout(() => {
+                            if (typeof window !== 'undefined') {
+                                import('../stores/clientsStore').then(({ useClientsStore }) => {
+                                    const clients = useClientsStore.getState().clients
+                                    clients.forEach(client => {
+                                        get().syncProjectWithClient(
+                                            client.id,
+                                            client.companyName,
+                                            client.cardColor
+                                        )
+                                    })
+                                })
+                            }
+                        }, 100)
                     } else {
                         // If database is empty, populate with sample projects
                         const { logger } = await import('../lib/logger')
@@ -205,26 +232,63 @@ export const useProjectsStore = create<ProjectsState>()(
                             }
                         }
                         set({ projects: sampleProjects, isInitialized: true })
+
+                        // Synchronizuj projekty z klientami
+                        setTimeout(() => {
+                            if (typeof window !== 'undefined') {
+                                import('../stores/clientsStore').then(({ useClientsStore }) => {
+                                    const clients = useClientsStore.getState().clients
+                                    clients.forEach(client => {
+                                        get().syncProjectWithClient(
+                                            client.id,
+                                            client.companyName,
+                                            client.cardColor
+                                        )
+                                    })
+                                })
+                            }
+                        }, 100)
                     }
                 } catch (error) {
                     const { logger } = await import('../lib/logger')
                     logger.error('Błąd podczas ładowania projektów:', error)
                     // Fallback to sample projects
                     set({ projects: sampleProjects, isInitialized: true })
+
+                    // Synchronizuj projekty z klientami
+                    setTimeout(() => {
+                        if (typeof window !== 'undefined') {
+                            import('../stores/clientsStore').then(({ useClientsStore }) => {
+                                const clients = useClientsStore.getState().clients
+                                clients.forEach(client => {
+                                    get().syncProjectWithClient(
+                                        client.id,
+                                        client.companyName,
+                                        client.cardColor
+                                    )
+                                })
+                            })
+                        }
+                    }, 100)
                 } finally {
                     set({ isLoading: false })
                 }
             },
 
             add: async (project: Omit<Project, 'id'>) => {
-                const nextId = `P-${(useProjectsStore.getState().projects.length + 1).toString().padStart(3, '0')}`
-                const newProject = { id: nextId, ...project }
+                const nextId = `P-${(get().projects.length + 1).toString().padStart(3, '0')}`
 
-                set(state => ({ projects: [...state.projects, newProject] }))
+                // Automatycznie generuj schemat kolorów jeśli nie podano
+                const finalProject = { id: nextId, ...project }
+                if (project.clientColor && !project.colorScheme) {
+                    finalProject.colorScheme = generateProjectColorScheme(project.clientColor)
+                }
+
+                set(state => ({ projects: [...state.projects, finalProject] }))
 
                 if (isSupabaseConfigured) {
                     try {
-                        await createProject(project)
+                        await createProject(finalProject)
                     } catch (error) {
                         const { logger } = await import('../lib/logger')
                         logger.error('Błąd podczas dodawania projektu:', error)
@@ -266,6 +330,40 @@ export const useProjectsStore = create<ProjectsState>()(
 
             setProjects: (projects: Project[]) => {
                 set({ projects })
+            },
+
+            // Pobierz wszystkie projekty dla danego klienta
+            getProjectsByClient: (clientId: string) => {
+                return get().projects.filter(p => p.clientId === clientId)
+            },
+
+            // Zaktualizuj kolory wszystkich projektów klienta
+            updateProjectColors: (clientId: string, newColor: string) => {
+                const colorScheme = generateProjectColorScheme(newColor)
+                set(state => ({
+                    projects: state.projects.map(p =>
+                        p.clientId === clientId
+                            ? { ...p, clientColor: newColor, colorScheme }
+                            : p
+                    )
+                }))
+            },
+
+            // Synchronizuj projekty z danymi klienta
+            syncProjectWithClient: (clientId: string, clientName: string, clientColor: string) => {
+                const colorScheme = generateProjectColorScheme(clientColor)
+                set(state => ({
+                    projects: state.projects.map(p =>
+                        p.clientId === clientId
+                            ? {
+                                ...p,
+                                client: clientName,
+                                clientColor,
+                                colorScheme
+                            }
+                            : p
+                    )
+                }))
             }
         }),
         {

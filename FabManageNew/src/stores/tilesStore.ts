@@ -13,6 +13,7 @@ export type BomItem = {
     supplier?: string
     status?: 'Na stanie' | 'Do zamówienia' | 'Zamówione'
     unitCost?: number
+    materialId?: string
 }
 
 export type Tile = {
