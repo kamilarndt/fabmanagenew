@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { FileManager } from '../Ui/FileManager'
 import type { Project } from '../../types/projects.types'
 
 interface ProjectComment {
@@ -34,12 +35,12 @@ interface ProjectOverviewProps {
     onAddComment: (comment: string) => void
 }
 
-export default function ProjectOverview({ 
-    project, 
-    comments, 
-    documents, 
-    teamMembers, 
-    onAddComment 
+export default function ProjectOverview({
+    project,
+    comments,
+    documents,
+    teamMembers,
+    onAddComment
 }: ProjectOverviewProps) {
     const [newComment, setNewComment] = useState('')
     const [viewMode, setViewMode] = useState<'activities' | 'updates'>('activities')
@@ -80,12 +81,12 @@ export default function ProjectOverview({
                                 </div>
                             ))}
                         </div>
-                        <textarea 
-                            className="form-control mb-2" 
-                            rows={3} 
-                            placeholder="Write a comment..." 
-                            value={newComment} 
-                            onChange={e => setNewComment(e.target.value)} 
+                        <textarea
+                            className="form-control mb-2"
+                            rows={3}
+                            placeholder="Write a comment..."
+                            value={newComment}
+                            onChange={e => setNewComment(e.target.value)}
                         />
                         <button className="btn btn-outline-primary" onClick={handleSubmitComment}>
                             Post Comment
@@ -97,23 +98,11 @@ export default function ProjectOverview({
                     <div className="card-body p-4">
                         <div className="d-flex justify-content-between align-items-center mb-2">
                             <h5 className="mb-0">Key Resources</h5>
-                            <button className="btn btn-sm btn-outline-secondary">Add attachment</button>
                         </div>
-                        <div className="row g-2">
-                            {documents.map(doc => (
-                                <div key={doc.id} className="col-12 col-md-6">
-                                    <div className="border rounded p-2 d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <div className="fw-medium small">{doc.name}</div>
-                                            <small className="text-muted">Size: {doc.size}</small>
-                                        </div>
-                                        <button className="btn btn-sm btn-outline-secondary">
-                                            <i className="ri-more-line"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        <FileManager
+                            files={documents.map(d => ({ id: d.id, name: d.name }))}
+                            onUpload={(file) => { /* TODO: integrate storage */ console.log('upload', file.name) }}
+                        />
                     </div>
                 </div>
             </div>
@@ -141,14 +130,14 @@ export default function ProjectOverview({
                     <div className="card-body p-4">
                         <h5 className="mb-3">History</h5>
                         <div className="d-flex gap-2 mb-3">
-                            <button 
-                                className={`btn btn-sm ${viewMode === 'activities' ? 'btn-primary' : 'btn-outline-secondary'}`} 
+                            <button
+                                className={`btn btn-sm ${viewMode === 'activities' ? 'btn-primary' : 'btn-outline-secondary'}`}
                                 onClick={() => setViewMode('activities')}
                             >
                                 Activities
                             </button>
-                            <button 
-                                className={`btn btn-sm ${viewMode === 'updates' ? 'btn-primary' : 'btn-outline-secondary'}`} 
+                            <button
+                                className={`btn btn-sm ${viewMode === 'updates' ? 'btn-primary' : 'btn-outline-secondary'}`}
                                 onClick={() => setViewMode('updates')}
                             >
                                 Updates

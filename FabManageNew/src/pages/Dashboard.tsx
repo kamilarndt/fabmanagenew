@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useProjectsStore } from '../stores/projectsStore'
+import { PageHeader } from '../components/Ui/PageHeader'
+import { Toolbar } from '../components/Ui/Toolbar'
 // import { useTilesStore } from '../stores/tilesStore' // Unused for now
 
 interface Task {
@@ -14,7 +16,7 @@ interface Task {
 export default function Dashboard() {
   const { projects } = useProjectsStore()
   // const { tiles } = useTilesStore() // Unused for now
-  
+
   const [tasks, setTasks] = useState<Task[]>([
     {
       id: 1,
@@ -51,7 +53,7 @@ export default function Dashboard() {
   ])
 
   const toggleTask = (id: number) => {
-    setTasks(prev => prev.map(task => 
+    setTasks(prev => prev.map(task =>
       task.id === id ? { ...task, completed: !task.completed } : task
     ))
   }
@@ -73,7 +75,7 @@ export default function Dashboard() {
     {
       name: "Stoisko GR8 TECH - Londyn 2025",
       startMonth: "Styczeń",
-      endMonth: "Luty", 
+      endMonth: "Luty",
       progress: 45,
       color: "bg-success"
     },
@@ -104,16 +106,19 @@ export default function Dashboard() {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h4 className="mb-1">Dashboard</h4>
-          <p className="text-muted mb-0">Przegląd głównych wskaźników i aktywności</p>
-        </div>
-        <div className="text-muted small">
-          <i className="ri-time-line me-1"></i>
-          Ostatnia aktualizacja: {new Date().toLocaleString('pl-PL')}
-        </div>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        subtitle="Przegląd głównych wskaźników i aktywności"
+      />
+
+      <Toolbar
+        right={
+          <div className="text-muted small">
+            <i className="ri-time-line me-1"></i>
+            Ostatnia aktualizacja: {new Date().toLocaleString('pl-PL')}
+          </div>
+        }
+      />
 
       {/* KPI Cards */}
       <div className="row g-3 mb-4">
@@ -180,9 +185,9 @@ export default function Dashboard() {
                   <div key={task.id} className="list-group-item px-0 border-0">
                     <div className="d-flex align-items-start">
                       <div className="form-check me-3 mt-1">
-                        <input 
-                          className="form-check-input" 
-                          type="checkbox" 
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
                           checked={task.completed}
                           onChange={() => toggleTask(task.id)}
                         />
@@ -226,7 +231,7 @@ export default function Dashboard() {
                       <span className="small text-muted">{project.progress}%</span>
                     </div>
                     <div className="progress mb-2" style={{ height: 8 }}>
-                      <div 
+                      <div
                         className={`progress-bar ${project.color.replace('bg-', 'bg-')}`}
                         style={{ width: `${project.progress}%` }}
                       ></div>
@@ -254,16 +259,14 @@ export default function Dashboard() {
                   <div key={activity.id} className="list-group-item px-0 border-0">
                     <div className="d-flex align-items-center">
                       <div className="flex-shrink-0 me-3">
-                        <div className={`rounded-circle d-flex align-items-center justify-content-center ${
-                          activity.type === 'success' ? 'bg-success bg-opacity-10' :
-                          activity.type === 'warning' ? 'bg-warning bg-opacity-10' :
-                          'bg-info bg-opacity-10'
-                        }`} style={{ width: 32, height: 32 }}>
-                          <i className={`${
-                            activity.type === 'success' ? 'ri-check-line text-success' :
-                            activity.type === 'warning' ? 'ri-alert-line text-warning' :
-                            'ri-information-line text-info'
-                          } small`}></i>
+                        <div className={`rounded-circle d-flex align-items-center justify-content-center ${activity.type === 'success' ? 'bg-success bg-opacity-10' :
+                            activity.type === 'warning' ? 'bg-warning bg-opacity-10' :
+                              'bg-info bg-opacity-10'
+                          }`} style={{ width: 32, height: 32 }}>
+                          <i className={`${activity.type === 'success' ? 'ri-check-line text-success' :
+                              activity.type === 'warning' ? 'ri-alert-line text-warning' :
+                                'ri-information-line text-info'
+                            } small`}></i>
                         </div>
                       </div>
                       <div className="flex-grow-1">

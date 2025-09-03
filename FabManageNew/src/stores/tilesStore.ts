@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
 import { listTiles, updateTile as sbUpdate, createTile as sbCreate } from '../services/tiles'
 import { showToast } from '../lib/toast'
+import { subscribeTable } from '../lib/realtime'
 
 export type BomItem = {
     id: string
@@ -54,6 +55,7 @@ const demoTiles: Tile[] = [
 
 interface TilesState {
     tiles: Tile[]
+    tilesById: Record<string, Tile>
     isLoading: boolean
     isInitialized: boolean
 
@@ -70,6 +72,7 @@ export const useTilesStore = create<TilesState>()(
     persist(
         (set) => ({
             tiles: [],
+            tilesById: {},
             isLoading: false,
             isInitialized: false,
 
@@ -77,18 +80,23 @@ export const useTilesStore = create<TilesState>()(
                 set({ isLoading: true })
 
                 try {
+                    // If we already have tiles (e.g., from persisted storage), treat as initialized
+                    if (useTilesStore.getState().tiles.length > 0) {
+                        set({ isInitialized: true })
+                        return
+                    }
                     if (!isSupabaseConfigured) {
                         // If no database, use demo tiles
-                        set({ tiles: demoTiles, isInitialized: true })
+                        set({ tiles: demoTiles, tilesById: Object.fromEntries(demoTiles.map(t => [t.id, t])), isInitialized: true })
                         return
                     }
 
                     const data = await listTiles()
                     if (data.length > 0) {
-                        set({ tiles: data, isInitialized: true })
+                        set({ tiles: data, tilesById: Object.fromEntries(data.map(t => [t.id, t])), isInitialized: true })
                     } else {
                         // If database is empty, use demo tiles
-                        set({ tiles: demoTiles, isInitialized: true })
+                        set({ tiles: demoTiles, tilesById: Object.fromEntries(demoTiles.map(t => [t.id, t])), isInitialized: true })
                     }
                 } catch (error) {
                     const { logger } = await import('../lib/logger')
@@ -101,11 +109,12 @@ export const useTilesStore = create<TilesState>()(
             },
 
             setStatus: async (id: string, status: Tile['status']) => {
-                set(state => ({
-                    tiles: state.tiles.map(t =>
-                        t.id === id ? { ...t, status } : t
-                    )
-                }))
+                set(state => {
+                    const nextTiles = state.tiles.map(t => t.id === id ? { ...t, status } : t)
+                    const next = { ...state.tilesById }
+                    if (next[id]) next[id] = { ...next[id], status }
+                    return { tiles: nextTiles, tilesById: next }
+                })
 
                 if (isSupabaseConfigured) {
                     try {
@@ -120,11 +129,12 @@ export const useTilesStore = create<TilesState>()(
             },
 
             updateTile: async (id: string, patch: Partial<Tile>) => {
-                set(state => ({
-                    tiles: state.tiles.map(t =>
-                        t.id === id ? { ...t, ...patch } : t
-                    )
-                }))
+                set(state => {
+                    const nextTiles = state.tiles.map(t => t.id === id ? { ...t, ...patch } : t)
+                    const next = { ...state.tilesById }
+                    if (next[id]) next[id] = { ...next[id], ...patch }
+                    return { tiles: nextTiles, tilesById: next }
+                })
 
                 if (isSupabaseConfigured) {
                     try {
@@ -137,7 +147,7 @@ export const useTilesStore = create<TilesState>()(
             },
 
             addTile: async (tile: Tile) => {
-                set(state => ({ tiles: [...state.tiles, tile] }))
+                set(state => ({ tiles: [...state.tiles, tile], tilesById: { ...state.tilesById, [tile.id]: tile } }))
 
                 if (isSupabaseConfigured) {
                     try {
@@ -152,7 +162,7 @@ export const useTilesStore = create<TilesState>()(
             },
 
             setTiles: (tiles: Tile[]) => {
-                set({ tiles })
+                set({ tiles, tilesById: Object.fromEntries(tiles.map(t => [t.id, t])) })
             },
 
             pushAcceptedTilesToQueue: async (projectId: string) => {
@@ -188,11 +198,31 @@ export const useTilesStore = create<TilesState>()(
         }),
         {
             name: 'fabmanage-tiles',
-            partialize: (state) => ({ tiles: state.tiles }),
+            // Persist both tiles and isInitialized to avoid re-running initialize over saved tiles
+            partialize: (state) => ({ tiles: state.tiles, isInitialized: state.isInitialized }),
             onRehydrateStorage: () => (state) => {
-                if (state && !state.isInitialized) {
+                if (!state) return
+                // If tiles were restored, mark as initialized and skip initialization
+                if (state.tiles && state.tiles.length > 0) {
+                    state.isInitialized = true
+                    state.tilesById = Object.fromEntries(state.tiles.map(t => [t.id, t]))
+                    return
+                }
+                if (!state.isInitialized) {
                     state.initialize()
                 }
+                // subscribe realtime
+                const unsubscribe = subscribeTable<Tile>('tiles', (rows) => {
+                    const map = { ...state.tilesById }
+                    rows.forEach(r => { map[r.id] = r })
+                    state.setTiles(Object.values(map))
+                }, (ids) => {
+                    const map = { ...state.tilesById }
+                    ids.forEach(id => { delete map[id] })
+                    state.setTiles(Object.values(map))
+                })
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    ; (state as any)._unsubscribeTiles = unsubscribe
             }
         }
     )

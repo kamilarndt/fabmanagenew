@@ -1,0 +1,164 @@
+_MATERIAL
+    MDF
+        6mm
+            DO_GIECIA
+            TRUDNOPALNA - Copy
+            TRUDNOPALNA
+        8mm
+            DO_GIECIA
+            TRUDNOPALNA
+        10mm
+            DO_GIECIA
+            TRUDNOPALNA
+        12mm
+        18mm
+            DO_GIECIA
+            TRUDNOPALNA
+        30mm
+        40mm
+    SKLEJKA
+        3MM
+            DO_GIECIA
+        12mm
+        16 mm
+        18 mm
+    WIOROWA
+        6mm
+            LAMINOWANA
+            SUROWA
+        8mm
+        10mm
+        12mm
+        18mm
+            LAMINOWANA
+        30mm
+        40mm
+    ALUMINIUM
+        KATOWNIKI
+    DILITE
+        M-dilite bialy
+        M-dilite drapany
+        M-dilite srebrny
+    GK
+        M-GK
+        M-GK -dystanse
+        M-GK -profile
+        M-GK riflex
+    HDF
+        M-HDF 3mm
+        M-HDF 4mm
+    PLEXI
+        M-pleksi 4mm
+        M-pleksi 4mm opal satin
+        M-pleksi 6mm
+        M-plexi 10mm
+        M-plexi 15mm
+        M-plexi dual satin 6mm
+        M-plexi opal 6mm
+        M-plexi opal 10mm
+        M-plexi opal 30mm
+        M-pleksi 5mm
+    POLIWEGLAN
+        KOMOROWY 10MM
+    POZOSTALE
+        M-cetris 18mm
+        M-corian
+        M-czarna polysk
+        M-hips
+        M-horyzont
+        M-łata
+        M-panele
+        M-PCV
+        M-perforacja siatka
+        M-ramiaki
+        M-stal
+        M-styrodur
+        M-szkło
+        M-śruby
+        M-tkanina
+        M-wydruk3d
+        M-wykladzina
+_PLOTER
+    _ARCHIV
+    _WYCINANIE
+    ILOŚCI
+    NAZWY
+    OTWOR
+        D=4.0mm
+            GL=10mm
+        D=5.0mm
+        D=6.00mm
+        D=8.00mm
+        D=25.0mm
+        D=6.0mm
+        D=6mm
+            GL=9.00mm
+        D=3.0mm
+        D=8.0mm
+        D=4mm
+    FREZ
+        _PLASKI
+            GL=6.0mm
+            GL=3.0mm
+            GL=2.0mm
+            GL=14.0mm
+            GL=5.0mm
+            GL=9.0mm
+            GL=6.1mm
+            GL=4.0mm
+            GL=11.1mm
+            GL=6.2mm
+            GL=8.0mm
+            GL=10.0mm
+            GL=14.2mm
+            GL=7.0mm
+        STOZKOWY
+            15°
+            30°
+            45°
+            60°
+    WARSTWY
+_ELEMENTY
+    _DRUK3D
+    A-blatowanie
+    A-meble
+    A-podesty
+    A-schody i pochylnie
+    A-sciana
+    A-stan istniejacy
+    A-sufit
+    A-trybuny
+    E_Ekran
+    E-dioda
+    E-komputer
+    E-mechanizmy
+    K-Bitek
+    K-peri
+    K-praktikable
+    K-rusztowanie
+    O-Kolki
+_Opisowe
+    Default
+    _ROBOCZY
+    0
+    _ARCHIWUM
+    -hatch
+    -ilosci
+    -multileader
+    -nazwy
+    -od inwestora
+    -opisy
+    -osie
+    -pkt bazowy
+    -pomocnicza
+    -przekrojowa
+    -przerywana
+    -ramka i tabelka
+    -strzalki
+    -UWAGI
+    -VIEWPORT
+    -wymiary bok
+    -wymiary front
+    -wymiary rzut
+        M-GK -dystanse
+        -ramka i tabelka

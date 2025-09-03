@@ -1,6 +1,9 @@
 FROM node:20-alpine
 WORKDIR /srv/app
 
+# Install wget for healthcheck
+RUN apk add --no-cache wget
+
 # Copy package files if backend exists; keep Dockerfile ready even without backend folder yet
 COPY backend/package*.json ./
 RUN [ -f package.json ] && npm ci --omit=dev --no-audit --no-fund || true
@@ -9,9 +12,10 @@ RUN [ -f package.json ] && npm ci --omit=dev --no-audit --no-fund || true
 COPY backend/ ./
 
 ENV NODE_ENV=production
-EXPOSE 3000
+ENV PORT=3001
+EXPOSE 3001
 
 # Simple healthcheck (expects /health endpoint)
-HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD wget -qO- http://127.0.0.1:3000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD wget -qO- http://127.0.0.1:3001/health || exit 1
 
 CMD ["node", "server.js"]

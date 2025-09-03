@@ -42,7 +42,7 @@ export function useResponsiveValue<T>(values: Partial<Record<LayoutType, T>>): T
 /**
  * Hook for dynamic grid columns
  */
-export function useResponsiveGrid(_minCardWidth = 300) {
+export function useResponsiveGrid() {
     const { layout, optimalColumns } = useLayoutDetection()
 
     const getColumns = () => {

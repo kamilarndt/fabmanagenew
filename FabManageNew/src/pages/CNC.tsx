@@ -1,18 +1,33 @@
 import { useTilesStore } from '../stores/tilesStore'
-import { useDrag, useDrop } from 'react-dnd'
+import { useDrag } from 'react-dnd'
 import { useCallback, useMemo, useState } from 'react'
 import TileEditModal from '../components/TileEditModal'
-import { showToast } from '../lib/toast'
+import { PageHeader } from '../components/Ui/PageHeader'
+import { Toolbar } from '../components/Ui/Toolbar'
 
 export default function CNC() {
-    const { tiles, setStatus, updateTile } = useTilesStore()
+    const { tiles, setStatus } = useTilesStore()
     const [selectedMachine, setSelectedMachine] = useState<string | null>(null)
     const [editing, setEditing] = useState<any | null>(null)
-    const columns: { key: 'W KOLEJCE' | 'W TRAKCIE CIĘCIA' | 'WYCIĘTE'; label: string }[] = [
-        { key: 'W KOLEJCE', label: 'W KOLEJCE' },
-        { key: 'W TRAKCIE CIĘCIA', label: 'W TRAKCIE CIĘCIA' },
-        { key: 'WYCIĘTE', label: 'WYCIĘTE' }
-    ]
+
+    const kanbanColumns = useMemo(() => [
+        {
+            id: 'W KOLEJCE',
+            title: 'W KOLEJCE',
+            color: '#ff9800'
+        },
+        {
+            id: 'W TRAKCIE CIĘCIA',
+            title: 'W TRAKCIE CIĘCIA',
+            color: '#2196f3'
+        },
+        {
+            id: 'WYCIĘTE',
+            title: 'WYCIĘTE',
+            color: '#4caf50'
+        }
+    ], [])
+
     const machines = useMemo(() => (
         [
             { id: 'CNC-01', status: 'Praca', part: 'P-001', progress: 65, eta: '00:25' },
@@ -23,6 +38,7 @@ export default function CNC() {
             { id: 'CNC-06', status: 'Praca', part: 'P-004', progress: 80, eta: '00:12' },
         ] as const
     ), [])
+
     const kpis = useMemo(() => {
         const total = tiles.length
         const inQueue = tiles.filter(t => t.status === 'W KOLEJCE').length
@@ -32,20 +48,29 @@ export default function CNC() {
         return { inQueue, inCut, done, completion }
     }, [tiles])
 
-    const handleTileDrop = (tileId: string, newStatus: 'W KOLEJCE' | 'W TRAKCIE CIĘCIA' | 'WYCIĘTE') => {
-        if (newStatus === 'WYCIĘTE') {
-            // Automatically change status to "Gotowy do montażu" when dropped in "WYCIĘTE"
-            updateTile(tileId, { status: 'Gotowy do montażu' })
-            showToast(`Kafelek ${tileId} gotowy do montażu`, 'success')
-        } else {
-            // Normal status change for other columns
-            setStatus(tileId, newStatus)
-        }
-    }
-
     return (
         <div>
-            <h4 className="mb-3">CNC - Monitoring i kolejka</h4>
+            <PageHeader
+                title="CNC - Monitoring i kolejka"
+                subtitle="Zarządzanie produkcją CNC i monitoring maszyn"
+            />
+
+            <Toolbar
+                left={
+                    <div className="d-flex gap-2">
+                        <span className="badge bg-label-secondary">
+                            <i className="ri-time-line me-1"></i>Zmiana: 03:12
+                        </span>
+                    </div>
+                }
+                right={
+                    <div className="d-flex gap-2">
+                        <button className="btn btn-sm btn-outline-danger me-2" onClick={() => alert('Alarmy potwierdzone')} title="Potwierdź alarmy">
+                            <i className="ri-alarm-warning-line me-1"></i>Alarms: 2
+                        </button>
+                    </div>
+                }
+            />
 
             <div className="card mb-3">
                 <div className="card-body d-flex flex-wrap gap-2">
@@ -55,10 +80,6 @@ export default function CNC() {
                             {m.id}
                         </button>
                     ))}
-                    <span className="ms-auto">
-                        <button className="btn btn-sm btn-outline-danger me-2" onClick={() => alert('Alarmy potwierdzone')} title="Potwierdź alarmy"><i className="ri-alarm-warning-line me-1"></i>Alarms: 2</button>
-                        <span className="badge bg-label-secondary"><i className="ri-time-line me-1"></i>Zmiana: 03:12</span>
-                    </span>
                 </div>
             </div>
 
@@ -122,23 +143,26 @@ export default function CNC() {
                 </div>
             </div>
 
-            <div className="row g-3">
-                {columns.map(col => (
-                    <div className="col-12 col-md-4" key={col.key}>
-                        <div className="card h-100">
-                            <div className="card-header fw-semibold">{col.label}</div>
-                            <DropZone onDrop={(id) => handleTileDrop(id, col.key)}>
-                                {tiles.filter(t => t.status === col.key).map(t => (
-                                    <DraggableTile key={t.id} id={t.id} name={t.name} onEdit={() => setEditing(t)} />
-                                ))}
-                                {tiles.filter(t => t.status === col.key).length === 0 && (
-                                    <p className="text-muted">Brak zadań</p>
-                                )}
-                            </DropZone>
+            <div className="mb-3">
+                <div className="row g-3">
+                    {kanbanColumns.map(col => (
+                        <div className="col-12 col-md-4" key={col.id}>
+                            <div className="card h-100">
+                                <div className="card-header fw-semibold">{col.title}</div>
+                                <div className="card-body">
+                                    {tiles.filter(t => t.status === col.id).map(t => (
+                                        <DraggableTile key={t.id} id={t.id} name={t.name} onEdit={() => setEditing(t)} />
+                                    ))}
+                                    {tiles.filter(t => t.status === col.id).length === 0 && (
+                                        <p className="text-muted">Brak zadań</p>
+                                    )}
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
+
             {editing && <TileEditModal tile={editing} onClose={() => setEditing(null)} onSave={(patch) => { setStatus(editing.id, (patch.status || editing.status) as any); setEditing(null) }} />}
         </div>
     )
@@ -159,15 +183,6 @@ function DraggableTile({ id, name, onEdit }: { id: string; name: string; onEdit?
             </div>
         </div>
     )
-}
-
-function DropZone({ onDrop, children }: { onDrop: (id: string) => void; children: React.ReactNode }) {
-    const [, drop] = useDrop(() => ({
-        accept: 'CNC_TILE',
-        drop: (item: any) => onDrop(item.id)
-    }), [onDrop])
-    const dropRef = useCallback((el: HTMLDivElement | null) => { if (el) drop(el) }, [drop])
-    return <div ref={dropRef} className="card-body">{children}</div>
 }
 
 

@@ -28,6 +28,7 @@ import EstimateBuilder from '../modules/Estimate/EstimateBuilder'
 
 import LogisticsTab from '../modules/Logistics/LogisticsTab'
 import AccommodationTab from '../modules/Accommodation/AccommodationTab'
+import { StageStepper } from '../components/Ui/StageStepper'
 
 
 
@@ -244,6 +245,20 @@ export default function Projekt() {
 
                 {/* Tab Content */}
                 <div className="card-body">
+                    <div className="mb-3">
+                        <StageStepper
+                            steps={[
+                                { key: 'overview', label: 'Przegląd' },
+                                { key: 'elementy', label: 'Elementy' },
+                                { key: 'zakupy', label: 'Materiały' },
+                                { key: 'koncepcja', label: 'Koncepcja' },
+                                { key: 'wycena', label: 'Wycena' },
+                                { key: 'logistyka', label: 'Logistyka' },
+                                { key: 'zakwaterowanie', label: 'Zakwater.' },
+                            ]}
+                            currentKey={activeTab}
+                        />
+                    </div>
                     {activeTab === 'overview' && (
                         <ProjectOverview
                             project={project}

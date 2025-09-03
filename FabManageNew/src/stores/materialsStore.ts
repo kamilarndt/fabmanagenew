@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { subscribeTable } from '../lib/realtime'
 import type { MaterialData } from '../data/materialsMockData'
-import { mockMaterials } from '../data/materialsMockData'
+import { fetchBackendFlatMaterials } from '../api/materials'
 
 export interface PurchaseRequest {
   id: string
@@ -61,6 +62,7 @@ interface MaterialsStore {
   setMaterials: (materials: MaterialData[]) => void
   updateMaterialStock: (id: string, stock: number) => void
   adjustMaterialStock: (id: string, delta: number) => void
+  syncFromBackend: () => Promise<void>
 
   purchaseRequests: PurchaseRequest[]
   supplierQuotes: SupplierQuote[]
@@ -96,7 +98,7 @@ export const useMaterialsStore = create<MaterialsStore>()(
   persist(
     (set, get) => ({
       // Inventory seeded from mock for now; replace with API fetch when available
-      materials: mockMaterials,
+      materials: [],
       setMaterials: (materials) => set({ materials }),
       updateMaterialStock: (id, stock) => set((state) => ({
         materials: state.materials.map(m => m.id === id ? { ...m, stock } : m)
@@ -104,6 +106,53 @@ export const useMaterialsStore = create<MaterialsStore>()(
       adjustMaterialStock: (id, delta) => set((state) => ({
         materials: state.materials.map(m => m.id === id ? { ...m, stock: Math.max(0, m.stock + delta) } : m)
       })),
+
+      // Sync from backend /api/materials/flat, mapping by canonical ID
+      syncFromBackend: async () => {
+        try {
+          // Try to ensure backend has materials hydrated
+          try { await import('../api/materials').then(m => m.reloadMaterials?.()); } catch { /* Ignore import errors */ }
+
+          const flat = await fetchBackendFlatMaterials()
+          set((state) => {
+            const index = new Map(state.materials.map(m => [m.id, m]))
+            const updatedMaterials = [...state.materials]
+
+            for (const fm of flat) {
+              const m = index.get(fm.id)
+              if (m) {
+                // Aktualizuj istniejący materiał
+                m.stock = fm.stock ?? m.stock
+                m.minStock = fm.minStock ?? m.minStock
+                m.price = fm.price ?? m.price
+                m.supplier = fm.supplier ?? m.supplier
+                m.location = fm.location ?? m.location
+                m.unit = fm.unit ?? m.unit
+              } else {
+                // Dodaj nowy materiał z backendu
+                const newMaterial = {
+                  id: fm.id,
+                  code: fm.name,
+                  name: fm.name,
+                  category: fm.category || ['_MATERIAL'],
+                  unit: fm.unit || 'szt',
+                  stock: fm.stock ?? 0,
+                  minStock: fm.minStock ?? 0,
+                  maxStock: (fm.minStock ?? 0) * 2,
+                  supplier: fm.supplier || 'Unknown',
+                  price: fm.price ?? 0,
+                  location: fm.location || 'Unknown'
+                } as any
+                updatedMaterials.push(newMaterial)
+              }
+            }
+            return { materials: updatedMaterials }
+          })
+        } catch (error) {
+          console.error('Error syncing from backend:', error)
+          // ignore for now
+        }
+      },
 
       purchaseRequests: [],
       supplierQuotes: [],
@@ -198,7 +247,47 @@ export const useMaterialsStore = create<MaterialsStore>()(
     }),
     {
       name: 'materials-store',
-      version: 1,
+      version: 3,
+      migrate: (persistedState: any) => {
+        // Normalize categories to 2-level paths [main, sub]
+        if (persistedState && Array.isArray(persistedState.materials)) {
+          persistedState.materials = persistedState.materials.map((m: any) => {
+            if (Array.isArray(m?.category)) {
+              const [main, sub] = m.category
+              return { ...m, category: [main, sub] }
+            }
+            // Fallback: derive from code if available
+            if (typeof m?.code === 'string' && m.code.includes('/')) {
+              const parts = m.code.split('/')
+              const main = parts[0]
+              const sub = parts[1]
+              return { ...m, category: [main, sub] }
+            }
+            return m
+          })
+        }
+        return persistedState
+      },
+      // Ensure inventory persists across rebuilds
+      partialize: (state) => ({
+        materials: state.materials,
+        purchaseRequests: state.purchaseRequests,
+        supplierQuotes: state.supplierQuotes,
+        stockReservations: state.stockReservations,
+        deliveryTracking: state.deliveryTracking
+      }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // subscribe realtime
+          const unsubscribe = subscribeTable<MaterialData>('materials', (rows: MaterialData[]) => {
+            state.setMaterials(rows)
+          }, (ids: string[]) => {
+            state.setMaterials(state.materials.filter(m => !ids.includes(m.id)))
+          })
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ; (state as any)._unsubscribeMaterials = unsubscribe
+        }
+      }
     }
   )
 )

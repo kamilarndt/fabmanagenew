@@ -7,6 +7,7 @@ import FileUploadZone from './Ui/FileUploadZone'
 import DxfPreview from './DxfPreview'
 import DxfFullscreenModal from './DxfFullscreenModal'
 import { showToast } from '../lib/toast'
+import { createTileDemand } from '../api/demands'
 
 export default function TileEditModal({ tile, onClose, onSave }: { tile: Tile; onClose: () => void; onSave: (t: Partial<Tile>) => void }) {
     const [name, setName] = useState(tile.name)
@@ -64,6 +65,27 @@ export default function TileEditModal({ tile, onClose, onSave }: { tile: Tile; o
     const handleCancel = () => {
         revertSessionAdjustments()
         onClose()
+    }
+
+    const createDemandsFromBom = async () => {
+        try {
+            const projectId = tile.project
+            const bomList = bom || []
+            let created = 0
+            for (const item of bomList) {
+                if (!item.materialId || !item.quantity) continue
+                await createTileDemand(tile.id, {
+                    materialId: item.materialId,
+                    requiredQty: item.quantity,
+                    projectId,
+                    name: item.name
+                })
+                created++
+            }
+            if (created > 0) showToast(`Utworzono ${created} zapotrzebowań dla elementu ${tile.id}`, 'success')
+        } catch {
+            showToast('Nie udało się utworzyć zapotrzebowań', 'danger')
+        }
     }
 
     const footer = (
@@ -162,6 +184,9 @@ export default function TileEditModal({ tile, onClose, onSave }: { tile: Tile; o
                             </button>
                             <button className="btn btn-sm btn-outline-success" onClick={() => setShowMaterials(true)}>
                                 <i className="ri-database-2-line me-1"></i>Z katalogu
+                            </button>
+                            <button className="btn btn-sm btn-outline-warning" onClick={createDemandsFromBom}>
+                                <i className="ri-shopping-cart-2-line me-1"></i>Generuj zapotrzebowanie
                             </button>
                         </div>
                     </div>

@@ -3,13 +3,20 @@ import { useNavigate } from 'react-router-dom'
 import { useProjectsStore } from '../stores/projectsStore'
 import { useTilesStore } from '../stores/tilesStore'
 import { showToast } from '../lib/toast'
+import { StatusBadge } from '../components/Ui/StatusBadge'
+import { PageHeader } from '../components/Ui/PageHeader'
+import { FormModal } from '../components/Ui/FormModal'
+import { z } from 'zod'
+import type { Project, ProjectModule } from '../types/projects.types'
 import EditProjectModal from '../components/EditProjectModal'
+import { EntityTable, type Column } from '../components/Ui/EntityTable'
 
 export default function Projects() {
     const navigate = useNavigate()
     // Use Zustand selectors to reduce re-renders
     const projects = useProjectsStore(s => s.projects)
     const update = useProjectsStore(s => s.update)
+    const add = useProjectsStore(s => s.add)
     const remove = useProjectsStore(s => s.remove)
     const tiles = useTilesStore(s => s.tiles)
     const setTileStatus = useTilesStore(s => s.setStatus)
@@ -28,6 +35,31 @@ export default function Projects() {
     const [budgetRange, setBudgetRange] = useState([0, 500000])
     const [selectedProjects, setSelectedProjects] = useState<string[]>([])
     const [editId, setEditId] = useState<string | null>(null)
+    const [ctxMenu, setCtxMenu] = useState<{ open: boolean; x: number; y: number; id: string | null }>({ open: false, x: 0, y: 0, id: null })
+    const [createOpen, setCreateOpen] = useState(false)
+    const [createForm, setCreateForm] = useState<Omit<Project, 'id'>>({
+        name: '',
+        clientId: 'C-NEW',
+        client: '',
+        status: 'Active',
+        deadline: new Date().toISOString().slice(0, 10),
+        groups: [],
+        modules: ['wycena', 'koncepcja'] as ProjectModule[]
+    })
+
+    const ModuleEnum = z.enum(['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy', 'logistyka_montaz', 'zakwaterowanie'])
+    const createSchema = z.object({
+        name: z.string().min(2, 'Podaj nazwę'),
+        clientId: z.string().min(1, 'clientId wymagany'),
+        client: z.string().min(2, 'Podaj klienta'),
+        status: z.enum(['Active', 'On Hold', 'Done']),
+        deadline: z.string().min(4),
+        groups: z.array(z.any()).optional(),
+        modules: z.array(ModuleEnum).optional(),
+        budget: z.number().optional(),
+        manager: z.string().optional(),
+        description: z.string().optional()
+    })
 
     // Pagination and sorting
     const [currentPage, setCurrentPage] = useState(1)
@@ -44,6 +76,18 @@ export default function Projects() {
         const timer = setTimeout(() => setDebouncedQuery(query), 300)
         return () => clearTimeout(timer)
     }, [query])
+
+    // Close context menu on Escape
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setCtxMenu({ open: false, x: 0, y: 0, id: null }) }
+        window.addEventListener('keydown', onKey)
+        return () => window.removeEventListener('keydown', onKey)
+    }, [])
+
+    const openContextMenu = (e: React.MouseEvent, id: string) => {
+        e.preventDefault()
+        setCtxMenu({ open: true, x: e.clientX, y: e.clientY, id })
+    }
 
     // Derived data
     const uniqueClients = useMemo(() => Array.from(new Set(projects.map(p => p.client))), [projects])
@@ -146,22 +190,9 @@ export default function Projects() {
     }, [sortedAndFiltered])
 
     // Action handlers
-    const handleSort = (column: 'name' | 'client' | 'deadline' | 'status') => {
-        if (sortBy === column) {
-            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-        } else {
-            setSortBy(column)
-            setSortOrder('asc')
-        }
-    }
+    // sorting handled by column headers in future EntityTable; placeholder removed
 
-    const handleSelectAll = () => {
-        if (selectedProjects.length === paginatedProjects.length) {
-            setSelectedProjects([])
-        } else {
-            setSelectedProjects(paginatedProjects.map(p => p.id))
-        }
-    }
+    // select-all not used in EntityTable minimal integration
 
     const handleSelectProject = (id: string) => {
         setSelectedProjects(prev =>
@@ -185,7 +216,7 @@ export default function Projects() {
                     showToast(`Usunięto ${selectedProjects.length} projektów`, 'success')
                 }
                 break
-            case 'export':
+            case 'export': {
                 const selectedData = paginatedProjects.filter(p => selectedProjects.includes(p.id))
                 const csv = ['id,name,client,status,deadline', ...selectedData.map(r => `${r.id},"${r.name}",${r.client},${r.status},${r.deadline}`)].join('\n')
                 const blob = new Blob([csv], { type: 'text/csv' })
@@ -193,11 +224,13 @@ export default function Projects() {
                 const a = document.createElement('a'); a.href = url; a.download = 'selected_projects.csv'; a.click(); URL.revokeObjectURL(url)
                 showToast(`Wyeksportowano ${selectedProjects.length} projektów`, 'success')
                 break
-            case 'archive':
+            }
+            case 'archive': {
                 selectedProjects.forEach(id => update(id, { status: 'Done' }))
                 setSelectedProjects([])
                 showToast(`Zarchiwizowano ${selectedProjects.length} projektów`, 'success')
                 break
+            }
         }
     }
 
@@ -213,60 +246,43 @@ export default function Projects() {
         showToast('Filtry zostały wyczyszczone', 'info')
     }
 
-    const getStatusBadgeClass = (status: string) => {
-        switch (status) {
-            case 'Active': return 'bg-success'
-            case 'On Hold': return 'bg-warning'
-            case 'Done': return 'bg-info'
-            default: return 'bg-secondary'
-        }
-    }
+    // replaced by <StatusBadge />
 
     return (
-        <div>
-            {/* Header with Search and Actions */}
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <div>
-                    <h4 className="mb-1">Projekty</h4>
-                    <p className="text-muted mb-0">Zarządzaj wszystkimi projektami w firmie</p>
-                </div>
-                <div className="d-flex gap-2">
-                    {selectedProjects.length > 0 && (
-                        <div className="btn-group">
-                            <button
-                                className="btn btn-outline-danger btn-sm"
-                                onClick={() => handleBulkAction('delete')}
-                            >
-                                <i className="ri-delete-bin-line me-1"></i>Usuń ({selectedProjects.length})
-                            </button>
-                            <button
-                                className="btn btn-outline-primary btn-sm"
-                                onClick={() => handleBulkAction('export')}
-                            >
-                                <i className="ri-download-line me-1"></i>Export
-                            </button>
-                            <button
-                                className="btn btn-outline-secondary btn-sm"
-                                onClick={() => handleBulkAction('archive')}
-                            >
-                                <i className="ri-archive-line me-1"></i>Archiwizuj
-                            </button>
-                        </div>
-                    )}
-                    <button className="btn btn-primary" onClick={() => navigate('/projekty/nowy')}>
-                        <i className="ri-add-line me-1"></i>Nowy Projekt
-                    </button>
-                </div>
-            </div>
+        <div data-component="ProjectsPage">
+            <PageHeader
+                title="Projekty"
+                subtitle="Zarządzaj wszystkimi projektami w firmie"
+                actions={
+                    <div className="d-flex gap-2">
+                        {selectedProjects.length > 0 && (
+                            <div className="btn-group">
+                                <button className="btn btn-outline-danger btn-sm" onClick={() => handleBulkAction('delete')}>
+                                    <i className="ri-delete-bin-line me-1"></i>Usuń ({selectedProjects.length})
+                                </button>
+                                <button className="btn btn-outline-primary btn-sm" onClick={() => handleBulkAction('export')}>
+                                    <i className="ri-download-line me-1"></i>Export
+                                </button>
+                                <button className="btn btn-outline-secondary btn-sm" onClick={() => handleBulkAction('archive')}>
+                                    <i className="ri-archive-line me-1"></i>Archiwizuj
+                                </button>
+                            </div>
+                        )}
+                        <button className="btn btn-primary" onClick={() => setCreateOpen(true)}>
+                            <i className="ri-add-line me-1"></i>Nowy Projekt
+                        </button>
+                    </div>
+                }
+            />
 
             {/* Filters */}
-            <div className="card mb-3">
-                <div className="card-body">
+            <div className="card mb-3" data-component="ProjectsFiltersCard">
+                <div className="card-body" data-component="FiltersBody">
                     {/* Basic Filters Row */}
-                    <div className="row g-3 mb-3">
+                    <div className="row g-3 mb-3" data-component="FiltersBasicRow">
                         <div className="col-12 col-md-3">
                             <label className="form-label small">Status projektu</label>
-                            <select value={status} onChange={e => setStatus(e.currentTarget.value as typeof status)} className="form-select form-select-sm">
+                            <select data-component="SelectStatus" value={status} onChange={e => setStatus(e.currentTarget.value as typeof status)} className="form-select form-select-sm">
                                 <option value="All">Wszystkie ({projects.length})</option>
                                 <option value="Active">Active ({projects.filter(p => p.status === 'Active').length})</option>
                                 <option value="On Hold">On Hold ({projects.filter(p => p.status === 'On Hold').length})</option>
@@ -275,16 +291,17 @@ export default function Projects() {
                         </div>
                         <div className="col-12 col-md-3">
                             <label className="form-label small">Klient</label>
-                            <select value={client} onChange={e => setClient(e.currentTarget.value)} className="form-select form-select-sm">
+                            <select data-component="SelectClient" value={client} onChange={e => setClient(e.currentTarget.value)} className="form-select form-select-sm">
                                 <option value="All">Wszyscy klienci</option>
                                 {uniqueClients.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                         </div>
                         <div className="col-12 col-md-4">
                             <label className="form-label small">Wyszukiwanie</label>
-                            <div className="input-group input-group-sm">
+                            <div className="input-group input-group-sm" data-component="SearchGroup">
                                 <span className="input-group-text bg-transparent"><i className="ri-search-line"></i></span>
                                 <input
+                                    data-component="SearchInput"
                                     value={query}
                                     onChange={e => setQuery(e.currentTarget.value)}
                                     className="form-control"
@@ -300,13 +317,13 @@ export default function Projects() {
                         <div className="col-12 col-md-2">
                             <label className="form-label small">Widok</label>
                             <div className="btn-group w-100" role="group">
-                                {(['Lista', 'Kafelki', 'Kanban'] as const).map(v => (
+                                {(['Lista', 'Kafelki'] as const).map(v => (
                                     <button
                                         key={v}
                                         className={`btn btn-outline-secondary btn-sm ${view === v ? 'active' : ''}`}
                                         onClick={() => setView(v)}
                                     >
-                                        <i className={`ri-${v === 'Lista' ? 'list-check' : v === 'Kafelki' ? 'grid-fill' : 'layout-column'}-line`}></i>
+                                        <i className={`ri-${v === 'Lista' ? 'list-check' : 'grid-fill'}-line`}></i>
                                     </button>
                                 ))}
                             </div>
@@ -316,6 +333,7 @@ export default function Projects() {
                     {/* Advanced Filters Toggle */}
                     <div className="d-flex justify-content-between align-items-center mb-2">
                         <button
+                            data-component="ToggleAdvancedFilters"
                             className="btn btn-sm btn-outline-secondary"
                             onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
                             aria-expanded={showAdvancedFilters}
@@ -327,11 +345,11 @@ export default function Projects() {
                         </button>
                         <div className="d-flex gap-2">
                             {(status !== 'All' || client !== 'All' || query || managerFilter !== 'All' || priorityFilter !== 'All' || dateFilter !== 'All') && (
-                                <button className="btn btn-sm btn-outline-warning" onClick={clearAllFilters} aria-label="Wyczyść wszystkie filtry">
+                                <button data-component="ClearFilters" className="btn btn-sm btn-outline-warning" onClick={clearAllFilters} aria-label="Wyczyść wszystkie filtry">
                                     <i className="ri-refresh-line me-1"></i>Wyczyść filtry
                                 </button>
                             )}
-                            <button className="btn btn-sm btn-outline-info" aria-label="Eksportuj projekty do CSV" onClick={() => {
+                            <button data-component="ExportProjectsCSV" className="btn btn-sm btn-outline-info" aria-label="Eksportuj projekty do CSV" onClick={() => {
                                 const csv = ['id,name,client,status,deadline', ...sortedAndFiltered.map(r => `${r.id},"${r.name}",${r.client},${r.status},${r.deadline}`)].join('\n')
                                 const blob = new Blob([csv], { type: 'text/csv' })
                                 const url = URL.createObjectURL(blob)
@@ -345,7 +363,7 @@ export default function Projects() {
 
                     {/* Advanced Filters */}
                     {showAdvancedFilters && (
-                        <div id="advanced-filters" className="border-top pt-3">
+                        <div id="advanced-filters" className="border-top pt-3" data-component="AdvancedFilters">
                             <div className="row g-3">
                                 <div className="col-12 col-md-3">
                                     <label className="form-label small">Kierownik projektu</label>
@@ -398,7 +416,7 @@ export default function Projects() {
             </div>
 
             {/* KPI Row */}
-            <div className="row g-3 mb-3">
+            <div className="row g-3 mb-3" data-component="KPIRow">
                 <div className="col-6 col-lg-3">
                     <div className="card">
                         <div className="card-body text-center">
@@ -478,131 +496,72 @@ export default function Projects() {
             {view === 'Lista' ? (
                 <>
                     {/* Projects Table */}
-                    <div className="card">
-                        <div className="table-responsive">
-                            <table className="table table-hover mb-0">
-                                <thead className="table-light">
-                                    <tr>
-                                        <th style={{ width: 40 }}>
-                                            <input
-                                                type="checkbox"
-                                                className="form-check-input"
-                                                checked={selectedProjects.length === paginatedProjects.length && paginatedProjects.length > 0}
-                                                onChange={handleSelectAll}
-                                            />
-                                        </th>
-                                        <th className="sortable" onClick={() => handleSort('name')}>
-                                            Projekt
-                                            {sortBy === 'name' && <i className={`ri-sort-${sortOrder === 'asc' ? 'asc' : 'desc'}-line ms-1`}></i>}
-                                        </th>
-                                        <th className="sortable" onClick={() => handleSort('client')}>
-                                            Klient
-                                            {sortBy === 'client' && <i className={`ri-sort-${sortOrder === 'asc' ? 'asc' : 'desc'}-line ms-1`}></i>}
-                                        </th>
-                                        <th className="sortable" onClick={() => handleSort('status')}>
-                                            Status
-                                            {sortBy === 'status' && <i className={`ri-sort-${sortOrder === 'asc' ? 'asc' : 'desc'}-line ms-1`}></i>}
-                                        </th>
-                                        <th className="sortable" onClick={() => handleSort('deadline')}>
-                                            Deadline
-                                            {sortBy === 'deadline' && <i className={`ri-sort-${sortOrder === 'asc' ? 'asc' : 'desc'}-line ms-1`}></i>}
-                                        </th>
-                                        <th>Postęp</th>
-                                        <th>Zespół</th>
-                                        <th style={{ width: 120 }}>Akcje</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {paginatedProjects.map(project => {
-                                        const isOverdue = new Date(project.deadline) < new Date() && project.status !== 'Done'
-                                        const mockProgress = Math.floor(Math.random() * 100)
-
+                    <div className="card" data-component="ProjectsTableCard">
+                        {(() => {
+                            const columns: Column<Project>[] = [
+                                {
+                                    key: 'select', header: '', width: 40, render: (p) => (
+                                        <input
+                                            type="checkbox"
+                                            className="form-check-input"
+                                            checked={selectedProjects.includes(p.id)}
+                                            onChange={(e) => { e.stopPropagation(); handleSelectProject(p.id) }}
+                                        />
+                                    )
+                                },
+                                {
+                                    key: 'name', header: 'Projekt', render: (p) => (
+                                        <div>
+                                            <div className="fw-medium">{p.name}</div>
+                                            <div className="text-muted small">{p.id}</div>
+                                        </div>
+                                    )
+                                },
+                                { key: 'client', header: 'Klient' },
+                                { key: 'status', header: 'Status', render: (p) => <StatusBadge status={p.status} /> },
+                                {
+                                    key: 'deadline', header: 'Deadline', render: (p) => {
+                                        const isOverdue = new Date(p.deadline) < new Date() && p.status !== 'Done'
+                                        return <div className={isOverdue ? 'text-danger fw-medium' : ''}>{p.deadline}{isOverdue && <i className="ri-alarm-warning-line ms-1"></i>}</div>
+                                    }
+                                },
+                                {
+                                    key: 'progress', header: 'Postęp', render: () => {
+                                        const mock = Math.floor(Math.random() * 100)
                                         return (
-                                            <tr key={project.id} className={selectedProjects.includes(project.id) ? 'table-primary' : ''}>
-                                                <td>
-                                                    <input
-                                                        type="checkbox"
-                                                        className="form-check-input"
-                                                        checked={selectedProjects.includes(project.id)}
-                                                        onChange={() => handleSelectProject(project.id)}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <div className="fw-medium">{project.name}</div>
-                                                    <div className="text-muted small">{project.id}</div>
-                                                </td>
-                                                <td>{project.client}</td>
-                                                <td>
-                                                    <span className={`badge ${getStatusBadgeClass(project.status)}`}>
-                                                        {project.status}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <div className={isOverdue ? 'text-danger fw-medium' : ''}>
-                                                        {project.deadline}
-                                                        {isOverdue && <i className="ri-alarm-warning-line ms-1"></i>}
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div className="d-flex align-items-center">
-                                                        <div className="progress me-2" style={{ width: 60, height: 6 }}>
-                                                            <div className="progress-bar bg-primary" style={{ width: `${mockProgress}%` }}></div>
-                                                        </div>
-                                                        <small>{mockProgress}%</small>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div className="d-flex">
-                                                        {Array.from({ length: 3 }).map((_, i) => (
-                                                            <img
-                                                                key={i}
-                                                                src={`https://i.pravatar.cc/24?img=${i + 1}`}
-                                                                alt="Team member"
-                                                                className="rounded-circle me-1"
-                                                                width="24"
-                                                                height="24"
-                                                                style={{ marginLeft: i > 0 ? -8 : 0 }}
-                                                            />
-                                                        ))}
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div className="btn-group btn-group-sm">
-                                                        <button
-                                                            className="btn btn-outline-primary"
-                                                            onClick={() => navigate(`/projekt/${project.id}`)}
-                                                            title="Zobacz szczegóły"
-                                                        >
-                                                            <i className="ri-eye-line"></i>
-                                                        </button>
-                                                        <button className="btn btn-outline-secondary" title="Edytuj" onClick={() => setEditId(project.id)}>
-                                                            <i className="ri-edit-line"></i>
-                                                        </button>
-                                                        <button
-                                                            className="btn btn-outline-danger"
-                                                            onClick={() => {
-                                                                if (confirm(`Czy na pewno chcesz usunąć projekt \"${project.name}\"?`)) {
-                                                                    remove(project.id)
-                                                                    showToast('Projekt został usunięty', 'success')
-                                                                }
-                                                            }}
-                                                            title="Usuń"
-                                                        >
-                                                            <i className="ri-delete-bin-line"></i>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            <div className="d-flex align-items-center">
+                                                <div className="progress me-2" style={{ width: 60, height: 6 }}>
+                                                    <div className="progress-bar bg-primary" style={{ width: `${mock}%` }}></div>
+                                                </div>
+                                                <small>{mock}%</small>
+                                            </div>
                                         )
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
+                                    }
+                                },
+                                {
+                                    key: 'team', header: 'Zespół', render: () => (
+                                        <div className="d-flex">
+                                            {Array.from({ length: 3 }).map((_, i) => (
+                                                <img key={i} src={`https://i.pravatar.cc/24?img=${i + 1}`} alt="Team member" className="rounded-circle me-1" width="24" height="24" style={{ marginLeft: i > 0 ? -8 : 0 }} />
+                                            ))}
+                                        </div>
+                                    )
+                                },
+                            ]
+                            return (
+                                <EntityTable<Project>
+                                    rows={paginatedProjects}
+                                    columns={columns}
+                                    rowKey={(p) => p.id}
+                                    onRowClick={(p) => navigate(`/projekt/${p.id}`)}
+                                />
+                            )
+                        })()}
                     </div>
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                        <div className="d-flex justify-content-between align-items-center mt-3">
+                        <div className="d-flex justify-content-between align-items-center mt-3" data-component="PaginationBar">
                             <div className="text-muted small">
                                 Strona {currentPage} z {totalPages}
                             </div>
@@ -647,7 +606,7 @@ export default function Projects() {
             ) : view === 'Kafelki' ? (
                 <>
                     {/* Project Tiles */}
-                    <div className="row g-3">
+                    <div className="row g-3" data-component="ProjectTiles">
                         {paginatedProjects.map(project => {
                             const mockProgress = Math.floor(Math.random() * 100)
                             const isOverdue = new Date(project.deadline) < new Date() && project.status !== 'Done'
@@ -655,14 +614,22 @@ export default function Projects() {
 
                             return (
                                 <div key={project.id} className="col-12 col-md-6 col-lg-4">
-                                    <div className="card h-100 shadow-sm border">
+                                    <div
+                                        className="card h-100 shadow-sm border"
+                                        data-component="ProjectTile"
+                                        onClick={() => navigate(`/projekt/${project.id}`)}
+                                        onContextMenu={(e) => openContextMenu(e, project.id)}
+                                        style={{ cursor: 'pointer' }}
+                                    >
                                         <div className="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
                                             <div className="d-flex align-items-center">
                                                 <input
                                                     type="checkbox"
                                                     className="form-check-input me-2"
                                                     checked={selectedProjects.includes(project.id)}
-                                                    onChange={() => handleSelectProject(project.id)}
+                                                    onChange={(e) => { e.stopPropagation(); handleSelectProject(project.id) }}
+                                                    onClick={e => e.stopPropagation()}
+                                                    onContextMenu={e => e.stopPropagation()}
                                                 />
                                                 <div className="d-flex align-items-center">
                                                     <div
@@ -680,12 +647,10 @@ export default function Projects() {
                                                                 project.status === 'Done' ? 'check' : 'time'
                                                             }-fill text-white`}></i>
                                                     </div>
-                                                    <span className={`badge ${getStatusBadgeClass(project.status)} px-2 py-1`}>
-                                                        {project.status}
-                                                    </span>
+                                                    <span className="px-0 py-0"><StatusBadge status={project.status} /></span>
                                                 </div>
                                             </div>
-                                            <div className="dropdown">
+                                            <div className="dropdown" onClick={e => e.stopPropagation()} onContextMenu={e => e.stopPropagation()}>
                                                 <button className="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
                                                     <i className="ri-more-line"></i>
                                                 </button>
@@ -708,7 +673,7 @@ export default function Projects() {
                                                 </ul>
                                             </div>
                                         </div>
-                                        <div className="card-body p-3">
+                                        <div className="card-body p-3" data-component="ProjectTileBody">
                                             <div className="mb-3">
                                                 <h6 className="card-title mb-1 fw-bold">{project.name}</h6>
                                                 <div className="text-muted small mb-2">{project.client}</div>
@@ -726,7 +691,7 @@ export default function Projects() {
                                                 </div>
                                             </div>
 
-                                            <div className="progress mb-3" style={{ height: 8 }}>
+                                            <div className="progress mb-3" style={{ height: 8 }} data-component="TileProgress">
                                                 <div
                                                     className={`progress-bar ${mockProgress >= 80 ? 'bg-success' :
                                                         mockProgress >= 50 ? 'bg-primary' :
@@ -768,7 +733,7 @@ export default function Projects() {
 
                     {/* Pagination for Tiles */}
                     {totalPages > 1 && (
-                        <div className="d-flex justify-content-between align-items-center mt-4">
+                        <div className="d-flex justify-content-between align-items-center mt-4" data-component="TilesPaginationBar">
                             <div className="text-muted small">
                                 Strona {currentPage} z {totalPages} • {paginatedProjects.length} z {sortedAndFiltered.length} projektów
                             </div>
@@ -812,11 +777,12 @@ export default function Projects() {
                 </>
             ) : (
                 /* Kanban View */
-                <div className="row g-3">
+                <div className="row g-3" data-component="KanbanBoard">
                     {(['Active', 'On Hold', 'Done'] as const).map(colStatus => (
                         <div key={colStatus} className="col-12 col-md-4">
                             <div
                                 className="card h-100"
+                                data-component="KanbanColumn"
                                 onDragOver={e => e.preventDefault()}
                                 onDrop={e => {
                                     const id = e.dataTransfer.getData('text/plain')
@@ -843,11 +809,12 @@ export default function Projects() {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="card-body" style={{ minHeight: 300 }}>
+                                <div className="card-body" style={{ minHeight: 300 }} data-component="KanbanColumnBody">
                                     {filtered.filter(p => p.status === colStatus).map(p => (
                                         <div
                                             key={p.id}
                                             className="card mb-2 border"
+                                            data-component="KanbanCard"
                                             draggable
                                             onDragStart={e => {
                                                 e.dataTransfer.setData('text/plain', p.id)
@@ -885,8 +852,78 @@ export default function Projects() {
                     ))}
                 </div>
             )}
+            {/* Context menu */}
+            {ctxMenu.open && ctxMenu.id && (
+                <div
+                    className="position-fixed bg-white border rounded shadow"
+                    style={{ top: ctxMenu.y, left: ctxMenu.x, zIndex: 1080, minWidth: 200 }}
+                    onMouseLeave={() => setCtxMenu({ open: false, x: 0, y: 0, id: null })}
+                >
+                    <button className="dropdown-item" onClick={() => { navigate(`/projekt/${ctxMenu.id}`); setCtxMenu({ open: false, x: 0, y: 0, id: null }) }}>
+                        <i className="ri-eye-line me-2" /> Otwórz projekt
+                    </button>
+                    <button className="dropdown-item" onClick={() => { setEditId(ctxMenu.id); setCtxMenu({ open: false, x: 0, y: 0, id: null }) }}>
+                        <i className="ri-edit-line me-2" /> Edytuj
+                    </button>
+                    <div className="dropdown-divider" />
+                    <button className="dropdown-item text-danger" onClick={() => {
+                        const p = projects.find(pr => pr.id === ctxMenu.id)
+                        if (p && confirm(`Usunąć projekt "${p.name}"?`)) { remove(p.id); showToast('Projekt został usunięty', 'success') }
+                        setCtxMenu({ open: false, x: 0, y: 0, id: null })
+                    }}>
+                        <i className="ri-delete-bin-line me-2" /> Usuń
+                    </button>
+                </div>
+            )}
             {/* Edit Modal */}
             <EditProjectModal open={!!editId} projectId={editId} onClose={() => setEditId(null)} />
+
+            {/* Create Project Modal */}
+            <FormModal
+                title="Nowy Projekt"
+                isOpen={createOpen}
+                initial={createForm}
+                schema={createSchema}
+                onCancel={() => setCreateOpen(false)}
+                onSubmit={async (data) => {
+                    await add(data)
+                    showToast('Projekt utworzony', 'success')
+                    setCreateOpen(false)
+                    setCreateForm({
+                        name: '', clientId: 'C-NEW', client: '', status: 'Active', deadline: new Date().toISOString().slice(0, 10), groups: [], modules: ['wycena', 'koncepcja']
+                    })
+                }}
+            >
+                {(form, setForm, errors) => (
+                    <div className="row g-3">
+                        <div className="col-12">
+                            <label className="form-label small">Nazwa</label>
+                            <input className={`form-control ${errors.name ? 'is-invalid' : ''}`} value={(form as any).name || ''} onChange={e => setForm({ name: e.currentTarget.value } as any)} />
+                            {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+                        </div>
+                        <div className="col-6">
+                            <label className="form-label small">Klient</label>
+                            <input className={`form-control ${errors.client ? 'is-invalid' : ''}`} value={(form as any).client || ''} onChange={e => setForm({ client: e.currentTarget.value } as any)} />
+                        </div>
+                        <div className="col-6">
+                            <label className="form-label small">clientId</label>
+                            <input className={`form-control ${errors.clientId ? 'is-invalid' : ''}`} value={(form as any).clientId || ''} onChange={e => setForm({ clientId: e.currentTarget.value } as any)} />
+                        </div>
+                        <div className="col-6">
+                            <label className="form-label small">Deadline</label>
+                            <input type="date" className="form-control" value={(form as any).deadline?.slice(0, 10) || ''} onChange={e => setForm({ deadline: e.currentTarget.value } as any)} />
+                        </div>
+                        <div className="col-6">
+                            <label className="form-label small">Status</label>
+                            <select className="form-select" value={(form as any).status} onChange={e => setForm({ status: e.currentTarget.value } as any)}>
+                                <option value="Active">Active</option>
+                                <option value="On Hold">On Hold</option>
+                                <option value="Done">Done</option>
+                            </select>
+                        </div>
+                    </div>
+                )}
+            </FormModal>
         </div>
     )
 }

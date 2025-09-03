@@ -17,7 +17,7 @@ interface LogisticsTabProps {
   projectId: string
 }
 
-export default function LogisticsTab({ projectId: _projectId }: LogisticsTabProps) {
+export default function LogisticsTab({ projectId }: LogisticsTabProps) {
   const [logisticsItems, setLogisticsItems] = useState<LogisticsItem[]>([
     {
       id: 'log-1',
@@ -146,7 +146,7 @@ export default function LogisticsTab({ projectId: _projectId }: LogisticsTabProp
   const totalCost = logisticsItems.reduce((sum, item) => sum + item.cost, 0)
 
   return (
-    <div>
+    <div data-project-id={projectId}>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="mb-0">Logistyka i Montaż</h5>
         <button className="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addLogisticsItemModal">

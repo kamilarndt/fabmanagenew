@@ -14,7 +14,10 @@ services:
       dockerfile: docker/Dockerfile.backend
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=3001
     ports:
-      - "3000:3000"
+      - "3001:3001"
+    volumes:
+      - ../backend:/srv/app
+      - /srv/app/node_modules
 

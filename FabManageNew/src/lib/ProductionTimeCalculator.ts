@@ -38,7 +38,7 @@ function distance(a: { x: number; y: number }, b: { x: number; y: number }) {
 
 function parseDrillDiameterHintMm(layer: string | undefined) {
     if (!layer) return undefined
-    const m = /d[_\-]?(\d+(?:\.\d+)?)mm/i.exec(layer)
+    const m = /d[_-]?(\d+(?:\.\d+)?)mm/i.exec(layer)
     if (!m) return undefined
     return parseFloat(m[1])
 }
@@ -50,7 +50,6 @@ function sumPolylineBulgeSweepDeg(vertices: { x: number; y: number; bulge?: numb
     const segCount = closed ? n : n - 1
     for (let i = 0; i < segCount; i++) {
         const a = vertices[i]
-        const b = vertices[(i + 1) % n]
         const bulge = a.bulge ?? 0
         if (!bulge) continue
         const theta = 4 * Math.atan(bulge) // radians

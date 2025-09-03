@@ -1,0 +1,164 @@
+_MATERIAL
+
+    MDF
+
+        6mm
+
+            DO_GIECIA
+
+            TRUDNOPALNA - Copy
+
+            TRUDNOPALNA
+
+        8mm
+
+            DO_GIECIA
+
+            TRUDNOPALNA
+
+        10mm
+
+            DO_GIECIA
+
+            TRUDNOPALNA
+
+        12mm
+
+        18mm
+
+            DO_GIECIA
+
+            TRUDNOPALNA
+
+        30mm
+
+        40mm
+
+    SKLEJKA
+
+        3MM
+
+            DO_GIECIA
+
+        12mm
+
+        16 mm
+
+        18 mm
+
+    WIOROWA
+
+        6mm
+
+            LAMINOWANA
+
+            SUROWA
+
+        8mm
+
+        10mm
+
+        12mm
+
+        18mm
+
+            LAMINOWANA
+
+        30mm
+
+        40mm
+
+    ALUMINIUM
+
+        KATOWNIKI
+
+    DILITE
+
+        M-dilite bialy
+
+        M-dilite drapany
+
+        M-dilite srebrny
+
+    GK
+
+        M-GK
+
+        M-GK -dystanse
+
+        M-GK -profile
+
+        M-GK riflex
+
+    HDF
+
+        M-HDF 3mm
+
+        M-HDF 4mm
+
+    PLEXI
+
+        M-pleksi 4mm
+
+        M-pleksi 4mm opal satin
+
+        M-pleksi 6mm
+
+        M-plexi 10mm
+
+        M-plexi 15mm
+
+        M-plexi dual satin 6mm
+
+        M-plexi opal 6mm
+
+        M-plexi opal 10mm
+
+        M-plexi opal 30mm
+
+        M-pleksi 5mm
+
+    POLIWEGLAN
+
+        KOMOROWY 10MM
+
+    POZOSTALE
+
+        M-cetris 18mm
+
+        M-corian
+
+        M-czarna polysk
+
+        M-hips
+
+        M-horyzont
+
+        M-łata
+
+        M-panele
+
+        M-PCV
+
+        M-perforacja siatka
+
+        M-ramiaki
+
+        M-stal
+
+        M-styrodur
+
+        M-szkło
+
+        M-śruby
+
+        M-tkanina
+
+        M-wydruk3d
+
+        M-wykladzina
+
+
+
+
+

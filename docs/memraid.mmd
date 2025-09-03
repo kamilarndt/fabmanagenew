@@ -1,0 +1,71 @@
+flowchart LR
+  subgraph UIKIT[UI Kit]
+    PH[PageHeader]
+    TB[Toolbar]
+    SB[StatusBadge]
+    STP[StageStepper]
+    FM[FileManager]
+    ET[EntityTable]
+    KB[KanbanBoardGeneric]
+  end
+
+  subgraph STORES[Zustand Stores]
+    PRJ[projectsStore{projects, projectsById}] 
+    TLS[tilesStore{tiles, tilesById}]
+    MAT[materialsStore{materials, materialsById}]
+  end
+
+  subgraph API[API & Realtime]
+    CL[api/client]
+    RT[lib/realtime.subscribeTable]
+    SBX[Supabase Realtime]
+  end
+
+  PH --> ProjectsPage
+  TB --> ProjectsPage
+  SB --> ProjectsPage
+  ET --> ProjectsPage
+  STP --> ProjektPage
+  FM --> ProjectOverview
+  KB --> ProjektElements
+
+  ProjectsPage --> PRJ
+  ProjektPage --> PRJ
+  ProjektElements --> TLS
+  MagazynNew --> MAT
+
+  PRJ --> CL
+  TLS --> CL
+  MAT --> CL
+  RT --> PRJ
+  RT --> TLS
+  SBX --> RT
+  subgraph UIKIT[UI Kit]
+    A2[Step 2A: PageHeader/Toolbar/StatusBadge/EntityCard]
+    B2[Step 2B: StageStepper/FormModal]
+    C2[Step 2C: FileManager/KanbanBoard]
+  end
+
+  S1[Step 1: Konsolidacja MUI] --> A2
+  A2 --> B2
+  B2 --> C2
+
+  S5[Step 5: Normalizacja Zustand] --> S6[Step 6: Realtime Adapter]
+
+  subgraph MIGR[ Migracje stron ]
+    P7[Step 7: Projects -> UI Kit + Virtual Table]
+    T8[Step 8: Tiles -> UI Kit + Kanban + FileManager]
+    M9[Step 9: Materials -> EntityTable]
+  end
+
+  C2 --> T8
+  A2 --> P7
+  A2 --> M9
+  S6 --> P7
+  S6 --> T8
+  S6 --> M9
+
+  FIN[Step 10: Performance & Tests] -->|zamyka| DONE((Done))
+  P7 --> FIN
+  T8 --> FIN
+  M9 --> FIN

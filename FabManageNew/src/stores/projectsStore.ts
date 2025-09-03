@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
 import { listProjects, createProject, updateProject as sbUpdate, deleteProject as sbDelete } from '../services/projects'
 import { generateProjectColorScheme } from '../lib/clientUtils'
+import { subscribeTable } from '../lib/realtime'
 
 export type ProjectModule = 'wycena' | 'koncepcja' | 'projektowanie_techniczne' | 'produkcja' | 'materialy' | 'logistyka_montaz' | 'zakwaterowanie'
 
@@ -151,6 +152,7 @@ const sampleProjects: Project[] = [
 
 interface ProjectsState {
     projects: Project[]
+    projectsById: Record<string, Project>
     isLoading: boolean
     isInitialized: boolean
 
@@ -171,6 +173,7 @@ export const useProjectsStore = create<ProjectsState>()(
     persist(
         (set, get) => ({
             projects: [],
+            projectsById: {},
             isLoading: false,
             isInitialized: false,
 
@@ -180,7 +183,7 @@ export const useProjectsStore = create<ProjectsState>()(
                 try {
                     if (!isSupabaseConfigured) {
                         // If no database, use sample projects
-                        set({ projects: sampleProjects, isInitialized: true })
+                        set({ projects: sampleProjects, projectsById: Object.fromEntries(sampleProjects.map(p => [p.id, p])), isInitialized: true })
 
                         // Synchronizuj projekty z klientami
                         setTimeout(() => {
@@ -202,7 +205,7 @@ export const useProjectsStore = create<ProjectsState>()(
 
                     const data = await listProjects()
                     if (data.length > 0) {
-                        set({ projects: data, isInitialized: true })
+                        set({ projects: data, projectsById: Object.fromEntries(data.map(p => [p.id, p])), isInitialized: true })
 
                         // Synchronizuj projekty z klientami
                         setTimeout(() => {
@@ -231,7 +234,7 @@ export const useProjectsStore = create<ProjectsState>()(
                                 logger.error('Błąd podczas dodawania projektu:', error)
                             }
                         }
-                        set({ projects: sampleProjects, isInitialized: true })
+                        set({ projects: sampleProjects, projectsById: Object.fromEntries(sampleProjects.map(p => [p.id, p])), isInitialized: true })
 
                         // Synchronizuj projekty z klientami
                         setTimeout(() => {
@@ -284,7 +287,10 @@ export const useProjectsStore = create<ProjectsState>()(
                     finalProject.colorScheme = generateProjectColorScheme(project.clientColor)
                 }
 
-                set(state => ({ projects: [...state.projects, finalProject] }))
+                set(state => ({
+                    projects: [...state.projects, finalProject],
+                    projectsById: { ...state.projectsById, [nextId]: finalProject }
+                }))
 
                 if (isSupabaseConfigured) {
                     try {
@@ -297,11 +303,12 @@ export const useProjectsStore = create<ProjectsState>()(
             },
 
             update: async (id: string, project: Partial<Project>) => {
-                set(state => ({
-                    projects: state.projects.map(p =>
-                        p.id === id ? { ...p, ...project } : p
-                    )
-                }))
+                set(state => {
+                    const nextProjects = state.projects.map(p => p.id === id ? { ...p, ...project } : p)
+                    const next = { ...state.projectsById }
+                    next[id] = { ...(next[id] || (state.projects.find(p => p.id === id) as Project)), ...project }
+                    return { projects: nextProjects, projectsById: next }
+                })
 
                 if (isSupabaseConfigured) {
                     try {
@@ -314,9 +321,11 @@ export const useProjectsStore = create<ProjectsState>()(
             },
 
             remove: async (id: string) => {
-                set(state => ({
-                    projects: state.projects.filter(p => p.id !== id)
-                }))
+                set(state => {
+                    const next = { ...state.projectsById }
+                    delete next[id]
+                    return { projects: state.projects.filter(p => p.id !== id), projectsById: next }
+                })
 
                 if (isSupabaseConfigured) {
                     try {
@@ -329,7 +338,7 @@ export const useProjectsStore = create<ProjectsState>()(
             },
 
             setProjects: (projects: Project[]) => {
-                set({ projects })
+                set({ projects, projectsById: Object.fromEntries(projects.map(p => [p.id, p])) })
             },
 
             // Pobierz wszystkie projekty dla danego klienta
@@ -371,7 +380,23 @@ export const useProjectsStore = create<ProjectsState>()(
             partialize: (state) => ({ projects: state.projects }),
             onRehydrateStorage: () => (state) => {
                 if (state && !state.isInitialized) {
+                    // rebuild map
+                    state.projectsById = Object.fromEntries(state.projects.map(p => [p.id, p]))
                     state.initialize()
+                }
+                // subscribe realtime
+                if (state) {
+                    const unsubscribe = subscribeTable<Project>('projects', (rows) => {
+                        const next = { ...state.projectsById }
+                        rows.forEach(r => { next[r.id] = r })
+                        state.setProjects(Object.values(next))
+                    }, (ids) => {
+                        const next = { ...state.projectsById }
+                        ids.forEach(id => { delete next[id] })
+                        state.setProjects(Object.values(next))
+                    })
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        ; (state as any)._unsubscribeProjects = unsubscribe
                 }
             }
         }

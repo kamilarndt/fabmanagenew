@@ -10,7 +10,8 @@ const Klienci = lazy(() => import('./pages/Klienci'))
 const Projektowanie = lazy(() => import('./pages/Projektowanie'))
 const CNC = lazy(() => import('./pages/CNC'))
 const Produkcja = lazy(() => import('./pages/Produkcja'))
-const MagazynNew = lazy(() => import('./pages/MagazynNew'))
+const Magazyn = lazy(() => import('./pages/MagazynNew'))
+const Demands = lazy(() => import('./pages/Demands'))
 import './App.css'
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
                             <Link to="/cnc" className="nav-link">CNC</Link>
                             <Link to="/produkcja" className="nav-link">Produkcja</Link>
                             <Link to="/magazyn" className="nav-link">Magazyn</Link>
+                            <Link to="/zapotrzebowania" className="nav-link">Zapotrzebowania</Link>
                         </nav>
                     </div>
                 </div>
@@ -50,7 +52,8 @@ function App() {
                                 <Route path="/projektowanie" element={<Projektowanie />} />
                                 <Route path="/cnc" element={<CNC />} />
                                 <Route path="/produkcja" element={<Produkcja />} />
-                                <Route path="/magazyn" element={<MagazynNew />} />
+                                <Route path="/magazyn" element={<Magazyn />} />
+                                <Route path="/zapotrzebowania" element={<Demands />} />
                             </Routes>
                         </Suspense>
                     </main>

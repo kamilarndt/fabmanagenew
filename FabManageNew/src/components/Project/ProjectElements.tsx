@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import type { Tile } from '../../types/tiles.types'
 import type { Project } from '../../types/projects.types'
-import KanbanBoard from '../Kanban/KanbanBoard'
+import { KanbanBoardGeneric } from '../Ui/KanbanBoardGeneric'
 import GroupView from '../Groups/GroupView'
 import { useTilesStore } from '../../stores/tilesStore'
 import { showToast } from '../../lib/toast'
@@ -51,6 +51,31 @@ export default function ProjectElements({
         })
         return Object.values(dict)
     }, [projectTiles, project.groups])
+
+    const columns = [
+        { id: 'nowy', title: 'Nowy', color: 'bg-secondary' },
+        { id: 'projektowanie', title: 'Projektowanie', color: 'bg-warning' },
+        { id: 'cnc', title: 'Wycinanie CNC', color: 'bg-primary' },
+        { id: 'montaz', title: 'Składanie (Produkcja)', color: 'bg-success' }
+    ] as const
+
+    const getColumnId = (t: Tile) => {
+        switch (t.status) {
+            case 'W KOLEJCE': return 'nowy'
+            case 'Projektowanie':
+            case 'W trakcie projektowania':
+            case 'Do akceptacji':
+            case 'Wymagają poprawek':
+                return 'projektowanie'
+            case 'W TRAKCIE CIĘCIA':
+            case 'WYCIĘTE':
+                return 'cnc'
+            case 'Gotowy do montażu':
+            case 'Zaakceptowane':
+                return 'montaz'
+            default: return 'nowy'
+        }
+    }
 
     const handleQuickAdd = async () => {
         const name = qaName.trim()
@@ -132,8 +157,10 @@ export default function ProjectElements({
             </div>
 
             {/* Kanban */}
-            <KanbanBoard
-                projectTiles={projectTiles}
+            <KanbanBoardGeneric
+                tiles={projectTiles}
+                columns={columns as any}
+                getColumnId={getColumnId}
                 onTileUpdate={onTileUpdate}
                 onTileClick={onTileClick}
                 tileCosts={tileCosts}

@@ -7,7 +7,8 @@ export default function MobileNav() {
                 <NavLink className="btn btn-link" to="/"><i className="ri-home-4-line"></i></NavLink>
                 <NavLink className="btn btn-link" to="/projekty"><i className="ri-briefcase-4-line"></i></NavLink>
                 <NavLink className="btn btn-link" to="/cnc"><i className="ri-shape-2-line"></i></NavLink>
-                <NavLink className="btn btn-link" to="/magazyn"><i className="ri-archive-2-line"></i></NavLink>
+                {/* Magazyn temporarily removed */}
+                <NavLink className="btn btn-link" to="/zapotrzebowania"><i className="ri-shopping-cart-2-line"></i></NavLink>
                 <NavLink className="btn btn-link" to="/produkcja"><i className="ri-dashboard-2-line"></i></NavLink>
             </div>
         </div>

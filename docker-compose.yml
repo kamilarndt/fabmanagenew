@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ../fabManage
+      dockerfile: docker/Dockerfile.backend
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/srv/app
+      - /srv/app/node_modules
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./package.json:/app/package.json
+      - ./vite.config.ts:/app/vite.config.ts
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    command: npm run dev -- --host 0.0.0.0
+
+networks:
+  default:
+    name: fabmanage-network

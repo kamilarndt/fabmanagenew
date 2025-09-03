@@ -1,0 +1,35 @@
+flowchart LR
+  subgraph UIKIT[UI Kit (wspólne)]
+    TBL[EntityTable<T>]
+    PH[PageHeader]
+    TB[Toolbar]
+    SB[StatusBadge]
+    STP[StageStepper]
+    FM[FormModal (zod)]
+    FMG[FileManager]
+    KB[KanbanBoard]
+    EC[EntityCard]
+  end
+
+  subgraph FEATURES[Ekrany]
+    PJ[Projects]
+    TL[Tiles]
+    MAT[Materials]
+  end
+
+  PH --> PJ
+  TB --> PJ
+  TBL --> PJ
+  EC --> PJ
+
+  PH --> TL
+  SB --> TL
+  STP --> TL
+  KB --> TL
+  FMG --> TL
+
+  PH --> MAT
+  TBL --> MAT
+  SB --> MAT
+
+

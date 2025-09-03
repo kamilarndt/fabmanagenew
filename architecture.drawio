@@ -1,0 +1,136 @@
+<mxfile host="65bd71144e">
+    <diagram id="FabManageNew-Architecture" name="Architecture">
+        <mxGraphModel dx="46019" dy="16982" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1600" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="frontend" value="Frontend (FabManageNew)" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=30;align=left;verticalAlign=top;fillColor=#dae8fc;strokeColor=#6c8ebf;rounded=1;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="80" width="560" height="520" as="geometry"/>
+                </mxCell>
+                <mxCell id="pages" value="Pages (React Router)&#xa;/, /projekty, /projekt/:id, /klienci, /projektowanie, /cnc, /magazyn, /produkcja, /zapotrzebowania" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" parent="frontend" vertex="1">
+                    <mxGeometry x="20" y="40" width="520" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="modules" value="Modules&#xa;- Estimate, Concept, Materials, Logistics, Accommodation, Technical Design" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" parent="frontend" vertex="1">
+                    <mxGeometry x="20" y="130" width="520" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="components" value="Shared Components&#xa;- Kanban, DXF Preview/Fullscreen, Warehouse UI, Modals, ThemeToggle" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" parent="frontend" vertex="1">
+                    <mxGeometry x="20" y="220" width="520" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="stores" value="State (Zustand + persist)&#xa;- projectsStore, tilesStore, materialsStore, logisticsStore, accommodationStore, conceptStore, activityStore, clientsStore" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" parent="frontend" vertex="1">
+                    <mxGeometry x="20" y="310" width="520" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="apiClients" value="API Clients&#xa;- materials, estimate, concept, demands&#xa;Base: apiFetch (VITE_API_BASE_URL)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" parent="frontend" vertex="1">
+                    <mxGeometry x="20" y="420" width="520" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="backendGroup" value="Backend (Node/Express)" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=30;align=left;verticalAlign=top;fillColor=#ffe6cc;strokeColor=#d79b00;rounded=1;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="80" width="520" height="300" as="geometry"/>
+                </mxCell>
+                <mxCell id="backendEndpoints" value="Endpoints&#xa;- GET /api/materials, /api/materials/flat&#xa;- POST /api/materials/:id/stock&#xa;- GET/POST /api/demands&#xa;- POST /api/estimate&#xa;- POST /api/concept/miro/boards" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;" parent="backendGroup" vertex="1">
+                    <mxGeometry x="20" y="40" width="480" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="backendFiles" value="Files&#xa;- backend/rhino.txt&#xa;- backend/stocks.json&#xa;- backend/demands.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;" parent="backendGroup" vertex="1">
+                    <mxGeometry x="20" y="170" width="480" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="backendDb" value="DB (optional)&#xa;- PostgreSQL (docker)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;" parent="backendGroup" vertex="1">
+                    <mxGeometry x="20" y="240" width="480" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="nginx" value="Nginx (prod)&#xa;- Reverse proxy to frontend&#xa;- CSP &amp; security headers&#xa;- SPA fallback" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="420" width="250" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="docker" value="Docker Compose&#xa;- fabmanage-dev (vite 3002)&#xa;- fabmanage-prod (serve 3000)&#xa;- backend (3001)&#xa;- nginx (80/443)&#xa;- postgres (optional)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+                    <mxGeometry x="980" y="420" width="240" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="rhino" value="Rhino Plugin&#xa;- _MATERIAL::...&#xa;- rhino.txt&#xa;- POST /api/demands" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+                    <mxGeometry x="1100" y="-90" width="260" height="130" as="geometry"/>
+                </mxCell>
+                <mxCell id="pagesMap" value="Pages Map" style="swimlane;fontStyle=1;startSize=28;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;" parent="1" vertex="1">
+                    <mxGeometry x="1480" y="60" width="820" height="360" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_dashboard" value="/ (Dashboard)\nKPI, aktywności, skróty" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;" parent="pagesMap" vertex="1">
+                    <mxGeometry x="20" y="40" width="240" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_projects" value="/projekty (Projects)\nTabela, filtry, masowe akcje" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;" parent="pagesMap" vertex="1">
+                    <mxGeometry x="280" y="40" width="240" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_project" value="/projekt/:id (Project)\nZakładki dynamiczne: overview, koncepcja, wycena, elementy, zakupy, logistyka, zakwaterowanie" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;" parent="pagesMap" vertex="1">
+                    <mxGeometry x="540" y="40" width="260" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_design" value="/projektowanie (Design)\nKanban (statusy projektowe)" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;" parent="pagesMap" vertex="1">
+                    <mxGeometry x="20" y="140" width="240" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_cnc" value="/cnc (CNC)\nKolejka, DXF, drag&amp;drop" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;" parent="pagesMap" vertex="1">
+                    <mxGeometry x="280" y="140" width="240" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_magazyn" value="/magazyn (Warehouse)\nKategorie, lista/kafelki, krytyczne stany, szczegóły" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;" parent="pagesMap" vertex="1">
+                    <mxGeometry x="540" y="160" width="260" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_produkcja" value="/produkcja (Production)\nHarmonogram/kanban (plan)" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;" parent="pagesMap" vertex="1">
+                    <mxGeometry x="20" y="240" width="240" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_clients" value="/klienci (Clients)\nCRM, karty, detale" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;" parent="pagesMap" vertex="1">
+                    <mxGeometry x="280" y="240" width="240" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_demands" value="/zapotrzebowania (Demands)\nLista zapotrzebowań" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;" parent="pagesMap" vertex="1">
+                    <mxGeometry x="540" y="280" width="260" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="mapSection" value="Page → Store → Model mapping" style="swimlane;fontStyle=1;startSize=28;fillColor=#e1f5fe;strokeColor=#7ea6e0;rounded=1;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="640" width="1160" height="540" as="geometry"/>
+                </mxCell>
+                <mxCell id="m_projects" value="/projekty → projectsStore → Project" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#7ea6e0;" parent="mapSection" vertex="1">
+                    <mxGeometry x="20" y="40" width="360" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="m_project" value="/projekt/:id → projectsStore, tilesStore, materialsStore, logisticsStore, accommodationStore, activityStore → Project, Tile, PurchaseRequest/Reservation/Delivery, Route/Installation/Punch/SignOff, Accommodation, ActivityItem" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#7ea6e0;" parent="mapSection" vertex="1">
+                    <mxGeometry x="20" y="110" width="1120" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="m_design" value="/projektowanie → tilesStore → Tile (statusy projektowe)" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#7ea6e0;" parent="mapSection" vertex="1">
+                    <mxGeometry x="20" y="220" width="520" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="m_cnc" value="/cnc → tilesStore + DXF libs → Tile + DXF-derived metrics" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#7ea6e0;" parent="mapSection" vertex="1">
+                    <mxGeometry x="560" y="220" width="580" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="m_mag" value="/magazyn → materialsStore → Material, MaterialStats, Category" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#7ea6e0;" parent="mapSection" vertex="1">
+                    <mxGeometry x="20" y="290" width="520" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="m_clients" value="/klienci → clientsStore → CompanyClient, ContactPerson, ClientActivity/Note/Document" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#7ea6e0;" parent="mapSection" vertex="1">
+                    <mxGeometry x="560" y="290" width="580" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="m_demands" value="/zapotrzebowania → backend /api/demands → Demand (backend)" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#7ea6e0;" parent="mapSection" vertex="1">
+                    <mxGeometry x="20" y="360" width="520" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="m_estimate" value="Project(tab: wycena) → estimateStore + api/estimate → EstimateMaterial, LineItems" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#7ea6e0;" parent="mapSection" vertex="1">
+                    <mxGeometry x="560" y="360" width="580" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="apiSection" value="API &amp; Flows" style="swimlane;fontStyle=1;startSize=28;fillColor=#f4f1f8;strokeColor=#a58bcf;rounded=1;" parent="1" vertex="1">
+                    <mxGeometry x="1240" y="640" width="1060" height="540" as="geometry"/>
+                </mxCell>
+                <mxCell id="a_materials" value="materials: GET /api/materials, /flat; POST /materials/:id/stock" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#a58bcf;" parent="apiSection" vertex="1">
+                    <mxGeometry x="20" y="40" width="500" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="a_demands" value="demands: GET/POST /api/demands — payload { materialId, name, requiredQty, projectId? }" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#a58bcf;" parent="apiSection" vertex="1">
+                    <mxGeometry x="540" y="40" width="500" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="a_estimate" value="estimate: POST /api/estimate — returns PDF" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#a58bcf;" parent="apiSection" vertex="1">
+                    <mxGeometry x="20" y="110" width="500" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="a_concept" value="concept/miro: POST /api/concept/miro/boards — { id, url }" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#a58bcf;" parent="apiSection" vertex="1">
+                    <mxGeometry x="540" y="110" width="500" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="flow_project" value="Flow: Project lifecycle\nCreate project → add tiles/files → design status → CNC (DXF) → materials demands/stock → logistics/installations → sign-off" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#a58bcf;" parent="apiSection" vertex="1">
+                    <mxGeometry x="20" y="190" width="1020" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="flow_rhino" value="Flow: Rhino sync\nRhino exports _MATERIAL::… → backend/rhino.txt → backend builds materials/flat → frontend syncs (/magazyn) → demands posted from project usage" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#a58bcf;" parent="apiSection" vertex="1">
+                    <mxGeometry x="20" y="290" width="1020" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_pages_modules" style="endArrow=block;strokeColor=#6c8ebf;" parent="1" source="pages" target="modules" edge="1"/>
+                <mxCell id="e_modules_components" style="endArrow=block;strokeColor=#6c8ebf;" parent="1" source="modules" target="components" edge="1"/>
+                <mxCell id="e_components_stores" style="endArrow=block;strokeColor=#6c8ebf;" parent="1" source="components" target="stores" edge="1"/>
+                <mxCell id="e_stores_api" style="endArrow=block;strokeColor=#6c8ebf;" parent="1" source="stores" target="apiClients" edge="1"/>
+                <mxCell id="e_api_backend" style="endArrow=block;strokeColor=#d79b00;" parent="1" source="apiClients" target="backendEndpoints" edge="1"/>
+                <mxCell id="e_backend_files" style="endArrow=block;strokeColor=#d79b00;" parent="1" source="backendEndpoints" target="backendFiles" edge="1"/>
+                <mxCell id="e_backend_db" style="endArrow=block;strokeColor=#d79b00;" parent="1" source="backendEndpoints" target="backendDb" edge="1"/>
+                <mxCell id="e_rhino_files" style="endArrow=block;strokeColor=#82b366;" parent="1" source="rhino" target="backendFiles" edge="1"/>
+                <mxCell id="e_rhino_demands" style="endArrow=block;strokeColor=#82b366;" parent="1" source="rhino" target="backendEndpoints" edge="1"/>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
