@@ -16,4 +16,16 @@ export default defineConfig({
       filename: 'pwa-sw.ts'
     })
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+      '/files': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      }
+    }
+  }
 })

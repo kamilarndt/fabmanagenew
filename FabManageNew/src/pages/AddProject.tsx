@@ -1,12 +1,12 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProjectsStore, type ProjectModule } from '../stores/projectsStore'
-import { useClientsStore } from '../stores/clientsStore'
+import { useClientDataStore } from '../stores/clientDataStore'
 
 export default function AddProject() {
     const navigate = useNavigate()
     const { add } = useProjectsStore()
-    const { clients } = useClientsStore()
+    const { clients } = useClientDataStore()
 
     const [name, setName] = useState('')
     const [description, setDescription] = useState('')
@@ -18,8 +18,8 @@ export default function AddProject() {
     const [modules, setModules] = useState<ProjectModule[]>([])
 
     // Pobierz nazwę klienta na podstawie ID
-    const selectedClient = useMemo(() => 
-        clients.find(c => c.id === clientId), [clients, clientId]
+    const selectedClient = useMemo(() =>
+        clients.find((c: any) => c.id === clientId), [clients, clientId]
     )
 
     const isValid = useMemo(() => name.trim() && clientId && deadline.trim(), [name, clientId, deadline])
@@ -30,7 +30,7 @@ export default function AddProject() {
 
     const handleSubmit = async () => {
         if (!isValid || !selectedClient) return
-        
+
         await add({
             name: name.trim(),
             clientId: clientId,
@@ -84,16 +84,16 @@ export default function AddProject() {
                                 </div>
                                 <div className="col-sm-6">
                                     <label className="form-label">Klient</label>
-                                    <select 
-                                        className="form-select" 
-                                        value={clientId} 
+                                    <select
+                                        className="form-select"
+                                        value={clientId}
                                         onChange={e => setClientId(e.target.value)}
                                         required
                                     >
                                         <option value="">Wybierz klienta</option>
-                                        {clients.map(client => (
+                                        {clients.map((client: any) => (
                                             <option key={client.id} value={client.id}>
-                                                {client.companyName} ({client.segment}, {client.region})
+                                                {client.companyName}
                                             </option>
                                         ))}
                                     </select>

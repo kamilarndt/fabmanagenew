@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { isSupabaseConfigured, supabase } from '../lib/supabase'
+import { isSupabaseConfigured } from '../lib/supabase'
 import { listTiles, updateTile as sbUpdate, createTile as sbCreate } from '../services/tiles'
 import { showToast } from '../lib/toast'
 import { subscribeTable } from '../lib/realtime'
@@ -85,12 +85,6 @@ export const useTilesStore = create<TilesState>()(
                         set({ isInitialized: true })
                         return
                     }
-                    if (!isSupabaseConfigured) {
-                        // If no database, use demo tiles
-                        set({ tiles: demoTiles, tilesById: Object.fromEntries(demoTiles.map(t => [t.id, t])), isInitialized: true })
-                        return
-                    }
-
                     const data = await listTiles()
                     if (data.length > 0) {
                         set({ tiles: data, tilesById: Object.fromEntries(data.map(t => [t.id, t])), isInitialized: true })
@@ -116,15 +110,13 @@ export const useTilesStore = create<TilesState>()(
                     return { tiles: nextTiles, tilesById: next }
                 })
 
-                if (isSupabaseConfigured) {
-                    try {
-                        await sbUpdate(id, { status })
-                        showToast(`Zmieniono status kafelka ${id} → ${status}`, 'success')
-                    } catch (error) {
-                        const { logger } = await import('../lib/logger')
-                        logger.error('Błąd podczas aktualizacji statusu:', error)
-                        showToast('Błąd zapisu statusu kafelka', 'danger')
-                    }
+                try {
+                    await sbUpdate(id, { status })
+                    showToast(`Zmieniono status kafelka ${id} → ${status}`, 'success')
+                } catch (error) {
+                    const { logger } = await import('../lib/logger')
+                    logger.error('Błąd podczas aktualizacji statusu:', error)
+                    showToast('Błąd zapisu statusu kafelka', 'danger')
                 }
             },
 
@@ -136,28 +128,24 @@ export const useTilesStore = create<TilesState>()(
                     return { tiles: nextTiles, tilesById: next }
                 })
 
-                if (isSupabaseConfigured) {
-                    try {
-                        await sbUpdate(id, patch)
-                    } catch (error) {
-                        const { logger } = await import('../lib/logger')
-                        logger.error('Błąd podczas aktualizacji kafelka:', error)
-                    }
+                try {
+                    await sbUpdate(id, patch)
+                } catch (error) {
+                    const { logger } = await import('../lib/logger')
+                    logger.error('Błąd podczas aktualizacji kafelka:', error)
                 }
             },
 
             addTile: async (tile: Tile) => {
                 set(state => ({ tiles: [...state.tiles, tile], tilesById: { ...state.tilesById, [tile.id]: tile } }))
 
-                if (isSupabaseConfigured) {
-                    try {
-                        await sbCreate(tile)
-                        showToast('Kafelek dodany pomyślnie', 'success')
-                    } catch (error) {
-                        const { logger } = await import('../lib/logger')
-                        logger.error('Błąd podczas dodawania kafelka:', error)
-                        showToast('Błąd podczas dodawania kafelka', 'danger')
-                    }
+                try {
+                    await sbCreate(tile)
+                    showToast('Kafelek dodany pomyślnie', 'success')
+                } catch (error) {
+                    const { logger } = await import('../lib/logger')
+                    logger.error('Błąd podczas dodawania kafelka:', error)
+                    showToast('Błąd podczas dodawania kafelka', 'danger')
                 }
             },
 
@@ -174,25 +162,23 @@ export const useTilesStore = create<TilesState>()(
                     )
                 }))
 
-                if (isSupabaseConfigured) {
-                    try {
-                        // Update all accepted tiles for this project to 'W KOLEJCE'
-                        const acceptedTiles = useTilesStore.getState().tiles.filter(
-                            t => t.project === projectId && t.status === 'Zaakceptowane'
-                        )
+                try {
+                    // Update all accepted tiles for this project to 'W KOLEJCE'
+                    const acceptedTiles = useTilesStore.getState().tiles.filter(
+                        t => t.project === projectId && t.status === 'Zaakceptowane'
+                    )
 
-                        for (const tile of acceptedTiles) {
-                            await sbUpdate(tile.id, { status: 'W KOLEJCE' })
-                        }
-
-                        if (acceptedTiles.length > 0) {
-                            showToast(`${acceptedTiles.length} zaakceptowanych elementów przeniesiono do kolejki produkcji`, 'success')
-                        }
-                    } catch (error) {
-                        const { logger } = await import('../lib/logger')
-                        logger.error('Błąd podczas przenoszenia elementów do kolejki:', error)
-                        showToast('Błąd podczas przenoszenia elementów do kolejki', 'danger')
+                    for (const tile of acceptedTiles) {
+                        await sbUpdate(tile.id, { status: 'W KOLEJCE' })
                     }
+
+                    if (acceptedTiles.length > 0) {
+                        showToast(`${acceptedTiles.length} zaakceptowanych elementów przeniesiono do kolejki produkcji`, 'success')
+                    }
+                } catch (error) {
+                    const { logger } = await import('../lib/logger')
+                    logger.error('Błąd podczas przenoszenia elementów do kolejki:', error)
+                    showToast('Błąd podczas przenoszenia elementów do kolejki', 'danger')
                 }
             }
         }),
@@ -228,19 +214,4 @@ export const useTilesStore = create<TilesState>()(
     )
 )
 
-// Set up real-time subscriptions
-if (isSupabaseConfigured) {
-    supabase.channel('tiles-changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'tiles' }, async () => {
-            try {
-                const data = await listTiles()
-                if (data) {
-                    useTilesStore.getState().setTiles(data)
-                }
-            } catch (error) {
-                const { logger } = await import('../lib/logger')
-                logger.error('Błąd podczas synchronizacji kafelków:', error)
-            }
-        })
-        .subscribe()
-}
+// realtime is handled via lib/realtime in onRehydrateStorage

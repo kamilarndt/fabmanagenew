@@ -1,6 +1,6 @@
 import { supabase, isSupabaseConfigured } from './supabase'
 import { useEffect, useRef } from 'react'
-import type { PostgresChangePayload } from '@supabase/supabase-js'
+import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 
 type UpsertFn<T> = (rows: T[]) => void
 
@@ -12,7 +12,7 @@ export function subscribeTable<T>(
     if (!isSupabaseConfigured) return () => { }
     const chan = supabase
         .channel(`${table}-changes`)
-        .on('postgres_changes', { event: '*', schema: 'public', table }, (payload: PostgresChangePayload<any>) => {
+        .on('postgres_changes', { event: '*', schema: 'public', table }, (payload: RealtimePostgresChangesPayload<any>) => {
             if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
                 const row = payload.new as T
                 onUpsert([row])

@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react'
 import { filterMaterials, calculateMaterialStats } from '../data/materialsMockData'
 import type { MaterialData } from '../data/materialsMockData'
 import { useMaterialsStore } from '../stores/materialsStore'
-import '../styles/warehouse.css'
+// consolidated styles are loaded via index.css -> styles/theme.css
 import CategoryTree from '../components/Magazyn/CategoryTree'
 import MaterialCard from '../components/Magazyn/MaterialCard'
 

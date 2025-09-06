@@ -3,6 +3,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const chokidar = require('chokidar');
+const multer = require('multer');
 
 const app = express();
 
@@ -10,9 +11,16 @@ const PORT = process.env.PORT || 3001;
 const RHINO_TXT = path.join(__dirname, 'rhino.txt');
 const STOCKS_JSON = path.join(__dirname, 'stocks.json');
 const DEMANDS_JSON = path.join(__dirname, 'demands.json');
+const TILES_JSON = path.join(__dirname, 'tiles.json');
+const UPLOADS_DIR = path.join(__dirname, 'uploads');
 
 app.use(cors());
 app.use(express.json());
+app.use('/files', express.static(UPLOADS_DIR));
+
+// Ensure required data files and directories exist
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+if (!fs.existsSync(TILES_JSON)) fs.writeFileSync(TILES_JSON, JSON.stringify([], null, 2));
 
 app.get('/health', (_req, res) => res.status(200).send('OK'));
 
@@ -20,6 +28,7 @@ app.get('/health', (_req, res) => res.status(200).send('OK'));
 let materialsFlat = [];
 let stocks = {};
 let demands = [];
+let tiles = [];
 
 function parseRhinoTxtToMaterials(filePath) {
     if (!fs.existsSync(filePath)) {
@@ -201,6 +210,26 @@ function saveDemands() {
     fs.writeFileSync(DEMANDS_JSON, JSON.stringify(demands, null, 2));
 }
 
+function loadTiles() {
+    try {
+        if (!fs.existsSync(TILES_JSON)) fs.writeFileSync(TILES_JSON, JSON.stringify([], null, 2));
+        const raw = fs.readFileSync(TILES_JSON, 'utf8');
+        tiles = JSON.parse(raw);
+        if (!Array.isArray(tiles)) tiles = [];
+    } catch (e) {
+        console.error('[tiles] Failed to load:', e.message);
+        tiles = [];
+    }
+}
+
+function saveTiles() {
+    try {
+        fs.writeFileSync(TILES_JSON, JSON.stringify(tiles, null, 2));
+    } catch (e) {
+        console.error('[tiles] Failed to save:', e.message);
+    }
+}
+
 // Helper: hydrate materials from stocks if materialsFlat is empty
 function hydrateMaterialsFromStocksIfEmpty() {
     try {
@@ -240,6 +269,7 @@ function hydrateMaterialsFromStocksIfEmpty() {
 loadMaterials();
 loadStocks();
 loadDemands();
+loadTiles();
 // If for any reason materialsFlat is empty, try to hydrate from stocks
 hydrateMaterialsFromStocksIfEmpty();
 
@@ -473,6 +503,110 @@ app.post('/api/rhino/snapshot', (req, res) => {
 
 app.get('/', (_req, res) => {
     res.json({ status: 'ok', service: 'fabryka-backend' });
+});
+
+// --- Tiles CRUD ---
+// Data model (minimal): { id, name, quantity?, material?, status, project?, files?, description? }
+// Statuses: 'do_review' | 'zaakceptowany' | 'w_produkcji' | 'gotowy'
+
+function sanitizeStatus(s) {
+    const allowed = ['do_review', 'zaakceptowany', 'w_produkcji', 'gotowy'];
+    return allowed.includes(s) ? s : 'do_review';
+}
+
+app.get('/api/tiles', (req, res) => {
+    const { projectId } = req.query || {};
+    let result = tiles;
+    if (projectId) result = result.filter(t => t.project === projectId);
+    res.json(result);
+});
+
+app.post('/api/tiles', (req, res) => {
+    try {
+        const { id, name, quantity, material, status, project, description, files, bom } = req.body || {};
+        if (!name) return res.status(400).json({ error: 'name is required' });
+        const tileId = id && typeof id === 'string' ? id : `t-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        const item = {
+            id: tileId,
+            name,
+            quantity: Number.isFinite(quantity) ? Number(quantity) : undefined,
+            material: material || null,
+            status: sanitizeStatus(status || 'do_review'),
+            project: project || null,
+            description: description || '',
+            files: Array.isArray(files) ? files : [],
+            bom: Array.isArray(bom) ? bom : []
+        };
+        tiles.push(item);
+        saveTiles();
+        res.json(item);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.put('/api/tiles/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        const idx = tiles.findIndex(t => t.id === id);
+        if (idx === -1) return res.status(404).json({ error: 'not_found' });
+        const patch = req.body || {};
+        const next = { ...tiles[idx], ...patch };
+        if (patch.status) next.status = sanitizeStatus(patch.status);
+        tiles[idx] = next;
+        saveTiles();
+        res.json(next);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.delete('/api/tiles/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        const before = tiles.length;
+        tiles = tiles.filter(t => t.id !== id);
+        if (tiles.length === before) return res.status(404).json({ error: 'not_found' });
+        saveTiles();
+        res.json({ ok: true, id });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// --- File uploads ---
+const storage = multer.diskStorage({
+    destination: (_req, _file, cb) => {
+        cb(null, UPLOADS_DIR);
+    },
+    filename: (req, file, cb) => {
+        const base = path.basename(file.originalname);
+        const safe = base.replace(/[^a-zA-Z0-9._-]+/g, '_');
+        const prefix = req.query && typeof req.query.tileId === 'string' ? `${req.query.tileId}__` : '';
+        const name = `${prefix}${Date.now()}_${safe}`;
+        cb(null, name);
+    }
+});
+const upload = multer({ storage });
+
+app.post('/api/upload', upload.single('file'), (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: 'file_required' });
+        const publicPath = `/files/${req.file.filename}`;
+        const tileId = typeof req.query.tileId === 'string' ? req.query.tileId : null;
+        // Optionally attach file to tile
+        if (tileId) {
+            const t = tiles.find(tt => tt.id === tileId);
+            if (t) {
+                const f = { name: req.file.originalname, path: publicPath, mime: req.file.mimetype, size: req.file.size };
+                t.files = Array.isArray(t.files) ? [...t.files, f] : [f];
+                saveTiles();
+            }
+        }
+        res.json({ ok: true, path: publicPath, name: req.file.originalname, mime: req.file.mimetype, size: req.file.size });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
 // Concept and Estimate endpoints remain (omitted here for brevity in this file excerpt)

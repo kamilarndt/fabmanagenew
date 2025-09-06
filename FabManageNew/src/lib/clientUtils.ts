@@ -1,6 +1,22 @@
 // Utility functions dla systemu klientów - FabManage
 
-import type { CompanyClient, GeneratedLogo, ProjectColorScheme } from '../types/clients.types';
+import type { ProcessedClient } from '../types/clientData.types';
+
+// Legacy types for backward compatibility
+export type CompanyClient = ProcessedClient;
+export interface GeneratedLogo {
+    cardColor: string;
+    textColor: string;
+    initials: string;
+    backgroundColor: string;
+}
+export interface ProjectColorScheme {
+    primary: string;
+    secondary: string;
+    light: string;
+    dark: string;
+    accent: string;
+}
 
 /**
  * Generuje logo z inicjałów nazwy firmy
@@ -28,7 +44,8 @@ export function generateLogoFromName(companyName: string): GeneratedLogo {
     return {
         initials,
         backgroundColor,
-        textColor
+        textColor,
+        cardColor: backgroundColor
     };
 }
 
@@ -124,13 +141,15 @@ export function generateProjectColorScheme(clientColor: string): ProjectColorSch
     const dark = `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.max(15, Math.round(l * 100) - 15)}%)`
     const accent = `hsl(${Math.round((h * 360 + 180) % 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`
 
+    // Calculate secondary color (30 degrees shift in hue)
+    const secondary = `hsl(${Math.round((h * 360 + 30) % 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`
+
     return {
         primary,
+        secondary,
         light,
         dark,
-        accent,
-        textOnPrimary: getTextColorForBackground(primary),
-        textOnLight: getTextColorForBackground(light)
+        accent
     }
 }
 
@@ -169,11 +188,11 @@ export function generateClientCardBorder(clientColor: string): string {
  */
 export function getStatusColor(status: CompanyClient['status']): string {
     switch (status) {
-        case 'Aktywny':
+        case 'Active':
             return '#10b981'; // Green
-        case 'Nieaktywny':
+        case 'Inactive':
             return '#6b7280'; // Gray
-        case 'Lead':
+        case 'Pending':
             return '#f59e0b'; // Yellow
         default:
             return '#6b7280';

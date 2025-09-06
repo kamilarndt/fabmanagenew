@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from 'react'
 import { calculateMaterialStats } from '../data/materialsMockData'
 import type { MaterialData } from '../data/materialsMockData'
 import { useMaterialsStore } from '../stores/materialsStore'
-import '../styles/warehouse.css'
+// consolidated styles are loaded via index.css -> styles/theme.css
 import OperationForm from '../components/Magazyn/OperationForm'
 import { PageHeader } from '../components/Ui/PageHeader'
 import { Toolbar } from '../components/Ui/Toolbar'

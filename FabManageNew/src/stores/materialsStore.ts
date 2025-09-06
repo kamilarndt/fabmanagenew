@@ -284,8 +284,8 @@ export const useMaterialsStore = create<MaterialsStore>()(
           }, (ids: string[]) => {
             state.setMaterials(state.materials.filter(m => !ids.includes(m.id)))
           })
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ; (state as any)._unsubscribeMaterials = unsubscribe
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ; (state as any)._unsubscribeMaterials = unsubscribe
         }
       }
     }

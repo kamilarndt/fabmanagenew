@@ -105,9 +105,10 @@ export default function TileEditModal({ tile, onClose, onSave }: { tile: Tile; o
                 <div className="mb-2">
                     <label className="form-label">Status</label>
                     <select className="form-select" value={status} onChange={e => setStatus(e.currentTarget.value as any)}>
-                        <option value="W KOLEJCE">W KOLEJCE</option>
-                        <option value="W TRAKCIE CIĘCIA">W TRAKCIE CIĘCIA</option>
-                        <option value="WYCIĘTE">WYCIĘTE</option>
+                        <option value="do_review">Do review</option>
+                        <option value="zaakceptowany">Zaakceptowany</option>
+                        <option value="w_produkcji">W produkcji</option>
+                        <option value="gotowy">Gotowy</option>
                     </select>
                 </div>
                 <div className="row g-2 mb-2">

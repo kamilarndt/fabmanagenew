@@ -27,11 +27,11 @@ export default function ProjectTabs({ activeTab, onTabChange, project }: Project
     return (
         <div className="card border-0 shadow-sm">
             <div className="card-header bg-white border-bottom">
-                <nav className="nav nav-tabs border-0" role="tablist" style={{ marginBottom: '-1px' }}>
+                <div className="d-flex flex-wrap gap-1" role="tablist" style={{ marginBottom: '-1px' }}>
                     {availableTabs.map(tab => (
                         <button
                             key={tab.id}
-                            className={`nav-link border-0 px-3 py-2 rounded-top ${activeTab === tab.id ? 'active bg-white text-primary border-bottom-0' : 'text-muted bg-transparent'}`}
+                            className={`btn btn-light border ${activeTab === tab.id ? 'text-primary border-primary' : 'text-muted'}`}
                             onClick={() => onTabChange(tab.id)}
                             role="tab"
                             aria-selected={activeTab === tab.id}
@@ -39,7 +39,6 @@ export default function ProjectTabs({ activeTab, onTabChange, project }: Project
                             id={`tab-${tab.id}`}
                             style={{
                                 marginRight: '4px',
-                                borderBottom: activeTab === tab.id ? '2px solid #0d6efd' : '2px solid transparent',
                                 fontWeight: activeTab === tab.id ? '600' : '400'
                             }}
                         >
@@ -47,7 +46,7 @@ export default function ProjectTabs({ activeTab, onTabChange, project }: Project
                             {tab.label}
                         </button>
                     ))}
-                </nav>
+                </div>
             </div>
         </div>
     )
