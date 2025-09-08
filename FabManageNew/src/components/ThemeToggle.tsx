@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-type Theme = 'light' | 'dark'
+type Theme = 'light' | 'dark' | 'dark-green'
 type Skin = 'default' | 'bordered'
 
 export default function ThemeToggle() {
@@ -12,10 +12,10 @@ export default function ThemeToggle() {
     const savedTheme = localStorage.getItem('theme') as Theme
     const savedSkin = localStorage.getItem('skin') as Skin
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    
-    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light')
+
+    const initialTheme = savedTheme || (prefersDark ? 'dark-green' : 'light')
     const initialSkin = savedSkin || 'default'
-    
+
     setTheme(initialTheme)
     setSkin(initialSkin)
     applySettings(initialTheme, initialSkin)
@@ -42,7 +42,7 @@ export default function ThemeToggle() {
   }
 
   const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark'
+    const newTheme: Theme = theme === 'dark-green' ? 'light' : 'dark-green'
     setTheme(newTheme)
     applySettings(newTheme, skin)
   }
@@ -53,20 +53,20 @@ export default function ThemeToggle() {
     applySettings(theme, newSkin)
   }
 
-      return (
+  return (
     <div className="d-flex gap-2">
       <button
         onClick={toggleTheme}
         className="btn btn-outline-secondary d-flex align-items-center"
-        aria-label={`Przełącz na tryb ${theme === 'dark' ? 'jasny' : 'ciemny'}`}
-        title={`Aktualny tryb: ${theme === 'dark' ? 'ciemny' : 'jasny'}`}
+        aria-label={`Przełącz na tryb ${theme === 'dark-green' ? 'jasny' : 'ciemny'}`}
+        title={`Aktualny tryb: ${theme === 'dark-green' ? 'ciemny' : 'jasny'}`}
       >
-        <i className={`ri-${theme === 'dark' ? 'sun' : 'moon'}-line me-1`}></i>
+        <i className={`ri-${theme === 'dark-green' ? 'sun' : 'moon'}-line me-1`}></i>
         <span className="d-none d-lg-inline">
-          {theme === 'dark' ? 'Jasny' : 'Ciemny'}
+          {theme === 'dark-green' ? 'Jasny' : 'Ciemny'}
         </span>
       </button>
-      
+
       <button
         onClick={toggleSkin}
         className="btn btn-outline-secondary d-flex align-items-center"

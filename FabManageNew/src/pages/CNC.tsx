@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react'
 import TileEditModal from '../components/TileEditModal'
 import { PageHeader } from '../components/Ui/PageHeader'
 import { Toolbar } from '../components/Ui/Toolbar'
+import { Row, Col, Card, Button, Space, Typography, Tag } from 'antd'
 
 export default function CNC() {
     const { tiles, setStatus } = useTilesStore()
@@ -57,110 +58,101 @@ export default function CNC() {
 
             <Toolbar
                 left={
-                    <div className="d-flex gap-2">
-                        <span className="badge bg-label-secondary">
-                            <i className="ri-time-line me-1"></i>Zmiana: 03:12
-                        </span>
-                    </div>
+                    <Space>
+                        <Tag>
+                            <i className="ri-time-line" style={{ marginRight: 6 }}></i>Zmiana: 03:12
+                        </Tag>
+                    </Space>
                 }
                 right={
-                    <div className="d-flex gap-2">
-                        <button className="btn btn-sm btn-outline-danger me-2" onClick={() => alert('Alarmy potwierdzone')} title="Potwierdź alarmy">
-                            <i className="ri-alarm-warning-line me-1"></i>Alarms: 2
-                        </button>
-                    </div>
+                    <Space>
+                        <Button size="small" danger onClick={() => alert('Alarmy potwierdzone')} title="Potwierdź alarmy">
+                            <i className="ri-alarm-warning-line" style={{ marginRight: 6 }}></i>Alarms: 2
+                        </Button>
+                    </Space>
                 }
             />
 
-            <div className="card mb-3">
-                <div className="card-body d-flex flex-wrap gap-2">
+            <Card style={{ marginBottom: 12 }}>
+                <Space wrap>
                     {machines.map(m => (
-                        <button key={m.id} className={`btn btn-sm ${selectedMachine === m.id ? 'btn-primary' : 'btn-outline-secondary'}`} onClick={() => setSelectedMachine(m.id)} title={`${m.status} • Część: ${m.part} • ETA ${m.eta}`}>
-                            <span className={`badge me-2 ${m.status === 'Praca' ? 'bg-success' : m.status === 'Postój' ? 'bg-warning' : m.status === 'Awaria' ? 'bg-danger' : 'bg-info'}`}> </span>
+                        <Button key={m.id} size="small" type={selectedMachine === m.id ? 'primary' : 'default'} onClick={() => setSelectedMachine(m.id)} title={`${m.status} • Część: ${m.part} • ETA ${m.eta}`}>
+                            <Tag color={m.status === 'Praca' ? 'success' : m.status === 'Postój' ? 'warning' : m.status === 'Awaria' ? 'error' : 'processing'} style={{ marginRight: 6 }} />
                             {m.id}
-                        </button>
+                        </Button>
                     ))}
-                </div>
-            </div>
+                </Space>
+            </Card>
 
-            <div className="row g-3 mb-3">
-                <div className="col-6 col-lg-3"><div className="card h-100"><div className="card-body text-center"><div className="h4">{kpis.inQueue}</div><div className="text-muted small">W kolejce</div></div></div></div>
-                <div className="col-6 col-lg-3"><div className="card h-100"><div className="card-body text-center"><div className="h4">{kpis.inCut}</div><div className="text-muted small">W trakcie cięcia</div></div></div></div>
-                <div className="col-6 col-lg-3"><div className="card h-100"><div className="card-body text-center"><div className="h4">{kpis.done}</div><div className="text-muted small">Wycięte</div></div></div></div>
-                <div className="col-6 col-lg-3"><div className="card h-100"><div className="card-body text-center"><div className="h4">{kpis.completion}%</div><div className="text-muted small">Ukończenie</div></div></div></div>
-            </div>
+            <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
+                <Col xs={12} lg={6}><Card><div style={{ textAlign: 'center' }}><div style={{ fontSize: 20 }}>{kpis.inQueue}</div><Typography.Text type="secondary">W kolejce</Typography.Text></div></Card></Col>
+                <Col xs={12} lg={6}><Card><div style={{ textAlign: 'center' }}><div style={{ fontSize: 20 }}>{kpis.inCut}</div><Typography.Text type="secondary">W trakcie cięcia</Typography.Text></div></Card></Col>
+                <Col xs={12} lg={6}><Card><div style={{ textAlign: 'center' }}><div style={{ fontSize: 20 }}>{kpis.done}</div><Typography.Text type="secondary">Wycięte</Typography.Text></div></Card></Col>
+                <Col xs={12} lg={6}><Card><div style={{ textAlign: 'center' }}><div style={{ fontSize: 20 }}>{kpis.completion}%</div><Typography.Text type="secondary">Ukończenie</Typography.Text></div></Card></Col>
+            </Row>
 
-            <div className="row g-3 mb-3">
-                <div className="col-12 col-lg-8">
-                    <div className="card">
-                        <div className="card-header fw-semibold">Kolejka priorytetowa</div>
-                        <div className="card-body">
-                            <div className="table-responsive">
-                                <table className="table align-middle">
-                                    <thead><tr><th>#</th><th>Nazwa</th><th>Qty</th><th>Maszyna</th><th>Start</th><th>Materiał</th><th>Priorytet</th></tr></thead>
-                                    <tbody>
-                                        {tiles.map((t, i) => (
-                                            <tr key={t.id}>
-                                                <td>{i + 1}</td>
-                                                <td>{t.name}</td>
-                                                <td>{(Math.abs(t.id.charCodeAt(0) - 64) % 5) + 1}</td>
-                                                <td>{machines[i % machines.length].id}</td>
-                                                <td>08:{(10 + i * 3) % 60}</td>
-                                                <td><span className={`badge ${(i % 2) ? 'bg-success' : 'bg-warning'}`}>{(i % 2) ? 'ready' : 'pending'}</span></td>
-                                                <td><span className={`badge ${i % 3 === 0 ? 'bg-danger' : i % 3 === 1 ? 'bg-warning' : 'bg-secondary'}`}>{i % 3 === 0 ? 'High' : i % 3 === 1 ? 'Medium' : 'Normal'}</span></td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-12 col-lg-4">
-                    <div className="card h-100">
-                        <div className="card-header fw-semibold">Szczegóły maszyny</div>
-                        <div className="card-body">
-                            {!selectedMachine && <div className="text-muted">Wybierz maszynę powyżej</div>}
-                            {selectedMachine && (
-                                <div>
-                                    <div className="h5 mb-2">{selectedMachine}</div>
-                                    <div className="row g-2 mb-2">
-                                        <div className="col-6"><div className="text-muted small">Spindle</div><div>12 500 rpm</div></div>
-                                        <div className="col-6"><div className="text-muted small">Feed</div><div>1.8 m/min</div></div>
-                                        <div className="col-6"><div className="text-muted small">Temp</div><div>54°C</div></div>
-                                        <div className="col-6"><div className="text-muted small">Tool wear</div><div>23%</div></div>
-                                    </div>
-                                    <hr />
-                                    <div className="text-muted small mb-1">Ostatnie alarmy</div>
-                                    <ul className="list-unstyled mb-0">
-                                        <li className="py-1 border-bottom"><span className="badge bg-danger me-2">CRIT</span>Overheat • 08:15</li>
-                                        <li className="py-1 border-bottom"><span className="badge bg-warning me-2">WARN</span>Low coolant • 07:40</li>
-                                    </ul>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="mb-3">
-                <div className="row g-3">
-                    {kanbanColumns.map(col => (
-                        <div className="col-12 col-md-4" key={col.id}>
-                            <div className="card h-100">
-                                <div className="card-header fw-semibold">{col.title}</div>
-                                <div className="card-body">
-                                    {tiles.filter(t => t.status === col.id).map(t => (
-                                        <DraggableTile key={t.id} id={t.id} name={t.name} onEdit={() => setEditing(t)} />
+            <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
+                <Col xs={24} lg={16}>
+                    <Card title="Kolejka priorytetowa">
+                        <div className="table-responsive">
+                            <table className="table align-middle">
+                                <thead><tr><th>#</th><th>Nazwa</th><th>Qty</th><th>Maszyna</th><th>Start</th><th>Materiał</th><th>Priorytet</th></tr></thead>
+                                <tbody>
+                                    {tiles.map((t, i) => (
+                                        <tr key={t.id}>
+                                            <td>{i + 1}</td>
+                                            <td>{t.name}</td>
+                                            <td>{(Math.abs(t.id.charCodeAt(0) - 64) % 5) + 1}</td>
+                                            <td>{machines[i % machines.length].id}</td>
+                                            <td>08:{(10 + i * 3) % 60}</td>
+                                            <td><Tag color={(i % 2) ? 'success' : 'warning'}>{(i % 2) ? 'ready' : 'pending'}</Tag></td>
+                                            <td><Tag color={i % 3 === 0 ? 'error' : i % 3 === 1 ? 'warning' : 'default'}>{i % 3 === 0 ? 'High' : i % 3 === 1 ? 'Medium' : 'Normal'}</Tag></td>
+                                        </tr>
                                     ))}
-                                    {tiles.filter(t => t.status === col.id).length === 0 && (
-                                        <p className="text-muted">Brak zadań</p>
-                                    )}
-                                </div>
-                            </div>
+                                </tbody>
+                            </table>
                         </div>
+                    </Card>
+                </Col>
+                <Col xs={24} lg={8}>
+                    <Card title="Szczegóły maszyny">
+                        {!selectedMachine && <Typography.Text type="secondary">Wybierz maszynę powyżej</Typography.Text>}
+                        {selectedMachine && (
+                            <div>
+                                <Typography.Title level={5} style={{ marginTop: 0 }}>{selectedMachine}</Typography.Title>
+                                <Row gutter={[8, 8]} style={{ marginBottom: 8 }}>
+                                    <Col span={12}><Typography.Text type="secondary" style={{ fontSize: 12 }}>Spindle</Typography.Text><div>12 500 rpm</div></Col>
+                                    <Col span={12}><Typography.Text type="secondary" style={{ fontSize: 12 }}>Feed</Typography.Text><div>1.8 m/min</div></Col>
+                                    <Col span={12}><Typography.Text type="secondary" style={{ fontSize: 12 }}>Temp</Typography.Text><div>54°C</div></Col>
+                                    <Col span={12}><Typography.Text type="secondary" style={{ fontSize: 12 }}>Tool wear</Typography.Text><div>23%</div></Col>
+                                </Row>
+                                <div style={{ borderTop: '1px solid var(--border-medium)', margin: '8px 0' }} />
+                                <Typography.Text type="secondary" style={{ fontSize: 12 }}>Ostatnie alarmy</Typography.Text>
+                                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                    <li style={{ padding: '4px 0', borderBottom: '1px solid var(--border-medium)' }}><Tag color='error' style={{ marginRight: 8 }}>CRIT</Tag>Overheat • 08:15</li>
+                                    <li style={{ padding: '4px 0', borderBottom: '1px solid var(--border-medium)' }}><Tag color='warning' style={{ marginRight: 8 }}>WARN</Tag>Low coolant • 07:40</li>
+                                </ul>
+                            </div>
+                        )}
+                    </Card>
+                </Col>
+            </Row>
+
+            <div style={{ marginBottom: 12 }}>
+                <Row gutter={[12, 12]}>
+                    {kanbanColumns.map(col => (
+                        <Col xs={24} md={8} key={col.id}>
+                            <Card title={col.title}>
+                                {tiles.filter(t => t.status === col.id).map(t => (
+                                    <DraggableTile key={t.id} id={t.id} name={t.name} onEdit={() => setEditing(t)} />
+                                ))}
+                                {tiles.filter(t => t.status === col.id).length === 0 && (
+                                    <Typography.Text type="secondary">Brak zadań</Typography.Text>
+                                )}
+                            </Card>
+                        </Col>
                     ))}
-                </div>
+                </Row>
             </div>
 
             {editing && <TileEditModal tile={editing} onClose={() => setEditing(null)} onSave={(patch) => { setStatus(editing.id, (patch.status || editing.status) as any); setEditing(null) }} />}
@@ -176,12 +168,12 @@ function DraggableTile({ id, name, onEdit }: { id: string; name: string; onEdit?
     }), [id])
     const dragRef = useCallback((el: HTMLDivElement | null) => { if (el) drag(el) }, [drag])
     return (
-        <div ref={dragRef} className="card mb-2 border" style={{ opacity: isDragging ? 0.5 : 1 }} onDoubleClick={onEdit}>
-            <div className="card-body py-2 d-flex justify-content-between align-items-center">
+        <Card ref={dragRef as any} size="small" style={{ marginBottom: 8, border: '1px solid var(--border-medium)', opacity: isDragging ? 0.5 : 1 }} onDoubleClick={onEdit}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>{id} • {name}</span>
-                <button className="btn btn-sm btn-outline-secondary" title="Edytuj" onClick={onEdit}><i className="ri-edit-line"></i></button>
+                <Button size="small" onClick={onEdit} title="Edytuj"><i className="ri-edit-line"></i></Button>
             </div>
-        </div>
+        </Card>
     )
 }
 

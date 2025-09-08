@@ -169,6 +169,32 @@
     --status-info-border: #63b3ed;
 }
 
+/* === NOWY MOTYW: DARK GREEN === */
+[data-theme="dark-green"] {
+    --primary-main: #00FF85;
+    --primary-light: #66FFB3;
+    --primary-dark: #00E676;
+
+    --bg-primary: #1A1D21;
+    --bg-secondary: #25282E;
+    --bg-card: #25282E;
+    /* Layered surfaces for depth */
+    --bg-surface: #2C3038;
+    --bg-hover: #373C44;
+
+    --text-primary: rgba(230, 230, 230, 0.95);
+    --text-secondary: rgba(230, 230, 230, 0.7);
+    --text-muted: rgba(230, 230, 230, 0.5);
+
+    --accent-success: var(--primary-main);
+    --accent-warning: #FDB528;
+    --accent-error: #FF4D49;
+    --accent-info: #26C6F9;
+
+    --border-light: rgba(230, 230, 230, 0.12);
+    --border-medium: rgba(230, 230, 230, 0.22);
+}
+
 /* === SKIN VARIATIONS === */
 [data-skin="bordered"] {
     --bg-primary: #FFFFFF;
@@ -343,23 +369,26 @@ header {
 .form-select,
 .badge,
 .input-group-text {
-    border-radius: 8px;
+    border-radius: 0;
+    /* global: ostre krawędzie */
 }
 
 .card {
-    border: none;
+    border: 1px solid var(--border-light);
+    background: var(--bg-card);
+    color: var(--text-primary);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-radius: 12px;
 }
 
 .card-header {
     background-color: transparent;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--border-medium);
     font-weight: 600;
 }
 
 .btn {
-    border-radius: 8px;
+    border-radius: 0;
     font-weight: 500;
     transition: all 0.2s ease;
 }
@@ -371,15 +400,16 @@ header {
 
 .form-control,
 .form-select {
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-    transition: all 0.2s ease;
+    border-radius: 0;
+    border: 1px solid var(--border-medium);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
 }
 
 .form-control:focus,
 .form-select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    border-color: var(--primary-main);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary-main) 35%, transparent);
 }
 
 .badge {
@@ -1231,3 +1261,50 @@ body {
 /* ========================================
    KONIEC SKONSOLIDOWANEGO MOTYWU
    ======================================== */
+
+/* React Big Calendar dark theme overrides */
+.rbc-calendar {
+    color: var(--text-primary);
+}
+
+.rbc-header {
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-medium) !important;
+}
+
+.rbc-month-view,
+.rbc-time-view,
+.rbc-agenda-view {
+    background: var(--bg-card);
+}
+
+.rbc-today {
+    background: rgba(255, 255, 255, 0.03) !important;
+}
+
+.rbc-event {
+    border-radius: 0 !important;
+    color: #fff;
+    border: none;
+}
+
+.rbc-time-content>.rbc-row>*+* {
+    border-left: 1px solid var(--border-medium);
+}
+
+.rbc-time-header>.rbc-row>* {
+    border-bottom: 1px solid var(--border-medium);
+}
+
+.rbc-time-slot {
+    border-top: 1px solid var(--border-light);
+}
+
+.rbc-selected-cell {
+    background: rgba(24, 144, 255, 0.15) !important;
+}
+
+.rbc-current-time-indicator {
+    background: var(--accent-error) !important;
+}

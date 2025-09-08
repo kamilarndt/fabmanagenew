@@ -16,7 +16,19 @@ export default defineConfig({
       filename: 'pwa-sw.ts'
     })
   ],
+  optimizeDeps: {
+    include: [
+      'react-big-calendar',
+      'react-big-calendar/lib/addons/dragAndDrop',
+      'date-fns',
+      'date-fns/locale',
+      'date-fns/locale/pl'
+    ]
+  },
   server: {
+    headers: {
+      'Cache-Control': 'no-store'
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:3001',

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Card, Table, Tag, Typography, Button, Space, Spin, Alert } from 'antd'
 
 type Demand = {
     id: string
@@ -68,82 +69,60 @@ export default function Demands() {
 
     useEffect(() => { load() }, [])
 
+    const columns = [
+        { title: 'ID', dataIndex: 'id', key: 'id', render: (v: string) => <Typography.Text type="secondary">{v}</Typography.Text> },
+        {
+            title: 'Materiał', key: 'material', render: (_: unknown, d: Demand) => (
+                <div>
+                    <div style={{ fontWeight: 500 }}>{d.name}</div>
+                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>{d.materialId}</Typography.Text>
+                </div>
+            )
+        },
+        { title: 'Ilość', dataIndex: 'requiredQty', key: 'qty' },
+        {
+            title: 'Projekt / Element', key: 'refs', render: (_: unknown, d: Demand) => (
+                <Space>
+                    {d.projectId && <Tag>{d.projectId}</Tag>}
+                    {d.tileId && <Tag color="default">{d.tileId}</Tag>}
+                </Space>
+            )
+        },
+        {
+            title: 'Status', dataIndex: 'status', key: 'status', render: (s: string) => {
+                const color = s === 'pending' ? 'warning' : s === 'approved' ? 'processing' : s === 'ordered' ? 'success' : 'default'
+                const label = s === 'pending' ? 'Oczekujące' : s === 'approved' ? 'Zatwierdzone' : s === 'ordered' ? 'Zamówione' : s
+                return <Tag color={color as any}>{label}</Tag>
+            }
+        },
+        { title: 'Utworzone', key: 'createdAt', render: (_: unknown, d: Demand) => <Typography.Text type="secondary">{new Date(d.createdAt).toLocaleString('pl-PL')}</Typography.Text> }
+    ]
+
     return (
         <div>
-            <div className="d-flex justify-content-between align-items-center mb-3">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <div>
-                    <h4 className="mb-1">Zapotrzebowania materiałowe</h4>
-                    <p className="text-muted mb-0">Lista pozycji do zamówienia z Rhino/Projektów</p>
+                    <Typography.Title level={4} style={{ marginBottom: 4 }}>Zapotrzebowania materiałowe</Typography.Title>
+                    <Typography.Text type="secondary">Lista pozycji do zamówienia z Rhino/Projektów</Typography.Text>
                 </div>
-                <div className="d-flex gap-2">
-                    <button
-                        className="btn btn-outline-secondary"
-                        onClick={load}
-                        disabled={loading}
-                    >
-                        <i className={`ri-refresh-line me-1 ${loading ? 'ri-spin' : ''}`}></i>
+                <Space>
+                    <Button onClick={load} disabled={loading}>
+                        <i className="ri-refresh-line" style={{ marginRight: 6 }}></i>
                         {loading ? 'Odświeżanie...' : 'Odśwież'}
-                    </button>
-                </div>
+                    </Button>
+                </Space>
             </div>
 
-            <div className="card">
-                <div className="table-responsive">
-                    <table className="table table-hover mb-0">
-                        <thead className="table-light">
-                            <tr>
-                                <th>ID</th>
-                                <th>Materiał</th>
-                                <th>Ilość</th>
-                                <th>Projekt / Element</th>
-                                <th>Status</th>
-                                <th>Utworzone</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loading && (
-                                <tr><td colSpan={6} className="text-center py-3">
-                                    <div className="spinner-border spinner-border-sm me-2" role="status"></div>
-                                    Ładowanie…
-                                </td></tr>
-                            )}
-                            {!loading && error && (
-                                <tr><td colSpan={6} className="text-danger text-center py-3">{error}</td></tr>
-                            )}
-                            {!loading && !error && items.length === 0 && (
-                                <tr><td colSpan={6} className="text-muted text-center py-3">Brak zapotrzebowań</td></tr>
-                            )}
-                            {!loading && !error && items.map(d => (
-                                <tr key={d.id}>
-                                    <td className="text-muted small">{d.id}</td>
-                                    <td>
-                                        <div className="fw-medium">{d.name}</div>
-                                        <div className="text-muted small">{d.materialId}</div>
-                                    </td>
-                                    <td>{d.requiredQty}</td>
-                                    <td>
-                                        {d.projectId && <span className="badge bg-light text-dark me-1">{d.projectId}</span>}
-                                        {d.tileId && <span className="badge bg-secondary">{d.tileId}</span>}
-                                    </td>
-                                    <td>
-                                        <span className={`badge ${d.status === 'pending' ? 'bg-warning' :
-                                                d.status === 'approved' ? 'bg-info' :
-                                                    d.status === 'ordered' ? 'bg-success' :
-                                                        'bg-secondary'
-                                            }`}>
-                                            {d.status === 'pending' ? 'Oczekujące' :
-                                                d.status === 'approved' ? 'Zatwierdzone' :
-                                                    d.status === 'ordered' ? 'Zamówione' :
-                                                        d.status}
-                                        </span>
-                                    </td>
-                                    <td className="text-muted small">{new Date(d.createdAt).toLocaleString('pl-PL')}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <Card>
+                {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
+                {loading ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', padding: 24 }}>
+                        <Spin />
+                    </div>
+                ) : (
+                    <Table rowKey={d => d.id} dataSource={items} columns={columns as any} pagination={{ pageSize: 10 }} />
+                )}
+            </Card>
         </div>
     )
 }

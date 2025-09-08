@@ -12,7 +12,7 @@
 // TYPY STATUSÓW
 // ========================================
 
-export type ProjectStatus = 
+export type ProjectStatus =
   | 'Koncepcja'
   | 'Projektowanie'
   | 'Produkcja'
@@ -22,7 +22,7 @@ export type ProjectStatus =
   | 'Wstrzymany'
   | 'Anulowany';
 
-export type TileStatus = 
+export type TileStatus =
   | 'Projektowanie'
   | 'Do akceptacji'
   | 'Zaakceptowane'
@@ -31,7 +31,7 @@ export type TileStatus =
   | 'Gotowy do montażu'
   | 'Zakończony';
 
-export type MaterialStatus = 
+export type MaterialStatus =
   | 'Dostępny'
   | 'Niski stan'
   | 'Krytyczny'
@@ -39,7 +39,7 @@ export type MaterialStatus =
   | 'W zamówieniu'
   | 'W dostawie';
 
-export type CNCStatus = 
+export type CNCStatus =
   | 'Wolna'
   | 'W pracy'
   | 'Przerwa'
@@ -62,9 +62,9 @@ export const getStatusColor = (status: string): string => {
     case 'Materiały':
       return '#fd7e14';
     case 'Montaż':
-      return '#20c997';
+      return 'var(--primary-main)';
     case 'Zakończony':
-      return '#28a745';
+      return 'var(--primary-main)';
     case 'Wstrzymany':
       return '#dc3545';
     case 'Anulowany':
@@ -84,7 +84,7 @@ export const getStatusColor = (status: string): string => {
 
     // Material statusy
     case 'Dostępny':
-      return '#28a745';
+      return 'var(--primary-main)';
     case 'Niski stan':
       return '#ffc107';
     case 'Krytyczny':
@@ -98,7 +98,7 @@ export const getStatusColor = (status: string): string => {
 
     // CNC statusy
     case 'Wolna':
-      return '#28a745';
+      return 'var(--primary-main)';
     case 'W pracy':
       return '#ffc107';
     case 'Przerwa':
@@ -255,7 +255,7 @@ export const canTransitionTo = (currentStatus: string, targetStatus: string): bo
   // Projekt workflow
   const projectWorkflow = [
     'Koncepcja',
-    'Projektowanie', 
+    'Projektowanie',
     'Produkcja',
     'Materiały',
     'Montaż',
@@ -277,7 +277,7 @@ export const canTransitionTo = (currentStatus: string, targetStatus: string): bo
   if (projectWorkflow.includes(currentStatus) && projectWorkflow.includes(targetStatus)) {
     const currentIndex = projectWorkflow.indexOf(currentStatus);
     const targetIndex = projectWorkflow.indexOf(targetStatus);
-    
+
     // Pozwól na przejście do następnego kroku lub powrót
     return targetIndex === currentIndex + 1 || targetIndex <= currentIndex;
   }
@@ -286,7 +286,7 @@ export const canTransitionTo = (currentStatus: string, targetStatus: string): bo
   if (tileWorkflow.includes(currentStatus) && tileWorkflow.includes(targetStatus)) {
     const currentIndex = tileWorkflow.indexOf(currentStatus);
     const targetIndex = tileWorkflow.indexOf(targetStatus);
-    
+
     // Pozwól na przejście do następnego kroku lub powrót
     return targetIndex === currentIndex + 1 || targetIndex <= currentIndex;
   }

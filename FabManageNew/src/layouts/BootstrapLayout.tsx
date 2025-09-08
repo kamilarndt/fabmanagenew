@@ -5,6 +5,7 @@ const NAV_ITEMS = [
     { to: '/', label: 'Dashboard' },
     { to: '/projekty', label: 'Projekty' },
     { to: '/klienci', label: 'Klienci' },
+    { to: '/kalendarz', label: 'Kalendarz' },
     { to: '/projektowanie', label: 'Projektowanie' },
     { to: '/cnc', label: 'CNC' },
     { to: '/produkcja', label: 'Produkcja' },
@@ -15,20 +16,22 @@ const NAV_ITEMS = [
 export default function BootstrapLayout() {
     const { Header, Sider, Content } = Layout;
     return (
-        <Layout style={{ minHeight: '100vh' }}>
-            <Sider width={280} breakpoint="lg" collapsedWidth={0}>
-                <div style={{ padding: '16px', color: '#fff', fontWeight: 600 }}>FabrykaManage</div>
+        <Layout style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
+            <Sider width={280} breakpoint="lg" collapsedWidth={0} style={{ background: 'var(--bg-secondary)' }}>
+                <div style={{ padding: '16px', color: 'var(--text-primary)', fontWeight: 600 }}>FabrykaManage</div>
                 <Menu theme="dark" mode="inline" selectable={false} items={NAV_ITEMS.map(item => ({
                     key: item.to,
                     label: <RouterLink to={item.to}>{item.label}</RouterLink>
                 }))} />
             </Sider>
-            <Layout>
-                <Header style={{ background: '#fff', padding: '0 16px' }}>
-                    <Typography.Title level={4} style={{ margin: 0 }}>FabrykaManage</Typography.Title>
+            <Layout style={{ background: 'var(--bg-primary)' }}>
+                <Header style={{ background: 'var(--bg-secondary)', padding: '0 16px', borderBottom: '1px solid var(--border-medium)' }}>
+                    <Typography.Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>FabrykaManage</Typography.Title>
                 </Header>
-                <Content id="main-content" role="main" style={{ padding: 16 }}>
-                    <Outlet />
+                <Content id="main-content" role="main" style={{ padding: 16, overflow: 'auto' }}>
+                    <div style={{ maxWidth: 'var(--content-max, 1280px)', margin: '0 auto' }}>
+                        <Outlet />
+                    </div>
                 </Content>
             </Layout>
         </Layout>

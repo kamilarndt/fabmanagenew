@@ -1,6 +1,7 @@
 import type { Project } from '../../types/projects.types'
+import { Tabs, Card } from 'antd'
 
-type TabId = 'overview' | 'koncepcja' | 'wycena' | 'elementy' | 'zakupy' | 'logistyka' | 'zakwaterowanie'
+type TabId = 'overview' | 'koncepcja' | 'wycena' | 'elementy' | 'zakupy' | 'logistyka' | 'zakwaterowanie' | 'kalendarz'
 
 interface ProjectTabsProps {
     activeTab: TabId
@@ -16,6 +17,7 @@ const TABS = [
     { id: 'zakupy' as const, label: 'Materiały', icon: 'ri-shopping-cart-line', requiredModule: 'materialy' },
     { id: 'logistyka' as const, label: 'Logistyka', icon: 'ri-road-map-line', requiredModule: 'logistyka_montaz' },
     { id: 'zakwaterowanie' as const, label: 'Zakwaterowanie', icon: 'ri-hotel-bed-line', requiredModule: 'zakwaterowanie' }
+    , { id: 'kalendarz' as const, label: 'Kalendarz', icon: 'ri-calendar-line', requiredModule: null }
 ] as const
 
 export default function ProjectTabs({ activeTab, onTabChange, project }: ProjectTabsProps) {
@@ -25,29 +27,20 @@ export default function ProjectTabs({ activeTab, onTabChange, project }: Project
     })
 
     return (
-        <div className="card border-0 shadow-sm">
-            <div className="card-header bg-white border-bottom">
-                <div className="d-flex flex-wrap gap-1" role="tablist" style={{ marginBottom: '-1px' }}>
-                    {availableTabs.map(tab => (
-                        <button
-                            key={tab.id}
-                            className={`btn btn-light border ${activeTab === tab.id ? 'text-primary border-primary' : 'text-muted'}`}
-                            onClick={() => onTabChange(tab.id)}
-                            role="tab"
-                            aria-selected={activeTab === tab.id}
-                            aria-controls={`panel-${tab.id}`}
-                            id={`tab-${tab.id}`}
-                            style={{
-                                marginRight: '4px',
-                                fontWeight: activeTab === tab.id ? '600' : '400'
-                            }}
-                        >
-                            <i className={`${tab.icon} me-2`}></i>
+        <Card>
+            <Tabs
+                activeKey={activeTab}
+                onChange={(key) => onTabChange(key as TabId)}
+                items={availableTabs.map(tab => ({
+                    key: tab.id,
+                    label: (
+                        <span style={{ fontWeight: activeTab === tab.id ? 600 : 400 }}>
+                            <i className={tab.icon} style={{ marginRight: 8 }}></i>
                             {tab.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
-        </div>
+                        </span>
+                    )
+                }))}
+            />
+        </Card>
     )
 }

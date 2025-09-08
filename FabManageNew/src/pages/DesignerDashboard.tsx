@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Table, Tag, Card, Typography, Upload, Button, Form, Input, Select, Space, message } from 'antd'
+import { Table, Tag, Card, Typography, Upload, Button, Form, Input, Space, message } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 import { useTilesStore, type Tile } from '../stores/tilesStore'
 

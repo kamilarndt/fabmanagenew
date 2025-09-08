@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { FileManager } from '../Ui/FileManager'
 import type { Project } from '../../types/projects.types'
+import { Card, List, Avatar, Typography, Input, Button, Row, Col, Tag, Segmented, Empty } from 'antd'
 
 interface ProjectComment {
     id: string
@@ -52,106 +53,87 @@ export default function ProjectOverview({
     }
 
     return (
-        <div className="row g-3">
-            <div className="col-12 col-lg-8">
-                <div className="card border-0 shadow-sm mb-3">
-                    <div className="card-body p-4">
-                        <h5 className="mb-2">About Project</h5>
-                        <p className="text-muted mb-0">{project.description || 'Brak opisu projektu.'}</p>
-                    </div>
-                </div>
+        <Row gutter={[12, 12]}>
+            <Col xs={24} lg={16}>
+                <Card style={{ marginBottom: 12 }}>
+                    <Typography.Title level={5} style={{ marginBottom: 8 }}>About Project</Typography.Title>
+                    <Typography.Paragraph type="secondary" style={{ marginBottom: 0 }}>
+                        {project.description || 'Brak opisu projektu.'}
+                    </Typography.Paragraph>
+                </Card>
 
-                <div className="card border-0 shadow-sm mb-3">
-                    <div className="card-body p-4">
-                        <h5 className="mb-3">Comments</h5>
-                        <div className="list-group list-group-flush mb-3">
-                            {comments.map(comment => (
-                                <div key={comment.id} className="list-group-item px-0">
-                                    <div className="d-flex">
-                                        <img src={comment.avatar} alt={comment.author} className="rounded-circle me-3" width="32" height="32" />
-                                        <div className="flex-grow-1">
-                                            <div className="d-flex justify-content-between">
-                                                <strong>{comment.author}</strong>
-                                                <small className="text-muted">{comment.timestamp}</small>
-                                            </div>
-                                            <p className="mb-1 small text-muted">{comment.content}</p>
-                                            <button className="btn btn-sm btn-link p-0">Reply</button>
+                <Card style={{ marginBottom: 12 }}>
+                    <Typography.Title level={5} style={{ marginBottom: 12 }}>Comments</Typography.Title>
+                    <List
+                        itemLayout="horizontal"
+                        dataSource={comments}
+                        style={{ marginBottom: 12 }}
+                        renderItem={(comment) => (
+                            <List.Item key={comment.id}>
+                                <List.Item.Meta
+                                    avatar={<Avatar src={comment.avatar} size={32} />}
+                                    title={
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <strong>{comment.author}</strong>
+                                            <Typography.Text type="secondary" style={{ fontSize: 12 }}>{comment.timestamp}</Typography.Text>
                                         </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <textarea
-                            className="form-control mb-2"
-                            rows={3}
-                            placeholder="Write a comment..."
-                            value={newComment}
-                            onChange={e => setNewComment(e.target.value)}
-                        />
-                        <button className="btn btn-outline-primary" onClick={handleSubmitComment}>
-                            Post Comment
-                        </button>
-                    </div>
-                </div>
+                                    }
+                                    description={<Typography.Text type="secondary">{comment.content}</Typography.Text>}
+                                />
+                            </List.Item>
+                        )}
+                    />
+                    <Input.TextArea
+                        rows={3}
+                        placeholder="Write a comment..."
+                        value={newComment}
+                        onChange={e => setNewComment(e.target.value)}
+                        style={{ marginBottom: 8 }}
+                    />
+                    <Button onClick={handleSubmitComment}>Post Comment</Button>
+                </Card>
 
-                <div className="card border-0 shadow-sm">
-                    <div className="card-body p-4">
-                        <div className="d-flex justify-content-between align-items-center mb-2">
-                            <h5 className="mb-0">Key Resources</h5>
-                        </div>
-                        <FileManager
-                            files={documents.map(d => ({ id: d.id, name: d.name }))}
-                            onUpload={(file) => { /* TODO: integrate storage */ console.log('upload', file.name) }}
-                        />
+                <Card>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <Typography.Title level={5} style={{ margin: 0 }}>Key Resources</Typography.Title>
                     </div>
-                </div>
-            </div>
-            <div className="col-12 col-lg-4">
-                <div className="card border-0 shadow-sm mb-3">
-                    <div className="card-body p-4">
-                        <h5 className="mb-3">Member Roles</h5>
-                        <div className="list-group list-group-flush">
-                            {teamMembers.map(m => (
-                                <div key={m.id} className="list-group-item px-0 d-flex justify-content-between align-items-center">
-                                    <div className="d-flex align-items-center">
-                                        <img src={m.avatar} alt={m.name} className="rounded-circle me-3" width="36" height="36" />
-                                        <div>
-                                            <div className="fw-medium">{m.name}</div>
-                                            <small className="text-muted">{m.role}</small>
-                                        </div>
-                                    </div>
-                                    <span className="badge bg-light text-dark">Member</span>
-                                </div>
-                            ))}
-                        </div>
+                    <FileManager
+                        files={documents.map(d => ({ id: d.id, name: d.name }))}
+                        onUpload={(file) => { /* TODO: integrate storage */ console.log('upload', file.name) }}
+                    />
+                </Card>
+            </Col>
+            <Col xs={24} lg={8}>
+                <Card style={{ marginBottom: 12 }}>
+                    <Typography.Title level={5} style={{ marginBottom: 12 }}>Member Roles</Typography.Title>
+                    <List
+                        dataSource={teamMembers}
+                        renderItem={(m) => (
+                            <List.Item key={m.id}>
+                                <List.Item.Meta
+                                    avatar={<Avatar src={m.avatar} size={36} />}
+                                    title={<span style={{ fontWeight: 500 }}>{m.name}</span>}
+                                    description={<Typography.Text type="secondary">{m.role}</Typography.Text>}
+                                />
+                                <Tag>Member</Tag>
+                            </List.Item>
+                        )}
+                    />
+                </Card>
+                <Card>
+                    <Typography.Title level={5} style={{ marginBottom: 12 }}>History</Typography.Title>
+                    <Segmented
+                        size="small"
+                        options={[{ label: 'Activities', value: 'activities' }, { label: 'Updates', value: 'updates' }]}
+                        value={viewMode}
+                        onChange={(v) => setViewMode(v as typeof viewMode)}
+                        style={{ marginBottom: 12 }}
+                    />
+                    <div style={{ paddingLeft: 8, borderLeft: '1px dashed var(--border-medium)' }}>
+                        <Empty description={viewMode === 'activities' ? 'No activities yet' : 'No updates yet'} image={Empty.PRESENTED_IMAGE_SIMPLE} />
                     </div>
-                </div>
-                <div className="card border-0 shadow-sm">
-                    <div className="card-body p-4">
-                        <h5 className="mb-3">History</h5>
-                        <div className="d-flex gap-2 mb-3">
-                            <button
-                                className={`btn btn-sm ${viewMode === 'activities' ? 'btn-primary' : 'btn-outline-secondary'}`}
-                                onClick={() => setViewMode('activities')}
-                            >
-                                Activities
-                            </button>
-                            <button
-                                className={`btn btn-sm ${viewMode === 'updates' ? 'btn-primary' : 'btn-outline-secondary'}`}
-                                onClick={() => setViewMode('updates')}
-                            >
-                                Updates
-                            </button>
-                        </div>
-                        <div className="position-relative ps-4" style={{ borderLeft: '2px dashed #e5e7eb' }}>
-                            {/* Placeholder for activities/updates */}
-                            <div className="text-center text-muted small">
-                                {viewMode === 'activities' ? 'No activities yet' : 'No updates yet'}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                </Card>
+            </Col>
+        </Row>
     )
 }

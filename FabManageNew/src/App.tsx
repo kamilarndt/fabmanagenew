@@ -5,7 +5,6 @@ import { Suspense, lazy } from 'react'
 
 // Layouts
 import BootstrapLayout from './layouts/BootstrapLayout'
-import FigmaLayout from './layouts/FigmaLayout'
 
 // Pages with Bootstrap layout
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -19,10 +18,11 @@ const Magazyn = lazy(() => import('./pages/MagazynNew'))
 const Demands = lazy(() => import('./pages/Demands'))
 const Tiles = lazy(() => import('./pages/Tiles'))
 const DesignerDashboard = lazy(() => import('./pages/DesignerDashboard'))
+const CalendarPage = lazy(() => import('./pages/CalendarPage'))
 
-// Pages with Figma layout
+// Pages with Figma layout (prototypes)
 const Klienci = lazy(() => import('./pages/Klienci'))
-const Klient = lazy(() => import('./pages/Klient'))
+const Klient = lazy(() => import('./pages/ClientDetails'))
 
 import './App.css'
 
@@ -43,11 +43,12 @@ function App() {
                         <Route path="magazyn" element={<Magazyn />} />
                         <Route path="kafelki" element={<Tiles />} />
                         <Route path="designer" element={<DesignerDashboard />} />
+                        <Route path="kalendarz" element={<CalendarPage />} />
                         <Route path="zapotrzebowania" element={<Demands />} />
                     </Route>
 
-                    {/* Routes with Figma Layout */}
-                    <Route path="/klienci" element={<FigmaLayout />}>
+                    {/* Clients under main layout for consistent navigation */}
+                    <Route path="/klienci" element={<BootstrapLayout />}>
                         <Route index element={<Klienci />} />
                         <Route path=":id" element={<Klient />} />
                     </Route>

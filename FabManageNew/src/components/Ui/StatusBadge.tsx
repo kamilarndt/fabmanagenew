@@ -1,4 +1,5 @@
-import { getStatusBadgeClass, getStatusIcon, getStatusDescription } from '../../lib/statusUtils';
+import { Tag } from 'antd';
+import { getStatusColor, getStatusIcon, getStatusDescription } from '../../lib/statusUtils';
 
 interface StatusBadgeProps {
     status: string;
@@ -15,25 +16,25 @@ export function StatusBadge({
     size = 'md',
     className = ''
 }: StatusBadgeProps) {
-    const badgeClass = getStatusBadgeClass(status);
+    const color = getStatusColor(status);
     const icon = getStatusIcon(status);
     const description = getStatusDescription(status);
 
-    const sizeClasses = {
-        sm: 'badge-sm',
-        md: '',
-        lg: 'badge-lg'
+    const sizeStyles: Record<'sm' | 'md' | 'lg', React.CSSProperties> = {
+        sm: { fontSize: 12, paddingInline: 6, height: 22 },
+        md: { fontSize: 12, paddingInline: 8, height: 24 },
+        lg: { fontSize: 14, paddingInline: 10, height: 28 }
     };
 
-    const badgeClasses = `${badgeClass} ${sizeClasses[size]} ${className}`.trim();
-
     return (
-        <span
-            className={badgeClasses}
+        <Tag
+            color={color}
+            style={{ borderRadius: 0, ...sizeStyles[size] }}
             title={showTooltip ? description : undefined}
+            className={className}
         >
             {showIcon && <i className={`${icon} me-1`} />}
             {status}
-        </span>
+        </Tag>
     );
 }

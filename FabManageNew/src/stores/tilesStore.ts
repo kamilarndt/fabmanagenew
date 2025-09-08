@@ -1,9 +1,10 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { isSupabaseConfigured } from '../lib/supabase'
+// import { isSupabaseConfigured } from '../lib/supabase'
 import { listTiles, updateTile as sbUpdate, createTile as sbCreate } from '../services/tiles'
 import { showToast } from '../lib/toast'
 import { subscribeTable } from '../lib/realtime'
+import { mockTiles } from '../data/mockDatabase'
 
 export type BomItem = {
     id: string
@@ -32,26 +33,7 @@ export type Tile = {
     group?: string
 }
 
-const demoTiles: Tile[] = [
-    {
-        id: 'T-001', name: 'PUPITRE JEAN-LUC', status: 'W KOLEJCE', project: 'P-001', priority: 'Wysoki', technology: 'Frezowanie CNC', laborCost: 180, assignee: 'Anna', dxfFile: null, assemblyDrawing: null,
-        bom: [
-            { id: 'B-1', type: 'Materiał surowy', name: 'MDF 18mm', quantity: 2, unit: 'ark', status: 'Na stanie', unitCost: 120 },
-            { id: 'B-2', type: 'Materiał surowy', name: 'Laminat HPL biały', quantity: 3, unit: 'm²', status: 'Do zamówienia', unitCost: 45 },
-            { id: 'B-3', type: 'Komponent gotowy', name: 'Profil LED GS-PLAT-1616', quantity: 5, unit: 'mb', supplier: 'LEDCo', status: 'Na stanie', unitCost: 25 },
-            { id: 'B-4', type: 'Komponent gotowy', name: 'Zasilacz LED 24V', quantity: 1, unit: 'szt', supplier: 'MeanWell', status: 'Zamówione', unitCost: 95 },
-            { id: 'B-5', type: 'Usługa', name: 'Lakierowanie krawędzi', quantity: 1, unit: 'usł', status: 'Do zamówienia', unitCost: 60 },
-        ]
-    },
-    {
-        id: 'T-002', name: 'Stelaż LED', status: 'W TRAKCIE CIĘCIA', project: 'P-001', priority: 'Średni', technology: 'Cięcie profili', laborCost: 90, assignee: 'Paweł', dxfFile: null, assemblyDrawing: null,
-        bom: [{ id: 'B-6', type: 'Materiał surowy', name: 'Aluminium 2mm', quantity: 1, unit: 'ark', status: 'Na stanie', unitCost: 150 }]
-    },
-    {
-        id: 'T-003', name: 'Płyta tylna', status: 'WYCIĘTE', project: 'P-003', priority: 'Niski', technology: 'Frezowanie CNC', laborCost: 40, assignee: 'Ola', dxfFile: null, assemblyDrawing: null,
-        bom: [{ id: 'B-7', type: 'Materiał surowy', name: 'MDF 12mm', quantity: 1, unit: 'ark', status: 'Na stanie', unitCost: 85 }]
-    }
-]
+// Zasilanie kafelków danymi z mockDatabase
 
 interface TilesState {
     tiles: Tile[]

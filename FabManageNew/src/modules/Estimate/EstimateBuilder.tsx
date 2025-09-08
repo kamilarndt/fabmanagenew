@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useEstimateStore } from '../../stores/estimateStore'
 import { fetchMaterials, postEstimate } from '../../api/estimate'
+import { Card, Statistic, Row, Col, Space, Typography } from 'antd'
 
 interface EstimateItem {
     id: string
@@ -258,254 +259,215 @@ export default function EstimateBuilder() {
             </div>
 
             {/* LOGISTICS AUTOMATION PANEL */}
-            <div className="card border-0 shadow-sm mb-4">
-                <div className="card-header bg-gradient-primary text-white">
-                    <h6 className="mb-0">
-                        <i className="ri-route-line me-2"></i>
-                        Automatyczne Obliczenia Logistyczne
-                    </h6>
-                </div>
-                <div className="card-body">
-                    <div className="row g-3">
-                        {/* Project Location */}
-                        <div className="col-md-6">
-                            <label className="form-label fw-bold">Miejsce wyjazdu:</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                value={projectLocation.departure}
-                                onChange={(e) => setProjectLocation(prev => ({ ...prev, departure: e.target.value }))}
-                                placeholder="Fabryka - Warszawa"
-                            />
-                        </div>
-                        <div className="col-md-6">
-                            <label className="form-label fw-bold">Miejsce realizacji:</label>
-                            <select
-                                className="form-select"
-                                value={projectLocation.destination}
-                                onChange={(e) => calculateDistance(e.target.value)}
-                            >
-                                <option value="">Wybierz miasto...</option>
-                                <option value="Kraków">Kraków</option>
-                                <option value="Gdańsk">Gdańsk</option>
-                                <option value="Wrocław">Wrocław</option>
-                                <option value="Poznań">Poznań</option>
-                                <option value="Łódź">Łódź</option>
-                                <option value="Katowice">Katowice</option>
-                                <option value="Lublin">Lublin</option>
-                                <option value="Białystok">Białystok</option>
-                            </select>
-                        </div>
-
-                        {/* Distance and Travel Time Display */}
-                        {projectLocation.distance > 0 && (
-                            <div className="col-12">
-                                <div className="row g-2">
-                                    <div className="col-md-3">
-                                        <div className="text-center p-2 bg-light rounded">
-                                            <small className="text-muted d-block">Odległość</small>
-                                            <strong className="text-primary">{projectLocation.distance} km</strong>
-                                        </div>
-                                    </div>
-                                    <div className="col-md-3">
-                                        <div className="text-center p-2 bg-light rounded">
-                                            <small className="text-muted d-block">Czas podróży</small>
-                                            <strong className="text-info">{projectLocation.travelTime} h</strong>
-                                        </div>
-                                    </div>
-                                    <div className="col-md-3">
-                                        <div className="text-center p-2 bg-light rounded">
-                                            <small className="text-muted d-block">Koszt paliwa</small>
-                                            <strong className="text-success">
-                                                {calculatedLogisticsCosts?.fuelCost.toLocaleString('pl-PL')} PLN
-                                            </strong>
-                                        </div>
-                                    </div>
-                                    <div className="col-md-3">
-                                        <div className="text-center p-2 bg-light rounded">
-                                            <small className="text-muted d-block">Koszt transportu</small>
-                                            <strong className="text-warning">
-                                                {calculatedLogisticsCosts?.transportRentalCost.toLocaleString('pl-PL')} PLN
-                                            </strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+            <Card className="mb-4" title={<span><i className="ri-route-line me-2"></i>Automatyczne Obliczenia Logistyczne</span>}>
+                <div className="row g-3">
+                    {/* Project Location */}
+                    <div className="col-md-6">
+                        <label className="form-label fw-bold">Miejsce wyjazdu:</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={projectLocation.departure}
+                            onChange={(e) => setProjectLocation(prev => ({ ...prev, departure: e.target.value }))}
+                            placeholder="Fabryka - Warszawa"
+                        />
                     </div>
-                </div>
-            </div>
-
-            {/* TEAM REQUIREMENTS PANEL */}
-            <div className="card border-0 shadow-sm mb-4">
-                <div className="card-header bg-gradient-success text-white">
-                    <h6 className="mb-0">
-                        <i className="ri-team-line me-2"></i>
-                        Wymagania Zespołu i Automatyczne Obliczenia
-                    </h6>
-                </div>
-                <div className="card-body">
-                    <div className="row g-3">
-                        <div className="col-md-3">
-                            <label className="form-label fw-bold">Ilość osób:</label>
-                            <input
-                                type="number"
-                                className="form-control"
-                                value={teamRequirements.peopleCount}
-                                onChange={(e) => setTeamRequirements(prev => ({ ...prev, peopleCount: parseInt(e.target.value) || 1 }))}
-                                min="1"
-                                max="20"
-                            />
-                        </div>
-                        <div className="col-md-3">
-                            <label className="form-label fw-bold">Czas realizacji (dni):</label>
-                            <input
-                                type="number"
-                                className="form-control"
-                                value={teamRequirements.duration}
-                                onChange={(e) => setTeamRequirements(prev => ({ ...prev, duration: parseInt(e.target.value) || 1 }))}
-                                min="1"
-                                max="30"
-                            />
-                        </div>
-                        <div className="col-md-3">
-                            <label className="form-label fw-bold">Godziny pracy/dzień:</label>
-                            <input
-                                type="number"
-                                className="form-control"
-                                value={teamRequirements.workHoursPerDay}
-                                onChange={(e) => setTeamRequirements(prev => ({ ...prev, workHoursPerDay: parseInt(e.target.value) || 8 }))}
-                                min="4"
-                                max="12"
-                            />
-                        </div>
-                        <div className="col-md-3">
-                            <label className="form-label fw-bold">Stawka robocizny:</label>
-                            <input
-                                type="number"
-                                className="form-control"
-                                value={laborRate || 120}
-                                onChange={(e) => setLaborRate(parseFloat(e.target.value) || 0)}
-                                min="0"
-                                step="0.01"
-                            />
-                        </div>
+                    <div className="col-md-6">
+                        <label className="form-label fw-bold">Miejsce realizacji:</label>
+                        <select
+                            className="form-select"
+                            value={projectLocation.destination}
+                            onChange={(e) => calculateDistance(e.target.value)}
+                        >
+                            <option value="">Wybierz miasto...</option>
+                            <option value="Kraków">Kraków</option>
+                            <option value="Gdańsk">Gdańsk</option>
+                            <option value="Wrocław">Wrocław</option>
+                            <option value="Poznań">Poznań</option>
+                            <option value="Łódź">Łódź</option>
+                            <option value="Katowice">Katowice</option>
+                            <option value="Lublin">Lublin</option>
+                            <option value="Białystok">Białystok</option>
+                        </select>
                     </div>
 
-                    {/* Automatic Calculations Display */}
-                    {calculatedLogisticsCosts && (
-                        <div className="row g-3 mt-3">
-                            <div className="col-md-4">
-                                <div className="text-center p-3 bg-light rounded">
-                                    <small className="text-muted d-block">Koszt zakwaterowania</small>
-                                    <strong className="text-primary h5 mb-0">
-                                        {calculatedLogisticsCosts.accommodationCost.toLocaleString('pl-PL')} PLN
-                                    </strong>
-                                    <small className="text-muted">
-                                        {teamRequirements.peopleCount} os. × {teamRequirements.duration} dni × {logisticsCosts.accommodationCostPerPerson} PLN
-                                    </small>
+                    {/* Distance and Travel Time Display */}
+                    {projectLocation.distance > 0 && (
+                        <div className="col-12">
+                            <div className="row g-2">
+                                <div className="col-md-3">
+                                    <div className="text-center p-2 bg-light rounded">
+                                        <small className="text-muted d-block">Odległość</small>
+                                        <strong className="text-primary">{projectLocation.distance} km</strong>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="col-md-4">
-                                <div className="text-center p-3 bg-light rounded">
-                                    <small className="text-muted d-block">Koszt posiłków</small>
-                                    <strong className="text-success h5 mb-0">
-                                        {calculatedLogisticsCosts.mealCost.toLocaleString('pl-PL')} PLN
-                                    </strong>
-                                    <small className="text-muted">
-                                        {teamRequirements.peopleCount} os. × {teamRequirements.duration} dni × {logisticsCosts.mealCostPerPerson} PLN
-                                    </small>
+                                <div className="col-md-3">
+                                    <div className="text-center p-2 bg-light rounded">
+                                        <small className="text-muted d-block">Czas podróży</small>
+                                        <strong className="text-info">{projectLocation.travelTime} h</strong>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="col-md-4">
-                                <div className="text-center p-3 bg-light rounded">
-                                    <small className="text-muted d-block">Robocizna na miejscu</small>
-                                    <strong className="text-info h5 mb-0">
-                                        {calculatedLogisticsCosts.onSiteLaborCost.toLocaleString('pl-PL')} PLN
-                                    </strong>
-                                    <small className="text-muted">
-                                        {teamRequirements.peopleCount} os. × {teamRequirements.duration} dni × {teamRequirements.workHoursPerDay} h × {laborRate || 120} PLN
-                                    </small>
+                                <div className="col-md-3">
+                                    <div className="text-center p-2 bg-light rounded">
+                                        <small className="text-muted d-block">Koszt paliwa</small>
+                                        <strong className="text-success">
+                                            {calculatedLogisticsCosts?.fuelCost.toLocaleString('pl-PL')} PLN
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div className="col-md-3">
+                                    <div className="text-center p-2 bg-light rounded">
+                                        <small className="text-muted d-block">Koszt transportu</small>
+                                        <strong className="text-warning">
+                                            {calculatedLogisticsCosts?.transportRentalCost.toLocaleString('pl-PL')} PLN
+                                        </strong>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     )}
+                </div>
+            </Card>
 
-                    {/* Add Logistics Button */}
-                    {calculatedLogisticsCosts && (
-                        <div className="text-center mt-3">
-                            <button
-                                className="btn btn-success btn-lg"
-                                onClick={() => {
-                                    if (calculatedLogisticsCosts) {
-                                        addLineItem(crypto.randomUUID()); // Add a dummy line item for logistics
-                                    }
-                                }}
-                            >
-                                <i className="ri-add-line me-2"></i>
-                                Dodaj Koszty Logistyczne do Wyceny
-                            </button>
-                            <div className="mt-2">
+            {/* TEAM REQUIREMENTS PANEL */}
+            <Card className="mb-4" title={<span><i className="ri-team-line me-2"></i>Wymagania Zespołu i Automatyczne Obliczenia</span>}>
+                <div className="row g-3">
+                    <div className="col-md-3">
+                        <label className="form-label fw-bold">Ilość osób:</label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            value={teamRequirements.peopleCount}
+                            onChange={(e) => setTeamRequirements(prev => ({ ...prev, peopleCount: parseInt(e.target.value) || 1 }))}
+                            min="1"
+                            max="20"
+                        />
+                    </div>
+                    <div className="col-md-3">
+                        <label className="form-label fw-bold">Czas realizacji (dni):</label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            value={teamRequirements.duration}
+                            onChange={(e) => setTeamRequirements(prev => ({ ...prev, duration: parseInt(e.target.value) || 1 }))}
+                            min="1"
+                            max="30"
+                        />
+                    </div>
+                    <div className="col-md-3">
+                        <label className="form-label fw-bold">Godziny pracy/dzień:</label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            value={teamRequirements.workHoursPerDay}
+                            onChange={(e) => setTeamRequirements(prev => ({ ...prev, workHoursPerDay: parseInt(e.target.value) || 8 }))}
+                            min="4"
+                            max="12"
+                        />
+                    </div>
+                    <div className="col-md-3">
+                        <label className="form-label fw-bold">Stawka robocizny:</label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            value={laborRate || 120}
+                            onChange={(e) => setLaborRate(parseFloat(e.target.value) || 0)}
+                            min="0"
+                            step="0.01"
+                        />
+                    </div>
+                </div>
+
+                {/* Automatic Calculations Display */}
+                {calculatedLogisticsCosts && (
+                    <div className="row g-3 mt-3">
+                        <div className="col-md-4">
+                            <div className="text-center p-3 bg-light rounded">
+                                <small className="text-muted d-block">Koszt zakwaterowania</small>
+                                <strong className="text-primary h5 mb-0">
+                                    {calculatedLogisticsCosts.accommodationCost.toLocaleString('pl-PL')} PLN
+                                </strong>
                                 <small className="text-muted">
-                                    Całkowity koszt logistyki: <strong>{calculatedLogisticsCosts?.totalLogisticsCost.toLocaleString('pl-PL')} PLN</strong>
+                                    {teamRequirements.peopleCount} os. × {teamRequirements.duration} dni × {logisticsCosts.accommodationCostPerPerson} PLN
                                 </small>
                             </div>
                         </div>
-                    )}
-                </div>
-            </div>
+                        <div className="col-md-4">
+                            <div className="text-center p-3 bg-light rounded">
+                                <small className="text-muted d-block">Koszt posiłków</small>
+                                <strong className="text-success h5 mb-0">
+                                    {calculatedLogisticsCosts.mealCost.toLocaleString('pl-PL')} PLN
+                                </strong>
+                                <small className="text-muted">
+                                    {teamRequirements.peopleCount} os. × {teamRequirements.duration} dni × {logisticsCosts.mealCostPerPerson} PLN
+                                </small>
+                            </div>
+                        </div>
+                        <div className="col-md-4">
+                            <div className="text-center p-3 bg-light rounded">
+                                <small className="text-muted d-block">Robocizna na miejscu</small>
+                                <strong className="text-info h5 mb-0">
+                                    {calculatedLogisticsCosts.onSiteLaborCost.toLocaleString('pl-PL')} PLN
+                                </strong>
+                                <small className="text-muted">
+                                    {teamRequirements.peopleCount} os. × {teamRequirements.duration} dni × {teamRequirements.workHoursPerDay} h × {laborRate || 120} PLN
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
-            {/* Summary Cards */}
-            <div className="row g-3 mb-4">
-                <div className="col-12 col-md-2">
-                    <div className="card border-0 bg-primary text-white">
-                        <div className="card-body text-center">
-                            <h6 className="mb-1">Materiały</h6>
-                            <h4 className="mb-0">{categoryTotals.materials.toLocaleString('pl-PL')} PLN</h4>
+                {/* Add Logistics Button */}
+                {calculatedLogisticsCosts && (
+                    <div className="text-center mt-3">
+                        <button
+                            className="btn btn-success btn-lg"
+                            onClick={() => {
+                                if (calculatedLogisticsCosts) {
+                                    addLineItem(crypto.randomUUID());
+                                }
+                            }}
+                        >
+                            <i className="ri-add-line me-2"></i>
+                            Dodaj Koszty Logistyczne do Wyceny
+                        </button>
+                        <div className="mt-2">
+                            <small className="text-muted">
+                                Całkowity koszt logistyki: <strong>{calculatedLogisticsCosts?.totalLogisticsCost.toLocaleString('pl-PL')} PLN</strong>
+                            </small>
                         </div>
                     </div>
-                </div>
-                <div className="col-12 col-md-2">
-                    <div className="card border-0 bg-success text-white">
-                        <div className="card-body text-center">
-                            <h6 className="mb-1">Robocizna</h6>
-                            <h4 className="mb-0">{categoryTotals.labor.toLocaleString('pl-PL')} PLN</h4>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-12 col-md-2">
-                    <div className="card border-0 bg-warning text-white">
-                        <div className="card-body text-center">
-                            <h6 className="mb-1">Sprzęt</h6>
-                            <h4 className="mb-0">{categoryTotals.equipment.toLocaleString('pl-PL')} PLN</h4>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-12 col-md-2">
-                    <div className="card border-0 bg-info text-white">
-                        <div className="card-body text-center">
-                            <h6 className="mb-1">Koszty ogólne</h6>
-                            <h4 className="mb-0">{categoryTotals.overhead.toLocaleString('pl-PL')} PLN</h4>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-12 col-md-2">
-                    <div className="card border-0 bg-purple text-white">
-                        <div className="card-body text-center">
-                            <h6 className="mb-1">Logistyka</h6>
-                            <h4 className="mb-0">{categoryTotals.logistics.toLocaleString('pl-PL')} PLN</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                )}
+            </Card>
 
-            {/* Total Cost */}
-            <div className="card border-0 bg-dark text-white mb-4">
-                <div className="card-body text-center">
-                    <h5 className="mb-1">Koszt całkowity projektu</h5>
-                    <h2 className="mb-0">{totalCost.toLocaleString('pl-PL')} PLN</h2>
-                </div>
-            </div>
+            {/* Summary - Ant Design Card + Statistics */}
+            <Card className="mb-4" title="Podsumowanie wyceny">
+                <Space direction="vertical" style={{ width: '100%' }} size="large">
+                    <div style={{ textAlign: 'center' }}>
+                        <Typography.Text type="secondary">KOSZT CAŁKOWITY PROJEKTU</Typography.Text>
+                        <div>
+                            <Statistic value={totalCost} suffix="PLN" valueStyle={{ fontSize: 32 }} precision={2} />
+                        </div>
+                    </div>
+                    <Row gutter={16}>
+                        <Col xs={24} md={8}>
+                            <Card><Statistic title="Materiały" value={categoryTotals.materials} suffix="PLN" precision={2} /></Card>
+                        </Col>
+                        <Col xs={24} md={8}>
+                            <Card><Statistic title="Robocizna" value={categoryTotals.labor} suffix="PLN" precision={2} /></Card>
+                        </Col>
+                        <Col xs={24} md={8}>
+                            <Card><Statistic title="Sprzęt" value={categoryTotals.equipment} suffix="PLN" precision={2} /></Card>
+                        </Col>
+                        <Col xs={24} md={12}>
+                            <Card><Statistic title="Koszty ogólne" value={categoryTotals.overhead} suffix="PLN" precision={2} /></Card>
+                        </Col>
+                        <Col xs={24} md={12}>
+                            <Card><Statistic title="Logistyka" value={categoryTotals.logistics} suffix="PLN" precision={2} /></Card>
+                        </Col>
+                    </Row>
+                </Space>
+            </Card>
 
             {/* Estimate Items Table */}
             <div className="card">
@@ -637,12 +599,7 @@ export default function EstimateBuilder() {
                 </div>
             </div>
 
-            {/* CSS Styles */}
-            <style>{`
-                .bg-gradient-primary { background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%); }
-                .bg-gradient-success { background: linear-gradient(135deg, #198754 0%, #157347 100%); }
-                .bg-purple { background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); }
-            `}</style>
+            {/* Styles cleanup: gradients removed in favor of AntD Cards */}
         </div>
     )
 }

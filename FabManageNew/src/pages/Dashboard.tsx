@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useProjectsStore } from '../stores/projectsStore'
 import { PageHeader } from '../components/Ui/PageHeader'
 import { Toolbar } from '../components/Ui/Toolbar'
+import { Card, Row, Col, Statistic, List, Progress, Tag, Button } from 'antd'
 // import { useTilesStore } from '../stores/tilesStore' // Unused for now
 
 interface Task {
@@ -106,10 +107,7 @@ export default function Dashboard() {
 
   return (
     <div>
-      <PageHeader
-        title="Dashboard"
-        subtitle="Przegląd głównych wskaźników i aktywności"
-      />
+      <PageHeader title="Dashboard" subtitle="Przegląd głównych wskaźników i aktywności" />
 
       <Toolbar
         right={
@@ -120,174 +118,86 @@ export default function Dashboard() {
         }
       />
 
-      {/* KPI Cards */}
-      <div className="row g-3 mb-4">
-        <div className="col-12 col-md-4">
-          <div className="card h-100">
-            <div className="card-body d-flex align-items-center">
-              <div className="flex-shrink-0 me-3">
-                <div className="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style={{ width: 50, height: 50 }}>
-                  <i className="ri-folder-open-line text-primary h5 mb-0"></i>
-                </div>
-              </div>
-              <div className="flex-grow-1">
-                <div className="h4 mb-0">{activeProjects}</div>
-                <div className="text-muted small">Aktywne Projekty</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-12 col-md-4">
-          <div className="card h-100">
-            <div className="card-body d-flex align-items-center">
-              <div className="flex-shrink-0 me-3">
-                <div className="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style={{ width: 50, height: 50 }}>
-                  <i className="ri-alarm-warning-line text-warning h5 mb-0"></i>
-                </div>
-              </div>
-              <div className="flex-grow-1">
-                <div className="h4 mb-0 text-warning">{overdueTasks}</div>
-                <div className="text-muted small">Zadania po Terminie</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-12 col-md-4">
-          <div className="card h-100">
-            <div className="card-body d-flex align-items-center">
-              <div className="flex-shrink-0 me-3">
-                <div className="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style={{ width: 50, height: 50 }}>
-                  <i className="ri-mail-line text-success h5 mb-0"></i>
-                </div>
-              </div>
-              <div className="flex-grow-1">
-                <div className="h4 mb-0">{newInquiries}</div>
-                <div className="text-muted small">Nowe Zapytania</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Row gutter={[24, 24]} style={{ marginBottom: 16 }}>
+        <Col xs={24} md={8}>
+          <Card bordered style={{ background: 'var(--bg-card)' }}>
+            <Statistic title="Aktywne Projekty" value={activeProjects} valueStyle={{ color: 'var(--primary-main)' }} />
+          </Card>
+        </Col>
+        <Col xs={24} md={8}>
+          <Card bordered style={{ background: 'var(--bg-card)' }}>
+            <Statistic title="Zadania po Terminie" value={overdueTasks} valueStyle={{ color: '#FDB528' }} />
+          </Card>
+        </Col>
+        <Col xs={24} md={8}>
+          <Card bordered style={{ background: 'var(--bg-card)' }}>
+            <Statistic title="Nowe Zapytania" value={newInquiries} valueStyle={{ color: 'var(--primary-main)' }} />
+          </Card>
+        </Col>
+      </Row>
 
-      <div className="row g-4">
-        {/* My Tasks */}
-        <div className="col-12 col-lg-6">
-          <div className="card h-100">
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">Moje Zadania</h5>
-              <button className="btn btn-sm btn-outline-primary">
-                <i className="ri-add-line me-1"></i>Dodaj
-              </button>
-            </div>
-            <div className="card-body">
-              <div className="list-group list-group-flush">
-                {tasks.map(task => (
-                  <div key={task.id} className="list-group-item px-0 border-0">
-                    <div className="d-flex align-items-start">
-                      <div className="form-check me-3 mt-1">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          checked={task.completed}
-                          onChange={() => toggleTask(task.id)}
-                        />
-                      </div>
-                      <div className="flex-grow-1">
-                        <div className={`mb-1 ${task.completed ? 'text-decoration-line-through text-muted' : ''}`}>
-                          {task.task}
-                        </div>
-                        <div className="small text-muted mb-1">{task.project}</div>
-                        <div className="d-flex align-items-center gap-2">
-                          <span className={`badge ${task.overdue && !task.completed ? 'bg-danger' : task.completed ? 'bg-success' : 'bg-secondary'}`}>
-                            {task.deadline}
-                          </span>
-                          {task.overdue && !task.completed && (
-                            <span className="text-danger small">
-                              <i className="ri-time-line me-1"></i>Opóźnione
-                            </span>
-                          )}
-                        </div>
-                      </div>
+      <Row gutter={[24, 24]}>
+        <Col xs={24} lg={12}>
+          <Card title="Moje Zadania" extra={<Button size="small">Dodaj</Button>} bordered style={{ background: 'var(--bg-card)' }}>
+            <List
+              dataSource={tasks}
+              renderItem={t => (
+                <List.Item key={t.id} style={{ border: 'none', paddingLeft: 0, paddingRight: 0 }}>
+                  <div style={{ width: 16, height: 16, marginRight: 12 }}>
+                    <input type="checkbox" checked={t.completed} onChange={() => toggleTask(t.id)} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ opacity: t.completed ? 0.6 : 1, textDecoration: t.completed ? 'line-through' : 'none' }}>{t.task}</div>
+                    <div className="small text-muted">{t.project}</div>
+                    <div style={{ marginTop: 4 }}>
+                      <Tag color={t.overdue && !t.completed ? 'error' : t.completed ? 'success' : 'default'}>{t.deadline}</Tag>
+                      {t.overdue && !t.completed && <span className="text-danger small" style={{ marginLeft: 8 }}>Opóźnione</span>}
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Project Timeline */}
-        <div className="col-12 col-lg-6">
-          <div className="card h-100">
-            <div className="card-header">
-              <h5 className="mb-0">Oś Czasu Projektów</h5>
-            </div>
-            <div className="card-body">
-              <div className="space-y-4">
-                {projectTimeline.map((project, index) => (
-                  <div key={index} className="mb-3">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                      <div className="fw-medium">{project.name}</div>
-                      <span className="small text-muted">{project.progress}%</span>
+                </List.Item>
+              )}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} lg={12}>
+          <Card title="Oś Czasu Projektów" bordered style={{ background: 'var(--bg-card)' }}>
+            <List
+              dataSource={projectTimeline}
+              renderItem={(p) => (
+                <List.Item>
+                  <div style={{ width: '100%' }}>
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <div className="fw-medium">{p.name}</div>
+                      <span className="small text-muted">{p.progress}%</span>
                     </div>
-                    <div className="progress mb-2" style={{ height: 8 }}>
-                      <div
-                        className={`progress-bar ${project.color.replace('bg-', 'bg-')}`}
-                        style={{ width: `${project.progress}%` }}
-                      ></div>
-                    </div>
+                    <Progress percent={p.progress} showInfo={false} strokeColor={'var(--primary-main)'} style={{ marginBottom: 8 }} />
                     <div className="d-flex justify-content-between text-muted small">
-                      <span>{project.startMonth}</span>
-                      <span>{project.endMonth}</span>
+                      <span>{p.startMonth}</span>
+                      <span>{p.endMonth}</span>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="col-12">
-          <div className="card">
-            <div className="card-header">
-              <h5 className="mb-0">Ostatnia Aktywność</h5>
-            </div>
-            <div className="card-body">
-              <div className="list-group list-group-flush">
-                {recentActivity.map(activity => (
-                  <div key={activity.id} className="list-group-item px-0 border-0">
-                    <div className="d-flex align-items-center">
-                      <div className="flex-shrink-0 me-3">
-                        <div className={`rounded-circle d-flex align-items-center justify-content-center ${activity.type === 'success' ? 'bg-success bg-opacity-10' :
-                            activity.type === 'warning' ? 'bg-warning bg-opacity-10' :
-                              'bg-info bg-opacity-10'
-                          }`} style={{ width: 32, height: 32 }}>
-                          <i className={`${activity.type === 'success' ? 'ri-check-line text-success' :
-                              activity.type === 'warning' ? 'ri-alert-line text-warning' :
-                                'ri-information-line text-info'
-                            } small`}></i>
-                        </div>
-                      </div>
-                      <div className="flex-grow-1">
-                        <div className="d-flex justify-content-between align-items-start">
-                          <div>
-                            <div className="mb-1">
-                              <span className="me-1">{activity.action}</span>
-                              <strong>{activity.item}</strong>
-                            </div>
-                            <div className="text-muted small">{activity.time}</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+                </List.Item>
+              )}
+            />
+          </Card>
+        </Col>
+        <Col xs={24}>
+          <Card title="Ostatnia Aktywność" bordered style={{ background: 'var(--bg-card)' }}>
+            <List
+              dataSource={recentActivity}
+              renderItem={(a) => (
+                <List.Item>
+                  <List.Item.Meta
+                    avatar={null}
+                    title={<span>{a.action} <strong>{a.item}</strong></span>}
+                    description={<span className="text-muted small">{a.time}</span>}
+                  />
+                </List.Item>
+              )}
+            />
+          </Card>
+        </Col>
+      </Row>
     </div>
   )
 }

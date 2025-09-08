@@ -4,6 +4,7 @@ import { PageHeader } from '../components/Ui/PageHeader'
 import { Toolbar } from '../components/Ui/Toolbar'
 import { EntityTable } from '../components/Ui/EntityTable'
 import type { Column } from '../components/Ui/EntityTable'
+import { Row, Col, Card, Select, Button, Space, Typography, Progress, Tag, Tabs, Empty } from 'antd'
 
 export default function Produkcja() {
     const { tiles } = useTilesStore()
@@ -35,7 +36,7 @@ export default function Produkcja() {
 
     const queueColumns: Column<any>[] = useMemo(() => [
         { key: 'id', header: 'ID', width: 80 },
-        { key: 'name', header: 'Nazwa', render: (tile) => <div className="fw-semibold">{tile.name}</div> },
+        { key: 'name', header: 'Nazwa', render: (tile) => <div style={{ fontWeight: 600 }}>{tile.name}</div> },
         { key: 'project', header: 'Projekt' },
         { key: 'technology', header: 'Technologia' },
         {
@@ -46,7 +47,7 @@ export default function Produkcja() {
         {
             key: 'status',
             header: 'Status',
-            render: (tile) => <span className="badge bg-success">{tile.status}</span>
+            render: (tile) => <Tag color="success">{tile.status}</Tag>
         }
     ], [])
 
@@ -59,179 +60,146 @@ export default function Produkcja() {
 
             <Toolbar
                 left={
-                    <div className="d-flex gap-2">
-                        <select className="form-select form-select-sm" style={{ minWidth: 160 }} value={lineFilter} onChange={e => setLineFilter(e.currentTarget.value)}>
-                            <option>Wszystkie</option>
-                            {['Linia A', 'Linia B', 'Linia C', 'Linia D'].map(l => <option key={l}>{l}</option>)}
-                        </select>
-                        <select className="form-select form-select-sm" style={{ minWidth: 160 }} value={techFilter} onChange={e => setTechFilter(e.currentTarget.value)}>
-                            <option>Wszystkie</option>
-                            {Array.from(new Set(tiles.map(t => t.technology))).map(t => <option key={t}>{t}</option>)}
-                        </select>
-                        <select className="form-select form-select-sm" style={{ minWidth: 180 }} value={statusFilter} onChange={e => setStatusFilter(e.currentTarget.value as any)}>
-                            {['Wszystkie', 'W KOLEJCE', 'W TRAKCIE CIĘCIA', 'WYCIĘTE', 'Gotowy do montażu'].map(s => <option key={s} value={s}>{s}</option>)}
-                        </select>
-                    </div>
+                    <Space>
+                        <Select size="middle" style={{ minWidth: 160 }} value={lineFilter} onChange={v => setLineFilter(v)} options={[{ value: 'Wszystkie', label: 'Wszystkie' }, ...['Linia A', 'Linia B', 'Linia C', 'Linia D'].map(l => ({ value: l, label: l }))]} />
+                        <Select size="middle" style={{ minWidth: 160 }} value={techFilter} onChange={v => setTechFilter(v)} options={[{ value: 'Wszystkie', label: 'Wszystkie' }, ...Array.from(new Set(tiles.map(t => t.technology))).map(t => ({ value: t, label: t }))]} />
+                        <Select size="middle" style={{ minWidth: 200 }} value={statusFilter} onChange={v => setStatusFilter(v as any)} options={['Wszystkie', 'W KOLEJCE', 'W TRAKCIE CIĘCIA', 'WYCIĘTE', 'Gotowy do montażu'].map(s => ({ value: s, label: s }))} />
+                    </Space>
                 }
                 right={
-                    <div className="d-flex gap-2">
-                        <button className="btn btn-sm btn-outline-secondary">
-                            <i className="ri-download-line me-1"></i>Eksport
-                        </button>
-                    </div>
+                    <Space>
+                        <Button size="small">
+                            <i className="ri-download-line" style={{ marginRight: 6 }}></i>Eksport
+                        </Button>
+                    </Space>
                 }
             />
 
             {/* KPI rows */}
-            <div className="row g-3 mb-3">
+            <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
                 {[
                     { label: 'Plan vs Actual', value: '84%', extra: 'on track' },
                     { label: 'OLE', value: '76%', extra: '▲ 2%' },
                     { label: 'Scrap rate', value: '3.2%', extra: 'vs 4% target' },
                     { label: 'Labor productivity', value: '52 pcs/h', extra: 'good' },
                 ].map((k, i) => (
-                    <div className="col-6 col-lg-3" key={i}><div className="card h-100"><div className="card-body text-center"><div className="h4">{k.value}</div><div className="text-muted small">{k.label}</div><div className="text-success small">{k.extra}</div></div></div></div>
+                    <Col xs={12} lg={6} key={i}><Card><div style={{ textAlign: 'center' }}><div style={{ fontSize: 20 }}>{k.value}</div><Typography.Text type="secondary" style={{ display: 'block' }}>{k.label}</Typography.Text><Typography.Text style={{ color: 'var(--success-strong)' }}>{k.extra}</Typography.Text></div></Card></Col>
                 ))}
-            </div>
-            <div className="row g-3 mb-3">
+            </Row>
+            <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
                 {[
                     { label: 'Downtime today', value: '38 min' },
                     { label: 'MTTR', value: '12 min' },
                     { label: 'Energy efficiency', value: '1.9 kWh/pc' },
                     { label: 'Safety record', value: '27 dni' },
                 ].map((k, i) => (
-                    <div className="col-6 col-lg-3" key={i}><div className="card h-100"><div className="card-body text-center"><div className="h4">{k.value}</div><div className="text-muted small">{k.label}</div></div></div></div>
+                    <Col xs={12} lg={6} key={i}><Card><div style={{ textAlign: 'center' }}><div style={{ fontSize: 20 }}>{k.value}</div><Typography.Text type="secondary">{k.label}</Typography.Text></div></Card></Col>
                 ))}
-            </div>
+            </Row>
 
             {/* Tabs */}
-            <ul className="nav nav-tabs mb-3">
-                <li className="nav-item"><button className={`nav-link ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}><i className="ri-dashboard-line me-1"></i>Przegląd</button></li>
-                <li className="nav-item"><button className={`nav-link ${activeTab === 'queue' ? 'active' : ''}`} onClick={() => setActiveTab('queue')}><i className="ri-list-check me-1"></i>Kolejka</button></li>
-                <li className="nav-item"><button className={`nav-link ${activeTab === 'kanban' ? 'active' : ''}`} onClick={() => setActiveTab('kanban')}><i className="ri-layout-grid-line me-1"></i>Kanban</button></li>
-                <li className="nav-item"><button className={`nav-link ${activeTab === 'quality' ? 'active' : ''}`} onClick={() => setActiveTab('quality')}><i className="ri-shield-check-line me-1"></i>Jakość</button></li>
-                <li className="nav-item"><button className={`nav-link ${activeTab === 'maintenance' ? 'active' : ''}`} onClick={() => setActiveTab('maintenance')}><i className="ri-tools-line me-1"></i>Utrzymanie ruchu</button></li>
-            </ul>
+            <Card style={{ marginBottom: 12 }}>
+                <Tabs
+                    activeKey={activeTab}
+                    onChange={(k) => setActiveTab(k as typeof activeTab)}
+                    items={[
+                        { key: 'overview', label: <span><i className="ri-dashboard-line" style={{ marginRight: 6 }}></i>Przegląd</span> },
+                        { key: 'queue', label: <span><i className="ri-list-check" style={{ marginRight: 6 }}></i>Kolejka</span> },
+                        { key: 'kanban', label: <span><i className="ri-layout-grid-line" style={{ marginRight: 6 }}></i>Kanban</span> },
+                        { key: 'quality', label: <span><i className="ri-shield-check-line" style={{ marginRight: 6 }}></i>Jakość</span> },
+                        { key: 'maintenance', label: <span><i className="ri-tools-line" style={{ marginRight: 6 }}></i>Utrzymanie ruchu</span> },
+                    ]}
+                />
+            </Card>
 
             {activeTab === 'overview' && (
-                <div className="card mb-3">
-                    <div className="card-body">
-                        <div className="d-flex justify-content-between align-items-center mb-2">
-                            <div className="fw-semibold">Plan vs Actual</div>
-                            <span className="text-muted small">84%</span>
-                        </div>
-                        <div className="progress" style={{ height: 8 }}>
-                            <div className="progress-bar" style={{ width: '84%' }}></div>
-                        </div>
+                <Card style={{ marginBottom: 12 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <div style={{ fontWeight: 600 }}>Plan vs Actual</div>
+                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>84%</Typography.Text>
                     </div>
-                </div>
+                    <Progress percent={84} showInfo={false} strokeColor={'var(--primary-main)'} />
+                </Card>
             )}
 
             {activeTab === 'queue' && (
-                <div className="card mb-3">
-                    <div className="card-header d-flex justify-content-between align-items-center">
-                        <h6 className="mb-0">Kolejka montażowa ({assemblyTiles.length})</h6>
-                        <span className="badge bg-primary">Automatycznie z CNC</span>
-                    </div>
-                    <div className="card-body">
-                        {assemblyTiles.length > 0 ? (
-                            <EntityTable
-                                rows={assemblyTiles}
-                                columns={queueColumns}
-                                rowKey={(tile) => tile.id}
-                            />
-                        ) : (
-                            <div className="text-center py-4">
-                                <i className="ri-inbox-line text-muted" style={{ fontSize: '2rem' }}></i>
-                                <p className="text-muted mt-2">Brak elementów w kolejce</p>
-                                <small className="text-muted">Elementy automatycznie pojawią się po zakończeniu cięcia CNC</small>
+                <Card style={{ marginBottom: 12 }} title={<span style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}><span>Kolejka montażowa ({assemblyTiles.length})</span><Tag color="processing">Automatycznie z CNC</Tag></span>}>
+                    {assemblyTiles.length > 0 ? (
+                        <EntityTable
+                            rows={assemblyTiles}
+                            columns={queueColumns}
+                            rowKey={(tile) => tile.id}
+                        />
+                    ) : (
+                        <Empty description={
+                            <div>
+                                <div>Brak elementów w kolejce</div>
+                                <Typography.Text type="secondary" style={{ fontSize: 12 }}>Elementy automatycznie pojawią się po zakończeniu cięcia CNC</Typography.Text>
                             </div>
-                        )}
-                    </div>
-                </div>
+                        } />
+                    )}
+                </Card>
             )}
 
             {activeTab === 'kanban' && (
-                <div className="card mb-3">
-                    <div className="card-header fw-semibold">Kanban</div>
-                    <div className="card-body">
-                        <div className="row g-3">
-                            {kanbanColumns.map((stage, idx) => (
-                                <div className="col-12 col-xl-3" key={stage.id}>
-                                    <div className="border rounded h-100">
-                                        <div className={`p-2 border-bottom fw-semibold ${['bg-secondary-subtle', 'bg-primary-subtle', 'bg-info-subtle', 'bg-success-subtle'][idx]}`}>{stage.title}</div>
-                                        <div className="p-2" style={{ minHeight: 260 }}>
-                                            {tiles.filter(t => t.status === stage.id).map(t => (
-                                                <div key={t.id} className="card mb-2">
-                                                    <div className="card-body py-2">
-                                                        <div className="fw-semibold">{t.name}</div>
-                                                        <div className="text-muted small">{t.project} • {t.technology}</div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
+                <Card style={{ marginBottom: 12 }} title="Kanban">
+                    <Row gutter={[12, 12]}>
+                        {kanbanColumns.map((stage) => (
+                            <Col xs={24} xl={6} key={stage.id}>
+                                <Card size="small" bodyStyle={{ padding: 8 }} title={<span style={{ fontWeight: 600 }}>{stage.title}</span>}>
+                                    <div style={{ minHeight: 260 }}>
+                                        {tiles.filter(t => t.status === stage.id).map(t => (
+                                            <Card key={t.id} size="small" style={{ marginBottom: 8 }}>
+                                                <div style={{ fontWeight: 600 }}>{t.name}</div>
+                                                <Typography.Text type="secondary" style={{ fontSize: 12 }}>{t.project} • {t.technology}</Typography.Text>
+                                            </Card>
+                                        ))}
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+                                </Card>
+                            </Col>
+                        ))}
+                    </Row>
+                </Card>
             )}
 
             {activeTab === 'quality' && (
-                <div className="row g-3">
-                    <div className="col-12 col-xl-9">
-                        <div className="card h-100">
-                            <div className="card-header fw-semibold d-flex justify-content-between align-items-center">
-                                <span>Live feed</span>
-                                <span className="text-muted small">odświeżanie co 5s</span>
-                            </div>
-                            <div className="card-body" style={{ maxHeight: 360, overflowY: 'auto' }}>
-                                <ul className="list-unstyled mb-0">
+                <Row gutter={[12, 12]}>
+                    <Col xs={24} xl={18}>
+                        <Card title={<span style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}><span>Live feed</span><Typography.Text type="secondary" style={{ fontSize: 12 }}>odświeżanie co 5s</Typography.Text></span>}>
+                            <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+                                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                                     {Array.from({ length: 16 }).map((_, i) => (
-                                        <li key={i} className="py-1 border-bottom">{i % 2 ? 'Start' : 'Complete'} • {orders[i % orders.length].name} • 08:{(10 + i) % 60}</li>
+                                        <li key={i} style={{ padding: '4px 0', borderBottom: '1px solid var(--border-medium)' }}>{i % 2 ? 'Start' : 'Complete'} • {orders[i % orders.length].name} • 08:{(10 + i) % 60}</li>
                                     ))}
                                 </ul>
                             </div>
-                        </div>
-                    </div>
-                    <div className="col-12 col-xl-3">
-                        <div className="card h-100">
-                            <div className="card-header fw-semibold d-flex justify-content-between align-items-center">
-                                <span>Quality panel</span>
-                                <button className="btn btn-sm btn-outline-secondary"><i className="ri-refresh-line"></i></button>
-                            </div>
-                            <div className="card-body">
-                                <div className="row g-2">
-                                    {Array.from({ length: 12 }).map((_, i) => (
-                                        <div className="col-4" key={i}><span className={`badge w-100 ${i % 5 === 0 ? 'bg-danger' : 'bg-success'}`}>{i % 5 === 0 ? 'FAIL' : 'PASS'}</span></div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                        </Card>
+                    </Col>
+                    <Col xs={24} xl={6}>
+                        <Card title={<span style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}><span>Quality panel</span><Button size="small" icon={<i className="ri-refresh-line"></i> as any} /></span>}>
+                            <Row gutter={[8, 8]}>
+                                {Array.from({ length: 12 }).map((_, i) => (
+                                    <Col span={8} key={i}><Tag color={i % 5 === 0 ? 'error' : 'success'} style={{ display: 'block', textAlign: 'center' }}>{i % 5 === 0 ? 'FAIL' : 'PASS'}</Tag></Col>
+                                ))}
+                            </Row>
+                        </Card>
+                    </Col>
+                </Row>
             )}
 
             {activeTab === 'maintenance' && (
-                <div className="card">
-                    <div className="card-header fw-semibold d-flex justify-content-between align-items-center">
-                        <span>Utrzymanie ruchu</span>
-                        <button className="btn btn-sm btn-outline-secondary"><i className="ri-add-line me-1"></i>Nowe zgłoszenie</button>
+                <Card title={<span style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}><span>Utrzymanie ruchu</span><Button size="small"><i className="ri-add-line" style={{ marginRight: 6 }}></i>Nowe zgłoszenie</Button></span>}>
+                    <div className="table-responsive">
+                        <table className="table table-sm align-middle">
+                            <thead><tr><th>Maszyna</th><th>Priorytet</th><th>Status</th><th>Zgłoszono</th><th>Akcja</th></tr></thead>
+                            <tbody>
+                                {['CNC-01', 'CNC-02', 'MONTAŻ-01'].map((m, i) => (
+                                    <tr key={m}><td>{m}</td><td><Tag color={i === 0 ? 'error' : 'warning'}>{i === 0 ? 'Wysoki' : 'Średni'}</Tag></td><td>{i === 2 ? 'Zamknięte' : 'Otwarte'}</td><td>2025-09-1{i + 1}</td><td><Button size="small">Szczegóły</Button></td></tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
-                    <div className="card-body">
-                        <div className="table-responsive">
-                            <table className="table table-sm align-middle">
-                                <thead><tr><th>Maszyna</th><th>Priorytet</th><th>Status</th><th>Zgłoszono</th><th>Akcja</th></tr></thead>
-                                <tbody>
-                                    {['CNC-01', 'CNC-02', 'MONTAŻ-01'].map((m, i) => (
-                                        <tr key={m}><td>{m}</td><td><span className={`badge ${i === 0 ? 'bg-danger' : 'bg-warning'}`}>{i === 0 ? 'Wysoki' : 'Średni'}</span></td><td>{i === 2 ? 'Zamknięte' : 'Otwarte'}</td><td>2025-09-1{i + 1}</td><td><button className="btn btn-sm btn-outline-primary">Szczegóły</button></td></tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                </Card>
             )}
         </div>
     )

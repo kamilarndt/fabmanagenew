@@ -33,13 +33,21 @@ export default function Klient() {
         loadClientData();
     }, [id, getClientById, getProjectsByClient, loadData]);
 
-    if (loading || !client) {
+    if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-center">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                     <p className="mt-2 text-gray-600">Ładowanie danych klienta...</p>
                 </div>
+            </div>
+        );
+    }
+
+    if (!client) {
+        return (
+            <div style={{ padding: 24 }}>
+                <p className="text-gray-600">Nie znaleziono klienta. Wróć do listy klientów.</p>
             </div>
         );
     }

@@ -4,6 +4,7 @@ import { isSupabaseConfigured } from '../lib/supabase'
 import { listProjects, createProject, updateProject as sbUpdate, deleteProject as sbDelete } from '../services/projects'
 import { generateProjectColorScheme } from '../lib/clientUtils'
 import { subscribeTable } from '../lib/realtime'
+import { mockProjects } from '../data/mockDatabase'
 
 export type ProjectModule = 'wycena' | 'koncepcja' | 'projektowanie_techniczne' | 'produkcja' | 'materialy' | 'logistyka_montaz' | 'zakwaterowanie'
 
@@ -46,109 +47,7 @@ export type Project = {
     }
 }
 
-// Sample projects data - Projekty dla stacji telewizyjnych
-const sampleProjects: Project[] = [
-    {
-        id: 'P-001',
-        name: 'TVP - Studio Wiadomości',
-        clientId: 'C-001', // Telewizja Polska S.A.
-        client: 'Telewizja Polska S.A.',
-        status: 'Active',
-        deadline: '2025-02-15',
-        budget: 450000,
-        manager: 'Anna Kowalska',
-        description: 'Modernizacja studia wiadomości z systemem LED i interaktywnymi elementami',
-        progress: 75,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy'],
-        clientColor: '#e60012',
-        colorScheme: {
-            primary: '#e60012',
-            light: '#ff4d4d',
-            dark: '#cc0000',
-            accent: '#00cc00'
-        }
-    },
-    {
-        id: 'P-002',
-        name: 'Polsat - Studio Rozrywki',
-        clientId: 'C-002', // Polsat
-        client: 'Polsat',
-        status: 'Active',
-        deadline: '2025-03-20',
-        budget: 380000,
-        manager: 'Piotr Nowak',
-        description: 'Nowe studio rozrywkowe z systemem oświetlenia i scenografią',
-        progress: 60,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja'],
-        clientColor: '#ff6b35',
-        colorScheme: {
-            primary: '#ff6b35',
-            light: '#ff8f66',
-            dark: '#e55a2b',
-            accent: '#00cc00'
-        }
-    },
-    {
-        id: 'P-003',
-        name: 'TVN - Studio Informacyjne',
-        clientId: 'C-003', // TVN
-        client: 'TVN',
-        status: 'On Hold',
-        deadline: '2025-04-10',
-        budget: 320000,
-        manager: 'Marek Wiśniewski',
-        description: 'Remont studia informacyjnego z nowoczesnym systemem telewizyjnym',
-        progress: 30,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne'],
-        clientColor: '#1e3a8a',
-        colorScheme: {
-            primary: '#1e3a8a',
-            light: '#3b82f6',
-            dark: '#1e40af',
-            accent: '#00cc00'
-        }
-    },
-    {
-        id: 'P-004',
-        name: 'TV Puls - Studio Religijne',
-        clientId: 'C-004', // TV Puls
-        client: 'TV Puls',
-        status: 'Done',
-        deadline: '2024-12-15',
-        budget: 280000,
-        manager: 'Katarzyna Zielińska',
-        description: 'Studio do programów religijnych z systemem oświetlenia',
-        progress: 100,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy'],
-        clientColor: '#7c3aed',
-        colorScheme: {
-            primary: '#7c3aed',
-            light: '#a78bfa',
-            dark: '#6d28d9',
-            accent: '#00cc00'
-        }
-    },
-    {
-        id: 'P-005',
-        name: 'TV4 - Studio Show',
-        clientId: 'C-005', // TV4
-        client: 'TV4',
-        status: 'Active',
-        deadline: '2025-01-30',
-        budget: 250000,
-        manager: 'Tomasz Kowalczyk',
-        description: 'Studio do programów rozrywkowych z systemem dźwięku',
-        progress: 80,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy'],
-        clientColor: '#059669',
-        colorScheme: {
-            primary: '#059669',
-            light: '#10b981',
-            dark: '#047857',
-            accent: '#00cc00'
-        }
-    }
-];
+// Projekty zasilane z rozbudowanej bazy mockProjects
 
 interface ProjectsState {
     projects: Project[]
@@ -227,8 +126,8 @@ export const useProjectsStore = create<ProjectsState>()(
 
                 try {
                     if (!isSupabaseConfigured) {
-                        // If no database, use sample projects
-                        set({ projects: sampleProjects, projectsById: Object.fromEntries(sampleProjects.map(p => [p.id, p])), isInitialized: true })
+                        // If no database, use mock projects
+                        set({ projects: mockProjects, projectsById: Object.fromEntries(mockProjects.map(p => [p.id, p])), isInitialized: true })
 
                         // Synchronizuj projekty z klientami
                         setTimeout(() => {
@@ -268,10 +167,10 @@ export const useProjectsStore = create<ProjectsState>()(
                             }
                         }, 100)
                     } else {
-                        // If database is empty, populate with sample projects
+                        // If database is empty, populate with mock projects
                         const { logger } = await import('../lib/logger')
-                        logger.info('Baza danych jest pusta, dodaję przykładowe projekty...')
-                        for (const project of sampleProjects) {
+                        logger.info('Baza danych jest pusta, dodaję projekty z mockDatabase...')
+                        for (const project of mockProjects) {
                             try {
                                 await createProject(project)
                             } catch (error) {
@@ -279,7 +178,7 @@ export const useProjectsStore = create<ProjectsState>()(
                                 logger.error('Błąd podczas dodawania projektu:', error)
                             }
                         }
-                        set({ projects: sampleProjects, projectsById: Object.fromEntries(sampleProjects.map(p => [p.id, p])), isInitialized: true })
+                        set({ projects: mockProjects, projectsById: Object.fromEntries(mockProjects.map(p => [p.id, p])), isInitialized: true })
 
                         // Synchronizuj projekty z klientami
                         setTimeout(() => {
@@ -300,8 +199,8 @@ export const useProjectsStore = create<ProjectsState>()(
                 } catch (error) {
                     const { logger } = await import('../lib/logger')
                     logger.error('Błąd podczas ładowania projektów:', error)
-                    // Fallback to sample projects
-                    set({ projects: sampleProjects, isInitialized: true })
+                    // Fallback to mock projects
+                    set({ projects: mockProjects, isInitialized: true })
 
                     // Synchronizuj projekty z klientami
                     setTimeout(() => {

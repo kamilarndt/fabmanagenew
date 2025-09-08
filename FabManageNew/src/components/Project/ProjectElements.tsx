@@ -5,6 +5,7 @@ import { KanbanBoardGeneric } from '../Ui/KanbanBoardGeneric'
 import GroupView from '../Groups/GroupView'
 import { useTilesStore } from '../../stores/tilesStore'
 import { showToast } from '../../lib/toast'
+import { Card, Form, Input, Select, Button, Space, Row, Col } from 'antd'
 
 interface ProjectElementsProps {
     project: Project
@@ -101,60 +102,71 @@ export default function ProjectElements({
     return (
         <div>
             {/* Header + Quick Add */}
-            <div className="d-flex justify-content-between align-items-center mb-3">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <div>
-                    <h5 className="mb-1">Elementy Projektu</h5>
-                    <p className="text-muted small mb-0">Kanban na górze, grupy poniżej</p>
+                    <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>Elementy Projektu</div>
+                    <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>Kanban na górze, grupy poniżej</div>
                 </div>
-                <div className="d-flex align-items-center gap-2">
-                    <button className="btn btn-success btn-sm" onClick={onCreateGroup} aria-label="Stwórz nową grupę">
-                        <i className="ri-add-circle-line me-1"></i>Stwórz grupę
-                    </button>
+                <Space>
+                    <Button type="primary" size="small" onClick={onCreateGroup} aria-label="Stwórz nową grupę">
+                        <i className="ri-add-circle-line" style={{ marginRight: 4 }}></i>Stwórz grupę
+                    </Button>
                     {project.modules?.includes('produkcja') && onPushToProduction && (
-                        <button className="btn btn-warning btn-sm" onClick={onPushToProduction} aria-label="Wyślij elementy do produkcji">
-                            <i className="ri-send-plane-line me-1"></i>Wyślij do produkcji
-                        </button>
+                        <Button size="small" onClick={onPushToProduction} aria-label="Wyślij elementy do produkcji">
+                            <i className="ri-send-plane-line" style={{ marginRight: 4 }}></i>Wyślij do produkcji
+                        </Button>
                     )}
-                </div>
+                </Space>
             </div>
 
             {/* Quick Add Bar */}
-            <div className="card border-0 shadow-sm mb-3">
-                <div className="card-body">
-                    <div className="row g-2 align-items-end">
-                        <div className="col-md-5">
-                            <label className="form-label small fw-semibold">Nazwa elementu *</label>
-                            <input className="form-control" placeholder="np. Panel frontowy" value={qaName} onChange={e => setQaName(e.currentTarget.value)} />
-                        </div>
-                        <div className="col-md-3">
-                            <label className="form-label small fw-semibold">Technologia wiodąca</label>
-                            <select className="form-select" value={qaTech} onChange={e => setQaTech(e.currentTarget.value)}>
-                                <option>Frezowanie CNC</option>
-                                <option>Cięcie laserowe</option>
-                                <option>Druk 3D</option>
-                                <option>Gięcie blach</option>
-                            </select>
-                        </div>
-                        <div className="col-md-2">
-                            <label className="form-label small fw-semibold">Priorytet</label>
-                            <select className="form-select" value={qaPriority} onChange={e => setQaPriority(e.currentTarget.value as any)}>
-                                <option>Wysoki</option>
-                                <option>Średni</option>
-                                <option>Niski</option>
-                            </select>
-                        </div>
-                        <div className="col-md-2 d-grid">
-                            <button className="btn btn-primary" onClick={handleQuickAdd}>
-                                <i className="ri-add-line me-1"></i>Dodaj
-                            </button>
-                        </div>
-                    </div>
-                    <div className="mt-2 text-muted small">
+            <Card style={{ marginBottom: 12 }}>
+                <Form layout="vertical" onFinish={handleQuickAdd}>
+                    <Row gutter={[8, 8]} align="bottom">
+                        <Col xs={24} md={10}>
+                            <Form.Item label="Nazwa elementu *" required>
+                                <Input placeholder="np. Panel frontowy" value={qaName} onChange={e => setQaName(e.currentTarget.value)} />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={6}>
+                            <Form.Item label="Technologia wiodąca">
+                                <Select
+                                    value={qaTech}
+                                    onChange={setQaTech as any}
+                                    options={[
+                                        { value: 'Frezowanie CNC', label: 'Frezowanie CNC' },
+                                        { value: 'Cięcie laserowe', label: 'Cięcie laserowe' },
+                                        { value: 'Druk 3D', label: 'Druk 3D' },
+                                        { value: 'Gięcie blach', label: 'Gięcie blach' },
+                                    ]}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={4}>
+                            <Form.Item label="Priorytet">
+                                <Select
+                                    value={qaPriority}
+                                    onChange={v => setQaPriority(v as any)}
+                                    options={[
+                                        { value: 'Wysoki', label: 'Wysoki' },
+                                        { value: 'Średni', label: 'Średni' },
+                                        { value: 'Niski', label: 'Niski' },
+                                    ]}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={4}>
+                            <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+                                <i className="ri-add-line" style={{ marginRight: 4 }}></i>Dodaj
+                            </Button>
+                        </Col>
+                    </Row>
+                    <div style={{ marginTop: 8, color: 'var(--text-secondary)', fontSize: 12 }}>
                         Potrzebujesz więcej pól? Użyj edytora zaawansowanego
-                        <button className="btn btn-link btn-sm ms-1 p-0 align-baseline" onClick={onAddTile}>Otwórz edytor</button>
+                        <Button type="link" size="small" style={{ padding: 0, marginLeft: 4, verticalAlign: 'baseline' }} onClick={onAddTile}>Otwórz edytor</Button>
                     </div>
-                </div>
-            </div>
+                </Form>
+            </Card>
 
             {/* Kanban */}
             <KanbanBoardGeneric
@@ -167,12 +179,12 @@ export default function ProjectElements({
             />
 
             {/* Groups below */}
-            <div className="mt-4">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h6 className="mb-0">Grupy</h6>
-                    <button className="btn btn-outline-secondary btn-sm" onClick={onCreateGroup} aria-label="Utwórz nową grupę">
-                        <i className="ri-folder-add-line me-1"></i>Nowa grupa
-                    </button>
+            <div style={{ marginTop: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600 }}>Grupy</div>
+                    <Button size="small" onClick={onCreateGroup} aria-label="Utwórz nową grupę">
+                        <i className="ri-folder-add-line" style={{ marginRight: 4 }}></i>Nowa grupa
+                    </Button>
                 </div>
                 <GroupView
                     groups={groups}

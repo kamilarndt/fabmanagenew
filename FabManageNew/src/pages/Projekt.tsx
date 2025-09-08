@@ -4,10 +4,11 @@ import { useProjectsStore } from '../stores/projectsStore'
 import { showToast } from '../lib/toast'
 import { useTilesStore, type Tile } from '../stores/tilesStore'
 import type { Project } from '../types/projects.types'
-import TileEditModal from '../components/TileEditModal'
+import TileEditSheet from '../components/TileEditSheet'
 import EditProjectModal from '../components/EditProjectModal'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
+import { Card, Result, Button } from 'antd'
 
 // New modular components
 import ProjectHeader from '../components/Project/ProjectHeader'
@@ -29,6 +30,10 @@ import EstimateBuilder from '../modules/Estimate/EstimateBuilder'
 import LogisticsTab from '../modules/Logistics/LogisticsTab'
 import AccommodationTab from '../modules/Accommodation/AccommodationTab'
 import { StageStepper } from '../components/Ui/StageStepper'
+import { Calendar as RBCalendar, Views } from 'react-big-calendar'
+import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
+import { localizer } from '../lib/calendarLocalizer'
+import { useCalendarStore, type CalendarEvent, type CalendarResource } from '../stores/calendarStore'
 
 
 
@@ -62,7 +67,7 @@ export default function Projekt() {
     const navigate = useNavigate()
     const { projects, update } = useProjectsStore()
     const { tiles, updateTile, addTile } = useTilesStore()
-    const [activeTab, setActiveTab] = useState<'overview' | 'elementy' | 'zakupy' | 'koncepcja' | 'wycena' | 'logistyka' | 'zakwaterowanie'>('overview')
+    const [activeTab, setActiveTab] = useState<'overview' | 'elementy' | 'zakupy' | 'koncepcja' | 'wycena' | 'logistyka' | 'zakwaterowanie' | 'kalendarz'>('overview')
     const [showTileModal, setShowTileModal] = useState(false)
     const [editingTile, setEditingTile] = useState<Tile | null>(null)
     const [showCreateGroup, setShowCreateGroup] = useState(false)
@@ -70,6 +75,8 @@ export default function Projekt() {
     const [showAddMember, setShowAddMember] = useState(false)
 
     const project = useMemo(() => projects.find(p => p.id === id), [projects, id])
+    const { events, resources, updateEventTimes } = useCalendarStore()
+    const DnDCalendar = withDragAndDrop<CalendarEvent, CalendarResource>(RBCalendar as any)
 
     // Move all hooks before conditional return
     const safeProject: Project = project ?? {
@@ -168,15 +175,22 @@ export default function Projekt() {
         showToast(`Dodano ${memberIds.length} członków`, 'success')
     }, [])
 
+    const eventPropGetter = useCallback((event: CalendarEvent) => {
+        const resource = resources.find(r => r.id === event.resourceId)
+        if (resource) {
+            return { style: { backgroundColor: resource.color, borderColor: resource.color } }
+        }
+        return {}
+    }, [resources])
+
     if (!project) {
         return (
-            <div className="text-center mt-5">
-                <h4>Projekt nie znaleziony</h4>
-                <p className="text-muted mb-3">Projekt o ID "{id}" nie istnieje lub został usunięty.</p>
-                <button className="btn btn-primary" onClick={() => navigate('/projekty')}>
-                    <i className="ri-arrow-left-line me-1"></i>Powrót do projektów
-                </button>
-            </div>
+            <Result
+                status="404"
+                title="Projekt nie znaleziony"
+                subTitle={`Projekt o ID "${id}" nie istnieje lub został usunięty.`}
+                extra={<Button type="primary" onClick={() => navigate('/projekty')}>Powrót do projektów</Button>}
+            />
         )
     }
 
@@ -206,6 +220,8 @@ export default function Projekt() {
         }
     ]
 
+    const projectEvents = events.filter(e => e.meta?.projectId === (project?.id || safeProject.id))
+
     const documents: ProjectDocument[] = [
         {
             id: 'doc-1',
@@ -224,6 +240,23 @@ export default function Projekt() {
             size: '1.8 MB'
         }
     ]
+
+    const handleEventClick = (event: CalendarEvent) => {
+        if (event.meta?.tileId) {
+            const tile = tiles.find(t => t.id === event.meta!.tileId)
+            if (tile) {
+                setEditingTile(tile)
+                setShowTileModal(true)
+            }
+        }
+    }
+
+    const handleEventDrop = ({ event, start, end, resourceId }: any) => {
+        updateEventTimes(event.id, start, end, resourceId)
+    }
+    const handleEventResize = ({ event, start, end }: any) => {
+        updateEventTimes(event.id, start, end)
+    }
 
     return (
         <DndProvider backend={HTML5Backend}>
@@ -244,8 +277,8 @@ export default function Projekt() {
                 />
 
                 {/* Tab Content */}
-                <div className="card-body">
-                    <div className="mb-3">
+                <div>
+                    <Card style={{ marginBottom: 12 }}>
                         <StageStepper
                             steps={[
                                 { key: 'overview', label: 'Przegląd' },
@@ -258,7 +291,7 @@ export default function Projekt() {
                             ]}
                             currentKey={activeTab}
                         />
-                    </div>
+                    </Card>
                     {activeTab === 'overview' && (
                         <ProjectOverview
                             project={project}
@@ -309,11 +342,80 @@ export default function Projekt() {
                             <AccommodationTab projectId={project.id} />
                         </Suspense>
                     )}
+
+                    {activeTab === 'kalendarz' && (
+                        <Card style={{ marginTop: 12 }}>
+                            <div style={{ display: 'flex', gap: 12 }}>
+                                <div style={{ width: 300 }}>
+                                    <div style={{ fontWeight: 600, marginBottom: 8 }}>Niezaplanowane kafelki</div>
+                                    <div style={{ maxHeight: 480, overflow: 'auto', border: '1px solid var(--border-medium)', padding: 8 }}>
+                                        {projectTiles.filter(t => !events.some(e => e.meta?.tileId === t.id)).map(t => (
+                                            <div key={t.id} style={{ padding: 8, marginBottom: 8, background: 'var(--bg-card)', border: '1px dashed var(--border-medium)' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <div>
+                                                        <div style={{ fontWeight: 500 }}>{t.name}</div>
+                                                        <div style={{ fontSize: 12, opacity: 0.8 }}>{t.id}</div>
+                                                    </div>
+                                                    <div style={{ display: 'flex', gap: 6 }}>
+                                                        <button className="ant-btn" draggable onDragStart={() => { (window as any)._dragTileId = t.id; (window as any)._dragPhase = 'projektowanie' }} title="Projektowanie">P</button>
+                                                        <button className="ant-btn" draggable onDragStart={() => { (window as any)._dragTileId = t.id; (window as any)._dragPhase = 'wycinanie' }} title="Wycinanie">W</button>
+                                                        <button className="ant-btn ant-btn-primary" draggable onDragStart={() => { (window as any)._dragTileId = t.id; (window as any)._dragPhase = 'produkcja' }} title="Produkcja">Prod</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div style={{ flex: 1, height: '60vh' }}>
+                                    <DnDCalendar
+                                        localizer={localizer}
+                                        events={projectEvents}
+                                        startAccessor="start"
+                                        endAccessor="end"
+                                        defaultView={Views.WEEK}
+                                        views={[Views.MONTH, Views.WEEK, Views.DAY]}
+                                        eventPropGetter={eventPropGetter as any}
+                                        selectable
+                                        resizable
+                                        onEventDrop={handleEventDrop as any}
+                                        onEventResize={handleEventResize as any}
+                                        onSelectEvent={handleEventClick as any}
+                                        onDropFromOutside={({ start, end, allDay }) => {
+                                            const tileId = (window as any)._dragTileId
+                                            const phase = (window as any)._dragPhase as 'projektowanie' | 'wycinanie' | 'produkcja' | undefined
+                                            if (tileId) {
+                                                const title = projectTiles.find(t => t.id === tileId)?.name || 'Zadanie'
+                                                const newEvent = {
+                                                    title: `${(phase || 'produkcja').charAt(0).toUpperCase() + (phase || 'produkcja').slice(1)}: ${title}`,
+                                                    start,
+                                                    end,
+                                                    allDay: !!allDay,
+                                                    resourceId: resources[0]?.id,
+                                                    phase: (phase || 'produkcja'),
+                                                    meta: { tileId, projectId: project.id }
+                                                }
+                                                useCalendarStore.getState().createEvent(newEvent as any)
+                                                    ; (window as any)._dragTileId = undefined; (window as any)._dragPhase = undefined
+                                            }
+                                        }}
+                                        dragFromOutsideItem={() => {
+                                            const tileId = (window as any)._dragTileId
+                                            const phase = (window as any)._dragPhase
+                                            if (!tileId) return { id: 'temp', title: 'Zadanie', start: new Date(), end: new Date(Date.now() + 60 * 60 * 1000) } as any
+                                            const title = projectTiles.find(t => t.id === tileId)?.name || 'Zadanie'
+                                            return { id: 'temp', title: `${(phase || 'produkcja')}: ${title}`, start: new Date(), end: new Date(Date.now() + 60 * 60 * 1000) } as any
+                                        }}
+                                        handleDragStart={(event) => void event}
+                                    />
+                                </div>
+                            </div>
+                        </Card>
+                    )}
                 </div>
 
                 {/* Modals */}
                 {showTileModal && (
-                    <TileEditModal
+                    <TileEditSheet
                         tile={editingTile || {
                             id: 'new',
                             name: '',
@@ -323,7 +425,8 @@ export default function Projekt() {
                             technology: 'Frezowanie CNC',
                             laborCost: 0,
                             bom: []
-                        }}
+                        } as any}
+                        open={showTileModal}
                         onClose={() => setShowTileModal(false)}
                         onSave={handleSaveTile}
                     />

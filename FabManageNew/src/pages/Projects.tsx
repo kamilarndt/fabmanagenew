@@ -5,11 +5,10 @@ import { useTilesStore } from '../stores/tilesStore'
 import { showToast } from '../lib/toast'
 import { StatusBadge } from '../components/Ui/StatusBadge'
 import { PageHeader } from '../components/Ui/PageHeader'
-import { FormModal } from '../components/Ui/FormModal'
-import { z } from 'zod'
+// zod removed after AntD Form migration
 import type { Project, ProjectModule } from '../types/projects.types'
 import EditProjectModal from '../components/EditProjectModal'
-import { EntityTable, type Column } from '../components/Ui/EntityTable'
+import { Card, Form, Row, Col, Select, Input, Button, Segmented, Space, Table, Tag, Pagination, Dropdown, Avatar, Progress, Modal, DatePicker, Typography } from 'antd'
 
 export default function Projects() {
     const navigate = useNavigate()
@@ -47,19 +46,7 @@ export default function Projects() {
         modules: ['wycena', 'koncepcja'] as ProjectModule[]
     })
 
-    const ModuleEnum = z.enum(['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy', 'logistyka_montaz', 'zakwaterowanie'])
-    const createSchema = z.object({
-        name: z.string().min(2, 'Podaj nazwę'),
-        clientId: z.string().min(1, 'clientId wymagany'),
-        client: z.string().min(2, 'Podaj klienta'),
-        status: z.enum(['Active', 'On Hold', 'Done']),
-        deadline: z.string().min(4),
-        groups: z.array(z.any()).optional(),
-        modules: z.array(ModuleEnum).optional(),
-        budget: z.number().optional(),
-        manager: z.string().optional(),
-        description: z.string().optional()
-    })
+    // Legacy validation schema not used after AntD migration
 
     // Pagination and sorting
     const [currentPage, setCurrentPage] = useState(1)
@@ -256,164 +243,116 @@ export default function Projects() {
                 actions={
                     <div className="d-flex gap-2">
                         {selectedProjects.length > 0 && (
-                            <div className="btn-group">
-                                <button className="btn btn-outline-danger btn-sm" onClick={() => handleBulkAction('delete')}>
-                                    <i className="ri-delete-bin-line me-1"></i>Usuń ({selectedProjects.length})
-                                </button>
-                                <button className="btn btn-outline-primary btn-sm" onClick={() => handleBulkAction('export')}>
-                                    <i className="ri-download-line me-1"></i>Export
-                                </button>
-                                <button className="btn btn-outline-secondary btn-sm" onClick={() => handleBulkAction('archive')}>
-                                    <i className="ri-archive-line me-1"></i>Archiwizuj
-                                </button>
+                            <div className="d-flex gap-2">
+                                <Button onClick={() => handleBulkAction('delete')}>Usuń ({selectedProjects.length})</Button>
+                                <Button onClick={() => handleBulkAction('export')}>Export</Button>
+                                <Button onClick={() => handleBulkAction('archive')}>Archiwizuj</Button>
                             </div>
                         )}
-                        <button className="btn btn-primary" onClick={() => setCreateOpen(true)}>
-                            <i className="ri-add-line me-1"></i>Nowy Projekt
-                        </button>
+                        <Button type="primary" onClick={() => setCreateOpen(true)}>Nowy Projekt</Button>
                     </div>
                 }
             />
 
-            {/* Filters */}
-            <div className="card mb-3" data-component="ProjectsFiltersCard">
-                <div className="card-body" data-component="FiltersBody">
-                    {/* Basic Filters Row */}
-                    <div className="row g-3 mb-3" data-component="FiltersBasicRow">
-                        <div className="col-12 col-md-3">
-                            <label className="form-label small">Status projektu</label>
-                            <select data-component="SelectStatus" value={status} onChange={e => setStatus(e.currentTarget.value as typeof status)} className="form-select form-select-sm">
-                                <option value="All">Wszystkie ({projects.length})</option>
-                                <option value="Active">Active ({projects.filter(p => p.status === 'Active').length})</option>
-                                <option value="On Hold">On Hold ({projects.filter(p => p.status === 'On Hold').length})</option>
-                                <option value="Done">Done ({projects.filter(p => p.status === 'Done').length})</option>
-                            </select>
-                        </div>
-                        <div className="col-12 col-md-3">
-                            <label className="form-label small">Klient</label>
-                            <select data-component="SelectClient" value={client} onChange={e => setClient(e.currentTarget.value)} className="form-select form-select-sm">
-                                <option value="All">Wszyscy klienci</option>
-                                {uniqueClients.map(c => <option key={c} value={c}>{c}</option>)}
-                            </select>
-                        </div>
-                        <div className="col-12 col-md-4">
-                            <label className="form-label small">Wyszukiwanie</label>
-                            <div className="input-group input-group-sm" data-component="SearchGroup">
-                                <span className="input-group-text bg-transparent"><i className="ri-search-line"></i></span>
-                                <input
-                                    data-component="SearchInput"
-                                    value={query}
-                                    onChange={e => setQuery(e.currentTarget.value)}
-                                    className="form-control"
-                                    placeholder="Szukaj po nazwie, kliencie lub ID..."
+            {/* Filters – pure Ant Design */}
+            <Card style={{ marginBottom: 12 }}>
+                <Form layout="vertical">
+                    <Row gutter={[12, 12]}>
+                        <Col xs={24} md={6}>
+                            <Form.Item label="Status projektu">
+                                <Select
+                                    size="middle"
+                                    value={status}
+                                    onChange={(v) => setStatus(v as typeof status)}
+                                    options={[
+                                        { value: 'All', label: `Wszystkie (${projects.length})` },
+                                        { value: 'Active', label: `Active (${projects.filter(p => p.status === 'Active').length})` },
+                                        { value: 'On Hold', label: `On Hold (${projects.filter(p => p.status === 'On Hold').length})` },
+                                        { value: 'Done', label: `Done (${projects.filter(p => p.status === 'Done').length})` }
+                                    ]}
                                 />
-                                {query && (
-                                    <button className="btn btn-outline-secondary" onClick={() => setQuery('')}>
-                                        <i className="ri-close-line"></i>
-                                    </button>
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={6}>
+                            <Form.Item label="Klient">
+                                <Select
+                                    size="middle"
+                                    value={client}
+                                    onChange={(v) => setClient(v)}
+                                    options={[{ value: 'All', label: 'Wszyscy klienci' }, ...uniqueClients.map(c => ({ value: c, label: c }))]}
+                                    showSearch
+                                    optionFilterProp="label"
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={8}>
+                            <Form.Item label="Wyszukiwanie">
+                                <Input.Search
+                                    allowClear
+                                    placeholder="Szukaj po nazwie, kliencie lub ID..."
+                                    value={query}
+                                    onChange={e => setQuery(e.target.value)}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={4}>
+                            <Form.Item label="Widok">
+                                <Segmented
+                                    block
+                                    value={view}
+                                    onChange={(v) => setView(v as typeof view)}
+                                    options={[{ label: 'Lista', value: 'Lista' }, { label: 'Kafelki', value: 'Kafelki' }]}
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row justify="space-between" align="middle">
+                        <Col>
+                            <Space>
+                                <Button onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}>{showAdvancedFilters ? 'Ukryj filtry' : 'Filtry zaawansowane'}</Button>
+                                {(status !== 'All' || client !== 'All' || query || managerFilter !== 'All' || priorityFilter !== 'All' || dateFilter !== 'All') && (
+                                    <Button onClick={clearAllFilters}>Wyczyść filtry</Button>
                                 )}
-                            </div>
-                        </div>
-                        <div className="col-12 col-md-2">
-                            <label className="form-label small">Widok</label>
-                            <div className="btn-group w-100" role="group">
-                                {(['Lista', 'Kafelki'] as const).map(v => (
-                                    <button
-                                        key={v}
-                                        className={`btn btn-outline-secondary btn-sm ${view === v ? 'active' : ''}`}
-                                        onClick={() => setView(v)}
-                                    >
-                                        <i className={`ri-${v === 'Lista' ? 'list-check' : 'grid-fill'}-line`}></i>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
+                                <Button onClick={() => {
+                                    const csv = ['id,name,client,status,deadline', ...sortedAndFiltered.map(r => `${r.id},"${r.name}",${r.client},${r.status},${r.deadline}`)].join('\n')
+                                    const blob = new Blob([csv], { type: 'text/csv' })
+                                    const url = URL.createObjectURL(blob)
+                                    const a = document.createElement('a'); a.href = url; a.download = 'projects.csv'; a.click(); URL.revokeObjectURL(url)
+                                    showToast('Projekty wyeksportowane do CSV', 'success')
+                                }}>Export CSV</Button>
+                            </Space>
+                        </Col>
+                    </Row>
 
-                    {/* Advanced Filters Toggle */}
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                        <button
-                            data-component="ToggleAdvancedFilters"
-                            className="btn btn-sm btn-outline-secondary"
-                            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                            aria-expanded={showAdvancedFilters}
-                            aria-controls="advanced-filters"
-                            aria-label="Pokaż lub ukryj filtry zaawansowane"
-                        >
-                            <i className={`ri-${showAdvancedFilters ? 'subtract' : 'add'}-line me-1`}></i>
-                            Filtry zaawansowane
-                        </button>
-                        <div className="d-flex gap-2">
-                            {(status !== 'All' || client !== 'All' || query || managerFilter !== 'All' || priorityFilter !== 'All' || dateFilter !== 'All') && (
-                                <button data-component="ClearFilters" className="btn btn-sm btn-outline-warning" onClick={clearAllFilters} aria-label="Wyczyść wszystkie filtry">
-                                    <i className="ri-refresh-line me-1"></i>Wyczyść filtry
-                                </button>
-                            )}
-                            <button data-component="ExportProjectsCSV" className="btn btn-sm btn-outline-info" aria-label="Eksportuj projekty do CSV" onClick={() => {
-                                const csv = ['id,name,client,status,deadline', ...sortedAndFiltered.map(r => `${r.id},"${r.name}",${r.client},${r.status},${r.deadline}`)].join('\n')
-                                const blob = new Blob([csv], { type: 'text/csv' })
-                                const url = URL.createObjectURL(blob)
-                                const a = document.createElement('a'); a.href = url; a.download = 'projects.csv'; a.click(); URL.revokeObjectURL(url)
-                                showToast('Projekty wyeksportowane do CSV', 'success')
-                            }}>
-                                <i className="ri-file-download-line me-1"></i>Export CSV
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Advanced Filters */}
                     {showAdvancedFilters && (
-                        <div id="advanced-filters" className="border-top pt-3" data-component="AdvancedFilters">
-                            <div className="row g-3">
-                                <div className="col-12 col-md-3">
-                                    <label className="form-label small">Kierownik projektu</label>
-                                    <select value={managerFilter} onChange={e => setManagerFilter(e.currentTarget.value)} className="form-select form-select-sm">
-                                        <option value="All">Wszyscy kierownicy</option>
-                                        {uniqueManagers.map(m => <option key={m} value={m}>{m}</option>)}
-                                    </select>
-                                </div>
-                                <div className="col-12 col-md-3">
-                                    <label className="form-label small">Priorytet</label>
-                                    <select value={priorityFilter} onChange={e => setPriorityFilter(e.currentTarget.value as typeof priorityFilter)} className="form-select form-select-sm">
-                                        <option value="All">Wszystkie</option>
-                                        <option value="High">Wysoki</option>
-                                        <option value="Medium">Średni</option>
-                                        <option value="Low">Niski</option>
-                                    </select>
-                                </div>
-                                <div className="col-12 col-md-3">
-                                    <label className="form-label small">Termin</label>
-                                    <select value={dateFilter} onChange={e => setDateFilter(e.currentTarget.value as typeof dateFilter)} className="form-select form-select-sm">
-                                        <option value="All">Wszystkie terminy</option>
-                                        <option value="This Week">Ten tydzień</option>
-                                        <option value="This Month">Ten miesiąc</option>
-                                        <option value="Overdue">Opóźnione</option>
-                                    </select>
-                                </div>
-                                <div className="col-12 col-md-3">
-                                    <label className="form-label small">Budżet (PLN)</label>
-                                    <div className="d-flex gap-2">
-                                        <input
-                                            type="number"
-                                            className="form-control form-control-sm"
-                                            placeholder="Od"
-                                            value={budgetRange[0]}
-                                            onChange={e => setBudgetRange([parseInt(e.target.value) || 0, budgetRange[1]])}
-                                        />
-                                        <input
-                                            type="number"
-                                            className="form-control form-control-sm"
-                                            placeholder="Do"
-                                            value={budgetRange[1]}
-                                            onChange={e => setBudgetRange([budgetRange[0], parseInt(e.target.value) || 500000])}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <Row gutter={[12, 12]} style={{ marginTop: 12 }}>
+                            <Col xs={24} md={6}>
+                                <Form.Item label="Kierownik projektu">
+                                    <Select value={managerFilter} onChange={v => setManagerFilter(v)} options={[{ value: 'All', label: 'Wszyscy kierownicy' }, ...uniqueManagers.map(m => ({ value: m, label: m }))]} />
+                                </Form.Item>
+                            </Col>
+                            <Col xs={24} md={6}>
+                                <Form.Item label="Priorytet">
+                                    <Select value={priorityFilter} onChange={v => setPriorityFilter(v as typeof priorityFilter)} options={[{ value: 'All', label: 'Wszystkie' }, { value: 'High', label: 'Wysoki' }, { value: 'Medium', label: 'Średni' }, { value: 'Low', label: 'Niski' }]} />
+                                </Form.Item>
+                            </Col>
+                            <Col xs={24} md={6}>
+                                <Form.Item label="Termin">
+                                    <Select value={dateFilter} onChange={v => setDateFilter(v as typeof dateFilter)} options={[{ value: 'All', label: 'Wszystkie terminy' }, { value: 'This Week', label: 'Ten tydzień' }, { value: 'This Month', label: 'Ten miesiąc' }, { value: 'Overdue', label: 'Opóźnione' }]} />
+                                </Form.Item>
+                            </Col>
+                            <Col xs={24} md={6}>
+                                <Form.Item label="Budżet (PLN)">
+                                    <Space.Compact block>
+                                        <Input type="number" placeholder="Od" value={budgetRange[0]} onChange={e => setBudgetRange([parseInt(e.target.value) || 0, budgetRange[1]])} />
+                                        <Input type="number" placeholder="Do" value={budgetRange[1]} onChange={e => setBudgetRange([budgetRange[0], parseInt(e.target.value) || 500000])} />
+                                    </Space.Compact>
+                                </Form.Item>
+                            </Col>
+                        </Row>
                     )}
-                </div>
-            </div>
+                </Form>
+            </Card>
 
             {/* KPI Row */}
             <div className="row g-3 mb-3" data-component="KPIRow">
@@ -452,33 +391,19 @@ export default function Projects() {
             </div>
 
             {/* Results Info */}
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <div className="text-muted small">
-                    Pokazano {paginatedProjects.length} z {sortedAndFiltered.length} projektów
-                    {selectedProjects.length > 0 && ` • ${selectedProjects.length} zaznaczonych`}
-                </div>
-                <div className="d-flex align-items-center gap-2">
-                    <label className="text-muted small">Sortuj:</label>
-                    <select
-                        value={sortBy}
-                        onChange={e => setSortBy(e.target.value as typeof sortBy)}
-                        className="form-select form-select-sm"
-                        style={{ width: 'auto' }}
-                    >
-                        <option value="name">Nazwa</option>
-                        <option value="client">Klient</option>
-                        <option value="deadline">Deadline</option>
-                        <option value="status">Status</option>
-                    </select>
-                    <button
-                        className="btn btn-sm btn-outline-secondary"
-                        onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                        aria-label="Zmień kierunek sortowania"
-                    >
-                        <i className={`ri-sort-${sortOrder === 'asc' ? 'asc' : 'desc'}-line`}></i>
-                    </button>
-                </div>
-            </div>
+            <Space style={{ marginBottom: 12, width: '100%', justifyContent: 'space-between' }}>
+                <span className="text-muted small">Pokazano {paginatedProjects.length} z {sortedAndFiltered.length} projektów {selectedProjects.length > 0 && ` • ${selectedProjects.length} zaznaczonych`}</span>
+                <Space>
+                    <span className="text-muted small">Sortuj:</span>
+                    <Select<string> size="small" value={sortBy} style={{ width: 140 }} onChange={(v) => setSortBy(v as typeof sortBy)} options={[
+                        { value: 'name', label: 'Nazwa' },
+                        { value: 'client', label: 'Klient' },
+                        { value: 'deadline', label: 'Deadline' },
+                        { value: 'status', label: 'Status' }
+                    ]} />
+                    <Button size="small" onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}> {sortOrder === 'asc' ? 'Rosnąco' : 'Malejąco'} </Button>
+                </Space>
+            </Space>
 
             {/* Empty state */}
             {sortedAndFiltered.length === 0 && (
@@ -486,9 +411,9 @@ export default function Projects() {
                     <div className="card-body text-center">
                         <h5 className="mb-1">Brak wyników</h5>
                         <p className="text-muted mb-3">Dostosuj filtry lub utwórz nowy projekt.</p>
-                        <button className="btn btn-primary" onClick={() => navigate('/projekty/nowy')} aria-label="Utwórz nowy projekt">
+                        <Button type="primary" onClick={() => navigate('/projekty/nowy')} aria-label="Utwórz nowy projekt">
                             <i className="ri-add-line me-1"></i>Nowy projekt
-                        </button>
+                        </Button>
                     </div>
                 </div>
             )}
@@ -496,240 +421,115 @@ export default function Projects() {
             {view === 'Lista' ? (
                 <>
                     {/* Projects Table */}
-                    <div className="card" data-component="ProjectsTableCard">
-                        {(() => {
-                            const columns: Column<Project>[] = [
+                    <Card data-component="ProjectsTableCard">
+                        <Table
+                            rowKey={(p: Project) => p.id}
+                            dataSource={paginatedProjects}
+                            onRow={(record) => ({ onClick: () => navigate(`/projekt/${record.id}`) })}
+                            pagination={false}
+                            columns={[
                                 {
-                                    key: 'select', header: '', width: 40, render: (p) => (
-                                        <input
-                                            type="checkbox"
-                                            className="form-check-input"
-                                            checked={selectedProjects.includes(p.id)}
-                                            onChange={(e) => { e.stopPropagation(); handleSelectProject(p.id) }}
-                                        />
+                                    title: '', dataIndex: 'select', width: 40,
+                                    render: (_: unknown, p: Project) => (
+                                        <input type="checkbox" className="form-check-input" checked={selectedProjects.includes(p.id)} onChange={(e) => { e.stopPropagation(); handleSelectProject(p.id) }} />
                                     )
                                 },
                                 {
-                                    key: 'name', header: 'Projekt', render: (p) => (
+                                    title: 'Projekt', dataIndex: 'name',
+                                    render: (_: unknown, p: Project) => (
                                         <div>
                                             <div className="fw-medium">{p.name}</div>
                                             <div className="text-muted small">{p.id}</div>
                                         </div>
                                     )
                                 },
-                                { key: 'client', header: 'Klient' },
-                                { key: 'status', header: 'Status', render: (p) => <StatusBadge status={p.status} /> },
+                                { title: 'Klient', dataIndex: 'client' },
+                                { title: 'Status', dataIndex: 'status', render: (_: unknown, p: Project) => <StatusBadge status={p.status} /> },
                                 {
-                                    key: 'deadline', header: 'Deadline', render: (p) => {
+                                    title: 'Deadline', dataIndex: 'deadline',
+                                    render: (_: unknown, p: Project) => {
                                         const isOverdue = new Date(p.deadline) < new Date() && p.status !== 'Done'
-                                        return <div className={isOverdue ? 'text-danger fw-medium' : ''}>{p.deadline}{isOverdue && <i className="ri-alarm-warning-line ms-1"></i>}</div>
+                                        return <span className={isOverdue ? 'text-danger fw-medium' : ''}>{p.deadline}</span>
                                     }
                                 },
-                                {
-                                    key: 'progress', header: 'Postęp', render: () => {
-                                        const mock = Math.floor(Math.random() * 100)
-                                        return (
-                                            <div className="d-flex align-items-center">
-                                                <div className="progress me-2" style={{ width: 60, height: 6 }}>
-                                                    <div className="progress-bar bg-primary" style={{ width: `${mock}%` }}></div>
-                                                </div>
-                                                <small>{mock}%</small>
-                                            </div>
-                                        )
-                                    }
-                                },
-                                {
-                                    key: 'team', header: 'Zespół', render: () => (
-                                        <div className="d-flex">
-                                            {Array.from({ length: 3 }).map((_, i) => (
-                                                <img key={i} src={`https://i.pravatar.cc/24?img=${i + 1}`} alt="Team member" className="rounded-circle me-1" width="24" height="24" style={{ marginLeft: i > 0 ? -8 : 0 }} />
-                                            ))}
-                                        </div>
-                                    )
-                                },
-                            ]
-                            return (
-                                <EntityTable<Project>
-                                    rows={paginatedProjects}
-                                    columns={columns}
-                                    rowKey={(p) => p.id}
-                                    onRowClick={(p) => navigate(`/projekt/${p.id}`)}
-                                />
-                            )
-                        })()}
-                    </div>
+                            ]}
+                        />
+                    </Card>
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                        <div className="d-flex justify-content-between align-items-center mt-3" data-component="PaginationBar">
-                            <div className="text-muted small">
-                                Strona {currentPage} z {totalPages}
-                            </div>
-                            <nav>
-                                <ul className="pagination pagination-sm mb-0">
-                                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                                        <button
-                                            className="page-link"
-                                            onClick={() => setCurrentPage(currentPage - 1)}
-                                            disabled={currentPage === 1}
-                                        >
-                                            <i className="ri-arrow-left-line"></i>
-                                        </button>
-                                    </li>
-                                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                        const page = i + 1
-                                        return (
-                                            <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
-                                                <button
-                                                    className="page-link"
-                                                    onClick={() => setCurrentPage(page)}
-                                                >
-                                                    {page}
-                                                </button>
-                                            </li>
-                                        )
-                                    })}
-                                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                                        <button
-                                            className="page-link"
-                                            onClick={() => setCurrentPage(currentPage + 1)}
-                                            disabled={currentPage === totalPages}
-                                        >
-                                            <i className="ri-arrow-right-line"></i>
-                                        </button>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
+                        <Pagination
+                            style={{ marginTop: 12, textAlign: 'right' }}
+                            size="small"
+                            current={currentPage}
+                            total={sortedAndFiltered.length}
+                            pageSize={projectsPerPage}
+                            onChange={setCurrentPage}
+                            showSizeChanger={false}
+                        />
                     )}
                 </>
             ) : view === 'Kafelki' ? (
                 <>
                     {/* Project Tiles */}
-                    <div className="row g-3" data-component="ProjectTiles">
+                    <Row gutter={[12, 12]} data-component="ProjectTiles">
                         {paginatedProjects.map(project => {
                             const mockProgress = Math.floor(Math.random() * 100)
                             const isOverdue = new Date(project.deadline) < new Date() && project.status !== 'Done'
                             const mockBudget = Math.floor(Math.random() * 500000)
 
                             return (
-                                <div key={project.id} className="col-12 col-md-6 col-lg-4">
-                                    <div
-                                        className="card h-100 shadow-sm border"
-                                        data-component="ProjectTile"
-                                        onClick={() => navigate(`/projekt/${project.id}`)}
-                                        onContextMenu={(e) => openContextMenu(e, project.id)}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        <div className="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
-                                            <div className="d-flex align-items-center">
-                                                <input
-                                                    type="checkbox"
-                                                    className="form-check-input me-2"
-                                                    checked={selectedProjects.includes(project.id)}
-                                                    onChange={(e) => { e.stopPropagation(); handleSelectProject(project.id) }}
-                                                    onClick={e => e.stopPropagation()}
-                                                    onContextMenu={e => e.stopPropagation()}
-                                                />
-                                                <div className="d-flex align-items-center">
-                                                    <div
-                                                        className="rounded-circle me-2 d-flex align-items-center justify-content-center"
-                                                        style={{
-                                                            width: 32,
-                                                            height: 32,
-                                                            backgroundColor: project.status === 'Active' ? '#28a745' :
-                                                                project.status === 'On Hold' ? '#ffc107' :
-                                                                    project.status === 'Done' ? '#17a2b8' : '#6c757d'
-                                                        }}
-                                                    >
-                                                        <i className={`ri-${project.status === 'Active' ? 'play' :
-                                                            project.status === 'On Hold' ? 'pause' :
-                                                                project.status === 'Done' ? 'check' : 'time'
-                                                            }-fill text-white`}></i>
-                                                    </div>
-                                                    <span className="px-0 py-0"><StatusBadge status={project.status} /></span>
-                                                </div>
-                                            </div>
-                                            <div className="dropdown" onClick={e => e.stopPropagation()} onContextMenu={e => e.stopPropagation()}>
-                                                <button className="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                                    <i className="ri-more-line"></i>
-                                                </button>
-                                                <ul className="dropdown-menu dropdown-menu-end">
-                                                    <li><a className="dropdown-item" href="#" onClick={() => navigate(`/projekt/${project.id}`)}>
-                                                        <i className="ri-eye-line me-2"></i>Zobacz szczegóły
-                                                    </a></li>
-                                                    <li><a className="dropdown-item" href="#" onClick={() => setEditId(project.id)}>
-                                                        <i className="ri-edit-line me-2"></i>Edytuj
-                                                    </a></li>
-                                                    <li><hr className="dropdown-divider" /></li>
-                                                    <li><a className="dropdown-item text-danger" href="#" onClick={() => {
-                                                        if (confirm(`Czy na pewno chcesz usunąć projekt "${project.name}"?`)) {
-                                                            remove(project.id)
-                                                            showToast('Projekt został usunięty', 'success')
-                                                        }
-                                                    }}>
-                                                        <i className="ri-delete-bin-line me-2"></i>Usuń
-                                                    </a></li>
-                                                </ul>
-                                            </div>
+                                <Col key={project.id} xs={24} md={12} lg={8}>
+                                    <Card hoverable onClick={() => navigate(`/projekt/${project.id}`)} onContextMenu={(e) => openContextMenu(e, project.id)}>
+                                        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                                            <Space>
+                                                <input type="checkbox" className="form-check-input" checked={selectedProjects.includes(project.id)} onChange={(e) => { e.stopPropagation(); handleSelectProject(project.id) }} />
+                                                <StatusBadge status={project.status} />
+                                            </Space>
+                                            <Dropdown
+                                                menu={{
+                                                    items: [
+                                                        { key: 'open', label: 'Zobacz szczegóły', onClick: () => navigate(`/projekt/${project.id}`) },
+                                                        { key: 'edit', label: 'Edytuj', onClick: () => setEditId(project.id) },
+                                                        { type: 'divider' },
+                                                        { key: 'delete', label: <span style={{ color: 'var(--accent-error)' }}>Usuń</span>, onClick: () => { if (confirm(`Usunąć projekt "${project.name}"?`)) { remove(project.id); showToast('Projekt został usunięty', 'success') } } }
+                                                    ]
+                                                }}
+                                                trigger={['click']}
+                                            >
+                                                <Button size="small">Akcje</Button>
+                                            </Dropdown>
+                                        </Space>
+                                        <div style={{ marginTop: 8 }}>
+                                            <Typography.Title level={5} style={{ marginBottom: 0 }}>{project.name}</Typography.Title>
+                                            <div className="text-muted small">{project.client} • {project.id}</div>
                                         </div>
-                                        <div className="card-body p-3" data-component="ProjectTileBody">
-                                            <div className="mb-3">
-                                                <h6 className="card-title mb-1 fw-bold">{project.name}</h6>
-                                                <div className="text-muted small mb-2">{project.client}</div>
-                                                <div className="text-muted small">{project.id}</div>
-                                            </div>
-
-                                            <div className="row g-2 mb-3 small">
-                                                <div className="col-6">
-                                                    <div className="text-muted">Postęp</div>
-                                                    <div className="fw-medium text-primary">{mockProgress}%</div>
+                                        <div style={{ marginTop: 8 }}>
+                                            <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                                                <div>
+                                                    <div className="text-muted small">Postęp</div>
+                                                    <div className="fw-medium" style={{ color: 'var(--primary-main)' }}>{mockProgress}%</div>
                                                 </div>
-                                                <div className="col-6">
-                                                    <div className="text-muted">Budżet</div>
+                                                <div>
+                                                    <div className="text-muted small">Budżet</div>
                                                     <div className="fw-medium">${mockBudget.toLocaleString()}</div>
                                                 </div>
-                                            </div>
-
-                                            <div className="progress mb-3" style={{ height: 8 }} data-component="TileProgress">
-                                                <div
-                                                    className={`progress-bar ${mockProgress >= 80 ? 'bg-success' :
-                                                        mockProgress >= 50 ? 'bg-primary' :
-                                                            mockProgress >= 25 ? 'bg-warning' : 'bg-danger'
-                                                        }`}
-                                                    style={{ width: `${mockProgress}%` }}
-                                                ></div>
-                                            </div>
-
-                                            <div className="d-flex justify-content-between align-items-center mb-3">
-                                                <div>
-                                                    <div className="text-muted small">Deadline</div>
-                                                    <div className={`small fw-medium ${isOverdue ? 'text-danger' : ''}`}>
-                                                        <i className={`ri-calendar-line me-1 ${isOverdue ? 'text-danger' : 'text-muted'}`}></i>
-                                                        {project.deadline}
-                                                        {isOverdue && <i className="ri-alarm-warning-line ms-1 text-danger"></i>}
-                                                    </div>
-                                                </div>
-                                                <div className="d-flex">
-                                                    {Array.from({ length: 4 }).map((_, i) => (
-                                                        <img
-                                                            key={i}
-                                                            src={`https://i.pravatar.cc/28?img=${i + 1}`}
-                                                            alt="Team member"
-                                                            className="rounded-circle border border-2 border-white"
-                                                            width="28"
-                                                            height="28"
-                                                            style={{ marginLeft: i > 0 ? -8 : 0, zIndex: 4 - i }}
-                                                        />
-                                                    ))}
-                                                </div>
-                                            </div>
+                                            </Space>
+                                            <Progress percent={mockProgress} showInfo={false} style={{ marginTop: 8 }} strokeColor={'var(--primary-main)'} />
                                         </div>
-                                    </div>
-                                </div>
+                                        <Space style={{ width: '100%', justifyContent: 'space-between', marginTop: 8 }}>
+                                            <span className={`small ${isOverdue ? 'text-danger' : ''}`}>{project.deadline}</span>
+                                            <Space>
+                                                {Array.from({ length: 4 }).map((_, i) => (
+                                                    <Avatar key={i} size={28} src={`https://i.pravatar.cc/28?img=${i + 1}`} />
+                                                ))}
+                                            </Space>
+                                        </Space>
+                                    </Card>
+                                </Col>
                             )
                         })}
-                    </div>
+                    </Row>
 
                     {/* Pagination for Tiles */}
                     {totalPages > 1 && (
@@ -777,11 +577,10 @@ export default function Projects() {
                 </>
             ) : (
                 /* Kanban View */
-                <div className="row g-3" data-component="KanbanBoard">
+                <Row gutter={[12, 12]} data-component="KanbanBoard">
                     {(['Active', 'On Hold', 'Done'] as const).map(colStatus => (
-                        <div key={colStatus} className="col-12 col-md-4">
-                            <div
-                                className="card h-100"
+                        <Col key={colStatus} xs={24} md={8}>
+                            <Card
                                 data-component="KanbanColumn"
                                 onDragOver={e => e.preventDefault()}
                                 onDrop={e => {
@@ -801,56 +600,42 @@ export default function Projects() {
                                     }
                                 }}
                             >
-                                <div className="card-header d-flex justify-content-between align-items-center">
-                                    <div className="fw-semibold">
-                                        {colStatus}
-                                        <span className="badge bg-secondary ms-2">
-                                            {filtered.filter(p => p.status === colStatus).length}
-                                        </span>
-                                    </div>
+                                <div className="fw-semibold" style={{ marginBottom: 8 }}>
+                                    {colStatus}
+                                    <Tag style={{ marginLeft: 8 }}>{filtered.filter(p => p.status === colStatus).length}</Tag>
                                 </div>
-                                <div className="card-body" style={{ minHeight: 300 }} data-component="KanbanColumnBody">
+                                <div style={{ minHeight: 300 }} data-component="KanbanColumnBody">
                                     {filtered.filter(p => p.status === colStatus).map(p => (
-                                        <div
+                                        <Card
                                             key={p.id}
-                                            className="card mb-2 border"
                                             data-component="KanbanCard"
                                             draggable
                                             onDragStart={e => {
                                                 e.dataTransfer.setData('text/plain', p.id)
                                             }}
                                         >
-                                            <div className="card-body py-2">
-                                                <div className="d-flex justify-content-between align-items-start">
-                                                    <div>
-                                                        <div className="fw-medium">{p.name}</div>
-                                                        <div className="text-muted small">{p.id} • {p.client}</div>
-                                                    </div>
-                                                    <button className="btn btn-sm btn-outline-primary" onClick={() => navigate(`/projekt/${p.id}`)} aria-label={`Otwórz projekt ${p.name}`}>
-                                                        <i className="ri-eye-line"></i>
-                                                    </button>
+                                            <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                                                <div>
+                                                    <div className="fw-medium">{p.name}</div>
+                                                    <div className="text-muted small">{p.id} • {p.client}</div>
                                                 </div>
-                                                <div className="d-flex justify-content-between align-items-center mt-2">
-                                                    <span className="badge bg-light text-dark">{p.deadline}</span>
-                                                    <div className="dropdown">
-                                                        <button className="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">Status</button>
-                                                        <ul className="dropdown-menu dropdown-menu-end">
-                                                            {(['Active', 'On Hold', 'Done'] as const).map(s => (
-                                                                <li key={s}>
-                                                                    <a className="dropdown-item" href="#" onClick={() => update(p.id, { status: s })}>{s}</a>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                                <Button size="small" onClick={() => navigate(`/projekt/${p.id}`)} aria-label={`Otwórz projekt ${p.name}`}>Otwórz</Button>
+                                            </Space>
+                                            <Space style={{ width: '100%', justifyContent: 'space-between', marginTop: 8 }}>
+                                                <Tag>{p.deadline}</Tag>
+                                                <Dropdown
+                                                    menu={{ items: (['Active', 'On Hold', 'Done'] as const).map(s => ({ key: s, label: s, onClick: () => update(p.id, { status: s }) })) }}
+                                                >
+                                                    <Button size="small">Status</Button>
+                                                </Dropdown>
+                                            </Space>
+                                        </Card>
                                     ))}
                                 </div>
-                            </div>
-                        </div>
+                            </Card>
+                        </Col>
                     ))}
-                </div>
+                </Row>
             )}
             {/* Context menu */}
             {ctxMenu.open && ctxMenu.id && (
@@ -879,51 +664,47 @@ export default function Projects() {
             <EditProjectModal open={!!editId} projectId={editId} onClose={() => setEditId(null)} />
 
             {/* Create Project Modal */}
-            <FormModal
+            <Modal
                 title="Nowy Projekt"
-                isOpen={createOpen}
-                initial={createForm}
-                schema={createSchema}
+                open={createOpen}
                 onCancel={() => setCreateOpen(false)}
-                onSubmit={async (data) => {
-                    await add(data)
+                onOk={async () => {
+                    await add(createForm)
                     showToast('Projekt utworzony', 'success')
                     setCreateOpen(false)
-                    setCreateForm({
-                        name: '', clientId: 'C-NEW', client: '', status: 'Active', deadline: new Date().toISOString().slice(0, 10), groups: [], modules: ['wycena', 'koncepcja']
-                    })
+                    setCreateForm({ name: '', clientId: 'C-NEW', client: '', status: 'Active', deadline: new Date().toISOString().slice(0, 10), groups: [], modules: ['wycena', 'koncepcja'] })
                 }}
+                okText="Zapisz"
+                cancelText="Anuluj"
             >
-                {(form, setForm, errors) => (
-                    <div className="row g-3">
-                        <div className="col-12">
-                            <label className="form-label small">Nazwa</label>
-                            <input className={`form-control ${errors.name ? 'is-invalid' : ''}`} value={(form as any).name || ''} onChange={e => setForm({ name: e.currentTarget.value } as any)} />
-                            {errors.name && <div className="invalid-feedback">{errors.name}</div>}
-                        </div>
-                        <div className="col-6">
-                            <label className="form-label small">Klient</label>
-                            <input className={`form-control ${errors.client ? 'is-invalid' : ''}`} value={(form as any).client || ''} onChange={e => setForm({ client: e.currentTarget.value } as any)} />
-                        </div>
-                        <div className="col-6">
-                            <label className="form-label small">clientId</label>
-                            <input className={`form-control ${errors.clientId ? 'is-invalid' : ''}`} value={(form as any).clientId || ''} onChange={e => setForm({ clientId: e.currentTarget.value } as any)} />
-                        </div>
-                        <div className="col-6">
-                            <label className="form-label small">Deadline</label>
-                            <input type="date" className="form-control" value={(form as any).deadline?.slice(0, 10) || ''} onChange={e => setForm({ deadline: e.currentTarget.value } as any)} />
-                        </div>
-                        <div className="col-6">
-                            <label className="form-label small">Status</label>
-                            <select className="form-select" value={(form as any).status} onChange={e => setForm({ status: e.currentTarget.value } as any)}>
-                                <option value="Active">Active</option>
-                                <option value="On Hold">On Hold</option>
-                                <option value="Done">Done</option>
-                            </select>
-                        </div>
-                    </div>
-                )}
-            </FormModal>
+                <Form layout="vertical">
+                    <Form.Item label="Nazwa" required>
+                        <Input value={createForm.name} onChange={e => setCreateForm({ ...createForm, name: e.target.value })} />
+                    </Form.Item>
+                    <Row gutter={[12, 12]}>
+                        <Col xs={24} md={12}>
+                            <Form.Item label="Klient">
+                                <Input value={createForm.client} onChange={e => setCreateForm({ ...createForm, client: e.target.value })} />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={12}>
+                            <Form.Item label="clientId">
+                                <Input value={createForm.clientId} onChange={e => setCreateForm({ ...createForm, clientId: e.target.value })} />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={12}>
+                            <Form.Item label="Deadline">
+                                <DatePicker style={{ width: '100%' }} onChange={(_, v) => setCreateForm({ ...createForm, deadline: (v as string) || '' })} />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={12}>
+                            <Form.Item label="Status">
+                                <Select value={createForm.status} onChange={v => setCreateForm({ ...createForm, status: v as any })} options={[{ value: 'Active', label: 'Active' }, { value: 'On Hold', label: 'On Hold' }, { value: 'Done', label: 'Done' }]} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </Form>
+            </Modal>
         </div>
     )
 }
