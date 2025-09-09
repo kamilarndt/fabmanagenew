@@ -5,7 +5,7 @@ import { listTiles, updateTile as sbUpdate, createTile as sbCreate, deleteTile a
 import { canTransitionTo } from '../lib/statusUtils'
 import { showToast } from '../lib/notifications'
 import { subscribeTable } from '../lib/realtime'
-import { mockTiles } from '../data/mockDatabase'
+import { config } from '../lib/config'
 
 export type BomItem = {
     id: string
@@ -24,11 +24,17 @@ export type Tile = {
     name: string
     status: 'W KOLEJCE' | 'W TRAKCIE CIĘCIA' | 'WYCIĘTE' | 'Projektowanie' | 'W trakcie projektowania' | 'Do akceptacji' | 'Zaakceptowane' | 'Wymagają poprawek' | 'Gotowy do montażu' | 'Wstrzymany' | 'Zakończony' | 'W produkcji CNC'
     project?: string
-    priority?: 'Wysoki' | 'Średni' | 'Niski'
-    technology?: string
+    moduł_nadrzędny?: string // np. "Scena Główna"
+    opis?: string
+    link_model_3d?: string
+    załączniki?: string[] // URLs do plików
+    przypisany_projektant?: string
+    termin?: string
+    priority?: 'Wysoki' | 'Średni' | 'Niski' // deprecated - priorytet zarządzany w module Działu Projektowego
+    technology?: string // deprecated - usunięte zgodnie z redesignem
     bom?: BomItem[]
     laborCost?: number
-    assignee?: string
+    assignee?: string // deprecated, use przypisany_projektant
     dxfFile?: string | null
     assemblyDrawing?: string | null
     group?: string
@@ -73,15 +79,24 @@ export const useTilesStore = create<TilesState>()(
                     const data = await listTiles()
                     if (data.length > 0) {
                         set({ tiles: data, tilesById: Object.fromEntries(data.map(t => [t.id, t])), isInitialized: true })
-                    } else {
-                        // If database is empty, use mock tiles
+                    } else if (config.useMockData) {
+                        // If database is empty and mock data is enabled, use mock tiles
+                        const { mockTiles } = await import('../data/development')
                         set({ tiles: mockTiles, tilesById: Object.fromEntries(mockTiles.map(t => [t.id, t])), isInitialized: true })
+                    } else {
+                        // No data available and mock data disabled
+                        set({ tiles: [], tilesById: {}, isInitialized: true })
                     }
                 } catch (error) {
                     const { logger } = await import('../lib/logger')
                     logger.error('Błąd podczas ładowania kafelków:', error)
-                    // Fallback to mock tiles
-                    set({ tiles: mockTiles, isInitialized: true })
+                    // Fallback to mock tiles only if enabled
+                    if (config.useMockData) {
+                        const { mockTiles } = await import('../data/development')
+                        set({ tiles: mockTiles, tilesById: Object.fromEntries(mockTiles.map(t => [t.id, t])), isInitialized: true })
+                    } else {
+                        set({ tiles: [], tilesById: {}, isInitialized: true })
+                    }
                 } finally {
                     set({ isLoading: false })
                 }

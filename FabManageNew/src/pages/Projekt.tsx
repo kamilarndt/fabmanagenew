@@ -4,7 +4,7 @@ import { useProjectsStore } from '../stores/projectsStore'
 import { showToast } from '../lib/notifications'
 import { useTilesStore, type Tile } from '../stores/tilesStore'
 import type { Project } from '../types/projects.types'
-import TileEditSheet from '../components/TileEditSheet'
+import TileEditModal from '../components/Tiles/TileEditModal'
 import EditProjectModal from '../components/EditProjectModal'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -22,14 +22,14 @@ import CreateGroupModal from '../components/Groups/CreateGroupModal'
 // Hooks
 import { useProjectData } from '../hooks/useProjectData'
 
-// Import existing modules
-import { Suspense } from 'react';
-import ConceptBoard from '../modules/Concept/ConceptBoard'
-import EstimateModule from '../components/Estimate/EstimateModule'
-
-import LogisticsTab from '../modules/Logistics/LogisticsTab'
-import AccommodationTab from '../modules/Accommodation/AccommodationTab'
+// Lazy load heavy modules
+import { Suspense, lazy } from 'react';
+const ConceptBoard = lazy(() => import('../modules/Concept/ConceptBoard'))
+const EstimateModule = lazy(() => import('../components/Estimate/EstimateModule'))
+const LogisticsTab = lazy(() => import('../modules/Logistics/LogisticsTab'))
+const AccommodationTab = lazy(() => import('../modules/Accommodation/AccommodationTab'))
 import { StageStepper } from '../components/Ui/StageStepper'
+import { ModuleLoading } from '../components/Ui/LoadingSpinner'
 import { Calendar as RBCalendar, Views } from 'react-big-calendar'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import { localizer } from '../lib/calendarLocalizer'
@@ -124,19 +124,17 @@ export default function Projekt() {
         setShowTileModal(true)
     }, [])
 
-    const handleSaveTile = useCallback(async (tileData: Partial<Tile>) => {
+    const handleSaveTile = useCallback(async (tileData: Omit<Tile, 'id'>) => {
         try {
             if (editingTile) {
                 await updateTile(editingTile.id, tileData)
                 showToast('Kafelek zaktualizowany', 'success')
             } else {
                 const newTile: Tile = {
+                    ...tileData,
                     id: crypto.randomUUID(),
-                    name: tileData.name || 'Nowy kafelek',
-                    status: 'W KOLEJCE',
-                    project: project?.id || '',
-                    laborCost: tileData.laborCost || 0,
-                    bom: tileData.bom || []
+                    status: tileData.status || 'W KOLEJCE',
+                    project: tileData.project || project?.id || ''
                 }
                 await addTile(newTile)
                 showToast('Kafelek dodany', 'success')
@@ -323,25 +321,25 @@ export default function Projekt() {
                     )}
 
                     {activeTab === 'koncepcja' && project.modules?.includes('koncepcja') && (
-                        <Suspense fallback={<div>Loading...</div>}>
+                        <Suspense fallback={<ModuleLoading />}>
                             <ConceptBoard projectId={project.id} />
                         </Suspense>
                     )}
 
                     {activeTab === 'wycena' && (
-                        <Suspense fallback={<div>Loading...</div>}>
+                        <Suspense fallback={<ModuleLoading />}>
                             <EstimateModule projectId={project.id} />
                         </Suspense>
                     )}
 
                     {activeTab === 'logistyka' && (
-                        <Suspense fallback={<div>Loading...</div>}>
+                        <Suspense fallback={<ModuleLoading />}>
                             <LogisticsTab projectId={project.id} />
                         </Suspense>
                     )}
 
                     {activeTab === 'zakwaterowanie' && (
-                        <Suspense fallback={<div>Loading...</div>}>
+                        <Suspense fallback={<ModuleLoading />}>
                             <AccommodationTab projectId={project.id} />
                         </Suspense>
                     )}
@@ -417,21 +415,13 @@ export default function Projekt() {
                 </div>
 
                 {/* Modals */}
-                {showTileModal && (
-                    <TileEditSheet
-                        tile={editingTile || {
-                            id: 'new',
-                            name: '',
-                            status: 'W KOLEJCE',
-                            project: project.id,
-                            laborCost: 0,
-                            bom: []
-                        } as any}
-                        open={showTileModal}
-                        onClose={() => setShowTileModal(false)}
-                        onSave={handleSaveTile}
-                    />
-                )}
+                <TileEditModal
+                    open={showTileModal}
+                    onClose={() => setShowTileModal(false)}
+                    onSave={handleSaveTile}
+                    tile={editingTile || undefined}
+                    projectId={project.id}
+                />
 
                 <AddMemberModal
                     isOpen={showAddMember}

@@ -22,8 +22,11 @@
     "playwright:report": "playwright show-report"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.0.1",
+    "@hookform/resolvers": "^5.2.1",
     "@supabase/supabase-js": "^2.56.1",
     "antd": "^5.27.3",
+    "axios": "^1.11.0",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.18",
     "dxf-parser": "1.1.2",
@@ -34,6 +37,7 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.1.1",
+    "react-hook-form": "^7.62.0",
     "react-router-dom": "^7.8.2",
     "three": "0.179.1",
     "zustand": "^4.5.2"

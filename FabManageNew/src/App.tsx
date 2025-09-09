@@ -2,6 +2,9 @@ import { Routes, Route } from 'react-router-dom'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Suspense, lazy } from 'react'
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
+import { PageLoading } from './components/Ui/LoadingSpinner'
+import useOfflineDetection from './hooks/useOfflineDetection'
 
 // Layouts
 import BootstrapLayout from './layouts/BootstrapLayout'
@@ -31,39 +34,46 @@ const Klient = lazy(() => import('./pages/ClientDetails'))
 import './App.css'
 
 function App() {
-    return (
-        <DndProvider backend={HTML5Backend}>
-            <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Ładowanie...</div>}>
-                <Routes>
-                    {/* Routes with Bootstrap Layout */}
-                    <Route path="/" element={<BootstrapLayout />}>
-                        <Route index element={<Dashboard />} />
-                        <Route path="projekty" element={<Projects />} />
-                        <Route path="projekty/nowy" element={<AddProject />} />
-                        <Route path="projekt/:id" element={<Projekt />} />
-                        <Route path="projektowanie" element={<Projektowanie />} />
-                        <Route path="cnc" element={<CNC />} />
-                        <Route path="produkcja" element={<Produkcja />} />
-                        <Route path="magazyn" element={<Magazyn />} />
-                        <Route path="kafelki" element={<Tiles />} />
-                        <Route path="designer" element={<DesignerDashboard />} />
-                        <Route path="kalendarz" element={<CalendarPage />} />
-                        <Route path="kalendarz/projekty" element={<CalendarProjects />} />
-                        <Route path="kalendarz/projektanci" element={<CalendarDesigners />} />
-                        <Route path="kalendarz/ekipy" element={<CalendarTeams />} />
-                        <Route path="podwykonawcy" element={<Subcontractors />} />
-                        <Route path="zapotrzebowania" element={<Demands />} />
-                    </Route>
+    // Monitor offline state globally
+    useOfflineDetection()
 
-                    {/* Clients under main layout for consistent navigation */}
-                    <Route path="/klienci" element={<BootstrapLayout />}>
-                        <Route index element={<Klienci />} />
-                        <Route path=":id" element={<Klient />} />
-                    </Route>
-                    {/* Removed KlienciFigma route (file missing) */}
-                </Routes>
-            </Suspense>
-        </DndProvider>
+    return (
+        <ErrorBoundary level="global" onError={(error, errorInfo) => {
+            console.error('Global error:', error, errorInfo)
+        }}>
+            <DndProvider backend={HTML5Backend}>
+                <Suspense fallback={<PageLoading />}>
+                    <Routes>
+                        {/* Routes with Bootstrap Layout */}
+                        <Route path="/" element={<BootstrapLayout />}>
+                            <Route index element={<Dashboard />} />
+                            <Route path="projekty" element={<Projects />} />
+                            <Route path="projekty/nowy" element={<AddProject />} />
+                            <Route path="projekt/:id" element={<Projekt />} />
+                            <Route path="projektowanie" element={<Projektowanie />} />
+                            <Route path="cnc" element={<CNC />} />
+                            <Route path="produkcja" element={<Produkcja />} />
+                            <Route path="magazyn" element={<Magazyn />} />
+                            <Route path="kafelki" element={<Tiles />} />
+                            <Route path="designer" element={<DesignerDashboard />} />
+                            <Route path="kalendarz" element={<CalendarPage />} />
+                            <Route path="kalendarz/projekty" element={<CalendarProjects />} />
+                            <Route path="kalendarz/projektanci" element={<CalendarDesigners />} />
+                            <Route path="kalendarz/ekipy" element={<CalendarTeams />} />
+                            <Route path="podwykonawcy" element={<Subcontractors />} />
+                            <Route path="zapotrzebowania" element={<Demands />} />
+                        </Route>
+
+                        {/* Clients under main layout for consistent navigation */}
+                        <Route path="/klienci" element={<BootstrapLayout />}>
+                            <Route index element={<Klienci />} />
+                            <Route path=":id" element={<Klient />} />
+                        </Route>
+                        {/* Removed KlienciFigma route (file missing) */}
+                    </Routes>
+                </Suspense>
+            </DndProvider>
+        </ErrorBoundary>
     )
 }
 

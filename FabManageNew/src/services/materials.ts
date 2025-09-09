@@ -6,6 +6,8 @@ export async function fetchProjectBom(projectId: string): Promise<BomRow[]> {
         if (res.ok) {
             return await res.json()
         }
-    } catch { }
+    } catch (error) {
+        console.error('Failed to fetch BOM:', error)
+    }
     return []
 }

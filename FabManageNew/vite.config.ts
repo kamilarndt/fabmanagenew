@@ -7,24 +7,168 @@ import { visualizer } from 'rollup-plugin-visualizer'
 export default defineConfig({
   plugins: [
     react(),
-    visualizer({ filename: 'dist/stats.html', gzipSize: true, brotliSize: true, open: false }),
+    visualizer({
+      filename: 'dist/stats.html',
+      gzipSize: true,
+      brotliSize: true,
+      open: false
+    }),
     VitePWA({
       registerType: 'autoUpdate',
-      workbox: { globPatterns: ['**/*.{js,css,html,svg,png}'], maximumFileSizeToCacheInBytes: 6 * 1024 * 1024 },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png}'],
+        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024
+      },
       devOptions: { enabled: false },
       srcDir: 'src',
       filename: 'pwa-sw.ts'
     })
   ],
+
+  build: {
+    target: 'esnext',
+    minify: 'esbuild',
+    cssMinify: 'esbuild',
+
+    rollupOptions: {
+      output: {
+        // Manual chunk splitting for better caching
+        manualChunks: (id) => {
+          // React ecosystem
+          if (id.includes('react') || id.includes('react-dom')) {
+            return 'react-vendor'
+          }
+
+          // Ant Design
+          if (id.includes('antd') || id.includes('@ant-design')) {
+            return 'antd-vendor'
+          }
+
+          // Calendar related
+          if (id.includes('react-big-calendar') ||
+            id.includes('date-fns') ||
+            id.includes('dayjs')) {
+            return 'calendar-vendor'
+          }
+
+          // Form libraries
+          if (id.includes('react-hook-form') ||
+            id.includes('@hookform') ||
+            id.includes('zod')) {
+            return 'forms-vendor'
+          }
+
+          // HTTP clients
+          if (id.includes('axios') ||
+            id.includes('ky') ||
+            id.includes('@supabase')) {
+            return 'http-vendor'
+          }
+
+          // State management
+          if (id.includes('zustand') ||
+            id.includes('immer')) {
+            return 'state-vendor'
+          }
+
+          // DnD
+          if (id.includes('react-dnd') ||
+            id.includes('@dnd-kit')) {
+            return 'dnd-vendor'
+          }
+
+          // Utilities
+          if (id.includes('lodash') ||
+            id.includes('ramda') ||
+            id.includes('uuid')) {
+            return 'utils-vendor'
+          }
+
+          // Large individual libraries
+          if (id.includes('monaco-editor')) {
+            return 'monaco-vendor'
+          }
+
+          if (id.includes('three.js') || id.includes('three')) {
+            return 'three-vendor'
+          }
+
+          // Other node_modules
+          if (id.includes('node_modules')) {
+            return 'vendor'
+          }
+        },
+
+        // Filename patterns for better caching
+        chunkFileNames: (chunkInfo) => {
+          if (chunkInfo.name === 'vendor') {
+            return 'assets/vendor-[hash].js'
+          }
+          if (chunkInfo.name?.includes('vendor')) {
+            return `assets/${chunkInfo.name}-[hash].js`
+          }
+          return 'assets/[name]-[hash].js'
+        },
+
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name?.endsWith('.css')) {
+            return 'assets/[name]-[hash].css'
+          }
+          return 'assets/[name]-[hash].[ext]'
+        }
+      }
+    },
+
+    // Chunk size warning limit
+    chunkSizeWarningLimit: 1000,
+
+    // Enable sourcemaps for production debugging
+    sourcemap: process.env.NODE_ENV === 'development'
+  },
+
   optimizeDeps: {
     include: [
+      // React ecosystem
+      'react',
+      'react-dom',
+      'react-router-dom',
+
+      // Ant Design core
+      'antd',
+      '@ant-design/icons',
+
+      // Calendar dependencies
       'react-big-calendar',
       'react-big-calendar/lib/addons/dragAndDrop',
       'date-fns',
-      'date-fns/locale',
-      'date-fns/locale/pl'
-    ]
+      'date-fns/locale/pl',
+      'dayjs',
+
+      // Form libraries
+      'react-hook-form',
+      '@hookform/resolvers',
+      'zod',
+
+      // State management
+      'zustand',
+      'zustand/middleware',
+
+      // HTTP
+      'axios',
+
+      // DnD
+      'react-dnd',
+      'react-dnd-html5-backend',
+
+      // Utilities
+      'uuid'
+    ],
+
+    // Force certain dependencies to be pre-bundled
+    force: true
   },
+
   server: {
     headers: {
       'Cache-Control': 'no-store'
@@ -39,5 +183,10 @@ export default defineConfig({
         changeOrigin: true,
       }
     }
+  },
+
+  // Experimental features for better performance
+  esbuild: {
+    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : []
   }
 })

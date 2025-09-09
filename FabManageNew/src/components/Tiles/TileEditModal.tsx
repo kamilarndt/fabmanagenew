@@ -3,6 +3,7 @@ import { Modal, Form, Input, Select, Button, Row, Col, Space, DatePicker, Upload
 import { PlusOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons'
 import type { Tile, BomItem } from '../../types/tiles.types'
 import { useMaterialsStore } from '../../stores/materialsStore'
+import dayjs from 'dayjs'
 
 const { TextArea } = Input
 const { Text } = Typography
@@ -28,47 +29,51 @@ export default function TileEditModal({ open, onClose, onSave, tile, projectId }
         if (open && materials.length === 0) {
             syncMaterials()
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open])
+    }, [open, materials.length, syncMaterials])
 
+    // Initialize form when tile changes
     useEffect(() => {
         if (tile) {
             form.setFieldsValue({
-                name: tile.name,
-                moduł_nadrzędny: tile.moduł_nadrzędny,
-                opis: tile.opis,
-                link_model_3d: tile.link_model_3d,
-                przypisany_projektant: tile.przypisany_projektant,
-                termin: tile.termin ? new Date(tile.termin) : undefined
+                ...tile,
+                termin: tile.termin ? dayjs(tile.termin) : null
             })
             setBomItems(tile.bom || [])
             setAttachments(tile.załączniki || [])
         } else {
-            form.resetFields()
+            form.setFieldsValue({
+                name: '',
+                project: projectId,
+                moduł_nadrzędny: '',
+                opis: '',
+                link_model_3d: '',
+                przypisany_projektant: '',
+                termin: null
+            })
             setBomItems([])
             setAttachments([])
         }
-    }, [tile, form])
+    }, [tile, projectId, form])
 
-    const handleSave = async () => {
+    const handleSubmit = async () => {
         try {
             const values = await form.validateFields()
             const tileData: Omit<Tile, 'id'> = {
                 name: values.name,
-                status: tile?.status || 'W KOLEJCE',
-                project: projectId,
+                status: 'W KOLEJCE',
+                project: values.project || projectId || '',
                 moduł_nadrzędny: values.moduł_nadrzędny,
                 opis: values.opis,
                 link_model_3d: values.link_model_3d,
                 załączniki: attachments,
                 przypisany_projektant: values.przypisany_projektant,
-                termin: values.termin?.toISOString().slice(0, 10),
+                termin: values.termin ? values.termin.format('YYYY-MM-DD') : undefined,
                 bom: bomItems
             }
             onSave(tileData)
             onClose()
         } catch (error) {
-            console.error('Validation failed:', error)
+            console.error('Form validation failed:', error)
         }
     }
 
@@ -112,7 +117,7 @@ export default function TileEditModal({ open, onClose, onSave, tile, projectId }
         setBomItems(bomItems.filter((_, i) => i !== index))
     }
 
-    const handleFileUpload = (_info: any) => {
+    const handleFileUpload = () => {
         // Mock file upload - in real app this would upload to server
         const newAttachments = [...attachments, `file-${Date.now()}.pdf`]
         setAttachments(newAttachments)
@@ -123,7 +128,7 @@ export default function TileEditModal({ open, onClose, onSave, tile, projectId }
             title={tile ? 'Edytuj Kafelek' : 'Dodaj Nowy Kafelek'}
             open={open}
             onCancel={onClose}
-            onOk={handleSave}
+            onOk={handleSubmit}
             width={800}
             okText="Zapisz"
             cancelText="Anuluj"
@@ -137,18 +142,21 @@ export default function TileEditModal({ open, onClose, onSave, tile, projectId }
                         </Text>
 
                         <Form.Item
-                            name="name"
                             label="Nazwa Kafelka"
+                            name="name"
                             rules={[{ required: true, message: 'Nazwa jest wymagana' }]}
                         >
                             <Input placeholder="Wprowadź nazwę kafelka" />
                         </Form.Item>
 
                         <Form.Item
-                            name="moduł_nadrzędny"
                             label="Moduł nadrzędny"
+                            name="moduł_nadrzędny"
                         >
-                            <Select placeholder="Wybierz moduł">
+                            <Select
+                                placeholder="Wybierz moduł"
+                                allowClear
+                            >
                                 <Select.Option value="Scena Główna">Scena Główna</Select.Option>
                                 <Select.Option value="Strefa Wejściowa">Strefa Wejściowa</Select.Option>
                                 <Select.Option value="Zaplecze Techniczne">Zaplecze Techniczne</Select.Option>
@@ -157,29 +165,29 @@ export default function TileEditModal({ open, onClose, onSave, tile, projectId }
                         </Form.Item>
 
                         <Form.Item
-                            name="opis"
                             label="Opis"
+                            name="opis"
                         >
                             <TextArea rows={3} placeholder="Opis kafelka" />
                         </Form.Item>
 
                         <Form.Item
-                            name="link_model_3d"
                             label="Link do modelu 3D"
+                            name="link_model_3d"
                         >
                             <Input placeholder="https://speckle.xyz/streams/..." />
                         </Form.Item>
 
-                        <Form.Item
-                            name="załączniki"
-                            label="Załączniki"
-                        >
+                        <Form.Item label="Załączniki">
                             <Upload
                                 multiple
                                 onChange={handleFileUpload}
-                                beforeUpload={() => false} // Prevent auto upload
+                                beforeUpload={() => false}
+                                disabled={!tile?.id}
                             >
-                                <Button icon={<UploadOutlined />}>Prześlij pliki</Button>
+                                <Button icon={<UploadOutlined />} disabled={!tile?.id}>
+                                    {tile?.id ? 'Prześlij pliki' : 'Zapisz kafelek, aby dodać pliki'}
+                                </Button>
                             </Upload>
                             {attachments.length > 0 && (
                                 <div style={{ marginTop: 8 }}>
@@ -199,10 +207,13 @@ export default function TileEditModal({ open, onClose, onSave, tile, projectId }
                         </Form.Item>
 
                         <Form.Item
-                            name="przypisany_projektant"
                             label="Przypisany projektant"
+                            name="przypisany_projektant"
                         >
-                            <Select placeholder="Wybierz projektanta">
+                            <Select
+                                placeholder="Wybierz projektanta"
+                                allowClear
+                            >
                                 <Select.Option value="K. Arndt">K. Arndt</Select.Option>
                                 <Select.Option value="A. Kowalska">A. Kowalska</Select.Option>
                                 <Select.Option value="P. Nowak">P. Nowak</Select.Option>
@@ -211,10 +222,13 @@ export default function TileEditModal({ open, onClose, onSave, tile, projectId }
                         </Form.Item>
 
                         <Form.Item
-                            name="termin"
                             label="Termin"
+                            name="termin"
                         >
-                            <DatePicker style={{ width: '100%' }} placeholder="Wybierz datę" />
+                            <DatePicker
+                                style={{ width: '100%' }}
+                                placeholder="Wybierz datę"
+                            />
                         </Form.Item>
                     </Col>
 

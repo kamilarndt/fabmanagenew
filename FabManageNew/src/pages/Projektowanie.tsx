@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { useTilesStore, type Tile } from '../stores/tilesStore'
-import TileEditSheet from '../components/TileEditSheet'
+import TileEditModal from '../components/Tiles/TileEditModal'
 
 type DesignStatus = 'Projektowanie' | 'W trakcie projektowania' | 'Do akceptacji' | 'Zaakceptowane' | 'Wymagają poprawek'
 
@@ -46,7 +46,7 @@ export default function Projektowanie() {
         setShowTileModal(true)
     }
 
-    const handleSaveTile = (tileData: Partial<Tile>) => {
+    const handleSaveTile = (tileData: Omit<Tile, 'id'>) => {
         if (editingTile) {
             updateTile(editingTile.id, tileData)
         }
@@ -136,17 +136,16 @@ export default function Projektowanie() {
             </div>
 
             {/* Tile Edit Modal */}
-            {showTileModal && editingTile && (
-                <TileEditSheet
-                    open={true}
-                    tile={editingTile}
-                    onClose={() => {
-                        setShowTileModal(false)
-                        setEditingTile(null)
-                    }}
-                    onSave={handleSaveTile}
-                />
-            )}
+            <TileEditModal
+                open={showTileModal}
+                onClose={() => {
+                    setShowTileModal(false)
+                    setEditingTile(null)
+                }}
+                onSave={handleSaveTile}
+                tile={editingTile || undefined}
+                projectId={editingTile?.project}
+            />
         </div>
     )
 }

@@ -85,17 +85,13 @@ export const useMaterialsStore = create<MaterialsState>()((set, get) => ({
 
     syncFromBackend: async () => {
         try {
-            const base = (import.meta.env.VITE_API_BASE_URL as string) || ''
-            let url = `${base}/api/materials`
-            if (!base) url = '/api/materials'
+            const { api } = await import('../lib/httpClient')
 
-            let res = await fetch(url)
-            if (!res.ok && !base) {
-                // Fallback for preview/prod without proxy
-                res = await fetch('http://localhost:3001/api/materials')
-            }
-            if (!res.ok) throw new Error(`materials ${res.status}`)
-            const data = await res.json()
+            const data = await api.call<any[]>('/api/materials', {
+                method: 'GET',
+                table: 'materials'
+            })
+
             const mapped: MaterialItem[] = (Array.isArray(data) ? data : []).map((m: any) => {
                 const categoryMain = String(m.category || '').toUpperCase()
                 const categorySub = m.type ? String(m.type) : undefined

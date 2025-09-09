@@ -1,16 +1,42 @@
-import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { Breadcrumb, Card, Row, Col, Typography, Descriptions, Tabs, Empty, Tag } from 'antd'
+import { useEffect, useState, useMemo } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { Breadcrumb, Card, Row, Col, Typography, Descriptions, Tabs, Empty, Tag, Button } from 'antd'
+import { EyeOutlined } from '@ant-design/icons'
 import { useClientDataStore } from '../stores/clientDataStore'
-import type { ProcessedClient, ProcessedProject } from '../types/clientData.types'
+import { useProjectsStore } from '../stores/projectsStore'
+import { useTilesStore } from '../stores/tilesStore'
+import type { ProcessedClient } from '../types/clientData.types'
 
 export default function ClientDetails() {
     const { id } = useParams<{ id: string }>()
-    const { getClientById, getProjectsByClient, loadData, loading } = useClientDataStore()
+    const navigate = useNavigate()
+    const { getClientById, loadData, loading } = useClientDataStore()
+    const { projects: allProjects } = useProjectsStore()
+    const { tiles } = useTilesStore()
 
     const [client, setClient] = useState<ProcessedClient | null>(null)
-    const [projects, setProjects] = useState<ProcessedProject[]>([])
     const [activeTab, setActiveTab] = useState<'contacts' | 'projects' | 'invoices'>('contacts')
+
+    const handleProjectClick = (projectId: string) => {
+        navigate(`/projekt/${projectId}`)
+    }
+
+    // Filtruj projekty po kliencie z projectsStore
+    const clientProjects = useMemo(() => {
+        if (!client) return []
+        return allProjects.filter(project =>
+            project.clientId === client.id ||
+            project.client === client.companyName
+        )
+    }, [allProjects, client])
+
+    // Oblicz liczby elementów dla każdego projektu
+    const projectsWithTileCount = useMemo(() => {
+        return clientProjects.map(project => ({
+            ...project,
+            elementsCount: tiles.filter(tile => tile.project === project.id).length
+        }))
+    }, [clientProjects, tiles])
 
     useEffect(() => {
         const run = async () => {
@@ -19,11 +45,10 @@ export default function ClientDetails() {
             const c = getClientById(id)
             if (c) {
                 setClient(c)
-                setProjects(getProjectsByClient(c.companyName))
             }
         }
         run()
-    }, [id, getClientById, getProjectsByClient, loadData])
+    }, [id, getClientById, loadData])
 
     if (loading) return null
     if (!client) return <div style={{ padding: 24 }}><Empty description="Nie znaleziono klienta" /></div>
@@ -75,15 +100,44 @@ export default function ClientDetails() {
                             },
                             {
                                 key: 'projects', label: 'Projekty', children: (
-                                    projects?.length ? (
+                                    projectsWithTileCount?.length ? (
                                         <Row gutter={[12, 12]}>
-                                            {projects.map(p => (
+                                            {projectsWithTileCount.map(p => (
                                                 <Col xs={24} key={p.id}>
-                                                    <Card size="small" bordered style={{ background: 'var(--bg-secondary)' }}>
-                                                        <Typography.Text strong>{p.projectName}</Typography.Text>
+                                                    <Card 
+                                                        size="small" 
+                                                        bordered 
+                                                        style={{ 
+                                                            background: 'var(--bg-secondary)',
+                                                            cursor: 'pointer',
+                                                            transition: 'all 0.2s ease'
+                                                        }}
+                                                        hoverable
+                                                        onClick={() => handleProjectClick(p.id)}
+                                                        actions={[
+                                                            <Button 
+                                                                key="view"
+                                                                type="text" 
+                                                                icon={<EyeOutlined />} 
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation()
+                                                                    handleProjectClick(p.id)
+                                                                }}
+                                                            >
+                                                                Zobacz projekt
+                                                            </Button>
+                                                        ]}
+                                                    >
+                                                        <Typography.Text strong>{p.name}</Typography.Text>
                                                         <div className="small text-muted">
                                                             <Tag color="var(--primary-main)">Elementy: {p.elementsCount}</Tag>
-                                                            <span style={{ marginLeft: 8 }}>Deadline: {new Date(p.deadline).toLocaleDateString('pl-PL')}</span>
+                                                            <span style={{ marginLeft: 8 }}>Status: {p.status}</span>
+                                                            {p.deadline && (
+                                                                <span style={{ marginLeft: 8 }}>Deadline: {new Date(p.deadline).toLocaleDateString('pl-PL')}</span>
+                                                            )}
+                                                        </div>
+                                                        <div style={{ marginTop: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
+                                                            {p.typ} • Postęp: {p.postep}%
                                                         </div>
                                                     </Card>
                                                 </Col>

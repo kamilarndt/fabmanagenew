@@ -18,6 +18,14 @@ export interface RhinoMaterialData {
     lastDelivery?: Date
     location?: string
     abcClass?: 'A' | 'B' | 'C'
+
+    // Nowe pola dla kart materiałów
+    rodzaj?: string // np. "Płyta meblowa", "Metal", "Tworzywo"
+    typ?: string // np. "MDF", "Aluminium", "Plexi"
+    grubosc?: string // np. "18mm", "3mm"
+    wielkosc_formatki?: string // np. "2800x2070", "1250x2500"
+    cena?: number // cena za jednostkę
+
     properties?: {
         color?: string
         finish?: string
@@ -295,6 +303,11 @@ const rawRhinoMaterials: RhinoMaterialData[] = [
         lastDelivery: new Date("2025-01-10"),
         location: "A1-01",
         abcClass: "B",
+        rodzaj: "Płyta meblowa",
+        typ: "MDF",
+        grubosc: "6mm",
+        wielkosc_formatki: "2800x2070",
+        cena: 45.50,
         properties: {
             color: "surowy",
             finish: "gładki",
@@ -319,6 +332,11 @@ const rawRhinoMaterials: RhinoMaterialData[] = [
         lastDelivery: new Date("2024-12-20"),
         location: "A1-02",
         abcClass: "C",
+        rodzaj: "Płyta meblowa",
+        typ: "MDF",
+        grubosc: "6mm",
+        wielkosc_formatki: "2800x2070",
+        cena: 68.00,
         properties: {
             color: "surowy",
             finish: "gładki",
@@ -640,6 +658,11 @@ const rawRhinoMaterials: RhinoMaterialData[] = [
         lastDelivery: new Date("2025-01-10"),
         location: "B1-01",
         abcClass: "A",
+        rodzaj: "Tworzywo",
+        typ: "Plexi",
+        grubosc: "4mm",
+        wielkosc_formatki: "1250x2000",
+        cena: 68.00,
         properties: {
             color: "bezbarwna",
             finish: "błyszcząca",
@@ -680,6 +703,11 @@ const rawRhinoMaterials: RhinoMaterialData[] = [
         name: "Kątownik aluminiowy 20x20mm",
         category: ["_MATERIAL", "ALUMINIUM", "KATOWNIKI"],
         unit: "mb",
+        rodzaj: "Metal",
+        typ: "Aluminium",
+        grubosc: "2mm",
+        wielkosc_formatki: "20x20mm (6m)",
+        cena: 12.50,
         stock: 125,
         minStock: 50,
         maxStock: 200,
