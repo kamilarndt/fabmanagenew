@@ -14,7 +14,7 @@ export const BomItemSchema = z.object({
 export const TileSchema = z.object({
     id: z.string(),
     name: z.string(),
-    status: z.enum(['W KOLEJCE', 'W TRAKCIE CIĘCIA', 'WYCIĘTE', 'Projektowanie', 'W trakcie projektowania', 'Do akceptacji', 'Zaakceptowane', 'Wymagają poprawek', 'Gotowy do montażu']),
+    status: z.enum(['W KOLEJCE', 'W TRAKCIE CIĘCIA', 'WYCIĘTE', 'Projektowanie', 'W trakcie projektowania', 'Do akceptacji', 'Zaakceptowane', 'Wymagają poprawek', 'Gotowy do montażu', 'W produkcji CNC']),
     project: z.string().optional(),
     priority: z.enum(['Wysoki', 'Średni', 'Niski']).optional(),
     technology: z.string().optional(),
@@ -23,7 +23,8 @@ export const TileSchema = z.object({
     assignee: z.string().optional(),
     dxfFile: z.string().nullable().optional(),
     assemblyDrawing: z.string().nullable().optional(),
-    group: z.string().optional()
+    group: z.string().optional(),
+    files: z.array(z.object({ name: z.string(), path: z.string(), mime: z.string().optional(), size: z.number().optional() })).optional()
 })
 
 export const ProjectSchema = z.object({

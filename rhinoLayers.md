@@ -74,49 +74,49 @@ _MATERIAL
 
     DILITE
 
-        M-dilite bialy
+        dilite bialy
 
-        M-dilite drapany
+        dilite drapany
 
-        M-dilite srebrny
+        dilite srebrny
 
     GK
 
-        M-GK
+        GK
 
-        M-GK -dystanse
+        GK -dystanse
 
-        M-GK -profile
+        GK -profile
 
-        M-GK riflex
+        GK riflex
 
     HDF
 
-        M-HDF 3mm
+        HDF 3mm
 
-        M-HDF 4mm
+        HDF 4mm
 
     PLEXI
 
-        M-pleksi 4mm
+        pleksi 4mm
 
-        M-pleksi 4mm opal satin
+        pleksi 4mm opal satin
 
-        M-pleksi 6mm
+        pleksi 6mm
 
-        M-plexi 10mm
+        plexi 10mm
 
-        M-plexi 15mm
+        plexi 15mm
 
-        M-plexi dual satin 6mm
+        plexi dual satin 6mm
 
-        M-plexi opal 6mm
+        plexi opal 6mm
 
-        M-plexi opal 10mm
+        plexi opal 10mm
 
-        M-plexi opal 30mm
+        plexi opal 30mm
 
-        M-pleksi 5mm
+        pleksi 5mm
 
     POLIWEGLAN
 
@@ -124,37 +124,37 @@ _MATERIAL
 
     POZOSTALE
 
-        M-cetris 18mm
+        cetris 18mm
 
-        M-corian
+        corian
 
-        M-czarna polysk
+        czarna polysk
 
-        M-hips
+        hips
 
-        M-horyzont
+        horyzont
 
-        M-łata
+        łata
 
-        M-panele
+        panele
 
-        M-PCV
+        PCV
 
-        M-perforacja siatka
+        perforacja siatka
 
-        M-ramiaki
+        ramiaki
 
-        M-stal
+        stal
 
-        M-styrodur
+        styrodur
 
-        M-szkło
+        szkło
 
-        M-śruby
+        śruby
 
-        M-tkanina
+        tkanina
 
-        M-wydruk3d
+        wydruk3d
 
-        M-wykladzina
+        wykladzina
 

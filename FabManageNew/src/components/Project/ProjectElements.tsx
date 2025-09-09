@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react'
 import type { Tile } from '../../types/tiles.types'
 import type { Project } from '../../types/projects.types'
-import { KanbanBoardGeneric } from '../Ui/KanbanBoardGeneric'
 import GroupView from '../Groups/GroupView'
 import { useTilesStore } from '../../stores/tilesStore'
-import { showToast } from '../../lib/toast'
-import { Card, Form, Input, Select, Button, Space, Row, Col } from 'antd'
+import { showToast } from '../../lib/notifications'
+import { Card, Form, Input, Button, Space, Row, Col } from 'antd'
+import TileCard from '../Tiles/TileCard'
+import TileEditModal from '../Tiles/TileEditModal'
 
 interface ProjectElementsProps {
     project: Project
@@ -21,10 +22,8 @@ interface ProjectElementsProps {
 export default function ProjectElements({
     project,
     projectTiles,
-    tileCosts,
     onTileUpdate,
     onTileClick,
-    onAddTile,
     onCreateGroup,
     onPushToProduction
 }: ProjectElementsProps) {
@@ -32,8 +31,10 @@ export default function ProjectElements({
 
     // Quick add state
     const [qaName, setQaName] = useState('')
-    const [qaTech, setQaTech] = useState('Frezowanie CNC')
-    const [qaPriority, setQaPriority] = useState<'Wysoki' | 'Średni' | 'Niski'>('Średni')
+
+    // Tile edit modal state
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+    const [editingTile, setEditingTile] = useState<Tile | null>(null)
 
     const groups = useMemo(() => {
         const dict: Record<string, { id: string; name: string; tiles: Tile[] }> = {};
@@ -89,14 +90,47 @@ export default function ProjectElements({
             name,
             status: 'W KOLEJCE',
             project: project.id,
-            priority: qaPriority,
-            technology: qaTech,
             laborCost: 0,
             bom: []
         }
         await addTile(newTile)
         showToast('Dodano element', 'success')
         setQaName('')
+    }
+
+    const handleTileEdit = (tile: Tile) => {
+        setEditingTile(tile)
+        setIsEditModalOpen(true)
+    }
+
+    const handleTileCreate = () => {
+        setEditingTile(null)
+        setIsEditModalOpen(true)
+    }
+
+    const handleModalClose = () => {
+        setIsEditModalOpen(false)
+        setEditingTile(null)
+    }
+
+    const handleTileSave = async (tileData: Omit<Tile, 'id'>) => {
+        try {
+            if (editingTile) {
+                // Update existing tile
+                onTileUpdate(editingTile.id, tileData)
+            } else {
+                // Create new tile
+                const newTile: Tile = {
+                    ...tileData,
+                    id: crypto.randomUUID()
+                }
+                await addTile(newTile)
+            }
+            showToast(editingTile ? 'Element zaktualizowany' : 'Element utworzony', 'success')
+            handleModalClose()
+        } catch (error) {
+            showToast('Błąd podczas zapisywania elementu', 'danger')
+        }
     }
 
     return (
@@ -129,31 +163,6 @@ export default function ProjectElements({
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={6}>
-                            <Form.Item label="Technologia wiodąca">
-                                <Select
-                                    value={qaTech}
-                                    onChange={setQaTech as any}
-                                    options={[
-                                        { value: 'Frezowanie CNC', label: 'Frezowanie CNC' },
-                                        { value: 'Cięcie laserowe', label: 'Cięcie laserowe' },
-                                        { value: 'Druk 3D', label: 'Druk 3D' },
-                                        { value: 'Gięcie blach', label: 'Gięcie blach' },
-                                    ]}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col xs={24} md={4}>
-                            <Form.Item label="Priorytet">
-                                <Select
-                                    value={qaPriority}
-                                    onChange={v => setQaPriority(v as any)}
-                                    options={[
-                                        { value: 'Wysoki', label: 'Wysoki' },
-                                        { value: 'Średni', label: 'Średni' },
-                                        { value: 'Niski', label: 'Niski' },
-                                    ]}
-                                />
-                            </Form.Item>
                         </Col>
                         <Col xs={24} md={4}>
                             <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
@@ -163,20 +172,70 @@ export default function ProjectElements({
                     </Row>
                     <div style={{ marginTop: 8, color: 'var(--text-secondary)', fontSize: 12 }}>
                         Potrzebujesz więcej pól? Użyj edytora zaawansowanego
-                        <Button type="link" size="small" style={{ padding: 0, marginLeft: 4, verticalAlign: 'baseline' }} onClick={onAddTile}>Otwórz edytor</Button>
+                        <Button type="link" size="small" style={{ padding: 0, marginLeft: 4, verticalAlign: 'baseline' }} onClick={handleTileCreate}>Otwórz edytor</Button>
                     </div>
                 </Form>
             </Card>
 
-            {/* Kanban */}
-            <KanbanBoardGeneric
-                tiles={projectTiles}
-                columns={columns as any}
-                getColumnId={getColumnId}
-                onTileUpdate={onTileUpdate}
-                onTileClick={onTileClick}
-                tileCosts={tileCosts}
-            />
+            {/* Kanban z nowymi kartami */}
+            <div style={{ marginBottom: 16 }}>
+                <Row gutter={[16, 16]}>
+                    {columns.map(column => {
+                        const columnTiles = projectTiles.filter(tile => getColumnId(tile) === column.id)
+                        return (
+                            <Col key={column.id} xs={24} sm={12} lg={6}>
+                                <Card
+                                    title={
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span>{column.title}</span>
+                                            <span style={{
+                                                backgroundColor: column.color === 'bg-secondary' ? '#6c757d' :
+                                                    column.color === 'bg-warning' ? '#ffc107' :
+                                                        column.color === 'bg-primary' ? '#007bff' : '#28a745',
+                                                color: 'white',
+                                                padding: '2px 8px',
+                                                borderRadius: '12px',
+                                                fontSize: '12px'
+                                            }}>
+                                                {columnTiles.length}
+                                            </span>
+                                        </div>
+                                    }
+                                    size="small"
+                                    style={{ height: '100%' }}
+                                    headStyle={{
+                                        backgroundColor: column.color === 'bg-secondary' ? '#6c757d' :
+                                            column.color === 'bg-warning' ? '#ffc107' :
+                                                column.color === 'bg-primary' ? '#007bff' : '#28a745',
+                                        color: 'white'
+                                    }}
+                                >
+                                    <div style={{ minHeight: 200 }}>
+                                        {columnTiles.map(tile => (
+                                            <div key={tile.id} style={{ marginBottom: 8 }}>
+                                                <TileCard
+                                                    tile={tile}
+                                                    onEdit={() => handleTileEdit(tile)}
+                                                />
+                                            </div>
+                                        ))}
+                                        {columnTiles.length === 0 && (
+                                            <div style={{
+                                                textAlign: 'center',
+                                                color: '#999',
+                                                padding: 20,
+                                                fontSize: 12
+                                            }}>
+                                                Brak elementów
+                                            </div>
+                                        )}
+                                    </div>
+                                </Card>
+                            </Col>
+                        )
+                    })}
+                </Row>
+            </div>
 
             {/* Groups below */}
             <div style={{ marginTop: 16 }}>
@@ -191,6 +250,15 @@ export default function ProjectElements({
                     onTileClick={onTileClick}
                 />
             </div>
+
+            {/* Modal edycji kafelków */}
+            <TileEditModal
+                open={isEditModalOpen}
+                onClose={handleModalClose}
+                onSave={handleTileSave}
+                tile={editingTile || undefined}
+                projectId={project.id}
+            />
         </div>
     )
 }

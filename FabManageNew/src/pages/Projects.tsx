@@ -2,13 +2,14 @@ import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProjectsStore } from '../stores/projectsStore'
 import { useTilesStore } from '../stores/tilesStore'
-import { showToast } from '../lib/toast'
+import { showToast } from '../lib/notifications'
 import { StatusBadge } from '../components/Ui/StatusBadge'
 import { PageHeader } from '../components/Ui/PageHeader'
+import ProjectCard from '../components/Project/ProjectCard'
 // zod removed after AntD Form migration
-import type { Project, ProjectModule } from '../types/projects.types'
+import type { Project, ProjectModule, ProjectWithStats } from '../types/projects.types'
 import EditProjectModal from '../components/EditProjectModal'
-import { Card, Form, Row, Col, Select, Input, Button, Segmented, Space, Table, Tag, Pagination, Dropdown, Avatar, Progress, Modal, DatePicker, Typography } from 'antd'
+import { Card, Form, Row, Col, Select, Input, Button, Segmented, Space, Table, Tag, Pagination, Dropdown, Modal, DatePicker } from 'antd'
 
 export default function Projects() {
     const navigate = useNavigate()
@@ -21,15 +22,14 @@ export default function Projects() {
     const setTileStatus = useTilesStore(s => s.setStatus)
 
     // Basic filters
-    const [status, setStatus] = useState<'All' | 'Active' | 'On Hold' | 'Done'>('All')
+    const [status, setStatus] = useState<'All' | 'Nowy' | 'Wyceniany' | 'W realizacji' | 'Zakończony' | 'Wstrzymany'>('All')
     const [client, setClient] = useState<'All' | string>('All')
     const [query, setQuery] = useState('')
-    const [view, setView] = useState<'Lista' | 'Kafelki' | 'Kanban' | 'Gantt' | 'Kalendarz'>('Lista')
+    const [view, setView] = useState<'Lista' | 'Kafelki' | 'Kanban' | 'Gantt' | 'Kalendarz'>('Kafelki')
 
     // Advanced filters
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
     const [managerFilter, setManagerFilter] = useState<'All' | string>('All')
-    const [priorityFilter, setPriorityFilter] = useState<'All' | 'High' | 'Medium' | 'Low'>('All')
     const [dateFilter, setDateFilter] = useState<'All' | 'This Week' | 'This Month' | 'Overdue'>('All')
     const [budgetRange, setBudgetRange] = useState([0, 500000])
     const [selectedProjects, setSelectedProjects] = useState<string[]>([])
@@ -37,11 +37,16 @@ export default function Projects() {
     const [ctxMenu, setCtxMenu] = useState<{ open: boolean; x: number; y: number; id: string | null }>({ open: false, x: 0, y: 0, id: null })
     const [createOpen, setCreateOpen] = useState(false)
     const [createForm, setCreateForm] = useState<Omit<Project, 'id'>>({
+        numer: 'P-2025/01/NEW',
         name: '',
+        typ: 'Inne',
+        lokalizacja: '',
         clientId: 'C-NEW',
         client: '',
-        status: 'Active',
+        status: 'Nowy',
+        data_utworzenia: new Date().toISOString().slice(0, 10),
         deadline: new Date().toISOString().slice(0, 10),
+        postep: 0,
         groups: [],
         modules: ['wycena', 'koncepcja'] as ProjectModule[]
     })
@@ -71,18 +76,29 @@ export default function Projects() {
         return () => window.removeEventListener('keydown', onKey)
     }, [])
 
-    const openContextMenu = (e: React.MouseEvent, id: string) => {
-        e.preventDefault()
-        setCtxMenu({ open: true, x: e.clientX, y: e.clientY, id })
-    }
 
     // Derived data
     const uniqueClients = useMemo(() => Array.from(new Set(projects.map(p => p.client))), [projects])
     const uniqueManagers = useMemo(() => ['Anna Kowalska', 'Paweł Nowak', 'Maria Lis'], []) // Mock data
 
+    // Calculate modules and tiles count for each project
+    const projectsWithStats = useMemo((): ProjectWithStats[] => {
+        return projects.map(project => {
+            const projectTiles = tiles.filter(tile => tile.project === project.id)
+            const modulesCount = project.modules?.length || 0
+            const tilesCount = projectTiles.length
+
+            return {
+                ...project,
+                modulesCount,
+                tilesCount
+            }
+        })
+    }, [projects, tiles])
+
     // Enhanced filtering logic
     const filtered = useMemo(() => {
-        return projects.filter(p => {
+        return projectsWithStats.filter(p => {
             // Basic filters
             const byStatus = status === 'All' ? true : p.status === status
             const byClient = client === 'All' ? true : p.client === client
@@ -91,7 +107,6 @@ export default function Projects() {
 
             // Advanced filters
             const byManager = managerFilter === 'All' ? true : managerFilter === 'Anna Kowalska' // Mock
-            const byPriority = priorityFilter === 'All' ? true : priorityFilter === 'High' // Mock
 
             // Date filter
             let byDate = true
@@ -111,7 +126,7 @@ export default function Projects() {
                         break
                     }
                     case 'Overdue': {
-                        byDate = deadline < today && p.status !== 'Done'
+                        byDate = deadline < today && p.status !== 'Zakończony'
                         break
                     }
                 }
@@ -121,9 +136,9 @@ export default function Projects() {
             const mockBudget = Math.floor(Math.random() * 500000)
             const byBudget = mockBudget >= budgetRange[0] && mockBudget <= budgetRange[1]
 
-            return byStatus && byClient && byQuery && byManager && byPriority && byDate && byBudget
+            return byStatus && byClient && byQuery && byManager && byDate && byBudget
         })
-    }, [projects, status, client, debouncedQuery, managerFilter, priorityFilter, dateFilter, budgetRange])
+    }, [projectsWithStats, status, client, debouncedQuery, managerFilter, dateFilter, budgetRange])
 
     // Sorting
     const sortedAndFiltered = useMemo(() => {
@@ -169,10 +184,10 @@ export default function Projects() {
         const today = new Date()
         const daysToDeadline = sortedAndFiltered.map(p => Math.ceil((new Date(p.deadline).getTime() - today.getTime()) / (1000 * 60 * 60 * 24)))
         const avgDays = total ? Math.round(daysToDeadline.reduce((a, b) => a + b, 0) / total) : 0
-        const done = sortedAndFiltered.filter(p => p.status === 'Done').length
-        const onTime = sortedAndFiltered.filter(p => p.status === 'Done' && new Date(p.deadline) >= today).length
+        const done = sortedAndFiltered.filter(p => p.status === 'Zakończony').length
+        const onTime = sortedAndFiltered.filter(p => p.status === 'Zakończony' && new Date(p.deadline) >= today).length
         const onTimePct = done ? Math.round((onTime / done) * 100) : 0
-        const overdue = sortedAndFiltered.filter(p => new Date(p.deadline) < today && p.status !== 'Done').length
+        const overdue = sortedAndFiltered.filter(p => new Date(p.deadline) < today && p.status !== 'Zakończony').length
         return { total, avgDays, onTimePct, overdue }
     }, [sortedAndFiltered])
 
@@ -213,7 +228,7 @@ export default function Projects() {
                 break
             }
             case 'archive': {
-                selectedProjects.forEach(id => update(id, { status: 'Done' }))
+                selectedProjects.forEach(id => update(id, { status: 'Zakończony' }))
                 setSelectedProjects([])
                 showToast(`Zarchiwizowano ${selectedProjects.length} projektów`, 'success')
                 break
@@ -226,7 +241,6 @@ export default function Projects() {
         setClient('All')
         setQuery('')
         setManagerFilter('All')
-        setPriorityFilter('All')
         setDateFilter('All')
         setBudgetRange([0, 500000])
         setCurrentPage(1)
@@ -266,9 +280,11 @@ export default function Projects() {
                                     onChange={(v) => setStatus(v as typeof status)}
                                     options={[
                                         { value: 'All', label: `Wszystkie (${projects.length})` },
-                                        { value: 'Active', label: `Active (${projects.filter(p => p.status === 'Active').length})` },
-                                        { value: 'On Hold', label: `On Hold (${projects.filter(p => p.status === 'On Hold').length})` },
-                                        { value: 'Done', label: `Done (${projects.filter(p => p.status === 'Done').length})` }
+                                        { value: 'Nowy', label: `Nowy (${projects.filter(p => p.status === 'Nowy').length})` },
+                                        { value: 'Wyceniany', label: `Wyceniany (${projects.filter(p => p.status === 'Wyceniany').length})` },
+                                        { value: 'W realizacji', label: `W realizacji (${projects.filter(p => p.status === 'W realizacji').length})` },
+                                        { value: 'Zakończony', label: `Zakończony (${projects.filter(p => p.status === 'Zakończony').length})` },
+                                        { value: 'Wstrzymany', label: `Wstrzymany (${projects.filter(p => p.status === 'Wstrzymany').length})` }
                                     ]}
                                 />
                             </Form.Item>
@@ -310,7 +326,7 @@ export default function Projects() {
                         <Col>
                             <Space>
                                 <Button onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}>{showAdvancedFilters ? 'Ukryj filtry' : 'Filtry zaawansowane'}</Button>
-                                {(status !== 'All' || client !== 'All' || query || managerFilter !== 'All' || priorityFilter !== 'All' || dateFilter !== 'All') && (
+                                {(status !== 'All' || client !== 'All' || query || managerFilter !== 'All' || dateFilter !== 'All') && (
                                     <Button onClick={clearAllFilters}>Wyczyść filtry</Button>
                                 )}
                                 <Button onClick={() => {
@@ -332,11 +348,6 @@ export default function Projects() {
                                 </Form.Item>
                             </Col>
                             <Col xs={24} md={6}>
-                                <Form.Item label="Priorytet">
-                                    <Select value={priorityFilter} onChange={v => setPriorityFilter(v as typeof priorityFilter)} options={[{ value: 'All', label: 'Wszystkie' }, { value: 'High', label: 'Wysoki' }, { value: 'Medium', label: 'Średni' }, { value: 'Low', label: 'Niski' }]} />
-                                </Form.Item>
-                            </Col>
-                            <Col xs={24} md={6}>
                                 <Form.Item label="Termin">
                                     <Select value={dateFilter} onChange={v => setDateFilter(v as typeof dateFilter)} options={[{ value: 'All', label: 'Wszystkie terminy' }, { value: 'This Week', label: 'Ten tydzień' }, { value: 'This Month', label: 'Ten miesiąc' }, { value: 'Overdue', label: 'Opóźnione' }]} />
                                 </Form.Item>
@@ -355,40 +366,40 @@ export default function Projects() {
             </Card>
 
             {/* KPI Row */}
-            <div className="row g-3 mb-3" data-component="KPIRow">
-                <div className="col-6 col-lg-3">
-                    <div className="card">
-                        <div className="card-body text-center">
+            <Row gutter={[12, 12]} style={{ marginBottom: 12 }} data-component="KPIRow">
+                <Col xs={12} lg={6}>
+                    <Card>
+                        <div className="text-center">
                             <div className="h4 mb-1">{metrics.total}</div>
                             <div className="text-muted small">Wszystkich projektów</div>
                         </div>
-                    </div>
-                </div>
-                <div className="col-6 col-lg-3">
-                    <div className="card">
-                        <div className="card-body text-center">
+                    </Card>
+                </Col>
+                <Col xs={12} lg={6}>
+                    <Card>
+                        <div className="text-center">
                             <div className="h4 mb-1 text-warning">{metrics.overdue}</div>
                             <div className="text-muted small">Opóźnionych</div>
                         </div>
-                    </div>
-                </div>
-                <div className="col-6 col-lg-3">
-                    <div className="card">
-                        <div className="card-body text-center">
+                    </Card>
+                </Col>
+                <Col xs={12} lg={6}>
+                    <Card>
+                        <div className="text-center">
                             <div className="h4 mb-1">{metrics.avgDays}</div>
                             <div className="text-muted small">Śr. dni do deadline</div>
                         </div>
-                    </div>
-                </div>
-                <div className="col-6 col-lg-3">
-                    <div className="card">
-                        <div className="card-body text-center">
+                    </Card>
+                </Col>
+                <Col xs={12} lg={6}>
+                    <Card>
+                        <div className="text-center">
                             <div className="h4 mb-1 text-success">{metrics.onTimePct}%</div>
                             <div className="text-muted small">Na czas</div>
                         </div>
-                    </div>
-                </div>
-            </div>
+                    </Card>
+                </Col>
+            </Row>
 
             {/* Results Info */}
             <Space style={{ marginBottom: 12, width: '100%', justifyContent: 'space-between' }}>
@@ -407,15 +418,15 @@ export default function Projects() {
 
             {/* Empty state */}
             {sortedAndFiltered.length === 0 && (
-                <div className="card mb-3">
-                    <div className="card-body text-center">
+                <Card style={{ marginBottom: 12 }}>
+                    <div className="text-center">
                         <h5 className="mb-1">Brak wyników</h5>
                         <p className="text-muted mb-3">Dostosuj filtry lub utwórz nowy projekt.</p>
                         <Button type="primary" onClick={() => navigate('/projekty/nowy')} aria-label="Utwórz nowy projekt">
                             <i className="ri-add-line me-1"></i>Nowy projekt
                         </Button>
                     </div>
-                </div>
+                </Card>
             )}
 
             {view === 'Lista' ? (
@@ -440,6 +451,9 @@ export default function Projects() {
                                         <div>
                                             <div className="fw-medium">{p.name}</div>
                                             <div className="text-muted small">{p.id}</div>
+                                            <div className="text-muted small">
+                                                {p.modules?.length || 0} modułów • {tiles.filter(t => t.project === p.id).length} elementów
+                                            </div>
                                         </div>
                                     )
                                 },
@@ -448,7 +462,7 @@ export default function Projects() {
                                 {
                                     title: 'Deadline', dataIndex: 'deadline',
                                     render: (_: unknown, p: Project) => {
-                                        const isOverdue = new Date(p.deadline) < new Date() && p.status !== 'Done'
+                                        const isOverdue = new Date(p.deadline) < new Date() && p.status !== 'Zakończony'
                                         return <span className={isOverdue ? 'text-danger fw-medium' : ''}>{p.deadline}</span>
                                     }
                                 },
@@ -471,61 +485,23 @@ export default function Projects() {
                 </>
             ) : view === 'Kafelki' ? (
                 <>
-                    {/* Project Tiles */}
-                    <Row gutter={[12, 12]} data-component="ProjectTiles">
+                    {/* Project Cards */}
+                    <Row gutter={[16, 16]} data-component="ProjectCards">
                         {paginatedProjects.map(project => {
-                            const mockProgress = Math.floor(Math.random() * 100)
-                            const isOverdue = new Date(project.deadline) < new Date() && project.status !== 'Done'
-                            const mockBudget = Math.floor(Math.random() * 500000)
+                            const projectWithStats = projectsWithStats.find(p => p.id === project.id) || project
 
                             return (
-                                <Col key={project.id} xs={24} md={12} lg={8}>
-                                    <Card hoverable onClick={() => navigate(`/projekt/${project.id}`)} onContextMenu={(e) => openContextMenu(e, project.id)}>
-                                        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                                            <Space>
-                                                <input type="checkbox" className="form-check-input" checked={selectedProjects.includes(project.id)} onChange={(e) => { e.stopPropagation(); handleSelectProject(project.id) }} />
-                                                <StatusBadge status={project.status} />
-                                            </Space>
-                                            <Dropdown
-                                                menu={{
-                                                    items: [
-                                                        { key: 'open', label: 'Zobacz szczegóły', onClick: () => navigate(`/projekt/${project.id}`) },
-                                                        { key: 'edit', label: 'Edytuj', onClick: () => setEditId(project.id) },
-                                                        { type: 'divider' },
-                                                        { key: 'delete', label: <span style={{ color: 'var(--accent-error)' }}>Usuń</span>, onClick: () => { if (confirm(`Usunąć projekt "${project.name}"?`)) { remove(project.id); showToast('Projekt został usunięty', 'success') } } }
-                                                    ]
-                                                }}
-                                                trigger={['click']}
-                                            >
-                                                <Button size="small">Akcje</Button>
-                                            </Dropdown>
-                                        </Space>
-                                        <div style={{ marginTop: 8 }}>
-                                            <Typography.Title level={5} style={{ marginBottom: 0 }}>{project.name}</Typography.Title>
-                                            <div className="text-muted small">{project.client} • {project.id}</div>
-                                        </div>
-                                        <div style={{ marginTop: 8 }}>
-                                            <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                                                <div>
-                                                    <div className="text-muted small">Postęp</div>
-                                                    <div className="fw-medium" style={{ color: 'var(--primary-main)' }}>{mockProgress}%</div>
-                                                </div>
-                                                <div>
-                                                    <div className="text-muted small">Budżet</div>
-                                                    <div className="fw-medium">${mockBudget.toLocaleString()}</div>
-                                                </div>
-                                            </Space>
-                                            <Progress percent={mockProgress} showInfo={false} style={{ marginTop: 8 }} strokeColor={'var(--primary-main)'} />
-                                        </div>
-                                        <Space style={{ width: '100%', justifyContent: 'space-between', marginTop: 8 }}>
-                                            <span className={`small ${isOverdue ? 'text-danger' : ''}`}>{project.deadline}</span>
-                                            <Space>
-                                                {Array.from({ length: 4 }).map((_, i) => (
-                                                    <Avatar key={i} size={28} src={`https://i.pravatar.cc/28?img=${i + 1}`} />
-                                                ))}
-                                            </Space>
-                                        </Space>
-                                    </Card>
+                                <Col key={project.id} xs={24} sm={12} lg={8} xl={6}>
+                                    <ProjectCard
+                                        project={projectWithStats}
+                                        onEdit={(project) => setEditId(project.id)}
+                                        onDelete={(project) => {
+                                            if (confirm(`Usunąć projekt "${project.name}"?`)) {
+                                                remove(project.id)
+                                                showToast('Projekt został usunięty', 'success')
+                                            }
+                                        }}
+                                    />
                                 </Col>
                             )
                         })}
@@ -578,7 +554,7 @@ export default function Projects() {
             ) : (
                 /* Kanban View */
                 <Row gutter={[12, 12]} data-component="KanbanBoard">
-                    {(['Active', 'On Hold', 'Done'] as const).map(colStatus => (
+                    {(['W realizacji', 'Wstrzymany', 'Zakończony'] as const).map(colStatus => (
                         <Col key={colStatus} xs={24} md={8}>
                             <Card
                                 data-component="KanbanColumn"
@@ -589,9 +565,9 @@ export default function Projects() {
                                         update(id, { status: colStatus })
                                         // propagate to tiles for this project id
                                         const related = tiles.filter(t => t.project === id)
-                                        if (colStatus === 'Done') {
+                                        if (colStatus === 'Zakończony') {
                                             related.forEach(t => setTileStatus(t.id, 'WYCIĘTE'))
-                                        } else if (colStatus === 'Active') {
+                                        } else if (colStatus === 'W realizacji') {
                                             related.forEach(t => {
                                                 if (t.status !== 'WYCIĘTE') setTileStatus(t.id, 'W KOLEJCE')
                                             })
@@ -624,7 +600,7 @@ export default function Projects() {
                                             <Space style={{ width: '100%', justifyContent: 'space-between', marginTop: 8 }}>
                                                 <Tag>{p.deadline}</Tag>
                                                 <Dropdown
-                                                    menu={{ items: (['Active', 'On Hold', 'Done'] as const).map(s => ({ key: s, label: s, onClick: () => update(p.id, { status: s }) })) }}
+                                                    menu={{ items: (['W realizacji', 'Wstrzymany', 'Zakończony'] as const).map(s => ({ key: s, label: s, onClick: () => update(p.id, { status: s }) })) }}
                                                 >
                                                     <Button size="small">Status</Button>
                                                 </Dropdown>
@@ -672,7 +648,7 @@ export default function Projects() {
                     await add(createForm)
                     showToast('Projekt utworzony', 'success')
                     setCreateOpen(false)
-                    setCreateForm({ name: '', clientId: 'C-NEW', client: '', status: 'Active', deadline: new Date().toISOString().slice(0, 10), groups: [], modules: ['wycena', 'koncepcja'] })
+                    setCreateForm({ numer: 'P-2025/01/NEW', name: '', typ: 'Inne', lokalizacja: '', clientId: 'C-NEW', client: '', status: 'Nowy', data_utworzenia: new Date().toISOString().slice(0, 10), deadline: new Date().toISOString().slice(0, 10), postep: 0, groups: [], modules: ['wycena', 'koncepcja'] })
                 }}
                 okText="Zapisz"
                 cancelText="Anuluj"
@@ -699,7 +675,7 @@ export default function Projects() {
                         </Col>
                         <Col xs={24} md={12}>
                             <Form.Item label="Status">
-                                <Select value={createForm.status} onChange={v => setCreateForm({ ...createForm, status: v as any })} options={[{ value: 'Active', label: 'Active' }, { value: 'On Hold', label: 'On Hold' }, { value: 'Done', label: 'Done' }]} />
+                                <Select value={createForm.status} onChange={v => setCreateForm({ ...createForm, status: v as any })} options={[{ value: 'Nowy', label: 'Nowy' }, { value: 'Wyceniany', label: 'Wyceniany' }, { value: 'W realizacji', label: 'W realizacji' }, { value: 'Zakończony', label: 'Zakończony' }, { value: 'Wstrzymany', label: 'Wstrzymany' }]} />
                             </Form.Item>
                         </Col>
                     </Row>

@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useDrop } from 'react-dnd'
 import type { Tile } from '../../types/tiles.types'
 import KanbanCard from './KanbanCard'
+import { useAuthStore } from '../../stores/authStore'
 
 interface KanbanColumnProps {
     columnId: 'nowy' | 'projektowanie' | 'cnc' | 'montaz'
@@ -16,16 +17,18 @@ interface KanbanColumnProps {
 
 const ItemTypes = { TILE: 'TILE' } as const
 
-export default function KanbanColumn({ 
-    columnId, 
-    title, 
-    color, 
-    tiles, 
-    onTileUpdate, 
+export default function KanbanColumn({
+    columnId,
+    title,
+    color,
+    tiles,
+    onTileUpdate,
     onTileClick,
     tileCosts,
     projectTiles
 }: KanbanColumnProps) {
+    const { roles } = useAuthStore()
+    const canMove = roles.includes('production') || roles.includes('manager')
     const statusFromColumn = (columnId: string): Tile['status'] => {
         switch (columnId) {
             case 'nowy': return 'W KOLEJCE'
@@ -39,10 +42,11 @@ export default function KanbanColumn({
     const [, drop] = useDrop<{ id: string }>(() => ({
         accept: ItemTypes.TILE,
         drop: (item) => {
+            if (!canMove) return
             const newStatus = statusFromColumn(columnId)
             onTileUpdate(item.id, { status: newStatus })
         }
-    }), [columnId, onTileUpdate])
+    }), [columnId, onTileUpdate, canMove])
 
     const dropRef = useCallback((el: HTMLDivElement | null) => {
         if (el) drop(el)
@@ -60,7 +64,7 @@ export default function KanbanColumn({
                         {tiles.map(tile => {
                             const tileIndex = projectTiles.findIndex(t => t.id === tile.id)
                             const tileCost = tileIndex >= 0 ? tileCosts[tileIndex] : 0
-                            
+
                             return (
                                 <KanbanCard
                                     key={tile.id}
@@ -72,6 +76,9 @@ export default function KanbanColumn({
                         })}
                         {tiles.length === 0 && (
                             <div className="text-center text-muted small">Brak</div>
+                        )}
+                        {!canMove && (
+                            <div className="text-center text-muted small">Brak uprawnień do zmiany statusu</div>
                         )}
                     </div>
                 </div>

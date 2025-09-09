@@ -36,13 +36,17 @@ export default function WarehouseDashboard({
     onNavigateToCritical
 }: WarehouseDashboardProps) {
     const materials = useMaterialsStore(state => state.materials)
+    const syncFromBackend = useMaterialsStore(state => state.syncFromBackend)
+    // refresh when dashboard mounts
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    require('react').useEffect(() => { syncFromBackend() }, [])
 
     // Calculate comprehensive statistics
-    const stats = useMemo(() => calculateMaterialStats(materials), [materials])
+    const stats = useMemo(() => calculateMaterialStats(materials as any), [materials])
 
     // Enhanced statistics
     const enhancedStats = useMemo(() => {
-        const totalValue = materials.reduce((sum, m) => sum + (m.stock * m.price), 0)
+        const totalValue = materials.reduce((sum, m: any) => sum + (m.stock * (m.price || 0)), 0)
         const criticalMaterials = materials.filter(m => m.stock < m.minStock * 0.5)
         const lowStockMaterials = materials.filter(m => m.stock < m.minStock && m.stock >= m.minStock * 0.5)
         const normalMaterials = materials.filter(m => m.stock >= m.minStock && m.stock <= m.maxStock)

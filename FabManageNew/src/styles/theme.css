@@ -171,28 +171,40 @@
 
 /* === NOWY MOTYW: DARK GREEN === */
 [data-theme="dark-green"] {
-    --primary-main: #00FF85;
-    --primary-light: #66FFB3;
-    --primary-dark: #00E676;
+    /* Muted emerald palette inspired by reference */
+    --primary-main: #16A34A;
+    /* emerald-600 */
+    --primary-light: #22C55E;
+    /* emerald-500 */
+    --primary-dark: #15803D;
+    /* emerald-700 */
 
+    /* Głębsze tła dla lepszej hierarchii wizualnej */
     --bg-primary: #1A1D21;
+    /* Główne, najciemniejsze tło strony */
     --bg-secondary: #25282E;
-    --bg-card: #25282E;
-    /* Layered surfaces for depth */
+    /* Tło dla sidebara, nagłówków kart */
+    --bg-card: #2C3038;
+    /* Tło dla głównych kart i paneli (lekko jaśniejsze) */
     --bg-surface: #2C3038;
+    /* Tło dla powierzchni komponentów */
     --bg-hover: #373C44;
+    /* Kolor tła przy najechaniu myszką */
 
-    --text-primary: rgba(230, 230, 230, 0.95);
-    --text-secondary: rgba(230, 230, 230, 0.7);
-    --text-muted: rgba(230, 230, 230, 0.5);
+    --text-primary: rgba(235, 241, 245, 0.96);
+    --text-secondary: rgba(235, 241, 245, 0.72);
+    --text-muted: rgba(235, 241, 245, 0.52);
 
     --accent-success: var(--primary-main);
-    --accent-warning: #FDB528;
-    --accent-error: #FF4D49;
-    --accent-info: #26C6F9;
+    --accent-warning: #F59E0B;
+    /* amber-500 */
+    --accent-error: #EF4444;
+    /* red-500 */
+    --accent-info: #22D3EE;
+    /* cyan-400 */
 
-    --border-light: rgba(230, 230, 230, 0.12);
-    --border-medium: rgba(230, 230, 230, 0.22);
+    --border-light: rgba(235, 241, 245, 0.10);
+    --border-medium: rgba(235, 241, 245, 0.18);
 }
 
 /* === SKIN VARIATIONS === */
@@ -437,7 +449,7 @@ header {
 }
 
 .table th.sortable:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: color-mix(in oklab, var(--primary-main) 8%, transparent);
 }
 
 .table-primary {
@@ -452,6 +464,13 @@ header {
 
 .progress-bar {
     border-radius: 10px;
+}
+
+/* AntD Tag color alignment */
+:where(.ant-tag) {
+    background: color-mix(in oklab, var(--primary-main) 12%, transparent) !important;
+    color: var(--text-primary) !important;
+    border-color: color-mix(in oklab, var(--primary-main) 28%, transparent) !important;
 }
 
 /* ========================================

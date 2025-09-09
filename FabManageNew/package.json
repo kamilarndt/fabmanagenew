@@ -15,7 +15,11 @@
     "docker:prod": "docker-compose --profile prod up --build",
     "docker:stop": "docker-compose down",
     "docker:clean": "docker-compose down -v --rmi all",
-    "docker:logs": "docker-compose logs -f"
+    "docker:logs": "docker-compose logs -f",
+    "playwright:test": "playwright test",
+    "playwright:smoke": "playwright test tests/tiles-smoke.spec.ts",
+    "playwright:install": "playwright install --with-deps",
+    "playwright:report": "playwright show-report"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.56.1",
@@ -36,6 +40,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
+    "@playwright/test": "^1.55.0",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",

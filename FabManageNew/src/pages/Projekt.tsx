@@ -1,7 +1,7 @@
 import { useMemo, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useProjectsStore } from '../stores/projectsStore'
-import { showToast } from '../lib/toast'
+import { showToast } from '../lib/notifications'
 import { useTilesStore, type Tile } from '../stores/tilesStore'
 import type { Project } from '../types/projects.types'
 import TileEditSheet from '../components/TileEditSheet'
@@ -25,7 +25,7 @@ import { useProjectData } from '../hooks/useProjectData'
 // Import existing modules
 import { Suspense } from 'react';
 import ConceptBoard from '../modules/Concept/ConceptBoard'
-import EstimateBuilder from '../modules/Estimate/EstimateBuilder'
+import EstimateModule from '../components/Estimate/EstimateModule'
 
 import LogisticsTab from '../modules/Logistics/LogisticsTab'
 import AccommodationTab from '../modules/Accommodation/AccommodationTab'
@@ -81,11 +81,16 @@ export default function Projekt() {
     // Move all hooks before conditional return
     const safeProject: Project = project ?? {
         id: 'unknown',
+        numer: 'P-2025/01/UNK',
         name: 'Unknown',
+        typ: 'Inne',
+        lokalizacja: 'Nieznana',
         clientId: '',
         client: '',
-        status: 'Active',
+        status: 'Nowy',
+        data_utworzenia: new Date().toISOString().slice(0, 10),
         deadline: '',
+        postep: 0,
         groups: [],
         modules: []
     }
@@ -130,8 +135,6 @@ export default function Projekt() {
                     name: tileData.name || 'Nowy kafelek',
                     status: 'W KOLEJCE',
                     project: project?.id || '',
-                    priority: tileData.priority || 'Średni',
-                    technology: tileData.technology || 'Frezowanie CNC',
                     laborCost: tileData.laborCost || 0,
                     bom: tileData.bom || []
                 }
@@ -316,7 +319,7 @@ export default function Projekt() {
                     )}
 
                     {activeTab === 'zakupy' && (
-                        <ProjectMaterials purchaseList={purchaseList} />
+                        <ProjectMaterials purchaseList={purchaseList} projectId={project.id} />
                     )}
 
                     {activeTab === 'koncepcja' && project.modules?.includes('koncepcja') && (
@@ -327,7 +330,7 @@ export default function Projekt() {
 
                     {activeTab === 'wycena' && (
                         <Suspense fallback={<div>Loading...</div>}>
-                            <EstimateBuilder />
+                            <EstimateModule projectId={project.id} />
                         </Suspense>
                     )}
 
@@ -357,9 +360,9 @@ export default function Projekt() {
                                                         <div style={{ fontSize: 12, opacity: 0.8 }}>{t.id}</div>
                                                     </div>
                                                     <div style={{ display: 'flex', gap: 6 }}>
-                                                        <button className="ant-btn" draggable onDragStart={() => { (window as any)._dragTileId = t.id; (window as any)._dragPhase = 'projektowanie' }} title="Projektowanie">P</button>
-                                                        <button className="ant-btn" draggable onDragStart={() => { (window as any)._dragTileId = t.id; (window as any)._dragPhase = 'wycinanie' }} title="Wycinanie">W</button>
-                                                        <button className="ant-btn ant-btn-primary" draggable onDragStart={() => { (window as any)._dragTileId = t.id; (window as any)._dragPhase = 'produkcja' }} title="Produkcja">Prod</button>
+                                                        <Button size="small" draggable onDragStart={() => { (window as any)._dragTileId = t.id; (window as any)._dragPhase = 'projektowanie' }} title="Projektowanie">P</Button>
+                                                        <Button size="small" draggable onDragStart={() => { (window as any)._dragTileId = t.id; (window as any)._dragPhase = 'wycinanie' }} title="Wycinanie">W</Button>
+                                                        <Button size="small" type="primary" draggable onDragStart={() => { (window as any)._dragTileId = t.id; (window as any)._dragPhase = 'produkcja' }} title="Produkcja">Prod</Button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -421,8 +424,6 @@ export default function Projekt() {
                             name: '',
                             status: 'W KOLEJCE',
                             project: project.id,
-                            priority: 'Średni',
-                            technology: 'Frezowanie CNC',
                             laborCost: 0,
                             bom: []
                         } as any}
@@ -435,7 +436,7 @@ export default function Projekt() {
                 <AddMemberModal
                     isOpen={showAddMember}
                     onClose={() => setShowAddMember(false)}
-                    teamMembers={teamMembers}
+                    currentMemberIds={teamMembers.map(m => m.id)}
                     onAddMembers={handleAddMembers}
                 />
 

@@ -47,11 +47,27 @@ createRoot(document.getElementById('root')!).render(
       },
       components: {
         Button: { borderRadius: 0 },
-        Card: { borderRadius: 0, headerBg: 'var(--bg-secondary)' as any },
+        Card: {
+          borderRadius: 0,
+          headerBg: 'var(--bg-secondary)' as any
+        },
         Input: { borderRadius: 0 },
         Select: { borderRadius: 0 },
         Tag: { borderRadius: 0 },
-        Layout: { headerBg: 'var(--bg-secondary)' as any, siderBg: 'var(--bg-secondary)' as any }
+        Layout: {
+          headerBg: 'var(--bg-secondary)' as any,
+          siderBg: 'var(--bg-secondary)' as any,
+          bodyBg: 'var(--bg-primary)' as any
+        },
+        Menu: {
+          itemBg: 'var(--bg-secondary)' as any,
+          itemSelectedBg: 'var(--bg-hover)' as any,
+          itemHoverBg: 'var(--bg-hover)' as any
+        },
+        Table: {
+          headerBg: 'var(--bg-secondary)' as any,
+          rowHoverBg: 'var(--bg-hover)' as any
+        }
       }
     }}>
       <AntdApp>

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useProjectsStore, type ProjectModule } from '../stores/projectsStore'
+import { useProjectsStore, type ProjectModule, type Project } from '../stores/projectsStore'
 import { useClientDataStore } from '../stores/clientDataStore'
 
 export default function AddProject() {
@@ -32,11 +32,16 @@ export default function AddProject() {
         if (!isValid || !selectedClient) return
 
         await add({
+            numer: `P-${new Date().getFullYear()}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${String(new Date().getDate()).padStart(2, '0')}`,
             name: name.trim(),
+            typ: 'Inne',
+            lokalizacja: 'Warszawa',
             clientId: clientId,
             client: selectedClient.companyName,
-            status: status,
+            status: status as Project['status'],
+            data_utworzenia: new Date().toISOString().slice(0, 10),
             deadline: deadline,
+            postep: 0,
             budget: budget || undefined,
             manager: manager || undefined,
             description: description || undefined,

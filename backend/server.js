@@ -6,6 +6,16 @@ const chokidar = require('chokidar');
 const multer = require('multer');
 
 const app = express();
+// DB init
+let dbReady = false;
+try {
+    const db = require('./db');
+    db.init();
+    dbReady = true;
+    console.log('[db] initialized')
+} catch (e) {
+    console.warn('[db] init failed, backend will run without DB:', e.message)
+}
 
 const PORT = process.env.PORT || 3001;
 const RHINO_TXT = path.join(__dirname, 'rhino.txt');
@@ -22,7 +32,7 @@ app.use('/files', express.static(UPLOADS_DIR));
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 if (!fs.existsSync(TILES_JSON)) fs.writeFileSync(TILES_JSON, JSON.stringify([], null, 2));
 
-app.get('/health', (_req, res) => res.status(200).send('OK'));
+app.get('/health', (_req, res) => res.status(200).json({ ok: true, db: dbReady }));
 
 // --- Materials parsing from rhino.txt ---
 let materialsFlat = [];
@@ -304,81 +314,42 @@ app.post('/api/materials/reload', (_req, res) => {
     }
 });
 
-// GET hierarchical materials structure for warehouse
+// GET materials list (flat) from DB
 app.get('/api/materials', (_req, res) => {
-    // Build hierarchical structure from flat materials
-    const hierarchy = {};
-
-    materialsFlat.forEach(m => {
-        const pathParts = m.fullPath.split('::');
-        const s = stocks[m.id] || { stock: 0, minStock: 0 };
-
-        let currentLevel = hierarchy;
-        pathParts.forEach((part, index) => {
-            if (!currentLevel[part]) {
-                currentLevel[part] = {
-                    name: part,
-                    subcategories: {},
-                    materials: [],
-                    stock: 0,
-                    minStock: 0,
-                    count: 0
-                };
-            }
-
-            // Add stock info to each level
-            if (s.stock !== undefined) {
-                currentLevel[part].stock += s.stock;
-                currentLevel[part].minStock += s.minStock;
-            }
-
-            if (index === pathParts.length - 1) {
-                // This is a leaf material - dodaj do materials tylko jeśli ma stock
-                if (s.stock !== undefined) {
-                    currentLevel[part].materials.push({
-                        id: m.id,
-                        name: part,
-                        fullPath: m.fullPath,
-                        stock: s.stock,
-                        minStock: s.minStock,
-                        price: s.price || 0,
-                        supplier: s.supplier || 'Unknown',
-                        location: s.location || 'Unknown',
-                        unit: s.unit || 'sztuka',
-                        materialType: m.materialType,
-                        category: m.category
-                    });
-                    currentLevel[part].count = currentLevel[part].materials.length;
-                }
-            } else {
-                currentLevel = currentLevel[part].subcategories;
-            }
-        });
-    });
-
-    // Dodaj licznik materiałów na każdym poziomie
-    function addCounts(node) {
-        if (node.subcategories) {
-            Object.values(node.subcategories).forEach(sub => {
-                addCounts(sub);
-                node.count += sub.count || 0;
-            });
-        }
+    try {
+        const { getDb } = require('./db')
+        const d = getDb()
+        const rows = d.prepare(`
+            SELECT m.id, m.category, m.type, COALESCE(m.name, '') AS name,
+                   m.base_uom AS unit, m.price_per_uom AS unitCost,
+                   m.format_raw, m.pricing_uom,
+                   COALESCE(s.quantity, 0) AS quantity,
+                   COALESCE(s.reserved, 0) AS reserved
+            FROM materials m
+            LEFT JOIN stocks s ON s.material_id = m.id
+            ORDER BY m.category, m.type, m.thickness_mm
+        `).all()
+        res.json(rows)
+    } catch (e) {
+        res.status(500).json({ error: e.message })
     }
-
-    Object.values(hierarchy).forEach(cat => addCounts(cat));
-
-    res.json(hierarchy);
 });
 
 // GET flat materials for backward compatibility
 app.get('/api/materials/flat', (_req, res) => {
-    if (materialsFlat.length === 0) hydrateMaterialsFromStocksIfEmpty();
-    const result = materialsFlat.map(m => {
-        const s = stocks[m.id] || { stock: 0, minStock: 0 };
-        return { id: m.id, name: m.fullPath, stock: s.stock ?? 0, minStock: s.minStock ?? 0 };
-    });
-    res.json(result);
+    try {
+        const { getDb } = require('./db')
+        const d = getDb()
+        const rows = d.prepare(`
+            SELECT m.id, (m.category||'::'||m.type||'::'||COALESCE(m.name,'')||'::'||COALESCE(m.format_raw,'')) AS name,
+                   COALESCE(s.quantity,0) AS stock,
+                   COALESCE(s.reserved,0) AS minStock
+            FROM materials m LEFT JOIN stocks s ON s.material_id = m.id
+        `).all()
+        res.json(rows)
+    } catch (e) {
+        res.status(500).json({ error: e.message })
+    }
 });
 
 // POST set stock/minStock for a material
@@ -394,52 +365,54 @@ app.post('/api/materials/:id/stock', (req, res) => {
 
 // Demands endpoints
 app.get('/api/demands', (req, res) => {
-    const { projectId, tileId } = req.query || {};
-    let result = demands;
-    if (projectId) result = result.filter(d => d.projectId === projectId);
-    if (tileId) result = result.filter(d => d.tileId === tileId);
-    res.json(result);
+    try {
+        const { projectId, tileId } = req.query || {}
+        const { getDb } = require('./db')
+        const d = getDb()
+        let sql = 'SELECT * FROM demands WHERE 1=1'
+        const params = {}
+        if (projectId) { sql += ' AND project_id = @projectId'; params.projectId = projectId }
+        if (tileId) { sql += ' AND tile_id = @tileId'; params.tileId = tileId }
+        const rows = d.prepare(sql).all(params)
+        res.json(rows)
+    } catch (e) {
+        res.status(500).json({ error: e.message })
+    }
 });
 
 app.post('/api/demands', (req, res) => {
-    const { materialId, name, requiredQty, projectId, tileId } = req.body || {};
-    if (!materialId || typeof requiredQty !== 'number') return res.status(400).json({ error: 'materialId and requiredQty are required' });
-    const id = `dem-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    const item = {
-        id,
-        materialId,
-        name: name || (stocks[materialId]?.name || materialId),
-        requiredQty,
-        createdAt: new Date().toISOString(),
-        status: 'New',
-        projectId: projectId || null,
-        tileId: tileId || null
-    };
-    demands.push(item);
-    saveDemands();
-    res.json(item);
+    try {
+        const { materialId, name, requiredQty, projectId, tileId } = req.body || {}
+        if (!materialId || typeof requiredQty !== 'number') return res.status(400).json({ error: 'materialId and requiredQty are required' })
+        const { getDb } = require('./db')
+        const d = getDb()
+        const id = `dem-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+        const createdAt = new Date().toISOString()
+        const rec = { id, material_id: materialId, name: name || materialId, required_qty: requiredQty, created_at: createdAt, status: 'New', project_id: projectId || null, tile_id: tileId || null }
+        d.prepare(`INSERT INTO demands (id, material_id, name, required_qty, created_at, status, project_id, tile_id) VALUES (@id,@material_id,@name,@required_qty,@created_at,@status,@project_id,@tile_id)`).run(rec)
+        res.json({ id, materialId, name: rec.name, requiredQty, createdAt, status: 'New', projectId: projectId || null, tileId: tileId || null })
+    } catch (e) {
+        res.status(500).json({ error: e.message })
+    }
 });
 
 // Attach demand to a specific tile (element) — used when updating element from Rhino
 // POST /api/tiles/:tileId/demands { materialId, requiredQty, projectId?, name? }
 app.post('/api/tiles/:tileId/demands', (req, res) => {
-    const tileId = req.params.tileId;
-    const { materialId, requiredQty, projectId, name } = req.body || {};
-    if (!tileId || !materialId || typeof requiredQty !== 'number') return res.status(400).json({ error: 'tileId, materialId and requiredQty are required' });
-    const id = `dem-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    const item = {
-        id,
-        materialId,
-        name: name || (stocks[materialId]?.name || materialId),
-        requiredQty,
-        createdAt: new Date().toISOString(),
-        status: 'New',
-        projectId: projectId || null,
-        tileId
-    };
-    demands.push(item);
-    saveDemands();
-    res.json(item);
+    try {
+        const tileId = req.params.tileId
+        const { materialId, requiredQty, projectId, name } = req.body || {}
+        if (!tileId || !materialId || typeof requiredQty !== 'number') return res.status(400).json({ error: 'tileId, materialId and requiredQty are required' })
+        const { getDb } = require('./db')
+        const d = getDb()
+        const id = `dem-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+        const createdAt = new Date().toISOString()
+        const rec = { id, material_id: materialId, name: name || materialId, required_qty: requiredQty, created_at: createdAt, status: 'New', project_id: projectId || null, tile_id: tileId }
+        d.prepare(`INSERT INTO demands (id, material_id, name, required_qty, created_at, status, project_id, tile_id) VALUES (@id,@material_id,@name,@required_qty,@created_at,@status,@project_id,@tile_id)`).run(rec)
+        res.json({ id, materialId, name: rec.name, requiredQty, createdAt, status: 'New', projectId: projectId || null, tileId })
+    } catch (e) {
+        res.status(500).json({ error: e.message })
+    }
 });
 
 // Rhino snapshot endpoint: accept list of material paths and optional consumptions to create demands
@@ -505,6 +478,70 @@ app.get('/', (_req, res) => {
     res.json({ status: 'ok', service: 'fabryka-backend' });
 });
 
+// --- Clients & Projects (DB) ---
+app.get('/api/clients', (_req, res) => {
+    try {
+        const { getDb } = require('./db')
+        const d = getDb()
+        const rows = d.prepare('SELECT * FROM clients ORDER BY created_at DESC').all()
+        res.json(rows)
+    } catch (e) {
+        res.status(500).json({ error: e.message })
+    }
+})
+
+app.get('/api/projects', (req, res) => {
+    try {
+        const { getDb } = require('./db')
+        const d = getDb()
+        const { clientId, status } = req.query || {}
+        let sql = 'SELECT * FROM projects WHERE 1=1'
+        const params = {}
+        if (clientId) { sql += ' AND client_id=@clientId'; params.clientId = clientId }
+        if (status) { sql += ' AND status=@status'; params.status = status }
+        sql += ' ORDER BY created_at DESC'
+        const rows = d.prepare(sql).all(params)
+        res.json(rows)
+    } catch (e) {
+        res.status(500).json({ error: e.message })
+    }
+})
+
+app.post('/api/projects', (req, res) => {
+    try {
+        const { client_id, name, status, deadline } = req.body || {}
+        if (!client_id || !name) return res.status(400).json({ error: 'client_id and name are required' })
+        const { getDb } = require('./db')
+        const d = getDb()
+        const id = `p-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+        const now = new Date().toISOString()
+        d.prepare('INSERT INTO projects (id, client_id, name, status, deadline, archived_at, created_at) VALUES (?,?,?,?,?,?,?)')
+            .run(id, client_id, name, status || 'new', deadline || null, null, now)
+        const created = d.prepare('SELECT * FROM projects WHERE id = ?').get(id)
+        res.json(created)
+    } catch (e) {
+        res.status(500).json({ error: e.message })
+    }
+})
+
+app.put('/api/projects/:id', (req, res) => {
+    try {
+        const { getDb } = require('./db')
+        const d = getDb()
+        const id = req.params.id
+        const exist = d.prepare('SELECT * FROM projects WHERE id = ?').get(id)
+        if (!exist) return res.status(404).json({ error: 'not_found' })
+        const patch = req.body || {}
+        const next = { ...exist, ...patch }
+        d.prepare('UPDATE projects SET client_id=@client_id, name=@name, status=@status, deadline=@deadline, archived_at=@archived_at WHERE id=@id')
+            .run({ id, client_id: next.client_id, name: next.name, status: next.status, deadline: next.deadline, archived_at: next.archived_at })
+        const updated = d.prepare('SELECT * FROM projects WHERE id = ?').get(id)
+        res.json(updated)
+    } catch (e) {
+        res.status(500).json({ error: e.message })
+    }
+})
+
 // --- Tiles CRUD ---
 // Data model (minimal): { id, name, quantity?, material?, status, project?, files?, description? }
 // Statuses: 'do_review' | 'zaakceptowany' | 'w_produkcji' | 'gotowy'
@@ -515,62 +552,86 @@ function sanitizeStatus(s) {
 }
 
 app.get('/api/tiles', (req, res) => {
-    const { projectId } = req.query || {};
-    let result = tiles;
-    if (projectId) result = result.filter(t => t.project === projectId);
-    res.json(result);
+    try {
+        const { projectId } = req.query || {}
+        const { getDb } = require('./db')
+        const d = getDb()
+        let sql = 'SELECT * FROM tiles WHERE 1=1'
+        const params = {}
+        if (projectId) { sql += ' AND project_id = @projectId'; params.projectId = projectId }
+        const rows = d.prepare(sql).all(params)
+        res.json(rows)
+    } catch (e) {
+        res.status(500).json({ error: e.message })
+    }
 });
 
 app.post('/api/tiles', (req, res) => {
     try {
-        const { id, name, quantity, material, status, project, description, files, bom } = req.body || {};
-        if (!name) return res.status(400).json({ error: 'name is required' });
-        const tileId = id && typeof id === 'string' ? id : `t-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-        const item = {
+        const { id, name, quantity, project, description } = req.body || {}
+        if (!name) return res.status(400).json({ error: 'name is required' })
+        const tileId = id && typeof id === 'string' ? id : `t-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+        const { getDb } = require('./db')
+        const d = getDb()
+        const now = new Date().toISOString()
+        d.prepare(`INSERT INTO tiles (id, project_id, code, name, quantity, stage, width_mm, height_mm, thickness_mm, description, created_at)
+                   VALUES (@id, @project_id, @code, @name, @quantity, @stage, @width_mm, @height_mm, @thickness_mm, @description, @created_at)`).run({
             id: tileId,
+            project_id: project || null,
+            code: null,
             name,
-            quantity: Number.isFinite(quantity) ? Number(quantity) : undefined,
-            material: material || null,
-            status: sanitizeStatus(status || 'do_review'),
-            project: project || null,
+            quantity: Number.isFinite(quantity) ? Number(quantity) : 1,
+            stage: 'cnc',
+            width_mm: null,
+            height_mm: null,
+            thickness_mm: null,
             description: description || '',
-            files: Array.isArray(files) ? files : [],
-            bom: Array.isArray(bom) ? bom : []
-        };
-        tiles.push(item);
-        saveTiles();
-        res.json(item);
+            created_at: now
+        })
+        res.json({ id: tileId, project_id: project || null, name, quantity: Number.isFinite(quantity) ? Number(quantity) : 1, stage: 'cnc', description: description || '', created_at: now })
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        res.status(500).json({ error: e.message })
     }
 });
 
 app.put('/api/tiles/:id', (req, res) => {
     try {
-        const id = req.params.id;
-        const idx = tiles.findIndex(t => t.id === id);
-        if (idx === -1) return res.status(404).json({ error: 'not_found' });
-        const patch = req.body || {};
-        const next = { ...tiles[idx], ...patch };
-        if (patch.status) next.status = sanitizeStatus(patch.status);
-        tiles[idx] = next;
-        saveTiles();
-        res.json(next);
+        const id = req.params.id
+        const patch = req.body || {}
+        const { getDb } = require('./db')
+        const d = getDb()
+        const existing = d.prepare('SELECT * FROM tiles WHERE id = ?').get(id)
+        if (!existing) return res.status(404).json({ error: 'not_found' })
+        const next = { ...existing, ...patch }
+        d.prepare(`UPDATE tiles SET project_id=@project_id, code=@code, name=@name, quantity=@quantity, stage=@stage, width_mm=@width_mm, height_mm=@height_mm, thickness_mm=@thickness_mm, description=@description WHERE id=@id`).run({
+            id,
+            project_id: next.project_id ?? next.project ?? null,
+            code: next.code ?? null,
+            name: next.name,
+            quantity: Number.isFinite(next.quantity) ? Number(next.quantity) : 1,
+            stage: next.stage || existing.stage,
+            width_mm: next.width_mm ?? null,
+            height_mm: next.height_mm ?? null,
+            thickness_mm: next.thickness_mm ?? null,
+            description: next.description ?? ''
+        })
+        const updated = d.prepare('SELECT * FROM tiles WHERE id = ?').get(id)
+        res.json(updated)
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        res.status(500).json({ error: e.message })
     }
 });
 
 app.delete('/api/tiles/:id', (req, res) => {
     try {
-        const id = req.params.id;
-        const before = tiles.length;
-        tiles = tiles.filter(t => t.id !== id);
-        if (tiles.length === before) return res.status(404).json({ error: 'not_found' });
-        saveTiles();
-        res.json({ ok: true, id });
+        const id = req.params.id
+        const { getDb } = require('./db')
+        const d = getDb()
+        const info = d.prepare('DELETE FROM tiles WHERE id = ?').run(id)
+        if (info.changes === 0) return res.status(404).json({ error: 'not_found' })
+        res.json({ ok: true, id })
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        res.status(500).json({ error: e.message })
     }
 });
 
@@ -608,6 +669,34 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
+
+// BOM consolidation via backend (fallback for view)
+app.get('/api/materials/bom', (req, res) => {
+    try {
+        const { projectId } = req.query || {}
+        const pid = typeof projectId === 'string' ? projectId : null
+        const rows = []
+        if (pid) {
+            const projectTiles = tiles.filter(t => t.project === pid)
+            const map = new Map()
+            for (const t of projectTiles) {
+                const bom = Array.isArray(t.bom) ? t.bom : []
+                for (const bi of bom) {
+                    const key = `${bi.name}||${bi.unit}`
+                    const prev = map.get(key) || 0
+                    map.set(key, prev + (Number(bi.quantity) || 0))
+                }
+            }
+            for (const [key, qty] of map.entries()) {
+                const [name, unit] = key.split('||')
+                rows.push({ project_id: pid, name, unit, quantity: qty })
+            }
+        }
+        res.json(rows)
+    } catch (e) {
+        res.status(500).json({ error: e.message })
+    }
+})
 
 // Concept and Estimate endpoints remain (omitted here for brevity in this file excerpt)
 

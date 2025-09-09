@@ -8,9 +8,10 @@ import { localizer } from '../lib/calendarLocalizer'
 import EventFormModal from '../components/Calendar/EventFormModal'
 
 const MOCK_RESOURCES: CalendarResource[] = [
-    { id: 'designer-kamil-a', title: 'Kamil Arndt', color: 'var(--primary-main)' },
-    { id: 'designer-anna-k', title: 'Anna Kowalska', color: '#eb2f96' },
-    { id: 'team-tomek', title: 'Ekipa Tomka', color: '#52c41a' },
+    { id: 'designer-kamil-a', title: 'Kamil Arndt', color: 'var(--primary-main)', type: 'designer' },
+    { id: 'designer-anna-k', title: 'Anna Kowalska', color: '#eb2f96', type: 'designer' },
+    { id: 'team-tomek', title: 'Ekipa Tomka', color: '#52c41a', type: 'team' },
+    { id: 'team-jozef', title: 'Ekipa Józefa', color: '#fa8c16', type: 'team' },
 ]
 
 const MOCK_EVENTS: Omit<CalendarEvent, 'id'>[] = [
@@ -19,6 +20,9 @@ const MOCK_EVENTS: Omit<CalendarEvent, 'id'>[] = [
         start: new Date(2025, 8, 8, 10, 0, 0),
         end: new Date(2025, 8, 10, 14, 0, 0),
         resourceId: 'designer-kamil-a',
+        designerId: 'designer-kamil-a',
+        phase: 'projektowanie',
+        eventType: 'task',
         meta: { projectId: 'P-001' },
     },
     {
@@ -26,7 +30,20 @@ const MOCK_EVENTS: Omit<CalendarEvent, 'id'>[] = [
         start: new Date(2025, 8, 9, 8, 0, 0),
         end: new Date(2025, 8, 12, 16, 0, 0),
         resourceId: 'team-tomek',
+        teamId: 'team-tomek',
+        phase: 'produkcja',
+        eventType: 'task',
         meta: { projectId: 'P-002' },
+    },
+    {
+        title: 'Wycinanie: Elementy dekoracyjne',
+        start: new Date(2025, 8, 11, 9, 0, 0),
+        end: new Date(2025, 8, 11, 17, 0, 0),
+        resourceId: 'designer-anna-k',
+        designerId: 'designer-anna-k',
+        phase: 'wycinanie',
+        eventType: 'task',
+        meta: { projectId: 'P-001' },
     },
 ]
 

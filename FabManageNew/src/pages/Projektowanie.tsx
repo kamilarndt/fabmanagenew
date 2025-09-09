@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { useTilesStore, type Tile } from '../stores/tilesStore'
-import TileEditModal from '../components/TileEditModal'
+import TileEditSheet from '../components/TileEditSheet'
 
 type DesignStatus = 'Projektowanie' | 'W trakcie projektowania' | 'Do akceptacji' | 'Zaakceptowane' | 'Wymagają poprawek'
 
@@ -103,11 +103,10 @@ export default function Projektowanie() {
                                 <div>
                                     <div className="h5 mb-2">{selected.name}</div>
                                     <div className="text-muted small mb-2">
-                                        {selected.project} • {selected.assignee || 'Nieprzypisany'} • {selected.priority}
+                                        {selected.project} • {selected.assignee || 'Nieprzypisany'}
                                     </div>
                                     <div className="mb-2">
                                         <span className="badge bg-label-primary me-2">{selected.status}</span>
-                                        <span className="badge bg-label-info">{selected.technology}</span>
                                     </div>
                                     <div className="mb-3">
                                         <small className="text-muted">Koszt robocizny: {selected.laborCost || 0} PLN</small>
@@ -138,7 +137,8 @@ export default function Projektowanie() {
 
             {/* Tile Edit Modal */}
             {showTileModal && editingTile && (
-                <TileEditModal
+                <TileEditSheet
+                    open={true}
                     tile={editingTile}
                     onClose={() => {
                         setShowTileModal(false)
@@ -172,8 +172,6 @@ function DesignCardItem({ tile, onSelect, onEdit, onAccept, onNeedsFix }: {
                 <div className="fw-semibold">{tile.name}</div>
                 <div className="text-muted small">{tile.project} • {tile.assignee || 'Nieprzypisany'}</div>
                 <div className="d-flex justify-content-between mt-1 align-items-center">
-                    <span className="badge bg-label-info">{tile.priority}</span>
-                    <span className="text-muted small">{tile.technology}</span>
                 </div>
                 <div className="d-flex gap-2 mt-2">
                     <button className="btn btn-sm btn-outline-primary" onClick={(e) => { e.stopPropagation(); onEdit(); }}>

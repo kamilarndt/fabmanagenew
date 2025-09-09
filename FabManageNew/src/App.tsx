@@ -19,6 +19,10 @@ const Demands = lazy(() => import('./pages/Demands'))
 const Tiles = lazy(() => import('./pages/Tiles'))
 const DesignerDashboard = lazy(() => import('./pages/DesignerDashboard'))
 const CalendarPage = lazy(() => import('./pages/CalendarPage'))
+const CalendarProjects = lazy(() => import('./pages/CalendarProjects'))
+const CalendarDesigners = lazy(() => import('./pages/CalendarDesigners'))
+const CalendarTeams = lazy(() => import('./pages/CalendarTeams'))
+const Subcontractors = lazy(() => import('./pages/Subcontractors'))
 
 // Pages with Figma layout (prototypes)
 const Klienci = lazy(() => import('./pages/Klienci'))
@@ -44,6 +48,10 @@ function App() {
                         <Route path="kafelki" element={<Tiles />} />
                         <Route path="designer" element={<DesignerDashboard />} />
                         <Route path="kalendarz" element={<CalendarPage />} />
+                        <Route path="kalendarz/projekty" element={<CalendarProjects />} />
+                        <Route path="kalendarz/projektanci" element={<CalendarDesigners />} />
+                        <Route path="kalendarz/ekipy" element={<CalendarTeams />} />
+                        <Route path="podwykonawcy" element={<Subcontractors />} />
                         <Route path="zapotrzebowania" element={<Demands />} />
                     </Route>
 

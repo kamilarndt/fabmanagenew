@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { MaterialData } from '../../data/materialsMockData'
 import { useMaterialsStore } from '../../stores/materialsStore'
-import { showToast } from '../../lib/toast'
+import { showToast } from '../../lib/notifications'
 
 interface OperationItem {
     materialId: string

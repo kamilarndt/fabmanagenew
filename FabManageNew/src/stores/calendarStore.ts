@@ -4,6 +4,7 @@ export type CalendarResource = {
     id: string
     title: string
     color: string
+    type: 'project' | 'designer' | 'team'
 }
 
 export type CalendarEvent = {
@@ -13,7 +14,11 @@ export type CalendarEvent = {
     end: Date
     allDay?: boolean
     resourceId?: string
+    eventType?: 'task' | 'milestone' | 'phase'
     phase?: 'projektowanie' | 'wycinanie' | 'produkcja'
+    designerId?: string
+    teamId?: string
+    tags?: string[]
     meta?: {
         tileId?: string
         projectId?: string
@@ -29,9 +34,15 @@ type CalendarState = {
     updateEvent: (id: string, updates: Partial<Omit<CalendarEvent, 'id'>>) => void
     deleteEvent: (id: string) => void
     updateEventTimes: (id: string, start: Date, end: Date, resourceId?: string) => void
+    // Selektory
+    getEventsByProject: (projectId: string) => CalendarEvent[]
+    getEventsByDesigner: (designerId: string) => CalendarEvent[]
+    getEventsByTeam: (teamId: string) => CalendarEvent[]
+    getEventsByResourceType: (type: 'project' | 'designer' | 'team') => CalendarEvent[]
+    getResourcesByType: (type: 'project' | 'designer' | 'team') => CalendarResource[]
 }
 
-export const useCalendarStore = create<CalendarState>((set) => ({
+export const useCalendarStore = create<CalendarState>((set, get) => ({
     events: [],
     resources: [],
     setEvents: (events) => set({ events }),
@@ -55,6 +66,30 @@ export const useCalendarStore = create<CalendarState>((set) => ({
                 e.id === id ? { ...e, start, end, resourceId: resourceId ?? e.resourceId } : e,
             ),
         }))
+    },
+    // Selektory
+    getEventsByProject: (projectId) => {
+        const state = get()
+        return state.events.filter(e => e.meta?.projectId === projectId)
+    },
+    getEventsByDesigner: (designerId) => {
+        const state = get()
+        return state.events.filter(e => e.designerId === designerId || e.resourceId === designerId)
+    },
+    getEventsByTeam: (teamId) => {
+        const state = get()
+        return state.events.filter(e => e.teamId === teamId || e.resourceId === teamId)
+    },
+    getEventsByResourceType: (type) => {
+        const state = get()
+        return state.events.filter(e => {
+            const resource = state.resources.find(r => r.id === e.resourceId)
+            return resource?.type === type
+        })
+    },
+    getResourcesByType: (type) => {
+        const state = get()
+        return state.resources.filter(r => r.type === type)
     },
 }))
 

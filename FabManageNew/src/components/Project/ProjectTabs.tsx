@@ -21,17 +21,14 @@ const TABS = [
 ] as const
 
 export default function ProjectTabs({ activeTab, onTabChange, project }: ProjectTabsProps) {
-    const availableTabs = TABS.filter(tab => {
-        if (tab.requiredModule === null) return true
-        return project?.modules?.includes(tab.requiredModule as any)
-    })
+    const modules = new Set(project?.modules || [])
 
     return (
         <Card>
             <Tabs
                 activeKey={activeTab}
                 onChange={(key) => onTabChange(key as TabId)}
-                items={availableTabs.map(tab => ({
+                items={TABS.map(tab => ({
                     key: tab.id,
                     label: (
                         <span style={{ fontWeight: activeTab === tab.id ? 600 : 400 }}>
@@ -39,6 +36,7 @@ export default function ProjectTabs({ activeTab, onTabChange, project }: Project
                             {tab.label}
                         </span>
                     )
+                    , disabled: tab.requiredModule ? !modules.has(tab.requiredModule as any) : false
                 }))}
             />
         </Card>

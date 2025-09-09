@@ -13,23 +13,71 @@
 // ========================================
 
 export type ProjectStatus =
+  | 'Nowy'
+  | 'Wyceniany'
+  | 'W realizacji'
+  | 'Zakończony'
+  | 'Wstrzymany'
   | 'Koncepcja'
   | 'Projektowanie'
   | 'Produkcja'
   | 'Materiały'
   | 'Montaż'
-  | 'Zakończony'
-  | 'Wstrzymany'
   | 'Anulowany';
 
 export type TileStatus =
+  | 'W KOLEJCE'
+  | 'W TRAKCIE CIĘCIA'
+  | 'WYCIĘTE'
   | 'Projektowanie'
+  | 'W trakcie projektowania'
   | 'Do akceptacji'
   | 'Zaakceptowane'
-  | 'W kolejce CNC'
-  | 'W produkcji CNC'
+  | 'Wymagają poprawek'
   | 'Gotowy do montażu'
-  | 'Zakończony';
+  | 'Wstrzymany'
+  | 'Zakończony'
+  | 'W produkcji CNC';
+
+// Minimal statuses used by backend JSON API
+export type BackendTileStatus = 'do_review' | 'zaakceptowany' | 'w_produkcji' | 'gotowy'
+
+// Map UI -> backend (lossy mapping to closest state)
+export function toBackendTileStatus(status: TileStatus): BackendTileStatus {
+  switch (status) {
+    case 'Zaakceptowane':
+    case 'Gotowy do montażu':
+      return 'zaakceptowany'
+    case 'W TRAKCIE CIĘCIA':
+    case 'W produkcji CNC':
+      return 'w_produkcji'
+    case 'WYCIĘTE':
+    case 'Zakończony':
+      return 'gotowy'
+    case 'W KOLEJCE':
+    case 'Projektowanie':
+    case 'W trakcie projektowania':
+    case 'Do akceptacji':
+    case 'Wymagają poprawek':
+    default:
+      return 'do_review'
+  }
+}
+
+// Map backend -> UI (choose canonical UI state)
+export function toUiTileStatus(status: BackendTileStatus): TileStatus {
+  switch (status) {
+    case 'zaakceptowany':
+      return 'Zaakceptowane'
+    case 'w_produkcji':
+      return 'W produkcji CNC'
+    case 'gotowy':
+      return 'Gotowy do montażu'
+    case 'do_review':
+    default:
+      return 'Do akceptacji'
+  }
+}
 
 export type MaterialStatus =
   | 'Dostępny'
@@ -52,7 +100,19 @@ export type CNCStatus =
 
 export const getStatusColor = (status: string): string => {
   switch (status) {
-    // Projekt statusy
+    // Nowe projekt statusy
+    case 'Nowy':
+      return '#6c757d';
+    case 'Wyceniany':
+      return '#17a2b8';
+    case 'W realizacji':
+      return '#ffc107';
+    case 'Zakończony':
+      return 'var(--primary-main)';
+    case 'Wstrzymany':
+      return '#dc3545';
+
+    // Stare projekt statusy (deprecated)
     case 'Koncepcja':
       return '#6c757d';
     case 'Projektowanie':
@@ -63,20 +123,24 @@ export const getStatusColor = (status: string): string => {
       return '#fd7e14';
     case 'Montaż':
       return 'var(--primary-main)';
-    case 'Zakończony':
-      return 'var(--primary-main)';
-    case 'Wstrzymany':
-      return '#dc3545';
     case 'Anulowany':
       return '#6c757d';
 
     // Tile statusy
+    case 'W KOLEJCE':
+      return '#6c757d';
+    case 'W TRAKCIE CIĘCIA':
+      return '#ffc107';
+    case 'WYCIĘTE':
+      return '#20c997';
+    case 'W trakcie projektowania':
+      return '#17a2b8';
     case 'Do akceptacji':
       return '#ffc107';
     case 'Zaakceptowane':
       return '#17a2b8';
-    case 'W kolejce CNC':
-      return '#fd7e14';
+    case 'Wymagają poprawek':
+      return '#dc3545';
     case 'W produkcji CNC':
       return '#ffc107';
     case 'Gotowy do montażu':
@@ -138,12 +202,20 @@ export const getStatusBadgeClass = (status: string): string => {
       return 'badge bg-secondary';
 
     // Tile statusy
+    case 'W KOLEJCE':
+      return 'badge bg-secondary';
+    case 'W TRAKCIE CIĘCIA':
+      return 'badge bg-warning';
+    case 'WYCIĘTE':
+      return 'badge bg-success';
+    case 'W trakcie projektowania':
+      return 'badge bg-info';
     case 'Do akceptacji':
       return 'badge bg-warning';
     case 'Zaakceptowane':
       return 'badge bg-info';
-    case 'W kolejce CNC':
-      return 'badge bg-warning';
+    case 'Wymagają poprawek':
+      return 'badge bg-danger';
     case 'W produkcji CNC':
       return 'badge bg-warning';
     case 'Gotowy do montażu':
@@ -186,7 +258,19 @@ export const getStatusBadgeClass = (status: string): string => {
 
 export const getStatusIcon = (status: string): string => {
   switch (status) {
-    // Projekt statusy
+    // Nowe projekt statusy
+    case 'Nowy':
+      return 'ri-add-circle-line';
+    case 'Wyceniany':
+      return 'ri-calculator-line';
+    case 'W realizacji':
+      return 'ri-tools-line';
+    case 'Zakończony':
+      return 'ri-check-double-line';
+    case 'Wstrzymany':
+      return 'ri-pause-circle-line';
+
+    // Stare projekt statusy (deprecated)
     case 'Koncepcja':
       return 'ri-lightbulb-line';
     case 'Projektowanie':
@@ -197,20 +281,24 @@ export const getStatusIcon = (status: string): string => {
       return 'ri-box-line';
     case 'Montaż':
       return 'ri-screwdriver-line';
-    case 'Zakończony':
-      return 'ri-check-double-line';
-    case 'Wstrzymany':
-      return 'ri-pause-circle-line';
     case 'Anulowany':
       return 'ri-close-circle-line';
 
     // Tile statusy
+    case 'W KOLEJCE':
+      return 'ri-list-check';
+    case 'W TRAKCIE CIĘCIA':
+      return 'ri-scissors-line';
+    case 'WYCIĘTE':
+      return 'ri-check-circle-line';
+    case 'W trakcie projektowania':
+      return 'ri-draft-line';
     case 'Do akceptacji':
       return 'ri-time-line';
     case 'Zaakceptowane':
       return 'ri-check-line';
-    case 'W kolejce CNC':
-      return 'ri-list-check';
+    case 'Wymagają poprawek':
+      return 'ri-error-warning-line';
     case 'W produkcji CNC':
       return 'ri-cpu-line';
     case 'Gotowy do montażu':
@@ -265,10 +353,13 @@ export const canTransitionTo = (currentStatus: string, targetStatus: string): bo
   // Tile workflow
   const tileWorkflow = [
     'Projektowanie',
+    'W trakcie projektowania',
     'Do akceptacji',
     'Zaakceptowane',
-    'W kolejce CNC',
+    'W KOLEJCE',
+    'W TRAKCIE CIĘCIA',
     'W produkcji CNC',
+    'WYCIĘTE',
     'Gotowy do montażu',
     'Zakończony'
   ];
@@ -303,15 +394,22 @@ export const getStatusPriority = (status: string): number => {
   const priorityMap: Record<string, number> = {
     'Awaria': 1,
     'Krytyczny': 2,
-    'Niski stan': 3,
-    'W pracy': 4,
-    'W kolejce CNC': 5,
-    'Do akceptacji': 6,
-    'W zamówieniu': 7,
-    'W dostawie': 8,
-    'Dostępny': 9,
-    'Wolna': 10,
-    'Zakończony': 11
+    'Wymagają poprawek': 3,
+    'Wstrzymany': 4,
+    'W TRAKCIE CIĘCIA': 5,
+    'W produkcji CNC': 6,
+    'Do akceptacji': 7,
+    'W KOLEJCE': 8,
+    'W trakcie projektowania': 9,
+    'Projektowanie': 10,
+    'W zamówieniu': 11,
+    'W dostawie': 12,
+    'Zaakceptowane': 13,
+    'WYCIĘTE': 14,
+    'Gotowy do montażu': 15,
+    'Dostępny': 16,
+    'Wolna': 17,
+    'Zakończony': 18
   };
 
   return priorityMap[status] || 999;
@@ -319,17 +417,24 @@ export const getStatusPriority = (status: string): number => {
 
 export const getStatusDescription = (status: string): string => {
   const descriptions: Record<string, string> = {
+    'Nowy': 'Nowy projekt - w trakcie inicjalizacji',
+    'Wyceniany': 'Projekt w trakcie wyceny',
+    'W realizacji': 'Projekt w trakcie realizacji',
+    'Zakończony': 'Projekt zakończony',
+    'Wstrzymany': 'Projekt wstrzymany',
     'Koncepcja': 'Pomysł i planowanie projektu',
-    'Projektowanie': 'Tworzenie dokumentacji technicznej',
+    'Projektowanie': 'W trakcie projektowania',
     'Produkcja': 'Wytwarzanie elementów',
     'Materiały': 'Zamawianie i przygotowanie materiałów',
     'Montaż': 'Składanie gotowych elementów',
-    'Zakończony': 'Projekt ukończony',
-    'Wstrzymany': 'Projekt wstrzymany',
     'Anulowany': 'Projekt anulowany',
+    'W KOLEJCE': 'W kolejce do produkcji',
+    'W TRAKCIE CIĘCIA': 'W trakcie cięcia',
+    'WYCIĘTE': 'Elementy wycięte',
+    'W trakcie projektowania': 'W trakcie projektowania',
     'Do akceptacji': 'Oczekuje na akceptację',
     'Zaakceptowane': 'Zaakceptowane do produkcji',
-    'W kolejce CNC': 'W kolejce do obróbki CNC',
+    'Wymagają poprawek': 'Wymagają poprawek',
     'W produkcji CNC': 'W trakcie obróbki CNC',
     'Gotowy do montażu': 'Gotowy do montażu',
     'Dostępny': 'Materiał dostępny',

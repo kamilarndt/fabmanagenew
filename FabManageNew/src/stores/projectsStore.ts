@@ -5,47 +5,10 @@ import { listProjects, createProject, updateProject as sbUpdate, deleteProject a
 import { generateProjectColorScheme } from '../lib/clientUtils'
 import { subscribeTable } from '../lib/realtime'
 import { mockProjects } from '../data/mockDatabase'
+import type { Project, ProjectModule, ProjectGroup, ProjectWithStats } from '../types/projects.types'
 
-export type ProjectModule = 'wycena' | 'koncepcja' | 'projektowanie_techniczne' | 'produkcja' | 'materialy' | 'logistyka_montaz' | 'zakwaterowanie'
-
-export type GroupFile = {
-    id: string
-    name: string
-    url: string
-    type: string
-    size?: number
-}
-
-export type ProjectGroup = {
-    id: string
-    name: string
-    description?: string
-    thumbnail?: string
-    files?: GroupFile[]
-}
-
-export type Project = {
-    id: string
-    name: string
-    clientId: string // ID klienta zamiast client string
-    client: string // Nazwa klienta (dla kompatybilności wstecznej)
-    status: 'Active' | 'On Hold' | 'Done'
-    deadline: string
-    budget?: number
-    manager?: string
-    description?: string
-    progress?: number
-    groups?: ProjectGroup[]
-    modules?: ProjectModule[]
-    // Nowe pola dla kolorów projektu
-    clientColor?: string // Kolor klienta
-    colorScheme?: {
-        primary: string
-        light: string
-        dark: string
-        accent: string
-    }
-}
+// Re-export types for backward compatibility
+export type { Project, ProjectModule, ProjectGroup, ProjectWithStats }
 
 // Projekty zasilane z rozbudowanej bazy mockProjects
 
@@ -326,9 +289,9 @@ export const useProjectsStore = create<ProjectsState>()(
             // Statystyki projektów
             getProjectStats: () => {
                 const projects = get().projects;
-                const active = projects.filter(p => p.status === 'Active').length;
-                const onHold = projects.filter(p => p.status === 'On Hold').length;
-                const done = projects.filter(p => p.status === 'Done').length;
+                const active = projects.filter(p => p.status === 'W realizacji').length;
+                const onHold = projects.filter(p => p.status === 'Wstrzymany').length;
+                const done = projects.filter(p => p.status === 'Zakończony').length;
                 const total = projects.length;
 
                 return { active, onHold, done, total };
@@ -349,14 +312,14 @@ export const useProjectsStore = create<ProjectsState>()(
                 const now = new Date();
                 return get().projects.filter(p => {
                     const deadline = new Date(p.deadline);
-                    return deadline < now && p.status !== 'Done';
+                    return deadline < now && p.status !== 'Zakończony';
                 });
             },
 
             // Projekty z niskim postępem
             getLowProgressProjects: () => {
                 return get().projects.filter(p =>
-                    p.progress !== undefined && p.progress < 25 && p.status === 'Active'
+                    p.progress !== undefined && p.progress < 25 && p.status === 'W realizacji'
                 );
             },
 
@@ -406,7 +369,7 @@ export const useProjectsStore = create<ProjectsState>()(
 
                 return get().projects.filter(p => {
                     const deadline = new Date(p.deadline);
-                    return deadline <= weekFromNow && p.status !== 'Done';
+                    return deadline <= weekFromNow && p.status !== 'Zakończony';
                 }).sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
             },
 
@@ -496,7 +459,8 @@ export const useProjectsStore = create<ProjectsState>()(
                     produkcja: 0,
                     materialy: 0,
                     logistyka_montaz: 0,
-                    zakwaterowanie: 0
+                    zakwaterowanie: 0,
+                    montaz: 0
                 };
 
                 projects.forEach(p => {

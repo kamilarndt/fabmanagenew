@@ -60,7 +60,7 @@ export default function Dashboard() {
   }
 
   // KPI calculations
-  const activeProjects = projects.filter(p => p.status === 'Active').length
+  const activeProjects = projects.filter(p => p.status === 'W realizacji').length
   const overdueTasks = tasks.filter(t => t.overdue && !t.completed).length
   const newInquiries = 2 // Mock data
 
@@ -120,25 +120,40 @@ export default function Dashboard() {
 
       <Row gutter={[24, 24]} style={{ marginBottom: 16 }}>
         <Col xs={24} md={8}>
-          <Card bordered style={{ background: 'var(--bg-card)' }}>
-            <Statistic title="Aktywne Projekty" value={activeProjects} valueStyle={{ color: 'var(--primary-main)' }} />
+          <Card bordered>
+            <Statistic
+              title="Aktywne Projekty"
+              value={activeProjects}
+              valueStyle={{ color: 'var(--primary-main)' }}
+              prefix={<i className="ri-briefcase-line" />}
+            />
           </Card>
         </Col>
         <Col xs={24} md={8}>
-          <Card bordered style={{ background: 'var(--bg-card)' }}>
-            <Statistic title="Zadania po Terminie" value={overdueTasks} valueStyle={{ color: '#FDB528' }} />
+          <Card bordered>
+            <Statistic
+              title="Zadania po Terminie"
+              value={overdueTasks}
+              valueStyle={{ color: 'var(--accent-warning)' }}
+              prefix={<i className="ri-time-line" />}
+            />
           </Card>
         </Col>
         <Col xs={24} md={8}>
-          <Card bordered style={{ background: 'var(--bg-card)' }}>
-            <Statistic title="Nowe Zapytania" value={newInquiries} valueStyle={{ color: 'var(--primary-main)' }} />
+          <Card bordered>
+            <Statistic
+              title="Nowe Zapytania"
+              value={newInquiries}
+              valueStyle={{ color: 'var(--primary-main)' }}
+              prefix={<i className="ri-question-line" />}
+            />
           </Card>
         </Col>
       </Row>
 
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={12}>
-          <Card title="Moje Zadania" extra={<Button size="small">Dodaj</Button>} bordered style={{ background: 'var(--bg-card)' }}>
+          <Card title="Moje Zadania" extra={<Button size="small" type="primary">Dodaj</Button>} bordered>
             <List
               dataSource={tasks}
               renderItem={t => (
@@ -147,11 +162,17 @@ export default function Dashboard() {
                     <input type="checkbox" checked={t.completed} onChange={() => toggleTask(t.id)} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ opacity: t.completed ? 0.6 : 1, textDecoration: t.completed ? 'line-through' : 'none' }}>{t.task}</div>
-                    <div className="small text-muted">{t.project}</div>
+                    <div style={{
+                      opacity: t.completed ? 0.6 : 1,
+                      textDecoration: t.completed ? 'line-through' : 'none',
+                      color: 'var(--text-primary)'
+                    }}>
+                      {t.task}
+                    </div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>{t.project}</div>
                     <div style={{ marginTop: 4 }}>
                       <Tag color={t.overdue && !t.completed ? 'error' : t.completed ? 'success' : 'default'}>{t.deadline}</Tag>
-                      {t.overdue && !t.completed && <span className="text-danger small" style={{ marginLeft: 8 }}>Opóźnione</span>}
+                      {t.overdue && !t.completed && <span style={{ marginLeft: 8, color: 'var(--accent-error)', fontSize: '0.875rem' }}>Opóźnione</span>}
                     </div>
                   </div>
                 </List.Item>
@@ -160,18 +181,33 @@ export default function Dashboard() {
           </Card>
         </Col>
         <Col xs={24} lg={12}>
-          <Card title="Oś Czasu Projektów" bordered style={{ background: 'var(--bg-card)' }}>
+          <Card title="Oś Czasu Projektów" bordered>
             <List
               dataSource={projectTimeline}
               renderItem={(p) => (
                 <List.Item>
                   <div style={{ width: '100%' }}>
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <div className="fw-medium">{p.name}</div>
-                      <span className="small text-muted">{p.progress}%</span>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: 4
+                    }}>
+                      <div style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{p.name}</div>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>{p.progress}%</span>
                     </div>
-                    <Progress percent={p.progress} showInfo={false} strokeColor={'var(--primary-main)'} style={{ marginBottom: 8 }} />
-                    <div className="d-flex justify-content-between text-muted small">
+                    <Progress
+                      percent={p.progress}
+                      showInfo={false}
+                      strokeColor={'var(--primary-main)'}
+                      style={{ marginBottom: 8 }}
+                    />
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      color: 'var(--text-muted)',
+                      fontSize: '0.875rem'
+                    }}>
                       <span>{p.startMonth}</span>
                       <span>{p.endMonth}</span>
                     </div>
@@ -182,15 +218,23 @@ export default function Dashboard() {
           </Card>
         </Col>
         <Col xs={24}>
-          <Card title="Ostatnia Aktywność" bordered style={{ background: 'var(--bg-card)' }}>
+          <Card title="Ostatnia Aktywność" bordered>
             <List
               dataSource={recentActivity}
               renderItem={(a) => (
                 <List.Item>
                   <List.Item.Meta
                     avatar={null}
-                    title={<span>{a.action} <strong>{a.item}</strong></span>}
-                    description={<span className="text-muted small">{a.time}</span>}
+                    title={
+                      <span style={{ color: 'var(--text-primary)' }}>
+                        {a.action} <strong>{a.item}</strong>
+                      </span>
+                    }
+                    description={
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+                        {a.time}
+                      </span>
+                    }
                   />
                 </List.Item>
               )}

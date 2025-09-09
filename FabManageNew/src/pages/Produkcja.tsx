@@ -5,20 +5,20 @@ import { Toolbar } from '../components/Ui/Toolbar'
 import { EntityTable } from '../components/Ui/EntityTable'
 import type { Column } from '../components/Ui/EntityTable'
 import { Row, Col, Card, Select, Button, Space, Typography, Progress, Tag, Tabs, Empty } from 'antd'
+import { KanbanBoardGeneric } from '../components/Ui/KanbanBoardGeneric'
+import type { Tile } from '../types/tiles.types'
 
 export default function Produkcja() {
-    const { tiles } = useTilesStore()
+    const { tiles, updateTile } = useTilesStore()
 
     const [activeTab, setActiveTab] = useState<'overview' | 'queue' | 'kanban' | 'quality' | 'maintenance'>('overview')
     const [lineFilter, setLineFilter] = useState<'Wszystkie' | string>('Wszystkie')
-    const [techFilter, setTechFilter] = useState<'Wszystkie' | string>('Wszystkie')
     const [statusFilter, setStatusFilter] = useState<'Wszystkie' | 'Gotowy do montażu' | 'W TRAKCIE CIĘCIA' | 'WYCIĘTE' | 'W KOLEJCE'>('Wszystkie')
 
     const assemblyTiles = useMemo(() => tiles.filter(tile =>
         (statusFilter === 'Wszystkie' ? true : tile.status === statusFilter)
         && (lineFilter === 'Wszystkie' ? true : tile.project === lineFilter)
-        && (techFilter === 'Wszystkie' ? true : tile.technology === techFilter)
-    ), [tiles, lineFilter, techFilter, statusFilter])
+    ), [tiles, lineFilter, statusFilter])
 
     const orders = [
         { id: 'O-101', project: 'Linia A', name: 'Panel recepcji', progress: 75 },
@@ -38,7 +38,6 @@ export default function Produkcja() {
         { key: 'id', header: 'ID', width: 80 },
         { key: 'name', header: 'Nazwa', render: (tile) => <div style={{ fontWeight: 600 }}>{tile.name}</div> },
         { key: 'project', header: 'Projekt' },
-        { key: 'technology', header: 'Technologia' },
         {
             key: 'cost',
             header: 'Koszt',
@@ -62,7 +61,6 @@ export default function Produkcja() {
                 left={
                     <Space>
                         <Select size="middle" style={{ minWidth: 160 }} value={lineFilter} onChange={v => setLineFilter(v)} options={[{ value: 'Wszystkie', label: 'Wszystkie' }, ...['Linia A', 'Linia B', 'Linia C', 'Linia D'].map(l => ({ value: l, label: l }))]} />
-                        <Select size="middle" style={{ minWidth: 160 }} value={techFilter} onChange={v => setTechFilter(v)} options={[{ value: 'Wszystkie', label: 'Wszystkie' }, ...Array.from(new Set(tiles.map(t => t.technology))).map(t => ({ value: t, label: t }))]} />
                         <Select size="middle" style={{ minWidth: 200 }} value={statusFilter} onChange={v => setStatusFilter(v as any)} options={['Wszystkie', 'W KOLEJCE', 'W TRAKCIE CIĘCIA', 'WYCIĘTE', 'Gotowy do montażu'].map(s => ({ value: s, label: s }))} />
                     </Space>
                 }
@@ -143,22 +141,14 @@ export default function Produkcja() {
 
             {activeTab === 'kanban' && (
                 <Card style={{ marginBottom: 12 }} title="Kanban">
-                    <Row gutter={[12, 12]}>
-                        {kanbanColumns.map((stage) => (
-                            <Col xs={24} xl={6} key={stage.id}>
-                                <Card size="small" bodyStyle={{ padding: 8 }} title={<span style={{ fontWeight: 600 }}>{stage.title}</span>}>
-                                    <div style={{ minHeight: 260 }}>
-                                        {tiles.filter(t => t.status === stage.id).map(t => (
-                                            <Card key={t.id} size="small" style={{ marginBottom: 8 }}>
-                                                <div style={{ fontWeight: 600 }}>{t.name}</div>
-                                                <Typography.Text type="secondary" style={{ fontSize: 12 }}>{t.project} • {t.technology}</Typography.Text>
-                                            </Card>
-                                        ))}
-                                    </div>
-                                </Card>
-                            </Col>
-                        ))}
-                    </Row>
+                    <KanbanBoardGeneric
+                        tiles={tiles}
+                        columns={kanbanColumns as any}
+                        getColumnId={(t: Tile) => t.status}
+                        onTileUpdate={(id, patch) => updateTile(id, patch)}
+                        onTileClick={() => { }}
+                        tileCosts={tiles.map(() => 0)}
+                    />
                 </Card>
             )}
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useProjectsStore, type Project, type ProjectModule } from '../stores/projectsStore'
-import { showToast } from '../lib/toast'
+import { showToast } from '../lib/notifications'
 import SlideOver from './Ui/SlideOver'
 
 const projectModules: { id: ProjectModule; name: string; description: string }[] = [
@@ -25,7 +25,7 @@ export default function EditProjectModal({ open, projectId, onClose }: Props) {
 
     const [name, setName] = useState('')
     const [client, setClient] = useState('')
-    const [status, setStatus] = useState<Project['status']>('Active')
+    const [status, setStatus] = useState<Project['status']>('Nowy')
     const [deadline, setDeadline] = useState('')
     const [selectedModules, setSelectedModules] = useState<ProjectModule[]>([])
 

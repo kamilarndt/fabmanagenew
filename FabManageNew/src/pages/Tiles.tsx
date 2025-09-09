@@ -1,129 +1,226 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Table, Button, Drawer, Form, Input, Select, Space, Tag, Upload, message } from 'antd'
-import { UploadOutlined } from '@ant-design/icons'
-import { useTilesStore, type Tile } from '../stores/tilesStore'
+import { Button, Space, message, Row, Col, Card, Input, Select, Typography } from 'antd'
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { useTilesStore } from '../stores/tilesStore'
+import { useAuthStore } from '../stores/authStore'
+import { useProjectsStore } from '../stores/projectsStore'
+import type { Tile } from '../types/tiles.types'
+import TileCard from '../components/Tiles/TileCard'
+import TileEditModal from '../components/Tiles/TileEditModal'
+import { PageHeader } from '../components/Ui/PageHeader'
 
-type BackendTile = Partial<Tile> & { quantity?: number; material?: string; description?: string; files?: { name: string; path: string }[] };
-
-const STATUS_OPTIONS = [
-    { value: 'do_review', label: 'Do review' },
-    { value: 'zaakceptowany', label: 'Zaakceptowany' },
-    { value: 'w_produkcji', label: 'W produkcji' },
-    { value: 'gotowy', label: 'Gotowy' },
-]
+const { Search } = Input
+const { Title } = Typography
 
 export default function TilesPage() {
-    const { tiles, initialize, addTile, updateTile } = useTilesStore()
-    const [open, setOpen] = useState(false)
-    const [editing, setEditing] = useState<BackendTile | null>(null)
-    const [form] = Form.useForm<BackendTile>()
+    const { tiles, initialize, addTile, updateTile, refresh } = useTilesStore()
+    const { projects } = useProjectsStore()
+    const { roles } = useAuthStore()
+    const canManage = roles.includes('manager')
+    const canDesign = roles.includes('designer') || canManage
+
+    const [editModalOpen, setEditModalOpen] = useState(false)
+    const [editingTile, setEditingTile] = useState<Tile | null>(null)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [statusFilter, setStatusFilter] = useState<string>('All')
+    const [projectFilter, setProjectFilter] = useState<string>('All')
 
     useEffect(() => { initialize() }, [initialize])
 
-    const data = useMemo(() => tiles, [tiles])
+    const filteredTiles = useMemo(() => {
+        return tiles.filter(tile => {
+            const matchesSearch = tile.name.toLowerCase().includes(searchQuery.toLowerCase())
+            const matchesStatus = statusFilter === 'All' || tile.status === statusFilter
+            const matchesProject = projectFilter === 'All' || tile.project === projectFilter
+            return matchesSearch && matchesStatus && matchesProject
+        })
+    }, [tiles, searchQuery, statusFilter, projectFilter])
 
-    const columns = [
-        { title: 'ID', dataIndex: 'id', key: 'id', width: 160 },
-        { title: 'Nazwa', dataIndex: 'name', key: 'name' },
-        { title: 'Ilość', dataIndex: 'quantity', key: 'quantity', width: 90 },
-        { title: 'Materiał', dataIndex: 'material', key: 'material', width: 160 },
-        { title: 'Projekt', dataIndex: 'project', key: 'project', width: 140 },
-        { title: 'Status', dataIndex: 'status', key: 'status', width: 160, render: (s: string) => <Tag color={s === 'gotowy' ? 'green' : s === 'w_produkcji' ? 'blue' : s === 'zaakceptowany' ? 'gold' : 'default'}>{s}</Tag> },
-        {
-            title: 'Akcje', key: 'actions', width: 160,
-            render: (_: unknown, record: Tile) => (
-                <Space>
-                    <Button size="small" onClick={() => onEdit(record)}>Edytuj</Button>
-                </Space>
-            )
-        }
-    ]
-
-    const onAdd = () => {
-        setEditing(null)
-        form.resetFields()
-        setOpen(true)
+    const handleEdit = (tile: Tile) => {
+        setEditingTile(tile)
+        setEditModalOpen(true)
     }
 
-    const onEdit = (t: Tile) => {
-        const initial: BackendTile = {
-            id: t.id,
-            name: t.name,
-            project: t.project,
-            status: t.status as any,
-            description: '',
-        }
-        setEditing(initial)
-        form.setFieldsValue(initial)
-        setOpen(true)
+    const handleView = (tile: Tile) => {
+        // Navigate to tile details or open in drawer
+        console.log('View tile:', tile)
     }
 
-    const submit = async () => {
-        const values = await form.validateFields()
-        if (editing && editing.id) {
-            await updateTile(editing.id, values as Partial<Tile>)
-            message.success('Zaktualizowano kafelek')
-        } else {
-            const newTile: Tile = {
-                id: crypto.randomUUID(),
-                name: values.name || 'Nowy kafelek',
-                status: 'W KOLEJCE',
-                project: values.project,
-                priority: 'Średni',
-                technology: 'Frezowanie CNC',
-                laborCost: 0,
-                bom: []
+    const handleAssign = (tile: Tile) => {
+        // Open assign designer modal
+        console.log('Assign tile:', tile)
+    }
+
+    const handleSaveTile = async (tileData: Omit<Tile, 'id'>) => {
+        try {
+            if (editingTile) {
+                await updateTile(editingTile.id, tileData)
+                message.success('Kafelek zaktualizowany')
+            } else {
+                await addTile({ ...tileData, id: crypto.randomUUID() })
+                message.success('Kafelek dodany')
             }
-            await addTile(newTile)
-            message.success('Dodano kafelek')
+            setEditModalOpen(false)
+            setEditingTile(null)
+        } catch (error) {
+            message.error('Błąd podczas zapisywania kafelka')
         }
-        setOpen(false)
     }
 
-    const uploadProps = {
-        name: 'file',
-        action: '/api/upload',
-        data: () => ({ tileId: editing?.id }),
-        onChange(info: any) {
-            if (info.file.status === 'done') message.success('Przesłano plik')
-            else if (info.file.status === 'error') message.error('Błąd uploadu')
-        }
+    const handleAddNew = () => {
+        setEditingTile(null)
+        setEditModalOpen(true)
     }
 
     return (
-        <div style={{ padding: 16 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                <h3 style={{ margin: 0 }}>Kafelki</h3>
-                <Button type="primary" onClick={onAdd}>Dodaj</Button>
-            </div>
-            <Table rowKey="id" dataSource={data as any} columns={columns as any} pagination={{ pageSize: 10 }} />
+        <div className="container-fluid py-3">
+            <PageHeader
+                title="Elementy (Kafelki)"
+                subtitle="Wizualny inwentarz wszystkich komponentów projektu"
+            />
 
-            <Drawer title={editing ? `Edytuj ${editing.id}` : 'Nowy kafelek'} open={open} onClose={() => setOpen(false)} width={520}
-                extra={<Space><Button onClick={() => setOpen(false)}>Anuluj</Button><Button type="primary" onClick={submit}>Zapisz</Button></Space>}>
-                <Form form={form} layout="vertical">
-                    <Form.Item label="Nazwa" name="name" rules={[{ required: true, message: 'Wpisz nazwę' }]}>
-                        <Input placeholder="np. Panel frontowy" />
-                    </Form.Item>
-                    <Form.Item label="Projekt" name="project">
-                        <Input placeholder="ID projektu" />
-                    </Form.Item>
-                    <Form.Item label="Status" name="status" initialValue={'do_review'}>
-                        <Select options={STATUS_OPTIONS} />
-                    </Form.Item>
-                    <Form.Item label="Opis" name="description">
-                        <Input.TextArea rows={4} />
-                    </Form.Item>
-                    {editing?.id && (
-                        <Form.Item label="Załącz plik (DXF/PDF)">
-                            <Upload {...uploadProps} accept=".pdf,.dxf,.dwg" maxCount={1}>
-                                <Button icon={<UploadOutlined />}>Wybierz plik</Button>
-                            </Upload>
-                        </Form.Item>
-                    )}
-                </Form>
-            </Drawer>
+            {/* Filtry i wyszukiwanie */}
+            <Card style={{ marginBottom: 16 }}>
+                <Row gutter={16} align="middle">
+                    <Col xs={24} sm={12} md={8}>
+                        <Search
+                            placeholder="Szukaj kafelków..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            prefix={<SearchOutlined />}
+                        />
+                    </Col>
+                    <Col xs={24} sm={6} md={4}>
+                        <Select
+                            value={statusFilter}
+                            onChange={setStatusFilter}
+                            style={{ width: '100%' }}
+                            placeholder="Status"
+                        >
+                            <Select.Option value="All">Wszystkie statusy</Select.Option>
+                            <Select.Option value="W KOLEJCE">W kolejce</Select.Option>
+                            <Select.Option value="Projektowanie">Projektowanie</Select.Option>
+                            <Select.Option value="W trakcie projektowania">W trakcie projektowania</Select.Option>
+                            <Select.Option value="Do akceptacji">Do akceptacji</Select.Option>
+                            <Select.Option value="Zaakceptowane">Zaakceptowane</Select.Option>
+                            <Select.Option value="W TRAKCIE CIĘCIA">W trakcie cięcia</Select.Option>
+                            <Select.Option value="W produkcji CNC">W produkcji CNC</Select.Option>
+                            <Select.Option value="WYCIĘTE">Wycięte</Select.Option>
+                            <Select.Option value="Gotowy do montażu">Gotowy do montażu</Select.Option>
+                            <Select.Option value="Zakończony">Zakończony</Select.Option>
+                        </Select>
+                    </Col>
+                    <Col xs={24} sm={6} md={4}>
+                        <Select
+                            value={projectFilter}
+                            onChange={setProjectFilter}
+                            style={{ width: '100%' }}
+                            placeholder="Projekt"
+                        >
+                            <Select.Option value="All">Wszystkie projekty</Select.Option>
+                            {projects.map(project => (
+                                <Select.Option key={project.id} value={project.id}>
+                                    {project.name}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Col>
+                    <Col xs={24} sm={12} md={8}>
+                        <Space>
+                            <Button
+                                type="primary"
+                                icon={<PlusOutlined />}
+                                onClick={handleAddNew}
+                                disabled={!canDesign}
+                            >
+                                Dodaj Nowy Kafelek
+                            </Button>
+                            <Button onClick={refresh}>
+                                Odśwież
+                            </Button>
+                        </Space>
+                    </Col>
+                </Row>
+            </Card>
+
+            {/* Statystyki */}
+            <Row gutter={16} style={{ marginBottom: 16 }}>
+                <Col xs={24} sm={6}>
+                    <Card size="small">
+                        <div style={{ textAlign: 'center' }}>
+                            <Title level={3} style={{ margin: 0, color: '#1890ff' }}>
+                                {filteredTiles.length}
+                            </Title>
+                            <div>Wszystkich kafelków</div>
+                        </div>
+                    </Card>
+                </Col>
+                <Col xs={24} sm={6}>
+                    <Card size="small">
+                        <div style={{ textAlign: 'center' }}>
+                            <Title level={3} style={{ margin: 0, color: '#52c41a' }}>
+                                {filteredTiles.filter(t => t.status === 'Zakończony').length}
+                            </Title>
+                            <div>Zakończonych</div>
+                        </div>
+                    </Card>
+                </Col>
+                <Col xs={24} sm={6}>
+                    <Card size="small">
+                        <div style={{ textAlign: 'center' }}>
+                            <Title level={3} style={{ margin: 0, color: '#faad14' }}>
+                                {filteredTiles.filter(t => t.status === 'W trakcie projektowania' || t.status === 'Projektowanie').length}
+                            </Title>
+                            <div>W projektowaniu</div>
+                        </div>
+                    </Card>
+                </Col>
+                <Col xs={24} sm={6}>
+                    <Card size="small">
+                        <div style={{ textAlign: 'center' }}>
+                            <Title level={3} style={{ margin: 0, color: '#f5222d' }}>
+                                {filteredTiles.filter(t => t.status === 'Wymagają poprawek').length}
+                            </Title>
+                            <div>Wymagają poprawek</div>
+                        </div>
+                    </Card>
+                </Col>
+            </Row>
+
+            {/* Kafelki */}
+            <Row gutter={[16, 16]}>
+                {filteredTiles.map(tile => (
+                    <Col key={tile.id} xs={24} sm={12} lg={8} xl={6}>
+                        <TileCard
+                            tile={tile}
+                            onEdit={handleEdit}
+                            onView={handleView}
+                            onAssign={handleAssign}
+                        />
+                    </Col>
+                ))}
+            </Row>
+
+            {filteredTiles.length === 0 && (
+                <Card style={{ textAlign: 'center', padding: 40 }}>
+                    <Title level={4} type="secondary">Brak kafelków</Title>
+                    <p>Nie znaleziono kafelków spełniających kryteria wyszukiwania.</p>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={handleAddNew}>
+                        Dodaj pierwszy kafelek
+                    </Button>
+                </Card>
+            )}
+
+            {/* Modal edycji */}
+            <TileEditModal
+                open={editModalOpen}
+                onClose={() => {
+                    setEditModalOpen(false)
+                    setEditingTile(null)
+                }}
+                onSave={handleSaveTile}
+                tile={editingTile || undefined}
+            />
         </div>
     )
 }
-
-

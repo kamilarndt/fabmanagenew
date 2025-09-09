@@ -1,6 +1,8 @@
 import { Drawer, Tabs, Form, Input, Select, Row, Col, Upload, Table, Statistic, Button, Space, Typography } from 'antd'
 import type { TabsProps } from 'antd'
 import type { Tile } from '../types/tiles.types'
+import { useUsersStore } from '../stores/usersStore'
+import { useTilesStore } from '../stores/tilesStore'
 
 interface TileEditSheetProps {
     tile: Tile | null
@@ -11,6 +13,10 @@ interface TileEditSheetProps {
 
 export default function TileEditSheet({ open, onClose, tile, onSave }: TileEditSheetProps) {
     const [form] = Form.useForm<Partial<Tile>>()
+    const { getUsersByRole } = useUsersStore()
+    const { refresh } = useTilesStore()
+
+    const designers = getUsersByRole('designer')
 
     const title = tile ? `Edycja elementu: ${tile.name}` : 'Nowy element'
 
@@ -38,17 +44,14 @@ export default function TileEditSheet({ open, onClose, tile, onSave }: TileEditS
                         </Col>
                         <Col span={12}>
                             <Form.Item name="assignee" label="Projektant">
-                                <Select options={[
-                                    { value: 'Anna', label: 'Anna' },
-                                    { value: 'Paweł', label: 'Paweł' },
-                                    { value: 'Ola', label: 'Ola' },
-                                    { value: 'Kamil', label: 'Kamil' },
-                                ]} allowClear />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item name="technology" label="Technologia wiodąca">
-                                <Input placeholder="np. Frezowanie CNC" />
+                                <Select
+                                    options={designers.map(designer => ({
+                                        value: designer.id,
+                                        label: designer.name
+                                    }))}
+                                    allowClear
+                                    placeholder="Wybierz projektanta"
+                                />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -59,20 +62,38 @@ export default function TileEditSheet({ open, onClose, tile, onSave }: TileEditS
             key: 'files',
             label: 'Pliki produkcyjne',
             children: (
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Typography.Text>DXF/DWG</Typography.Text>
-                        <Upload.Dragger multiple={false} accept=".dxf,.dwg" name="file" action="/api/upload" data={{ tileId: tile?.id }} height={200}>
-                            <p>Upuść plik DXF/DWG lub kliknij</p>
-                        </Upload.Dragger>
-                    </Col>
-                    <Col span={12}>
-                        <Typography.Text>PDF (Rysunek złożeniowy)</Typography.Text>
-                        <Upload.Dragger multiple={false} accept=".pdf" name="file" action="/api/upload" data={{ tileId: tile?.id }} height={200}>
-                            <p>Upuść plik PDF lub kliknij</p>
-                        </Upload.Dragger>
-                    </Col>
-                </Row>
+                <div>
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Typography.Text>DXF/DWG</Typography.Text>
+                            <Upload.Dragger multiple={false} accept=".dxf,.dwg" name="file" action="/api/upload" data={{ tileId: tile?.id }} height={200} onChange={(info) => { if (info.file.status === 'done') refresh() }}>
+                                <p>Upuść plik DXF/DWG lub kliknij</p>
+                            </Upload.Dragger>
+                        </Col>
+                        <Col span={12}>
+                            <Typography.Text>PDF (Rysunek złożeniowy)</Typography.Text>
+                            <Upload.Dragger multiple={false} accept=".pdf" name="file" action="/api/upload" data={{ tileId: tile?.id }} height={200} onChange={(info) => { if (info.file.status === 'done') refresh() }}>
+                                <p>Upuść plik PDF lub kliknij</p>
+                            </Upload.Dragger>
+                        </Col>
+                    </Row>
+                    <div style={{ marginTop: 12 }}>
+                        <Typography.Text strong>Załączniki</Typography.Text>
+                        <div style={{ marginTop: 8 }}>
+                            {Array.isArray((tile as any)?.files) && (tile as any).files.length > 0 ? (
+                                <ul style={{ paddingLeft: 16 }}>
+                                    {(tile as any).files.map((f: any) => (
+                                        <li key={f.path} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                            <a href={f.path} target="_blank" rel="noreferrer">{f.name}</a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <Typography.Text type="secondary">Brak załączników</Typography.Text>
+                            )}
+                        </div>
+                    </div>
+                </div>
             )
         },
         {

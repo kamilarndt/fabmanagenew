@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { filterMaterials, calculateMaterialStats } from '../data/materialsMockData'
-import type { MaterialData } from '../data/materialsMockData'
+import type { RhinoMaterialData as MaterialData } from '../data/rhinoMaterialsDatabase'
 import { useMaterialsStore } from '../stores/materialsStore'
 // consolidated styles are loaded via index.css -> styles/theme.css
 import CategoryTree from '../components/Magazyn/CategoryTree'
@@ -9,7 +9,7 @@ import MaterialCard from '../components/Magazyn/MaterialCard'
 import MaterialDetailsPanel from '../components/Magazyn/MaterialDetailsPanel'
 import OperationForm from '../components/Magazyn/OperationForm'
 import type { ViewMode, SortField, SortOrder } from '../types/magazyn.types'
-import { showToast } from '../lib/toast'
+import { showToast } from '../lib/notifications'
 
 export default function MagazynNew() {
     // Stan główny
@@ -39,10 +39,10 @@ export default function MagazynNew() {
 
     // Automatyczne ładowanie materiałów z backendu przy starcie
     useEffect(() => {
-        if (materials.length === 0) {
-            syncFromBackend()
-        }
-    }, [materials.length, syncFromBackend])
+        // always refresh on mount to avoid stale mock data
+        syncFromBackend()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     // Funkcja synchronizacji z backendem
     const handleSyncFromBackend = async () => {
@@ -59,7 +59,7 @@ export default function MagazynNew() {
 
     // Filtrowane materiały
     const filteredMaterials = useMemo(() => {
-        return filterMaterials(materials, {
+        return filterMaterials(materials as any, {
             search: searchQuery,
             category: selectedCategories,
             status: selectedStatus,
@@ -112,7 +112,7 @@ export default function MagazynNew() {
     }, [filteredMaterials, sortField, sortOrder])
 
     // Statystyki
-    const stats = useMemo(() => calculateMaterialStats(filteredMaterials), [filteredMaterials])
+    const stats = useMemo(() => calculateMaterialStats(filteredMaterials as any), [filteredMaterials])
 
     // Lista unikalnych dostawców
     const suppliers = useMemo(() => {

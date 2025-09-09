@@ -1,7 +1,7 @@
 import { useTilesStore } from '../stores/tilesStore'
 import { useDrag } from 'react-dnd'
 import { useCallback, useMemo, useState } from 'react'
-import TileEditModal from '../components/TileEditModal'
+import TileEditSheet from '../components/TileEditSheet'
 import { PageHeader } from '../components/Ui/PageHeader'
 import { Toolbar } from '../components/Ui/Toolbar'
 import { Row, Col, Card, Button, Space, Typography, Tag } from 'antd'
@@ -155,7 +155,7 @@ export default function CNC() {
                 </Row>
             </div>
 
-            {editing && <TileEditModal tile={editing} onClose={() => setEditing(null)} onSave={(patch) => { setStatus(editing.id, (patch.status || editing.status) as any); setEditing(null) }} />}
+            {editing && <TileEditSheet open={true} tile={editing} onClose={() => setEditing(null)} onSave={(patch) => { setStatus(editing.id, (patch.status || editing.status) as any); setEditing(null) }} />}
         </div>
     )
 }
