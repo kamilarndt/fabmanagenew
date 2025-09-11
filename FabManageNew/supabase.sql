@@ -4,7 +4,11 @@ create table if not exists public.projects (
   name text not null,
   client text not null,
   status text not null check (status in ('Active','On Hold','Done')),
-  deadline date not null
+  deadline date not null,
+  -- Speckle 3D Integration fields
+  speckle_stream_url text,
+  speckle_stream_id text,
+  model_3d_status text default 'not_loaded'
 );
 
 -- Tiles table
@@ -13,7 +17,12 @@ create table if not exists public.tiles (
   name text not null,
   status text not null check (status in ('Do akceptacji','Zaakceptowane','W produkcji CNC','Gotowy do montażu','W KOLEJCE','W TRAKCIE CIĘCIA','WYCIĘTE')),
   project text references public.projects(id) on delete set null,
-  priority text check (priority in ('Wysoki','Średni','Niski'))
+  priority text check (priority in ('Wysoki','Średni','Niski')),
+  -- Speckle 3D Integration fields
+  speckle_object_ids jsonb,
+  geometry_data jsonb,
+  screenshot_url text,
+  material_assignments jsonb
 );
 
 -- Aggregated materials view (BOM consolidation)
@@ -32,3 +41,16 @@ create or replace view public.production_queue_view as
 select id, name, status, project
 from public.tiles
 where status in ('Zaakceptowane','W produkcji CNC','Gotowy do montażu','W KOLEJCE','W TRAKCIE CIĘCIA','WYCIĘTE');
+
+-- New table: tile_materials for detailed material assignments
+create table if not exists public.tile_materials (
+    id uuid primary key default gen_random_uuid(),
+    tile_id text references public.tiles(id) on delete cascade,
+    material_id text, -- references materials table when available
+    speckle_object_id text,
+    volume_m3 decimal(10,6),
+    area_m2 decimal(10,4),
+    estimated_plates integer,
+    waste_percentage decimal(5,2) default 15.0,
+    created_at timestamp default now()
+);

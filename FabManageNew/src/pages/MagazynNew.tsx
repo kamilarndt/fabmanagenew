@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react'
 import { calculateMaterialStats } from '../data/materialsMockData'
 import type { MaterialData } from '../data/materialsMockData'
 import { useMaterialsStore } from '../stores/materialsStore'
-// consolidated styles are loaded via index.css -> styles/theme.css
+// consolidated styles are loaded via index.css -> styles/design-system.css
 import OperationForm from '../components/Magazyn/OperationForm'
 import CategorySidebar from '../components/Magazyn/CategorySidebar'
 import { MaterialCard } from '../components/Magazyn/MaterialCard'
@@ -10,9 +10,10 @@ import { PageHeader } from '../components/Ui/PageHeader'
 import { Toolbar } from '../components/Ui/Toolbar'
 import { showToast } from '../lib/notifications'
 import { EntityTable, type Column } from '../components/Ui/EntityTable'
-import { Row, Col, Card, Button, Space, Typography, Tag, Empty, Segmented, Input, Select, Modal } from 'antd'
+import { Row, Col, Card, Button, Space, Tag, Empty, Segmented, Select, Modal } from 'antd'
 import { Checkbox } from 'antd'
-import { AppstoreOutlined, BarsOutlined, SearchOutlined, FilterOutlined, SortAscendingOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, BarsOutlined, FilterOutlined, SortAscendingOutlined } from '@ant-design/icons'
+import { usePageSearch } from '../contexts/SearchContext'
 
 export default function MagazynNew() {
   // Stan główny
@@ -22,8 +23,15 @@ export default function MagazynNew() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('cards')
 
-  // Filtry i wyszukiwanie
-  const [searchQuery, setSearchQuery] = useState('')
+  // Kontekstowa wyszukiwarka
+  const { searchValue } = usePageSearch({
+    placeholder: 'Szukaj materiałów po nazwie, kodzie, typie...',
+    onSearch: (value) => {
+      console.log('Szukanie materiałów:', value)
+    }
+  })
+
+  // Filtry i sortowanie
   const [sortBy, setSortBy] = useState<'name' | 'price' | 'stock' | 'category'>('category')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const [advancedFiltersVisible, setAdvancedFiltersVisible] = useState(false)
@@ -91,8 +99,8 @@ export default function MagazynNew() {
     }
 
     // Filtr wyszukiwania
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
+    if (searchValue) {
+      const query = searchValue.toLowerCase()
       result = result.filter(material =>
         material.name.toLowerCase().includes(query) ||
         material.code.toLowerCase().includes(query) ||
@@ -161,7 +169,7 @@ export default function MagazynNew() {
     })
 
     return result
-  }, [materials, selectedCategories, searchQuery, selectedSupplier, selectedAbcClass, selectedStatus, sortBy, sortOrder])
+  }, [materials, selectedCategories, searchValue, selectedSupplier, selectedAbcClass, selectedStatus, sortBy, sortOrder])
 
   // Statystyki
   const stats = useMemo(() => calculateMaterialStats(filteredMaterials), [filteredMaterials])
@@ -204,20 +212,9 @@ export default function MagazynNew() {
                 }
               />
 
-              {/* Ulepszone paski narzędzi */}
-              {/* Górny pasek - wyszukiwanie i filtry */}
+              {/* Pasek narzędzi */}
               <Card size="small" style={{ marginBottom: 12 }}>
-                <Row gutter={12} align="middle">
-                  <Col flex="auto">
-                    <Input.Search
-                      placeholder="Szukaj materiałów po nazwie, kodzie, typie..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      style={{ maxWidth: 400 }}
-                      size="middle"
-                      enterButton={<SearchOutlined />}
-                    />
-                  </Col>
+                <Row gutter={12} align="middle" justify="space-between">
                   <Col>
                     <Space>
                       <Select
@@ -248,16 +245,18 @@ export default function MagazynNew() {
                       >
                         Filtry
                       </Button>
-
-                      <Segmented
-                        value={viewMode}
-                        onChange={setViewMode}
-                        options={[
-                          { value: 'table', icon: <BarsOutlined />, label: 'Tabela' },
-                          { value: 'cards', icon: <AppstoreOutlined />, label: 'Karty' }
-                        ]}
-                      />
                     </Space>
+                  </Col>
+
+                  <Col>
+                    <Segmented
+                      value={viewMode}
+                      onChange={setViewMode}
+                      options={[
+                        { value: 'table', icon: <BarsOutlined />, label: 'Tabela' },
+                        { value: 'cards', icon: <AppstoreOutlined />, label: 'Karty' }
+                      ]}
+                    />
                   </Col>
                 </Row>
               </Card>
@@ -293,12 +292,12 @@ export default function MagazynNew() {
 
             {/* Status i statystyki */}
             <div style={{ marginBottom: 12 }}>
-              <Typography.Text type="secondary">
+              <div style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
                 Znaleziono <strong>{filteredMaterials.length}</strong> materiałów
                 {selectedCategories.length > 0 && (
                   <span> (z {materials.length} ogółem)</span>
                 )}
-              </Typography.Text>
+              </div>
               <Space style={{ marginLeft: 12 }}>
                 {stats.criticalCount > 0 && (
                   <Tag color="error"><i className="ri-error-warning-line" style={{ marginRight: 4 }}></i>{stats.criticalCount} krytyczne</Tag>
@@ -334,7 +333,7 @@ export default function MagazynNew() {
                         render: (m) => (
                           <div>
                             <div style={{ fontWeight: 500 }}>{m.name}</div>
-                            <Typography.Text type="secondary" style={{ fontSize: 12 }}><i className="ri-map-pin-line" style={{ marginRight: 4 }}></i>{m.location || 'Brak lokalizacji'}</Typography.Text>
+                            <div style={{ color: 'var(--text-secondary)', fontSize: '12px' }}><i className="ri-map-pin-line" style={{ marginRight: 4 }}></i>{m.location || 'Brak lokalizacji'}</div>
                           </div>
                         )
                       },
@@ -460,7 +459,7 @@ export default function MagazynNew() {
       >
         <Space direction="vertical" style={{ width: '100%' }} size="middle">
           <div>
-            <Typography.Text strong>Dostawca:</Typography.Text>
+            <div style={{ fontWeight: 600, marginBottom: '8px' }}>Dostawca:</div>
             <Select
               placeholder="Wybierz dostawcę"
               value={selectedSupplier}
@@ -477,7 +476,7 @@ export default function MagazynNew() {
           </div>
 
           <div>
-            <Typography.Text strong>Klasa ABC:</Typography.Text>
+            <div style={{ fontWeight: 600, marginBottom: '8px' }}>Klasa ABC:</div>
             <Select
               placeholder="Wybierz klasę ABC"
               value={selectedAbcClass}
@@ -492,7 +491,7 @@ export default function MagazynNew() {
           </div>
 
           <div>
-            <Typography.Text strong>Status zapasu:</Typography.Text>
+            <div style={{ fontWeight: 600, marginBottom: '8px' }}>Status zapasu:</div>
             <Select
               placeholder="Wybierz status"
               value={selectedStatus}
@@ -518,9 +517,9 @@ export default function MagazynNew() {
           {/* Podsumowanie aktywnych filtrów */}
           {(selectedSupplier || selectedAbcClass || selectedStatus) && (
             <div style={{ marginTop: 16, padding: 12, background: '#f5f5f5', borderRadius: 6 }}>
-              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              <div style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
                 Aktywne filtry:
-              </Typography.Text>
+              </div>
               <div style={{ marginTop: 4 }}>
                 {selectedSupplier && (
                   <Tag closable onClose={() => setSelectedSupplier('')} style={{ marginBottom: 4 }}>

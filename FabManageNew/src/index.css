@@ -1,12 +1,12 @@
 /* ========================================
-   FABMANAGE - GŁÓWNY PLIK STYLÓW
+   FABMANAGE - DARK MODE TECH DESIGN SYSTEM
    ========================================
    
-   Ten plik importuje skonsolidowany motyw
-   i zawiera tylko style specyficzne dla index.html
+   Import nowego Design System dla index.html
    ======================================== */
 
-@import './styles/theme.css';
+@import './styles/design-system.css';
+@import './styles/components.css';
 
 /* ========================================
    SPECYFICZNE STYLE DLA INDEX.HTML

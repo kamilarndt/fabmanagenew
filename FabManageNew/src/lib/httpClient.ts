@@ -2,6 +2,7 @@ import axios from 'axios'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { isSupabaseConfigured, supabase } from './supabase'
 import { toBackendTileStatus, toUiTileStatus } from './statusUtils'
+import { connectionMonitor } from './connectionMonitor'
 
 // Types
 export interface ApiResponse<T = any> {
@@ -122,7 +123,7 @@ class HttpClient {
         return response.data
     }
 
-    // Unified API method that chooses between HTTP and Supabase
+    // Unified API method that chooses between HTTP and Supabase with connection monitoring
     async apiCall<T>(endpoint: string, options: {
         method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
         data?: any
@@ -138,27 +139,118 @@ class HttpClient {
             statusTransform = false
         } = options
 
+        // Check connection status first
+        const connectionStatus = connectionMonitor.getStatus()
+
         try {
-            if (useSupabase && table) {
-                return await this.supabaseCall<T>(table, { method, data, statusTransform })
+            // If database is available, use it
+            if (connectionStatus.isConnected && connectionStatus.source === 'database') {
+                if (useSupabase && table) {
+                    return await this.supabaseCall<T>(table, { method, data, statusTransform })
+                } else {
+                    return await this.httpCall<T>(endpoint, { method, data, statusTransform })
+                }
             } else {
-                return await this.httpCall<T>(endpoint, { method, data, statusTransform })
+                // Database not available, use fallback strategy
+                console.warn('📱 Database unavailable, using fallback data strategy:', connectionStatus.source)
+                return await this.getFallbackData<T>(endpoint, method, data)
             }
         } catch (error) {
-            // Fallback strategy: if primary method fails, try the other
+            // Primary method failed, try fallback
             console.warn(`Primary API method failed, trying fallback...`)
 
-            if (useSupabase) {
-                return await this.httpCall<T>(endpoint, { method, data, statusTransform })
-            } else {
-                if (table) {
-                    return await this.supabaseCall<T>(table, { method, data, statusTransform })
-                }
-                throw error
-            }
+            // Update connection status as failed
+            connectionMonitor.updateConnectionStatus()
+
+            return await this.getFallbackData<T>(endpoint, method, data)
         }
     }
 
+    /**
+     * Fallback data strategy when database is unavailable
+     */
+    private async getFallbackData<T>(endpoint: string, method: string, data?: any): Promise<T> {
+        const strategy = connectionMonitor.getApiStrategy()
+
+        if (strategy === 'mock') {
+            return await this.getMockData<T>(endpoint)
+        } else {
+            // Try localStorage cache or return empty data
+            return await this.getLocalStorageData<T>(endpoint, method, data)
+        }
+    }
+
+    /**
+     * Get mock data for development
+     */
+    private async getMockData<T>(endpoint: string): Promise<T> {
+        try {
+            // Import mock data dynamically
+            if (endpoint.includes('/api/projects')) {
+                const { mockProjects } = await import('../data/development')
+                return mockProjects as T
+            } else if (endpoint.includes('/api/clients')) {
+                const { mockClients } = await import('../data/development')
+                return mockClients as T
+            } else if (endpoint.includes('/api/tiles')) {
+                console.log('🔧 httpClient: Loading mock tiles data...')
+                const { mockTiles } = await import('../data/development')
+                console.log('🔧 httpClient: Loaded mock tiles:', { count: mockTiles.length, first: mockTiles[0] })
+                return mockTiles as T
+            } else if (endpoint.includes('/api/materials')) {
+                const { mockMaterials } = await import('../data/development')
+                return mockMaterials as T
+            }
+
+            // Default empty response
+            return [] as T
+        } catch (error) {
+            console.warn('Failed to load mock data:', error)
+            return [] as T
+        }
+    }
+
+    /**
+     * Get data from localStorage cache
+     */
+    private async getLocalStorageData<T>(endpoint: string, method: string, _data?: any): Promise<T> {
+        try {
+            if (method === 'GET') {
+                const cacheKey = `fabmanage_cache_${endpoint.replace(/[^a-zA-Z0-9]/g, '_')}`
+                const cached = localStorage.getItem(cacheKey)
+
+                if (cached) {
+                    console.log('📂 Using cached data for:', endpoint)
+                    return JSON.parse(cached) as T
+                }
+            }
+
+            // For write operations or no cache, return empty/default response
+            if (method === 'POST' && _data) {
+                return { ..._data, id: Date.now().toString() } as T
+            }
+
+            return [] as T
+        } catch (error) {
+            console.warn('Failed to load cached data:', error)
+            return [] as T
+        }
+    }
+
+    /**
+     * Cache successful responses in localStorage
+     */
+    private cacheResponse(endpoint: string, data: any) {
+        try {
+            const cacheKey = `fabmanage_cache_${endpoint.replace(/[^a-zA-Z0-9]/g, '_')}`
+            localStorage.setItem(cacheKey, JSON.stringify(data))
+            localStorage.setItem(`${cacheKey}_timestamp`, Date.now().toString())
+        } catch (error) {
+            console.warn('Failed to cache response:', error)
+        }
+    }
+
+    // Update existing httpCall to cache responses
     private async httpCall<T>(endpoint: string, options: {
         method: string
         data?: any
@@ -188,13 +280,23 @@ class HttpClient {
                 throw new Error(`Unsupported HTTP method: ${method}`)
         }
 
+        // Cache GET responses for fallback
+        if (method === 'GET' && result) {
+            this.cacheResponse(endpoint, result)
+        }
+
         // Transform status fields if needed
         if (statusTransform && result) {
-            result = this.transformStatus(result, 'toUi') as T
+            if (Array.isArray(result)) {
+                return (result as any[]).map(item => this.transformStatus(item, 'toUi')) as T
+            } else {
+                return this.transformStatus(result, 'toUi') as T
+            }
         }
 
         return result
     }
+
 
     private async supabaseCall<T>(table: string, options: {
         method: string
@@ -311,4 +413,19 @@ export const api = {
     patch: <T>(url: string, data?: any, config?: AxiosRequestConfig) => httpClient.patch<T>(url, data, config),
     delete: <T>(url: string, config?: AxiosRequestConfig) => httpClient.delete<T>(url, config),
     call: <T>(endpoint: string, options?: Parameters<HttpClient['apiCall']>[1]) => httpClient.apiCall<T>(endpoint, options)
+}
+
+export async function callEdgeFunction<T = any>(fnName: string, payload?: any): Promise<T> {
+    if (!isSupabaseConfigured) {
+        throw new Error('Supabase is not configured')
+    }
+    try {
+        const { data, error } = await supabase.functions.invoke(fnName, {
+            body: payload || {},
+        } as any)
+        if (error) throw error
+        return data as T
+    } catch (err: any) {
+        throw new ApiError(err?.message || 'Edge function call failed', err?.status || 500, err)
+    }
 }

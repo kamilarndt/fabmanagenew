@@ -6,7 +6,7 @@ import { useAuthStore } from '../stores/authStore'
 import { useProjectsStore } from '../stores/projectsStore'
 import type { Tile } from '../types/tiles.types'
 import TileCard from '../components/Tiles/TileCard'
-import TileEditModal from '../components/Tiles/TileEditModal'
+import TileEditModalV3 from '../components/Tiles/TileEditModalV3'
 import { PageHeader } from '../components/Ui/PageHeader'
 
 const { Search } = Input
@@ -62,7 +62,7 @@ export default function TilesPage() {
             }
             setEditModalOpen(false)
             setEditingTile(null)
-        } catch (error) {
+        } catch (_error) {
             message.error('Błąd podczas zapisywania kafelka')
         }
     }
@@ -159,7 +159,7 @@ export default function TilesPage() {
                     <Card size="small">
                         <div style={{ textAlign: 'center' }}>
                             <Title level={3} style={{ margin: 0, color: '#52c41a' }}>
-                                {filteredTiles.filter(t => t.status === 'Zakończony').length}
+                                {filteredTiles.filter(t => (t.status as any) === 'Zakończony').length}
                             </Title>
                             <div>Zakończonych</div>
                         </div>
@@ -212,7 +212,7 @@ export default function TilesPage() {
             )}
 
             {/* Modal edycji */}
-            <TileEditModal
+            <TileEditModalV3
                 open={editModalOpen}
                 onClose={() => {
                     setEditModalOpen(false)

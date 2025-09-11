@@ -78,31 +78,34 @@ interface LogisticsStore {
   siteInstallations: SiteInstallation[]
   punchListItems: PunchListItem[]
   signOffs: SignOff[]
-  
+
+  // Initialize with realistic data
+  initialize: () => Promise<void>
+
   // Packing Lists
   addPackingItem: (item: Omit<PackingList, 'id' | 'packedAt'>) => void
   updatePackingItem: (id: string, updates: Partial<PackingList>) => void
   removePackingItem: (id: string) => void
   getPackingListByProject: (projectId: string) => PackingList[]
-  
+
   // Route Planning
   addRoute: (route: Omit<RoutePlanning, 'id'>) => void
   updateRoute: (id: string, updates: Partial<RoutePlanning>) => void
   removeRoute: (id: string) => void
   getRoutesByProject: (projectId: string) => RoutePlanning[]
-  
+
   // Site Installation
   addInstallationTask: (task: Omit<SiteInstallation, 'id'>) => void
   updateInstallationTask: (id: string, updates: Partial<SiteInstallation>) => void
   removeInstallationTask: (id: string) => void
   getInstallationTasksByProject: (projectId: string) => SiteInstallation[]
-  
+
   // Punch List
   addPunchListItem: (item: Omit<PunchListItem, 'id' | 'createdAt'>) => void
   updatePunchListItem: (id: string, updates: Partial<PunchListItem>) => void
   removePunchListItem: (id: string) => void
   getPunchListByProject: (projectId: string) => PunchListItem[]
-  
+
   // Sign Offs
   addSignOff: (signOff: Omit<SignOff, 'id'>) => void
   updateSignOff: (id: string, updates: Partial<SignOff>) => void
@@ -118,7 +121,27 @@ export const useLogisticsStore = create<LogisticsStore>()(
       siteInstallations: [],
       punchListItems: [],
       signOffs: [],
-      
+
+      // Initialize with realistic data
+      initialize: async () => {
+        try {
+          const { config } = await import('../lib/config')
+
+          if (config.useMockData) {
+            const { realLogisticsData } = await import('../data/development')
+
+            set({
+              routePlanning: realLogisticsData.routePlanning,
+              packingLists: realLogisticsData.packingLists
+            })
+
+            console.log('🚛 Loaded realistic logistics data')
+          }
+        } catch (error) {
+          console.warn('Failed to load logistics data:', error)
+        }
+      },
+
       // Packing Lists
       addPackingItem: (item) => set((state) => ({
         packingLists: [...state.packingLists, {
@@ -127,20 +150,20 @@ export const useLogisticsStore = create<LogisticsStore>()(
           packedAt: Date.now()
         }]
       })),
-      
+
       updatePackingItem: (id, updates) => set((state) => ({
         packingLists: state.packingLists.map(item =>
           item.id === id ? { ...item, ...updates } : item
         )
       })),
-      
+
       removePackingItem: (id) => set((state) => ({
         packingLists: state.packingLists.filter(item => item.id !== id)
       })),
-      
+
       getPackingListByProject: (projectId) =>
         get().packingLists.filter(item => item.projectId === projectId),
-      
+
       // Route Planning
       addRoute: (route) => set((state) => ({
         routePlanning: [...state.routePlanning, {
@@ -148,20 +171,20 @@ export const useLogisticsStore = create<LogisticsStore>()(
           id: crypto.randomUUID()
         }]
       })),
-      
+
       updateRoute: (id, updates) => set((state) => ({
         routePlanning: state.routePlanning.map(route =>
           route.id === id ? { ...route, ...updates } : route
         )
       })),
-      
+
       removeRoute: (id) => set((state) => ({
         routePlanning: state.routePlanning.filter(route => route.id !== id)
       })),
-      
+
       getRoutesByProject: (projectId) =>
         get().routePlanning.filter(route => route.projectId === projectId),
-      
+
       // Site Installation
       addInstallationTask: (task) => set((state) => ({
         siteInstallations: [...state.siteInstallations, {
@@ -169,20 +192,20 @@ export const useLogisticsStore = create<LogisticsStore>()(
           id: crypto.randomUUID()
         }]
       })),
-      
+
       updateInstallationTask: (id, updates) => set((state) => ({
         siteInstallations: state.siteInstallations.map(task =>
           task.id === id ? { ...task, ...updates } : task
         )
       })),
-      
+
       removeInstallationTask: (id) => set((state) => ({
         siteInstallations: state.siteInstallations.filter(task => task.id !== id)
       })),
-      
+
       getInstallationTasksByProject: (projectId) =>
         get().siteInstallations.filter(task => task.projectId === projectId),
-      
+
       // Punch List
       addPunchListItem: (item) => set((state) => ({
         punchListItems: [...state.punchListItems, {
@@ -191,20 +214,20 @@ export const useLogisticsStore = create<LogisticsStore>()(
           createdAt: Date.now()
         }]
       })),
-      
+
       updatePunchListItem: (id, updates) => set((state) => ({
         punchListItems: state.punchListItems.map(item =>
           item.id === id ? { ...item, ...updates } : item
         )
       })),
-      
+
       removePunchListItem: (id) => set((state) => ({
         punchListItems: state.punchListItems.filter(item => item.id !== id)
       })),
-      
+
       getPunchListByProject: (projectId) =>
         get().punchListItems.filter(item => item.projectId === projectId),
-      
+
       // Sign Offs
       addSignOff: (signOff) => set((state) => ({
         signOffs: [...state.signOffs, {
@@ -212,17 +235,17 @@ export const useLogisticsStore = create<LogisticsStore>()(
           id: crypto.randomUUID()
         }]
       })),
-      
+
       updateSignOff: (id, updates) => set((state) => ({
         signOffs: state.signOffs.map(signOff =>
           signOff.id === id ? { ...signOff, ...updates } : signOff
         )
       })),
-      
+
       removeSignOff: (id) => set((state) => ({
         signOffs: state.signOffs.filter(signOff => signOff.id !== id)
       })),
-      
+
       getSignOffsByProject: (projectId) =>
         get().signOffs.filter(signOff => signOff.projectId === projectId),
     }),

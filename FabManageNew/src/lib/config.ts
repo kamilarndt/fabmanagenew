@@ -22,12 +22,13 @@ function getEnvironment(): Environment {
 }
 
 function shouldUseMockData(): boolean {
-    // Use mock data in development if no API_BASE_URL or if explicitly enabled
+    // DEMO MODE: Always use mock data for demonstration
     const forceMock = import.meta.env.VITE_USE_MOCK_DATA === 'true'
     const noApiUrl = !import.meta.env.VITE_API_BASE_URL
     const isDev = getEnvironment() === 'development'
 
-    return forceMock || (isDev && noApiUrl)
+    // Force mock data for demo - always return true in development
+    return isDev || forceMock || noApiUrl
 }
 
 export const config: AppConfig = {

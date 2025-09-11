@@ -1,13 +1,15 @@
 import { Routes, Route } from 'react-router-dom'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
 import { PageLoading } from './components/Ui/LoadingSpinner'
 import useOfflineDetection from './hooks/useOfflineDetection'
+import { useInitializeRealData } from './hooks/useInitializeRealData'
+import { connectionMonitor } from './lib/connectionMonitor'
 
 // Layouts
-import BootstrapLayout from './layouts/BootstrapLayout'
+import BrandedLayout from './layouts/BrandedLayout'
 
 // Pages with Bootstrap layout
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -17,7 +19,8 @@ const AddProject = lazy(() => import('./pages/AddProject'))
 const Projektowanie = lazy(() => import('./pages/Projektowanie'))
 const CNC = lazy(() => import('./pages/CNC'))
 const Produkcja = lazy(() => import('./pages/Produkcja'))
-const Magazyn = lazy(() => import('./pages/MagazynNew'))
+const Magazyn = lazy(() => import('./pages/MagazynUmms'))
+const MagazynDashboard = lazy(() => import('./pages/MagazynDashboard'))
 const Demands = lazy(() => import('./pages/Demands'))
 const Tiles = lazy(() => import('./pages/Tiles'))
 const DesignerDashboard = lazy(() => import('./pages/DesignerDashboard'))
@@ -26,6 +29,7 @@ const CalendarProjects = lazy(() => import('./pages/CalendarProjects'))
 const CalendarDesigners = lazy(() => import('./pages/CalendarDesigners'))
 const CalendarTeams = lazy(() => import('./pages/CalendarTeams'))
 const Subcontractors = lazy(() => import('./pages/Subcontractors'))
+const Settings = lazy(() => import('./pages/Settings'))
 
 // Pages with Figma layout (prototypes)
 const Klienci = lazy(() => import('./pages/Klienci'))
@@ -37,6 +41,25 @@ function App() {
     // Monitor offline state globally
     useOfflineDetection()
 
+    // Initialize all data stores with realistic production data
+    useInitializeRealData()
+
+    // Initialize connection monitor on app start
+    useEffect(() => {
+        const initializeApp = async () => {
+            console.log('🔌 Initializing connection monitor...')
+            // Wait for connection check before initializing stores
+            await connectionMonitor.forceCheck()
+
+            // Now initialize projects store
+            const { useProjectsStore } = await import('./stores/projectsStore')
+            // Initialize projects store
+            await useProjectsStore.getState().initialize()
+        }
+
+        initializeApp()
+    }, [])
+
     return (
         <ErrorBoundary level="global" onError={(error, errorInfo) => {
             console.error('Global error:', error, errorInfo)
@@ -44,28 +67,35 @@ function App() {
             <DndProvider backend={HTML5Backend}>
                 <Suspense fallback={<PageLoading />}>
                     <Routes>
-                        {/* Routes with Bootstrap Layout */}
-                        <Route path="/" element={<BootstrapLayout />}>
+                        {/* Routes with Branded Layout */}
+                        <Route path="/" element={<BrandedLayout />}>
                             <Route index element={<Dashboard />} />
+                            <Route path="projects" element={<Projects />} />
+                            <Route path="projects/new" element={<AddProject />} />
                             <Route path="projekty" element={<Projects />} />
                             <Route path="projekty/nowy" element={<AddProject />} />
+                            <Route path="project/:id" element={<Projekt />} />
                             <Route path="projekt/:id" element={<Projekt />} />
                             <Route path="projektowanie" element={<Projektowanie />} />
                             <Route path="cnc" element={<CNC />} />
                             <Route path="produkcja" element={<Produkcja />} />
-                            <Route path="magazyn" element={<Magazyn />} />
+                            <Route path="magazyn">
+                                <Route index element={<MagazynDashboard />} />
+                                <Route path="lista" element={<Magazyn />} />
+                            </Route>
                             <Route path="kafelki" element={<Tiles />} />
                             <Route path="designer" element={<DesignerDashboard />} />
-                            <Route path="kalendarz" element={<CalendarPage />} />
-                            <Route path="kalendarz/projekty" element={<CalendarProjects />} />
-                            <Route path="kalendarz/projektanci" element={<CalendarDesigners />} />
-                            <Route path="kalendarz/ekipy" element={<CalendarTeams />} />
-                            <Route path="podwykonawcy" element={<Subcontractors />} />
-                            <Route path="zapotrzebowania" element={<Demands />} />
+                            <Route path="calendar" element={<CalendarPage />} />
+                            <Route path="calendar/projects" element={<CalendarProjects />} />
+                            <Route path="calendar/designers" element={<CalendarDesigners />} />
+                            <Route path="calendar/teams" element={<CalendarTeams />} />
+                            <Route path="subcontractors" element={<Subcontractors />} />
+                            <Route path="demands" element={<Demands />} />
+                            <Route path="settings" element={<Settings />} />
                         </Route>
 
                         {/* Clients under main layout for consistent navigation */}
-                        <Route path="/klienci" element={<BootstrapLayout />}>
+                        <Route path="/klienci" element={<BrandedLayout />}>
                             <Route index element={<Klienci />} />
                             <Route path=":id" element={<Klient />} />
                         </Route>

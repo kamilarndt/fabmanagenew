@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { config } from '../lib/config'
 
 export type MaterialItem = {
     id: string
@@ -85,29 +86,74 @@ export const useMaterialsStore = create<MaterialsState>()((set, get) => ({
 
     syncFromBackend: async () => {
         try {
+            // Use realistic mock data in development mode
+            if (config.useMockData) {
+                const { mockMaterials } = await import('../data/development')
+
+                const mapped: MaterialItem[] = mockMaterials.map((m: any) => ({
+                    id: m.id,
+                    code: m.code,
+                    name: m.name,
+                    category: [m.category, m.type].filter(Boolean),
+                    unit: m.unit,
+                    price: m.cena || m.unitCost || 0,
+                    stock: m.quantity || 0,
+                    minStock: Math.floor((m.quantity || 0) * 0.2),
+                    maxStock: Math.floor((m.quantity || 0) * 1.5),
+                    supplier: m.supplier,
+                    location: m.location,
+                    thickness: m.grubosc || undefined,
+                    variant: m.typ || undefined,
+                    abcClass: m.quantity > 50 ? 'A' : m.quantity > 20 ? 'B' : 'C'
+                }))
+
+                set({ materials: mapped })
+                console.log(`📦 Loaded ${mapped.length} realistic materials`)
+                return
+            }
+
             const { api } = await import('../lib/httpClient')
 
             const data = await api.call<any[]>('/api/materials', {
                 method: 'GET',
-                table: 'materials'
+                table: 'materials',
+                useSupabase: false
             })
 
             const mapped: MaterialItem[] = (Array.isArray(data) ? data : []).map((m: any) => {
-                const categoryMain = String(m.category || '').toUpperCase()
-                const categorySub = m.type ? String(m.type) : undefined
-                const code = ['_MATERIAL', categoryMain, categorySub, (m.name || '').toString()].filter(Boolean).join('/')
+                const categoryMainRaw = (m.category ?? '').toString().trim()
+                const categoryMain = categoryMainRaw.length ? categoryMainRaw.toUpperCase() : 'UNKNOWN'
+                const categorySubRaw = (m.type ?? '').toString().trim()
+                const categorySub = categorySubRaw.length ? categorySubRaw : undefined
+                const nameRaw = (m.name ?? '').toString().trim()
+                const formatRaw = (m.format_raw ?? '').toString().trim()
+
+                // Deterministic display name
+                const displayName = nameRaw.length
+                    ? nameRaw
+                    : [categoryMain, categorySub].filter(Boolean).join(' ')
+
+                // Category path includes root and main; sub is represented in code and search
+                const categoryPath = ['_MATERIAL', categoryMain]
+
+                const codeParts = ['_MATERIAL', categoryMain]
+                if (categorySub) codeParts.push(categorySub)
+                if (nameRaw.length) codeParts.push(nameRaw)
+                if (formatRaw.length) codeParts.push(formatRaw)
+                const code = codeParts.join('/')
+
                 return {
                     id: String(m.id),
                     code,
-                    name: m.name && m.name.length > 0 ? String(m.name) : `${categoryMain} ${categorySub || ''}`.trim(),
-                    category: categorySub ? ['_MATERIAL', categoryMain] : ['_MATERIAL', categoryMain],
+                    name: displayName,
+                    category: categoryPath,
                     unit: String(m.unit || 'szt'),
                     price: Number(m.unitCost || 0),
                     stock: Number(m.quantity || 0),
                     minStock: 10,
                     maxStock: Math.max(Number(m.quantity || 0) * 2, 20),
-                    supplier: 'Unknown',
-                    location: undefined
+                    supplier: (m.supplier || 'Unknown') as string,
+                    location: (m.location || undefined) as string | undefined
                 }
             })
             set({ materials: mapped })

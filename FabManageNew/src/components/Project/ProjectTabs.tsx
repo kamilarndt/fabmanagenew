@@ -1,7 +1,7 @@
 import type { Project } from '../../types/projects.types'
 import { Tabs, Card } from 'antd'
 
-type TabId = 'overview' | 'koncepcja' | 'wycena' | 'elementy' | 'zakupy' | 'logistyka' | 'zakwaterowanie' | 'kalendarz'
+export type TabId = 'overview' | 'koncepcja' | 'wycena' | 'elementy' | 'zakupy' | 'logistyka' | 'zakwaterowanie' | 'harmonogram' | 'model_3d'
 
 interface ProjectTabsProps {
     activeTab: TabId
@@ -12,12 +12,13 @@ interface ProjectTabsProps {
 const TABS = [
     { id: 'overview' as const, label: 'Overview', icon: 'ri-dashboard-line', requiredModule: null },
     { id: 'koncepcja' as const, label: 'Koncepcja', icon: 'ri-artboard-2-line', requiredModule: 'koncepcja' },
-    { id: 'wycena' as const, label: 'Wycena', icon: 'ri-money-dollar-circle-line', requiredModule: 'wycena' },
-    { id: 'elementy' as const, label: 'Elementy', icon: 'ri-layout-grid-line', requiredModule: 'projektowanie_techniczne' },
+    { id: 'wycena' as const, label: 'Wycena', icon: 'ri-money-dollar-circle-line', requiredModule: null }, // YOLO MODE: Always enabled for demo
+    { id: 'elementy' as const, label: 'Elementy', icon: 'ri-layout-grid-line', requiredModule: null }, // YOLO MODE: Always enabled for demo
     { id: 'zakupy' as const, label: 'Materiały', icon: 'ri-shopping-cart-line', requiredModule: 'materialy' },
     { id: 'logistyka' as const, label: 'Logistyka', icon: 'ri-road-map-line', requiredModule: 'logistyka_montaz' },
-    { id: 'zakwaterowanie' as const, label: 'Zakwaterowanie', icon: 'ri-hotel-bed-line', requiredModule: 'zakwaterowanie' }
-    , { id: 'kalendarz' as const, label: 'Kalendarz', icon: 'ri-calendar-line', requiredModule: null }
+    { id: 'zakwaterowanie' as const, label: 'Zakwaterowanie', icon: 'ri-hotel-bed-line', requiredModule: 'zakwaterowanie' },
+    { id: 'harmonogram' as const, label: 'Harmonogram', icon: 'ri-timeline-view', requiredModule: null },
+    { id: 'model_3d' as const, label: 'Model 3D', icon: 'ri-3d-view', requiredModule: null } // YOLO MODE: Always enabled for demo
 ] as const
 
 export default function ProjectTabs({ activeTab, onTabChange, project }: ProjectTabsProps) {

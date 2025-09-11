@@ -15,9 +15,16 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3001
+      - SPECKLE_SERVER_URL=http://speckle-server:3000
+      - SPECKLE_TOKEN=${SPECKLE_TOKEN}
+      - PROJECTS_ROOT_DIR=/mnt/projects
     ports:
       - "3001:3001"
     volumes:
       - ../backend:/srv/app
       - /srv/app/node_modules
+      - fabmanage-projects:/mnt/projects
+
+volumes:
+  fabmanage-projects:
 

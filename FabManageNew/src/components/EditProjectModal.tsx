@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react'
 import { useProjectsStore, type Project, type ProjectModule } from '../stores/projectsStore'
+import { PROJECT_MODULES, PROJECT_STATUS_LABELS, PROJECT_STATUSES } from '../types/enums'
 import { showToast } from '../lib/notifications'
 import SlideOver from './Ui/SlideOver'
 
 const projectModules: { id: ProjectModule; name: string; description: string }[] = [
-    { id: 'wycena', name: 'Wycena', description: 'Kalkulacja kosztów i przygotowanie oferty' },
-    { id: 'koncepcja', name: 'Koncepcja', description: 'Projektowanie koncepcyjne i wizualizacje' },
-    { id: 'projektowanie_techniczne', name: 'Projektowanie Techniczne', description: 'Szczegółowe projekty techniczne i dokumentacja' },
-    { id: 'produkcja', name: 'Produkcja', description: 'Wycinka CNC i produkcja elementów' },
-    { id: 'materialy', name: 'Materiały', description: 'Zarządzanie materiałami i zakupami' },
-    { id: 'logistyka_montaz', name: 'Logistyka i Montaż', description: 'Transport i montaż na miejscu' },
-    { id: 'zakwaterowanie', name: 'Zakwaterowanie', description: 'Rezerwacje hoteli i koszty' }
+    { id: PROJECT_MODULES.PRICING, name: 'Wycena', description: 'Kalkulacja kosztów i przygotowanie oferty' },
+    { id: PROJECT_MODULES.CONCEPT, name: 'Koncepcja', description: 'Projektowanie koncepcyjne i wizualizacje' },
+    { id: PROJECT_MODULES.DESIGN, name: 'Projektowanie', description: 'Szczegółowe projekty techniczne i dokumentacja' },
+    { id: PROJECT_MODULES.PRODUCTION, name: 'Produkcja', description: 'Wycinka CNC i produkcja elementów' },
+    { id: PROJECT_MODULES.LOGISTICS, name: 'Logistyka', description: 'Transport i montaż na miejscu' },
+    { id: PROJECT_MODULES.ACCOMMODATION, name: 'Zakwaterowanie', description: 'Rezerwacje hoteli i koszty' }
 ]
 
 type Props = {
@@ -25,7 +25,7 @@ export default function EditProjectModal({ open, projectId, onClose }: Props) {
 
     const [name, setName] = useState('')
     const [client, setClient] = useState('')
-    const [status, setStatus] = useState<Project['status']>('Nowy')
+    const [status, setStatus] = useState<Project['status']>(PROJECT_STATUSES.NEW as any)
     const [deadline, setDeadline] = useState('')
     const [selectedModules, setSelectedModules] = useState<ProjectModule[]>([])
 
@@ -81,9 +81,9 @@ export default function EditProjectModal({ open, projectId, onClose }: Props) {
                     <div className="col-6">
                         <label className="form-label">Status</label>
                         <select className="form-select" value={status} onChange={e => setStatus(e.target.value as Project['status'])}>
-                            <option value="Active">Active</option>
-                            <option value="On Hold">On Hold</option>
-                            <option value="Done">Done</option>
+                            {Object.entries(PROJECT_STATUS_LABELS).map(([key, label]) => (
+                                <option key={key} value={key}>{label}</option>
+                            ))}
                         </select>
                     </div>
                     <div className="col-6">

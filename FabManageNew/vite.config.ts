@@ -139,10 +139,6 @@ export default defineConfig({
       '@ant-design/icons',
 
       // Calendar dependencies
-      'react-big-calendar',
-      'react-big-calendar/lib/addons/dragAndDrop',
-      'date-fns',
-      'date-fns/locale/pl',
       'dayjs',
 
       // Form libraries
@@ -182,6 +178,11 @@ export default defineConfig({
         target: 'http://localhost:3001',
         changeOrigin: true,
       }
+    }
+  },
+
+  resolve: {
+    alias: {
     }
   },
 

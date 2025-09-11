@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, Tag, Typography, Row, Col, Button, Progress, Space } from 'antd'
+import { Card, Tag, Row, Col, Button, Progress, Space } from 'antd'
 import {
   ShoppingCartOutlined,
   InfoCircleOutlined,
@@ -12,7 +12,7 @@ import {
 import type { MaterialData } from '../../data/materialsMockData'
 import { getMaterialThumbnail, getThumbnailStyle } from '../../lib/materialThumbnails'
 
-const { Text, Title } = Typography
+// Removed Typography to prevent infinite loops
 
 interface MaterialCardProps {
   material: MaterialData
@@ -61,11 +61,17 @@ export default function MaterialCard({
       className={`material-card ${selected ? 'selected' : ''}`}
       style={{
         height: '320px',
-        border: selected ? '2px solid #1890ff' : '1px solid #d9d9d9',
-        transition: 'all 0.2s ease',
-        overflow: 'hidden'
+        backgroundColor: 'var(--bg-card)',
+        border: selected ? '1px solid var(--primary-main)' : '1px solid var(--border-main)',
+        borderRadius: 'var(--radius-none)',
+        transition: 'all var(--transition-fast)',
+        overflow: 'hidden',
+        fontFamily: 'var(--font-family)',
+        ...(selected && {
+          boxShadow: 'var(--glow-primary)'
+        })
       }}
-      bodyStyle={{ padding: 0, height: '100%' }}
+      bodyStyle={{ padding: 0, height: '100%', backgroundColor: 'var(--bg-card)' }}
       onClick={() => onSelect?.(material)}
     >
       {/* 1. Podgląd Wizualny (Góra Karty) */}
@@ -77,7 +83,7 @@ export default function MaterialCard({
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: 32,
-          borderBottom: '1px solid #f0f0f0',
+          borderBottom: '1px solid var(--border-main)',
           position: 'relative'
         }}
       >
@@ -89,8 +95,8 @@ export default function MaterialCard({
           position: 'absolute',
           top: 4,
           right: 8,
-          background: 'rgba(0,0,0,0.6)',
-          color: '#fff',
+          background: 'var(--bg-secondary)',
+          color: 'var(--text-primary)',
           padding: '2px 6px',
           borderRadius: 3,
           fontSize: 10,
@@ -102,12 +108,23 @@ export default function MaterialCard({
 
       {/* 2. Nazwa i Rodzaj (Sekcja Identyfikacyjna) */}
       <div style={{ padding: '12px 16px 8px' }}>
-        <Title level={4} style={{ margin: 0, fontSize: 16, fontWeight: 600, lineHeight: 1.2 }}>
+        <h4 style={{
+          margin: 0,
+          fontSize: 16,
+          fontWeight: 'var(--font-semibold)',
+          lineHeight: 1.2,
+          color: 'var(--text-primary)',
+          fontFamily: 'var(--font-family)'
+        }}>
           {material.typ || material.name}
-        </Title>
-        <Text type="secondary" style={{ fontSize: 12 }}>
+        </h4>
+        <span style={{
+          fontSize: 12,
+          color: 'var(--text-secondary)',
+          fontFamily: 'var(--font-family)'
+        }}>
           {material.rodzaj || material.variant || 'Standard'}
-        </Text>
+        </span>
       </div>
 
       {/* 3. Kluczowe Atrybuty (Sekcja Parametrów) */}
@@ -115,7 +132,11 @@ export default function MaterialCard({
         <Row justify="space-between" align="middle">
           <Col>
             <Space size={4}>
-              <Text style={{ fontSize: 11 }}>Grubość:</Text>
+              <span style={{
+                fontSize: 11,
+                color: 'var(--text-secondary)',
+                fontFamily: 'var(--font-family)'
+              }}>Grubość:</span>
               <Tag color="blue" style={{ fontSize: 10, margin: 0 }}>
                 {material.grubosc || material.thickness + 'mm' || 'N/A'}
               </Tag>
@@ -143,7 +164,11 @@ export default function MaterialCard({
         <Row gutter={12}>
           <Col span={12}>
             <div>
-              <Text type="secondary" style={{ fontSize: 11 }}>Dostępne:</Text>
+              <span style={{
+                fontSize: 11,
+                color: 'var(--text-secondary)',
+                fontFamily: 'var(--font-family)'
+              }}>Dostępne:</span>
               <div style={{ fontWeight: 600, fontSize: 13, marginTop: 2 }}>
                 {material.stock} / {material.minStock} {material.unit}
               </div>
@@ -158,7 +183,11 @@ export default function MaterialCard({
           </Col>
           <Col span={12}>
             <div>
-              <Text type="secondary" style={{ fontSize: 11 }}>Cena / {material.unit}:</Text>
+              <span style={{
+                fontSize: 11,
+                color: 'var(--text-secondary)',
+                fontFamily: 'var(--font-family)'
+              }}>Cena / {material.unit}:</span>
               <div style={{ fontWeight: 600, fontSize: 13, marginTop: 2 }}>
                 {(material.cena || material.price || 0).toLocaleString('pl-PL', {
                   style: 'currency',
@@ -181,15 +210,23 @@ export default function MaterialCard({
       {/* Dodatkowe info */}
       <div style={{ padding: '0 16px 8px' }}>
         {material.wielkosc_formatki && (
-          <Text type="secondary" style={{ fontSize: 10 }}>
+          <span style={{
+            fontSize: 10,
+            color: 'var(--text-secondary)',
+            fontFamily: 'var(--font-family)'
+          }}>
             📐 Format: {material.wielkosc_formatki}
-          </Text>
+          </span>
         )}
         {material.location && (
           <div style={{ marginTop: 2 }}>
-            <Text type="secondary" style={{ fontSize: 10 }}>
+            <span style={{
+              fontSize: 10,
+              color: 'var(--text-secondary)',
+              fontFamily: 'var(--font-family)'
+            }}>
               📍 {material.location}
-            </Text>
+            </span>
           </div>
         )}
       </div>
@@ -200,8 +237,8 @@ export default function MaterialCard({
         bottom: 0,
         left: 0,
         right: 0,
-        borderTop: '1px solid #f0f0f0',
-        background: '#fafafa',
+        borderTop: '1px solid var(--border-color)',
+        background: 'var(--bg-secondary)',
         padding: '8px 12px'
       }}>
         <Row gutter={8} justify="space-between">

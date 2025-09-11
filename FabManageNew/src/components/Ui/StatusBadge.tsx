@@ -1,8 +1,8 @@
 import { Tag } from 'antd';
-import { getStatusColor, getStatusIcon, getStatusDescription } from '../../lib/statusUtils';
+import { getStatusColor } from '../../lib/statusUtils';
 
 interface StatusBadgeProps {
-    status: string;
+    status: any;
     showIcon?: boolean;
     showTooltip?: boolean;
     size?: 'sm' | 'md' | 'lg';
@@ -17,8 +17,8 @@ export function StatusBadge({
     className = ''
 }: StatusBadgeProps) {
     const color = getStatusColor(status);
-    const icon = getStatusIcon(status);
-    const description = getStatusDescription(status);
+    const icon = undefined as any;
+    const description = status;
 
     const sizeStyles: Record<'sm' | 'md' | 'lg', React.CSSProperties> = {
         sm: { fontSize: 12, paddingInline: 6, height: 22 },

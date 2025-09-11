@@ -62,6 +62,19 @@ export default function DesignerDashboard() {
                             <div><b>Projekt:</b> {selectedTile.project}</div>
                             <div><b>Status:</b> {selectedTile.status}</div>
                             <div className="text-muted">Załącz pliki, a następnie zmień status w edycji kafelka.</div>
+                            <div style={{ marginTop: 12 }}>
+                                <Button size="small" onClick={async () => {
+                                    try {
+                                        const res = await fetch(`/api/tiles/${selectedTile.id}/files`)
+                                        const files: Array<{ name: string; path: string; size: number }> = await res.json()
+                                        if (!files.length) { message.info('Brak plików'); return }
+                                        const list = files.map(f => `• ${f.name} (${Math.round(f.size/1024)} KB)`).join('\n')
+                                        message.success(`Załączone pliki:\n${list}`)
+                                    } catch {
+                                        message.error('Nie udało się pobrać listy plików')
+                                    }
+                                }}>Pokaż załączniki</Button>
+                            </div>
                         </div>
                     ) : (
                         <div className="text-muted">Wybierz element z listy</div>

@@ -1,82 +1,105 @@
-// DXF layer-to-operation mapping and machine parameters
-// Viewer logic normalizes layer names to lowercase before lookup
-
-export type OperationType = 'cut' | 'mill' | 'drill' | 'ignore'
-
-export interface LayerOperation {
-    type: OperationType
-    speed?: number // m/min for cut/mill
-    drillTime?: number // seconds per hole for drill
-    depthMm?: number // optional milling depth for partial pockets
-}
-
-export interface DxfMachineParams {
-    machineMaxSpeed: number // m/min for rapids
-    filePrepTime: number // minutes
-    materialHandlingTime: number // minutes
-    stepdownMm?: number // default pass depth for milling
-}
-
 export interface DxfConfig {
     layerOperations: Record<string, LayerOperation>
-    machineParams: DxfMachineParams
+    materialSettings: MaterialSettings
+    machineParams: MachineParams
+    cutSpeed: number // mm/min
+    punchSpeed: number // punches/min
+    drillSpeed: number // holes/min
+    setupTime: number // minutes
 }
 
-export const dxfConfig: DxfConfig = {
+export interface LayerOperation {
+    type: 'cut' | 'punch' | 'drill' | 'engrave' | 'mill'
+    speed?: number // mm/min for cut/engrave/mill, operations/min for punch/drill
+    depth?: number
+    passes?: number
+    drillTime?: number // seconds per hole for drill operations
+    depthMm?: number // depth in mm for mill operations
+}
+
+export interface MachineParams {
+    stepdownMm: number // mm per pass for milling
+    filePrepTime: number // minutes
+    materialHandlingTime: number // minutes
+}
+
+export interface MaterialSettings {
+    thickness: number // mm
+    material: string // 'steel' | 'aluminum' | 'wood' | etc.
+    density?: number // kg/m³
+}
+
+// Default configuration
+export const defaultDxfConfig: DxfConfig = {
     layerOperations: {
-        '_ploter/_wycinanie': { type: 'cut', speed: 15 },
-        '_ploter/frez/_plaski/gl_9.0mm': { type: 'mill', speed: 10, depthMm: 9.0 },
-        '_ploter/frez/_plaski/gl_8.0mm': { type: 'mill', speed: 10, depthMm: 8.0 },
-        '_ploter/frez/_plaski/gl_4.0mm': { type: 'mill', speed: 12, depthMm: 4.0 },
-        '_ploter/frez/_plaski/gl_11.1mm': { type: 'mill', speed: 9, depthMm: 11.1 },
-        '_ploter/frez/_plaski/gl_6.1mm': { type: 'mill', speed: 11, depthMm: 6.1 },
-        '_ploter/frez/_plaski/gl_10.0mm': { type: 'mill', speed: 10, depthMm: 10.0 },
-        '_ploter/nazwy': { type: 'mill', speed: 20 },
-        '_ploter/otwor/d_4.0mm': { type: 'drill', drillTime: 3 },
-        '_ploter/otwor/d_4.0mm/gl_10.0mm': { type: 'drill', drillTime: 4 },
-        // Layers to ignore in calculations
-        '_material/mdf/18mm/trudnopal': { type: 'ignore' },
-        '_opisowe/-opisy': { type: 'ignore' },
-        '_ploter/ilosci': { type: 'ignore' },
-        '0': { type: 'ignore' },
-        'default': { type: 'cut', speed: 12 }
+        'CUT': {
+            type: 'cut',
+            speed: 1500 // mm/min
+        },
+        'PUNCH': {
+            type: 'punch',
+            speed: 60 // punches/min
+        },
+        'DRILL': {
+            type: 'drill',
+            speed: 30, // holes/min
+            drillTime: 3 // seconds per hole
+        },
+        'ENGRAVE': {
+            type: 'engrave',
+            speed: 800 // mm/min
+        },
+        'MILL': {
+            type: 'mill',
+            speed: 600, // mm/min
+            depthMm: 3
+        }
+    },
+    materialSettings: {
+        thickness: 3,
+        material: 'steel'
     },
     machineParams: {
-        machineMaxSpeed: 25,
-        filePrepTime: 15,
-        materialHandlingTime: 10,
-        stepdownMm: 3.0
-    }
+        stepdownMm: 3, // mm per pass
+        filePrepTime: 10, // minutes
+        materialHandlingTime: 5 // minutes
+    },
+    cutSpeed: 1500,
+    punchSpeed: 60,
+    drillSpeed: 30,
+    setupTime: 15 // minutes
 }
 
-export function resolveOperation(layerName: string) {
-    const raw = (layerName || '')
-    const key = raw.toLowerCase()
-    // Direct mapping first
-    const direct = dxfConfig.layerOperations[key]
-    if (direct) return direct
+// Helper function to resolve operation from layer name
+export function resolveOperation(layerName: string, config: DxfConfig = defaultDxfConfig): LayerOperation {
+    const upperLayer = layerName.toUpperCase()
 
-    // Heuristic 1: any layer containing "otwor" is a drill layer
-    if (key.includes('otwor')) {
-        const anyDrill = Object.values(dxfConfig.layerOperations).find(o => o.type === 'drill')
-        return anyDrill || { type: 'drill', drillTime: 3 }
+    // Try exact match first
+    if (config.layerOperations[upperLayer]) {
+        return config.layerOperations[upperLayer]
     }
 
-    // Heuristic 2: milling flat with depth variations GL_10mm vs GL_10.0mm
-    const m = key.match(/frez\/_plaski\/gl_(\d+(?:\.\d+)?)mm/)
-    if (m) {
-        const depth = parseFloat(m[1])
-        // try to reuse closest predefined speed
-        const base = dxfConfig.layerOperations['_ploter/frez/_plaski/gl_10.0mm'] || { type: 'mill', speed: 10 }
-        return { type: 'mill', speed: base.speed, depthMm: depth }
+    // Try pattern matching
+    if (upperLayer.includes('CUT') || upperLayer.includes('CUTTING')) {
+        return config.layerOperations['CUT'] || { type: 'cut', speed: config.cutSpeed }
     }
 
-    // Heuristic 3: cutting layer marker
-    if (key.includes('_wycinanie')) {
-        return dxfConfig.layerOperations['_ploter/_wycinanie'] || { type: 'cut', speed: 12 }
+    if (upperLayer.includes('PUNCH') || upperLayer.includes('PUNCHING')) {
+        return config.layerOperations['PUNCH'] || { type: 'punch', speed: config.punchSpeed }
     }
 
-    return dxfConfig.layerOperations['default']
+    if (upperLayer.includes('DRILL') || upperLayer.includes('DRILLING')) {
+        return config.layerOperations['DRILL'] || { type: 'drill', speed: config.drillSpeed, drillTime: 3 }
+    }
+
+    if (upperLayer.includes('ENGRAV') || upperLayer.includes('ETCH')) {
+        return config.layerOperations['ENGRAVE'] || { type: 'engrave', speed: 800 }
+    }
+
+    if (upperLayer.includes('MILL') || upperLayer.includes('MILLING')) {
+        return config.layerOperations['MILL'] || { type: 'mill', speed: 600, depthMm: 3 }
+    }
+
+    // Default to cutting
+    return config.layerOperations['CUT'] || { type: 'cut', speed: config.cutSpeed }
 }
-
-

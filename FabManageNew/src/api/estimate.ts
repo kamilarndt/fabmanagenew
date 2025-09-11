@@ -1,4 +1,4 @@
-import { apiFetch } from './client'
+import { api } from '../lib/httpClient'
 
 export type Material = {
     id: string
@@ -10,7 +10,10 @@ export type Material = {
 }
 
 export async function fetchMaterials(): Promise<Material[]> {
-    return apiFetch<Material[]>('/api/materials', { method: 'GET' })
+    return api.call<Material[]>('/api/materials', {
+        method: 'GET',
+        table: 'materials'
+    })
 }
 
 export async function postEstimate(payload: {
@@ -18,21 +21,16 @@ export async function postEstimate(payload: {
     lineItems: { materialId: string; quantity: number }[]
     laborRate: number
     discountRate: number
-}) {
-    const base = import.meta.env.VITE_API_BASE_URL || ''
-    const res = await fetch(`${base}/api/estimate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+}): Promise<Blob> {
+    // Special handling for PDF responses - use direct HTTP call
+    const response = await api.post<ArrayBuffer>('/api/estimate', payload, {
+        responseType: 'arraybuffer',
+        headers: {
+            'Accept': 'application/pdf'
+        }
     })
-    if (!res.ok) throw new Error(`API ${res.status}`)
-    const ct = res.headers.get('content-type') || ''
-    if (ct.includes('application/pdf')) {
-        return await res.blob()
-    }
-    const data = await res.json()
-    const b = Uint8Array.from(atob(data.pdf), c => c.charCodeAt(0))
-    return new Blob([b], { type: 'application/pdf' })
+
+    return new Blob([response], { type: 'application/pdf' })
 }
 
 

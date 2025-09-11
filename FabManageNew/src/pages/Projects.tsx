@@ -10,6 +10,7 @@ import ProjectCard from '../components/Project/ProjectCard'
 import type { Project, ProjectModule, ProjectWithStats } from '../types/projects.types'
 import EditProjectModal from '../components/EditProjectModal'
 import { Card, Form, Row, Col, Select, Input, Button, Segmented, Space, Table, Tag, Pagination, Dropdown, Modal, DatePicker } from 'antd'
+import { createClient } from '../services/clients'
 
 export default function Projects() {
     const navigate = useNavigate()
@@ -18,8 +19,20 @@ export default function Projects() {
     const update = useProjectsStore(s => s.update)
     const add = useProjectsStore(s => s.add)
     const remove = useProjectsStore(s => s.remove)
+    const initialize = useProjectsStore(s => s.initialize)
+    const isLoading = useProjectsStore(s => s.isLoading)
+    const isInitialized = useProjectsStore(s => s.isInitialized)
     const tiles = useTilesStore(s => s.tiles)
     const setTileStatus = useTilesStore(s => s.setStatus)
+
+    // DEBUG: Log projects data
+    console.log('📋 Projects DEBUG:', {
+        projectsCount: projects.length,
+        isLoading,
+        isInitialized,
+        sampleProject: projects[0],
+        allProjectIds: projects.map(p => ({ id: p.id, name: p.name }))
+    })
 
     // Basic filters
     const [status, setStatus] = useState<'All' | 'Nowy' | 'Wyceniany' | 'W realizacji' | 'Zakończony' | 'Wstrzymany'>('All')
@@ -147,20 +160,20 @@ export default function Projects() {
 
             switch (sortBy) {
                 case 'name':
-                    aVal = a.name.toLowerCase()
-                    bVal = b.name.toLowerCase()
+                    aVal = (a.name || '').toLowerCase()
+                    bVal = (b.name || '').toLowerCase()
                     break
                 case 'client':
-                    aVal = a.client.toLowerCase()
-                    bVal = b.client.toLowerCase()
+                    aVal = (a.client || '').toLowerCase()
+                    bVal = (b.client || '').toLowerCase()
                     break
                 case 'deadline':
-                    aVal = new Date(a.deadline)
-                    bVal = new Date(b.deadline)
+                    aVal = new Date(a.deadline || 0)
+                    bVal = new Date(b.deadline || 0)
                     break
                 case 'status':
-                    aVal = a.status
-                    bVal = b.status
+                    aVal = a.status || ''
+                    bVal = b.status || ''
                     break
                 default:
                     return 0
@@ -184,10 +197,10 @@ export default function Projects() {
         const today = new Date()
         const daysToDeadline = sortedAndFiltered.map(p => Math.ceil((new Date(p.deadline).getTime() - today.getTime()) / (1000 * 60 * 60 * 24)))
         const avgDays = total ? Math.round(daysToDeadline.reduce((a, b) => a + b, 0) / total) : 0
-        const done = sortedAndFiltered.filter(p => p.status === 'Zakończony').length
-        const onTime = sortedAndFiltered.filter(p => p.status === 'Zakończony' && new Date(p.deadline) >= today).length
+        const done = sortedAndFiltered.filter(p => (p.status as any) === 'Zakończony').length
+        const onTime = sortedAndFiltered.filter(p => (p.status as any) === 'Zakończony' && new Date(p.deadline) >= today).length
         const onTimePct = done ? Math.round((onTime / done) * 100) : 0
-        const overdue = sortedAndFiltered.filter(p => new Date(p.deadline) < today && p.status !== 'Zakończony').length
+        const overdue = sortedAndFiltered.filter(p => new Date(p.deadline) < today && (p.status as any) !== 'Zakończony').length
         return { total, avgDays, onTimePct, overdue }
     }, [sortedAndFiltered])
 
@@ -228,7 +241,7 @@ export default function Projects() {
                 break
             }
             case 'archive': {
-                selectedProjects.forEach(id => update(id, { status: 'Zakończony' }))
+                selectedProjects.forEach(id => update(id, { status: 'done' as any }))
                 setSelectedProjects([])
                 showToast(`Zarchiwizowano ${selectedProjects.length} projektów`, 'success')
                 break
@@ -280,11 +293,11 @@ export default function Projects() {
                                     onChange={(v) => setStatus(v as typeof status)}
                                     options={[
                                         { value: 'All', label: `Wszystkie (${projects.length})` },
-                                        { value: 'Nowy', label: `Nowy (${projects.filter(p => p.status === 'Nowy').length})` },
-                                        { value: 'Wyceniany', label: `Wyceniany (${projects.filter(p => p.status === 'Wyceniany').length})` },
-                                        { value: 'W realizacji', label: `W realizacji (${projects.filter(p => p.status === 'W realizacji').length})` },
-                                        { value: 'Zakończony', label: `Zakończony (${projects.filter(p => p.status === 'Zakończony').length})` },
-                                        { value: 'Wstrzymany', label: `Wstrzymany (${projects.filter(p => p.status === 'Wstrzymany').length})` }
+                                        { value: 'Nowy', label: `Nowy (${projects.filter(p => (p.status as any) === 'Nowy').length})` },
+                                        { value: 'Wyceniany', label: `Wyceniany (${projects.filter(p => (p.status as any) === 'Wyceniany').length})` },
+                                        { value: 'W realizacji', label: `W realizacji (${projects.filter(p => (p.status as any) === 'W realizacji').length})` },
+                                        { value: 'Zakończony', label: `Zakończony (${projects.filter(p => (p.status as any) === 'Zakończony').length})` },
+                                        { value: 'Wstrzymany', label: `Wstrzymany (${projects.filter(p => (p.status as any) === 'Wstrzymany').length})` }
                                     ]}
                                 />
                             </Form.Item>
@@ -325,6 +338,16 @@ export default function Projects() {
                     <Row justify="space-between" align="middle">
                         <Col>
                             <Space>
+                                <Button
+                                    type="primary"
+                                    onClick={() => initialize()}
+                                    loading={isLoading}
+                                >
+                                    🔄 Reload API ({projects.length})
+                                </Button>
+                                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                                    {isInitialized ? '✅ Zainicjalizowano' : '⏳ Ładowanie...'} | {projects.length} projektów
+                                </span>
                                 <Button onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}>{showAdvancedFilters ? 'Ukryj filtry' : 'Filtry zaawansowane'}</Button>
                                 {(status !== 'All' || client !== 'All' || query || managerFilter !== 'All' || dateFilter !== 'All') && (
                                     <Button onClick={clearAllFilters}>Wyczyść filtry</Button>
@@ -436,7 +459,12 @@ export default function Projects() {
                         <Table
                             rowKey={(p: Project) => p.id}
                             dataSource={paginatedProjects}
-                            onRow={(record) => ({ onClick: () => navigate(`/projekt/${record.id}`) })}
+                            onRow={(record) => ({
+                                onClick: () => {
+                                    console.log('🔗 Table row navigation:', { id: record.id, name: record.name, record })
+                                    navigate(`/projekt/${record.id}`)
+                                }
+                            })}
                             pagination={false}
                             columns={[
                                 {
@@ -595,7 +623,10 @@ export default function Projects() {
                                                     <div className="fw-medium">{p.name}</div>
                                                     <div className="text-muted small">{p.id} • {p.client}</div>
                                                 </div>
-                                                <Button size="small" onClick={() => navigate(`/projekt/${p.id}`)} aria-label={`Otwórz projekt ${p.name}`}>Otwórz</Button>
+                                                <Button size="small" onClick={() => {
+                                                    console.log('🔗 Navigating to project:', { id: p.id, name: p.name, fullProject: p })
+                                                    navigate(`/projekt/${p.id}`)
+                                                }} aria-label={`Otwórz projekt ${p.name}`}>Otwórz</Button>
                                             </Space>
                                             <Space style={{ width: '100%', justifyContent: 'space-between', marginTop: 8 }}>
                                                 <Tag>{p.deadline}</Tag>
@@ -645,7 +676,17 @@ export default function Projects() {
                 open={createOpen}
                 onCancel={() => setCreateOpen(false)}
                 onOk={async () => {
-                    await add(createForm)
+                    // Ensure client exists; if no clientId but client name provided, create backend client
+                    let clientId = createForm.clientId
+                    if (!clientId && createForm.client.trim()) {
+                        try {
+                            const c = await createClient({ name: createForm.client.trim() })
+                            clientId = c.id
+                        } catch (e) {
+                            clientId = `c-${Date.now()}`
+                        }
+                    }
+                    await add({ ...createForm, clientId })
                     showToast('Projekt utworzony', 'success')
                     setCreateOpen(false)
                     setCreateForm({ numer: 'P-2025/01/NEW', name: '', typ: 'Inne', lokalizacja: '', clientId: 'C-NEW', client: '', status: 'Nowy', data_utworzenia: new Date().toISOString().slice(0, 10), deadline: new Date().toISOString().slice(0, 10), postep: 0, groups: [], modules: ['wycena', 'koncepcja'] })
@@ -659,18 +700,41 @@ export default function Projects() {
                     </Form.Item>
                     <Row gutter={[12, 12]}>
                         <Col xs={24} md={12}>
-                            <Form.Item label="Klient">
-                                <Input value={createForm.client} onChange={e => setCreateForm({ ...createForm, client: e.target.value })} />
+                            <Form.Item label="Nazwa klienta">
+                                <Input value={createForm.client} placeholder="np. Teatr Narodowy" onChange={e => setCreateForm({ ...createForm, client: e.target.value })} />
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
-                            <Form.Item label="clientId">
-                                <Input value={createForm.clientId} onChange={e => setCreateForm({ ...createForm, clientId: e.target.value })} />
+                            <Form.Item label="ID klienta (opcjonalnie)">
+                                <Input value={createForm.clientId} placeholder="Wypełni się po utworzeniu klienta" onChange={e => setCreateForm({ ...createForm, clientId: e.target.value })} />
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
                             <Form.Item label="Deadline">
                                 <DatePicker style={{ width: '100%' }} onChange={(_, v) => setCreateForm({ ...createForm, deadline: (v as string) || '' })} />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={12}>
+                            <Form.Item label="Moduły projektu">
+                                <Select
+                                    mode="multiple"
+                                    value={createForm.modules as ProjectModule[]}
+                                    onChange={(vals) => setCreateForm({ ...createForm, modules: vals as ProjectModule[] })}
+                                    options={[
+                                        { value: 'wycena', label: 'Wycena' },
+                                        { value: 'koncepcja', label: 'Koncepcja' },
+                                        { value: 'projektowanie', label: 'Projektowanie' },
+                                        { value: 'projektowanie_techniczne', label: 'Projektowanie techniczne' },
+                                        { value: 'produkcja', label: 'Produkcja' },
+                                        { value: 'materialy', label: 'Materiały' },
+                                        { value: 'logistyka', label: 'Logistyka' },
+                                        { value: 'logistyka_montaz', label: 'Logistyka + Montaż' },
+                                        { value: 'zakwaterowanie', label: 'Zakwaterowanie' },
+                                        { value: 'montaz', label: 'Montaż' },
+                                        { value: 'model_3d', label: 'Model 3D' }
+                                    ]}
+                                    placeholder="Wybierz moduły (np. Model 3D)"
+                                />
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>

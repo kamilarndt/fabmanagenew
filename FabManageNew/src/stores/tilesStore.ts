@@ -5,40 +5,11 @@ import { listTiles, updateTile as sbUpdate, createTile as sbCreate, deleteTile a
 import { canTransitionTo } from '../lib/statusUtils'
 import { showToast } from '../lib/notifications'
 import { subscribeTable } from '../lib/realtime'
-import { config } from '../lib/config'
+// import { config } from '../lib/config'
+import type { Tile } from '../types/tiles.types'
 
-export type BomItem = {
-    id: string
-    type: 'Materiał surowy' | 'Komponent gotowy' | 'Usługa'
-    name: string
-    quantity: number
-    unit: string
-    supplier?: string
-    status?: 'Na stanie' | 'Do zamówienia' | 'Zamówione'
-    unitCost?: number
-    materialId?: string
-}
-
-export type Tile = {
-    id: string
-    name: string
-    status: 'W KOLEJCE' | 'W TRAKCIE CIĘCIA' | 'WYCIĘTE' | 'Projektowanie' | 'W trakcie projektowania' | 'Do akceptacji' | 'Zaakceptowane' | 'Wymagają poprawek' | 'Gotowy do montażu' | 'Wstrzymany' | 'Zakończony' | 'W produkcji CNC'
-    project?: string
-    moduł_nadrzędny?: string // np. "Scena Główna"
-    opis?: string
-    link_model_3d?: string
-    załączniki?: string[] // URLs do plików
-    przypisany_projektant?: string
-    termin?: string
-    priority?: 'Wysoki' | 'Średni' | 'Niski' // deprecated - priorytet zarządzany w module Działu Projektowego
-    technology?: string // deprecated - usunięte zgodnie z redesignem
-    bom?: BomItem[]
-    laborCost?: number
-    assignee?: string // deprecated, use przypisany_projektant
-    dxfFile?: string | null
-    assemblyDrawing?: string | null
-    group?: string
-}
+// Re-export types from central types file
+export type { Tile, BomItem } from '../types/tiles.types'
 
 // Zasilanie kafelków danymi z mockDatabase
 
@@ -57,47 +28,70 @@ interface TilesState {
     deleteTile: (id: string) => Promise<void>
     setTiles: (tiles: Tile[]) => void
     pushAcceptedTilesToQueue: (projectId: string) => Promise<void>
+    addDependency: (fromTileId: string, toTileId: string) => void
+    removeDependency: (fromTileId: string, toTileId: string) => void
+    autoScheduleProject: (projectId: string) => void
 }
 
 export const useTilesStore = create<TilesState>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             tiles: [],
             tilesById: {},
             isLoading: false,
             isInitialized: false,
 
             initialize: async () => {
+                console.log('🚀 TilesStore: Starting initialization...')
+
+                // Prevent multiple initializations
+                const currentState = get()
+                if (currentState.isInitialized || currentState.isLoading) {
+                    console.log('🔧 TilesStore: Already initialized or loading, skipping...')
+                    return
+                }
+
+                console.log('🔧 TilesStore: Setting loading state...')
                 set({ isLoading: true })
 
                 try {
-                    // If we already have tiles (e.g., from persisted storage), treat as initialized
-                    if (useTilesStore.getState().tiles.length > 0) {
-                        set({ isInitialized: true })
-                        return
+                    // DEMO MODE: Clear any cached tiles to ensure fresh data
+                    console.log('🔧 TilesStore: Clearing cached tiles for demo mode...')
+                    try {
+                        localStorage.removeItem('fabmanage-tiles')
+                    } catch (e) {
+                        console.warn('🔧 TilesStore: localStorage not available, skipping cache clear')
                     }
+
+                    // Force refresh - always load fresh data for demo
+                    console.log('🔧 TilesStore: Force loading fresh tiles data for demo...')
+                    // if (currentState.tiles.length > 0) {
+                    //     set({ isInitialized: true, isLoading: false })
+                    //     return
+                    // }
+
+                    // Simplified: just call API, httpClient handles all fallback logic
+                    console.log('🔧 TilesStore: Calling listTiles()...')
                     const data = await listTiles()
-                    if (data.length > 0) {
-                        set({ tiles: data, tilesById: Object.fromEntries(data.map(t => [t.id, t])), isInitialized: true })
-                    } else if (config.useMockData) {
-                        // If database is empty and mock data is enabled, use mock tiles
-                        const { mockTiles } = await import('../data/development')
-                        set({ tiles: mockTiles, tilesById: Object.fromEntries(mockTiles.map(t => [t.id, t])), isInitialized: true })
-                    } else {
-                        // No data available and mock data disabled
-                        set({ tiles: [], tilesById: {}, isInitialized: true })
-                    }
+                    console.log('🔧 TilesStore INITIALIZED:', {
+                        tilesCount: data.length,
+                        tiles: data.map(t => ({ id: t.id, name: t.name, project: t.project }))
+                    })
+                    set({
+                        tiles: data,
+                        tilesById: Object.fromEntries(data.map(t => [t.id, t])),
+                        isInitialized: true
+                    })
+                    console.log('✅ TilesStore: Successfully initialized with', data.length, 'tiles')
                 } catch (error) {
-                    const { logger } = await import('../lib/logger')
-                    logger.error('Błąd podczas ładowania kafelków:', error)
-                    // Fallback to mock tiles only if enabled
-                    if (config.useMockData) {
-                        const { mockTiles } = await import('../data/development')
-                        set({ tiles: mockTiles, tilesById: Object.fromEntries(mockTiles.map(t => [t.id, t])), isInitialized: true })
-                    } else {
-                        set({ tiles: [], tilesById: {}, isInitialized: true })
+                    console.error('❌ TilesStore: Failed to initialize tiles store:', error)
+                    if (error && typeof error === 'object') {
+                        const err = error as { message?: string; stack?: string }
+                        console.error('❌ TilesStore: Error details:', err.message, err.stack)
                     }
+                    set({ tiles: [], tilesById: {}, isInitialized: true })
                 } finally {
+                    console.log('🔧 TilesStore: Setting loading to false...')
                     set({ isLoading: false })
                 }
             },
@@ -226,6 +220,96 @@ export const useTilesStore = create<TilesState>()(
                     showToast('Błąd podczas przenoszenia elementów do kolejki', 'danger')
                 }
             }
+            ,
+
+            addDependency: (fromTileId: string, toTileId: string) => {
+                set(state => {
+                    const t = state.tilesById[fromTileId]
+                    if (!t) return state
+                    const deps = new Set<string>(Array.isArray((t as any).dependencies) ? (t as any).dependencies : ((t as any).dependencies ? [(t as any).dependencies] : []))
+                    deps.add(toTileId)
+                    const patch: Partial<Tile> = { ...(t as any), dependencies: Array.from(deps) as any }
+                    const tiles = state.tiles.map(x => x.id === fromTileId ? { ...x, ...(patch as any) } : x)
+                    const tilesById = { ...state.tilesById, [fromTileId]: { ...state.tilesById[fromTileId], ...(patch as any) } }
+                    return { tiles, tilesById }
+                })
+            }
+            ,
+
+            removeDependency: (fromTileId: string, toTileId: string) => {
+                set(state => {
+                    const t = state.tilesById[fromTileId]
+                    if (!t) return state
+                    const list: string[] = Array.isArray((t as any).dependencies) ? (t as any).dependencies : ((t as any).dependencies ? [(t as any).dependencies] : [])
+                    const next = list.filter(id => id !== toTileId)
+                    const patch: Partial<Tile> = { ...(t as any), dependencies: next as any }
+                    const tiles = state.tiles.map(x => x.id === fromTileId ? { ...x, ...(patch as any) } : x)
+                    const tilesById = { ...state.tilesById, [fromTileId]: { ...state.tilesById[fromTileId], ...(patch as any) } }
+                    return { tiles, tilesById }
+                })
+            }
+            ,
+
+            autoScheduleProject: (projectId: string) => {
+                set(state => {
+                    // Topological-like ordering based on dependencies
+                    const tiles = state.tiles.filter(t => t.project === projectId)
+                    const idToTile = Object.fromEntries(tiles.map(t => [t.id, t])) as Record<string, Tile>
+                    const depsMap = new Map<string, Set<string>>()
+                    tiles.forEach(t => {
+                        const deps: string[] = Array.isArray((t as any).dependencies) ? (t as any).dependencies : ((t as any).dependencies ? [(t as any).dependencies] : [])
+                        depsMap.set(t.id, new Set(deps.filter(id => idToTile[id])))
+                    })
+                    const visited = new Set<string>()
+                    const order: string[] = []
+                    const temp = new Set<string>()
+                    const dfs = (id: string) => {
+                        if (visited.has(id)) return
+                        if (temp.has(id)) { return } // cycle; ignore
+                        temp.add(id)
+                        const deps = depsMap.get(id)
+                        if (deps) deps.forEach(d => dfs(d))
+                        temp.delete(id)
+                        visited.add(id)
+                        order.push(id)
+                    }
+                    tiles.forEach(t => dfs(t.id))
+
+                    // Assign dates: if no deps, today; else max(deps)+1 day
+                    const msPerDay = 24 * 3600 * 1000
+                    const today = new Date()
+                    const assigned = new Map<string, string>()
+                    for (const id of order) {
+                        const deps = depsMap.get(id)
+                        if (!deps || deps.size === 0) {
+                            assigned.set(id, today.toISOString().slice(0, 10))
+                        } else {
+                            let maxDate = today
+                            deps.forEach(did => {
+                                const d = assigned.get(did)
+                                if (d) {
+                                    const dt = new Date(d)
+                                    if (dt > maxDate) maxDate = dt
+                                }
+                            })
+                            const next = new Date(maxDate.getTime() + msPerDay)
+                            assigned.set(id, next.toISOString().slice(0, 10))
+                        }
+                    }
+
+                    const nextTiles = state.tiles.map(t => (
+                        t.project === projectId && assigned.has(t.id)
+                            ? { ...t, termin: assigned.get(t.id)! }
+                            : t
+                    ))
+                    const nextById = { ...state.tilesById }
+                    assigned.forEach((date, id) => {
+                        if (nextById[id]) nextById[id] = { ...nextById[id], termin: date }
+                    })
+                    showToast('Auto-planowanie ukończone (zależności uwzględnione)', 'success')
+                    return { tiles: nextTiles, tilesById: nextById }
+                })
+            }
         }),
         {
             name: 'fabmanage-tiles',
@@ -233,27 +317,29 @@ export const useTilesStore = create<TilesState>()(
             partialize: (state) => ({ tiles: state.tiles, isInitialized: state.isInitialized }),
             onRehydrateStorage: () => (state) => {
                 if (!state) return
-                // If tiles were restored, mark as initialized and skip initialization
+
+                // If tiles were restored, mark as initialized and rebuild index
                 if (state.tiles && state.tiles.length > 0) {
                     state.isInitialized = true
                     state.tilesById = Object.fromEntries(state.tiles.map(t => [t.id, t]))
-                    return
                 }
-                if (!state.isInitialized) {
-                    state.initialize()
+
+                // Subscribe to realtime updates only (don't call initialize here to prevent loops)
+                try {
+                    const unsubscribe = subscribeTable<Tile>('tiles', (rows) => {
+                        const map = { ...state.tilesById }
+                        rows.forEach(r => { map[r.id] = r })
+                        state.setTiles(Object.values(map))
+                    }, (ids) => {
+                        const map = { ...state.tilesById }
+                        ids.forEach(id => { delete map[id] })
+                        state.setTiles(Object.values(map))
+                    })
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        ; (state as any)._unsubscribeTiles = unsubscribe
+                } catch (error) {
+                    console.warn('Failed to setup realtime subscription for tiles:', error)
                 }
-                // subscribe realtime
-                const unsubscribe = subscribeTable<Tile>('tiles', (rows) => {
-                    const map = { ...state.tilesById }
-                    rows.forEach(r => { map[r.id] = r })
-                    state.setTiles(Object.values(map))
-                }, (ids) => {
-                    const map = { ...state.tilesById }
-                    ids.forEach(id => { delete map[id] })
-                    state.setTiles(Object.values(map))
-                })
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    ; (state as any)._unsubscribeTiles = unsubscribe
             }
         }
     )
@@ -287,7 +373,7 @@ async function processBomForProduction(tileId: string, tile: Tile) {
                     requestedBy: 'System',
                     requestedAt: Date.now(),
                     status: 'pending',
-                    priority: tile.priority === 'Wysoki' ? 'high' : tile.priority === 'Średni' ? 'medium' : 'low',
+                    priority: tile.priority === 'high' ? 'high' : tile.priority === 'medium' ? 'medium' : 'low',
                     notes: `Automatyczne zapotrzebowanie dla kafelka: ${tile.name} (${tileId})`
                 }
 
@@ -331,7 +417,7 @@ async function processBomForProduction(tileId: string, tile: Tile) {
                     requestedBy: 'System',
                     requestedAt: Date.now(),
                     status: 'pending',
-                    priority: tile.priority === 'Wysoki' ? 'high' : tile.priority === 'Średni' ? 'medium' : 'low',
+                    priority: tile.priority === 'high' ? 'high' : tile.priority === 'medium' ? 'medium' : 'low',
                     notes: `Automatyczne zapotrzebowanie dla kafelka: ${tile.name} (${tileId}). Dostępne: ${availableQuantity} ${bomItem.unit}, potrzebne: ${bomItem.quantity} ${bomItem.unit}`
                 }
 

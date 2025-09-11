@@ -1,4 +1,6 @@
-export type ProjectModule = 'wycena' | 'koncepcja' | 'projektowanie_techniczne' | 'produkcja' | 'materialy' | 'logistyka_montaz' | 'zakwaterowanie' | 'montaz'
+import type { ProjectStatus, ProjectModule, ProjectType, Priority } from './enums'
+
+export type { ProjectStatus, ProjectModule, ProjectType, Priority }
 
 export type GroupFile = {
     id: string
@@ -20,11 +22,11 @@ export type Project = {
     id: string
     numer: string // np. P-2025/09/01
     name: string
-    typ: 'Targi' | 'Scenografia TV' | 'Muzeum' | 'Wystawa' | 'Event' | 'Inne'
+    typ: ProjectType
     lokalizacja: string
     clientId: string
     client: string
-    status: 'Nowy' | 'Wyceniany' | 'W realizacji' | 'Zakończony' | 'Wstrzymany'
+    status: ProjectStatus
     data_utworzenia: string
     data_rozpoczęcia?: string
     deadline: string
@@ -46,6 +48,10 @@ export type Project = {
         dark: string
         accent: string
     }
+    // Speckle 3D Integration fields
+    speckle_stream_url?: string
+    speckle_stream_id?: string
+    model_3d_status?: 'not_loaded' | 'loading' | 'loaded' | 'error'
 }
 
 export type ProjectWithStats = Project & {

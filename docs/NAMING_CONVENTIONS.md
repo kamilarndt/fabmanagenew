@@ -74,3 +74,20 @@ Reference: Ant Design documentation for component consistency and enterprise UI 
 5. Add ESLint naming rules to prevent regressions.
 
 
+## Zasady tworzenia folderów projektów (@rules)
+
+1. Globalny katalog projektów: `Z:\\_NoweRozdanie` (zmienny; źródło: `PROJECTS_ROOT_DIR` lub `backend/projects-config.json`).
+2. Struktura podstawowa: `<root>/<ClientName>/<ProjectName>`.
+3. Moduły tworzą podfoldery:
+   - `wycena/` — gdy włączony moduł wyceny
+   - `koncepcja/` — gdy włączony moduł koncepcji
+   - `materialy_od_klienta/` — gdy są materiały od klienta
+   - `produkcja/elementy/{pdf,dxf,preview}` — gdy włączona produkcja
+4. Tworzenie automatyczne:
+   - przy tworzeniu projektu oraz na żądanie: `POST /api/projects/:id/fs-sync`.
+5. Uprawnienia i Docker:
+   - aplikacja weryfikuje zapis w katalogu; w Docker mapowanie host → `/mnt/projects`, zmienna `PROJECTS_ROOT_DIR`.
+6. Baza danych i backupy:
+   - fallback lokalny: `<root>/.fabmanage/fabmanage.db` gdy online DB niedostępna;
+   - backupy: `<root>/_db_backups/` (co 60 min + `POST /admin/db-backup`).
+

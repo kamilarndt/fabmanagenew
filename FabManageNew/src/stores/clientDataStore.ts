@@ -25,9 +25,22 @@ interface ClientDataState {
     clearSelection: () => void;
 }
 
-// Helper function to process JSON data into our format (replaced to use mockClients)
+// Helper function to process JSON data into our format (replaced to use realistic data)
 async function processClientData(): Promise<{ clients: ProcessedClient[], projects: ProcessedProject[] }> {
-    return { clients: mockClients, projects: [] };
+    try {
+        const { config } = await import('../lib/config')
+
+        if (config.useMockData) {
+            const { mockClients } = await import('../data/development')
+            return { clients: mockClients, projects: [] }
+        }
+
+        // Fallback to legacy mock data
+        return { clients: mockClients, projects: [] }
+    } catch (error) {
+        console.warn('Failed to load realistic client data:', error)
+        return { clients: mockClients, projects: [] }
+    }
 }
 
 export const useClientDataStore = create<ClientDataState>()(

@@ -24,24 +24,24 @@ interface SubcontractorsActions {
     updateSubcontractor: (id: string, updates: Partial<Subcontractor>) => void
     deleteSubcontractor: (id: string) => void
     setSelectedSubcontractor: (subcontractor: Subcontractor | null) => void
-    
+
     // Order management
     setOrders: (orders: SubcontractorOrder[]) => void
     addOrder: (order: Omit<SubcontractorOrder, 'id' | 'createdAt' | 'updatedAt'>) => void
     updateOrder: (id: string, updates: Partial<SubcontractorOrder>) => void
     deleteOrder: (id: string) => void
     setSelectedOrder: (order: SubcontractorOrder | null) => void
-    
+
     // Filtering and sorting
     setFilters: (filters: Partial<SubcontractorsState['filters']>) => void
     setSortBy: (sortBy: SubcontractorsState['sortBy']) => void
     setSortOrder: (sortOrder: SubcontractorsState['sortOrder']) => void
-    
+
     // Computed data
     getFilteredSubcontractors: () => SubcontractorWithStats[]
     getSubcontractorOrders: (subcontractorId: string) => SubcontractorOrder[]
     getOrdersByStatus: (status: OrderStatus) => SubcontractorOrder[]
-    
+
     // Initialize with mock data
     initialize: () => void
 }
@@ -64,7 +64,7 @@ export const useSubcontractorsStore = create<SubcontractorsState & Subcontractor
 
             // Subcontractor management
             setSubcontractors: (subcontractors) => set({ subcontractors }),
-            
+
             addSubcontractor: (subcontractorData) => {
                 const newSubcontractor: Subcontractor = {
                     ...subcontractorData,
@@ -76,29 +76,29 @@ export const useSubcontractorsStore = create<SubcontractorsState & Subcontractor
                     subcontractors: [...state.subcontractors, newSubcontractor]
                 }))
             },
-            
+
             updateSubcontractor: (id, updates) => {
                 set((state) => ({
-                    subcontractors: state.subcontractors.map(sub => 
-                        sub.id === id 
+                    subcontractors: state.subcontractors.map(sub =>
+                        sub.id === id
                             ? { ...sub, ...updates, updatedAt: new Date().toISOString() }
                             : sub
                     )
                 }))
             },
-            
+
             deleteSubcontractor: (id) => {
                 set((state) => ({
                     subcontractors: state.subcontractors.filter(sub => sub.id !== id),
                     orders: state.orders.filter(order => order.subcontractorId !== id)
                 }))
             },
-            
+
             setSelectedSubcontractor: (subcontractor) => set({ selectedSubcontractor: subcontractor }),
 
             // Order management
             setOrders: (orders) => set({ orders }),
-            
+
             addOrder: (orderData) => {
                 const newOrder: SubcontractorOrder = {
                     ...orderData,
@@ -110,23 +110,23 @@ export const useSubcontractorsStore = create<SubcontractorsState & Subcontractor
                     orders: [...state.orders, newOrder]
                 }))
             },
-            
+
             updateOrder: (id, updates) => {
                 set((state) => ({
-                    orders: state.orders.map(order => 
-                        order.id === id 
+                    orders: state.orders.map(order =>
+                        order.id === id
                             ? { ...order, ...updates, updatedAt: new Date().toISOString() }
                             : order
                     )
                 }))
             },
-            
+
             deleteOrder: (id) => {
                 set((state) => ({
                     orders: state.orders.filter(order => order.id !== id)
                 }))
             },
-            
+
             setSelectedOrder: (order) => set({ selectedOrder: order }),
 
             // Filtering and sorting
@@ -135,22 +135,22 @@ export const useSubcontractorsStore = create<SubcontractorsState & Subcontractor
                     filters: { ...state.filters, ...newFilters }
                 }))
             },
-            
+
             setSortBy: (sortBy) => set({ sortBy }),
             setSortOrder: (sortOrder) => set({ sortOrder }),
 
             // Computed data
             getFilteredSubcontractors: () => {
                 const { subcontractors, orders, filters, sortBy, sortOrder } = get()
-                
-                let filtered = subcontractors.filter(sub => {
+
+                const filtered = subcontractors.filter(sub => {
                     const matchesCategory = filters.category === 'All' || sub.category === filters.category
                     const matchesStatus = filters.status === 'All' || sub.status === filters.status
-                    const matchesSearch = filters.search === '' || 
+                    const matchesSearch = filters.search === '' ||
                         sub.name.toLowerCase().includes(filters.search.toLowerCase()) ||
                         sub.contactPerson.toLowerCase().includes(filters.search.toLowerCase()) ||
                         sub.specialties.some(s => s.toLowerCase().includes(filters.search.toLowerCase()))
-                    
+
                     return matchesCategory && matchesStatus && matchesSearch
                 })
 
@@ -158,16 +158,16 @@ export const useSubcontractorsStore = create<SubcontractorsState & Subcontractor
                 const withStats: SubcontractorWithStats[] = filtered.map(sub => {
                     const subOrders = orders.filter(order => order.subcontractorId === sub.id)
                     const completedOrders = subOrders.filter(order => order.status === 'Dostarczone')
-                    const currentOrders = subOrders.filter(order => 
+                    const currentOrders = subOrders.filter(order =>
                         ['Zamówione', 'W produkcji', 'W transporcie'].includes(order.status)
                     )
-                    
+
                     return {
                         ...sub,
                         totalOrders: subOrders.length,
                         completedOrders: completedOrders.length,
                         averageRating: sub.rating,
-                        lastOrderDate: subOrders.length > 0 
+                        lastOrderDate: subOrders.length > 0
                             ? subOrders.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime())[0].orderDate
                             : undefined,
                         currentOrders
@@ -188,9 +188,11 @@ export const useSubcontractorsStore = create<SubcontractorsState & Subcontractor
                             comparison = a.category.localeCompare(b.category)
                             break
                         case 'lastOrder':
-                            const aDate = a.lastOrderDate ? new Date(a.lastOrderDate).getTime() : 0
-                            const bDate = b.lastOrderDate ? new Date(b.lastOrderDate).getTime() : 0
-                            comparison = aDate - bDate
+                            {
+                                const aDate = a.lastOrderDate ? new Date(a.lastOrderDate).getTime() : 0
+                                const bDate = b.lastOrderDate ? new Date(b.lastOrderDate).getTime() : 0
+                                comparison = aDate - bDate
+                            }
                             break
                     }
                     return sortOrder === 'asc' ? comparison : -comparison
@@ -198,12 +200,12 @@ export const useSubcontractorsStore = create<SubcontractorsState & Subcontractor
 
                 return withStats
             },
-            
+
             getSubcontractorOrders: (subcontractorId) => {
                 const { orders } = get()
                 return orders.filter(order => order.subcontractorId === subcontractorId)
             },
-            
+
             getOrdersByStatus: (status) => {
                 const { orders } = get()
                 return orders.filter(order => order.status === status)

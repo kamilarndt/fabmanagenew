@@ -37,6 +37,7 @@ export const TileSchema = z.object({
     moduł_nadrzędny: z.string().optional(),
     opis: z.string().optional(),
     link_model_3d: z.string().url('Nieprawidłowy format URL').optional().or(z.literal('')),
+    speckle_object_ids: z.array(z.string()).optional(),
     załączniki: z.array(z.string()).optional(),
     przypisany_projektant: z.string().optional(),
     termin: OptionalDateString,

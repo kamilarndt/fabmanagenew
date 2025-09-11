@@ -4,9 +4,13 @@ import type { Project } from '../../types/projects.types'
 import GroupView from '../Groups/GroupView'
 import { useTilesStore } from '../../stores/tilesStore'
 import { showToast } from '../../lib/notifications'
-import { Card, Form, Input, Button, Space, Row, Col } from 'antd'
+import { Card, Form, Input, Button, Space, Row, Col, Tabs, message } from 'antd'
 import TileCard from '../Tiles/TileCard'
-import TileEditModal from '../Tiles/TileEditModal'
+import TileEditModalV3 from '../Tiles/TileEditModalV3'
+import { createTileFromSelection } from '../../services/tiles'
+import { useProjectsStore } from '../../stores/projectsStore'
+import { showNotification } from '../../lib/notifications'
+import SpeckleViewer from '../SpeckleViewer'
 
 interface ProjectElementsProps {
     project: Project
@@ -19,6 +23,7 @@ interface ProjectElementsProps {
     onPushToProduction?: () => void
 }
 
+
 export default function ProjectElements({
     project,
     projectTiles,
@@ -28,13 +33,28 @@ export default function ProjectElements({
     onPushToProduction
 }: ProjectElementsProps) {
     const { addTile } = useTilesStore()
+    const updateProjectModel = useProjectsStore((s: any) => s.updateProjectModel)
+
+    // DEBUG: Log tiles data for debugging
+    console.log('🔧 ProjectElements DEBUG:', {
+        projectId: project?.id,
+        projectName: project?.name,
+        projectTilesCount: projectTiles?.length || 0,
+        projectTiles: projectTiles,
+        hasModules: project?.modules?.length || 0,
+        modules: project?.modules
+    })
 
     // Quick add state
     const [qaName, setQaName] = useState('')
+    const [modelUrl, setModelUrl] = useState(project.link_model_3d || '')
 
     // Tile edit modal state
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [editingTile, setEditingTile] = useState<Tile | null>(null)
+
+    // Material assignment modal state
+    const [selectedObjectIds, setSelectedObjectIds] = useState<string[]>([])
 
     const groups = useMemo(() => {
         const dict: Record<string, { id: string; name: string; tiles: Tile[] }> = {};
@@ -128,13 +148,29 @@ export default function ProjectElements({
             }
             showToast(editingTile ? 'Element zaktualizowany' : 'Element utworzony', 'success')
             handleModalClose()
-        } catch (error) {
+        } catch (_error) {
             showToast('Błąd podczas zapisywania elementu', 'danger')
         }
     }
 
     return (
         <div>
+            {/* DEBUG INFO - Remove after fixing */}
+            {projectTiles.length === 0 && (
+                <Card style={{ marginBottom: 16, borderColor: '#ff6b35' }}>
+                    <div style={{ color: '#ff6b35', fontWeight: 600, marginBottom: 8 }}>
+                        🔧 DEBUG: Brak elementów w tym projekcie
+                    </div>
+                    <div style={{ fontSize: 12, color: '#666' }}>
+                        <div>ID Projektu: <code>{project.id}</code></div>
+                        <div>Nazwa Projektu: <code>{project.name}</code></div>
+                        <div>Liczba wszystkich elementów: <code>{projectTiles.length}</code></div>
+                        <div>Czy jest moduł 'projektowanie_techniczne': <code>{project.modules?.includes('projektowanie_techniczne') ? 'TAK' : 'NIE'}</code></div>
+                        <div>Dostępne moduły: <code>{project.modules?.join(', ') || 'BRAK'}</code></div>
+                    </div>
+                </Card>
+            )}
+
             {/* Header + Quick Add */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <div>
@@ -177,65 +213,186 @@ export default function ProjectElements({
                 </Form>
             </Card>
 
-            {/* Kanban z nowymi kartami */}
-            <div style={{ marginBottom: 16 }}>
-                <Row gutter={[16, 16]}>
-                    {columns.map(column => {
-                        const columnTiles = projectTiles.filter(tile => getColumnId(tile) === column.id)
-                        return (
-                            <Col key={column.id} xs={24} sm={12} lg={6}>
-                                <Card
-                                    title={
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <span>{column.title}</span>
-                                            <span style={{
-                                                backgroundColor: column.color === 'bg-secondary' ? '#6c757d' :
-                                                    column.color === 'bg-warning' ? '#ffc107' :
-                                                        column.color === 'bg-primary' ? '#007bff' : '#28a745',
-                                                color: 'white',
-                                                padding: '2px 8px',
-                                                borderRadius: '12px',
-                                                fontSize: '12px'
-                                            }}>
-                                                {columnTiles.length}
-                                            </span>
+            <Tabs
+                items={(() => {
+                    const items = [
+                        {
+                            key: 'kanban',
+                            label: 'Kanban',
+                            children: (
+                                <div style={{ marginBottom: 16 }}>
+                                    <Row gutter={[16, 16]}>
+                                        {columns.map(column => {
+                                            const columnTiles = projectTiles.filter(tile => getColumnId(tile) === column.id)
+                                            return (
+                                                <Col key={column.id} xs={24} sm={12} lg={6}>
+                                                    <Card
+                                                        title={
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                <span>{column.title}</span>
+                                                                <span style={{
+                                                                    backgroundColor: column.color === 'bg-secondary' ? '#6c757d' :
+                                                                        column.color === 'bg-warning' ? '#ffc107' :
+                                                                            column.color === 'bg-primary' ? '#007bff' : '#28a745',
+                                                                    color: 'white',
+                                                                    padding: '2px 8px',
+                                                                    borderRadius: '12px',
+                                                                    fontSize: '12px'
+                                                                }}>
+                                                                    {columnTiles.length}
+                                                                </span>
+                                                            </div>
+                                                        }
+                                                        size="small"
+                                                        style={{ height: '100%' }}
+                                                        headStyle={{
+                                                            backgroundColor: column.color === 'bg-secondary' ? '#6c757d' :
+                                                                column.color === 'bg-warning' ? '#ffc107' :
+                                                                    column.color === 'bg-primary' ? '#007bff' : '#28a745',
+                                                            color: 'white'
+                                                        }}
+                                                    >
+                                                        <div style={{ minHeight: 200 }}>
+                                                            {columnTiles.map(tile => (
+                                                                <div key={tile.id} style={{ marginBottom: 8 }}>
+                                                                    <TileCard
+                                                                        tile={tile}
+                                                                        onEdit={() => handleTileEdit(tile)}
+                                                                    />
+                                                                </div>
+                                                            ))}
+                                                            {columnTiles.length === 0 && (
+                                                                <div style={{
+                                                                    textAlign: 'center',
+                                                                    color: '#999',
+                                                                    padding: 20,
+                                                                    fontSize: 12
+                                                                }}>
+                                                                    Brak elementów
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </Card>
+                                                </Col>
+                                            )
+                                        })}
+                                    </Row>
+                                </div>
+                            )
+                        }]
+                    if (project.modules?.includes('projektowanie')) {
+                        items.push({
+                            key: 'model3d',
+                            label: 'Model 3D',
+                            children: (
+                                <Card style={{ marginBottom: 16 }}>
+                                    <Form
+                                        layout="vertical"
+                                        onFinish={async () => {
+                                            try {
+                                                await updateProjectModel(project.id, modelUrl.trim())
+                                                message.success('Zapisano link do modelu 3D')
+                                            } catch {
+                                                message.error('Nie udało się zapisać linku')
+                                            }
+                                        }}
+                                    >
+                                        <Row gutter={12} align="bottom">
+                                            <Col xs={24} md={18}>
+                                                <Form.Item label="Link do modelu 3D (Speckle)" required>
+                                                    <Input
+                                                        placeholder="https://speckle.xyz/streams/..."
+                                                        value={modelUrl}
+                                                        onChange={e => setModelUrl(e.currentTarget.value)}
+                                                    />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col xs={24} md={6}>
+                                                <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+                                                    Zapisz link
+                                                </Button>
+                                            </Col>
+                                        </Row>
+                                    </Form>
+
+                                    <div style={{ marginTop: 12 }}>
+                                        <SpeckleViewer
+                                            initialStreamUrl={modelUrl || project.link_model_3d}
+                                            height={520}
+                                            enableSelection
+                                            onSelectionChange={(ids: string[]) => {
+                                                setSelectedObjectIds(ids);
+                                                // Store in global for backward compatibility
+                                                (window as any).__speckleSelection = ids;
+                                            }}
+                                        />
+                                        <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                                            <Button
+                                                type="primary"
+                                                disabled={selectedObjectIds.length === 0}
+                                                onClick={() => {
+                                                    if (selectedObjectIds.length === 0) {
+                                                        message.warning('Zaznacz obiekty w modelu 3D')
+                                                        return
+                                                    }
+                                                    // Open tile modal prefilled
+                                                    setEditingTile({
+                                                        id: crypto.randomUUID(),
+                                                        name: 'Nowy element z selekcji',
+                                                        status: 'W KOLEJCE',
+                                                        project: project.id,
+                                                        speckle_object_ids: selectedObjectIds,
+                                                        bom: []
+                                                    } as any)
+                                                    setIsEditModalOpen(true)
+                                                }}
+                                            >
+                                                Utwórz Kafelek z Zaznaczenia ({selectedObjectIds.length})
+                                            </Button>
+                                            <Button
+                                                disabled={selectedObjectIds.length === 0}
+                                                onClick={async () => {
+                                                    if (selectedObjectIds.length === 0) {
+                                                        message.warning('Zaznacz obiekty w modelu 3D')
+                                                        return
+                                                    }
+                                                    try {
+                                                        const created = await createTileFromSelection(project.id, selectedObjectIds, `SELECTION-${selectedObjectIds.length}`)
+                                                        if (created) {
+                                                            showToast('Utworzono element z selekcji', 'success')
+                                                            await useTilesStore.getState().refresh()
+                                                            showNotification('Element utworzony', `#${created.id} – kliknij Cofnij, aby usunąć`, 'info')
+                                                        } else {
+                                                            message.error('Nie udało się utworzyć elementu')
+                                                        }
+                                                    } catch {
+                                                        message.error('Błąd tworzenia elementu z selekcji')
+                                                    }
+                                                }}
+                                            >
+                                                Szybkie utwórz
+                                            </Button>
+                                            <Button
+                                                disabled={selectedObjectIds.length === 0}
+                                                onClick={() => {
+                                                    if (selectedObjectIds.length === 0) {
+                                                        message.warning('Zaznacz obiekty w modelu 3D')
+                                                        return
+                                                    }
+                                                    message.info('Funkcja przypisywania materiałów będzie dostępna wkrótce')
+                                                }}
+                                            >
+                                                Przypisz materiał ({selectedObjectIds.length})
+                                            </Button>
                                         </div>
-                                    }
-                                    size="small"
-                                    style={{ height: '100%' }}
-                                    headStyle={{
-                                        backgroundColor: column.color === 'bg-secondary' ? '#6c757d' :
-                                            column.color === 'bg-warning' ? '#ffc107' :
-                                                column.color === 'bg-primary' ? '#007bff' : '#28a745',
-                                        color: 'white'
-                                    }}
-                                >
-                                    <div style={{ minHeight: 200 }}>
-                                        {columnTiles.map(tile => (
-                                            <div key={tile.id} style={{ marginBottom: 8 }}>
-                                                <TileCard
-                                                    tile={tile}
-                                                    onEdit={() => handleTileEdit(tile)}
-                                                />
-                                            </div>
-                                        ))}
-                                        {columnTiles.length === 0 && (
-                                            <div style={{
-                                                textAlign: 'center',
-                                                color: '#999',
-                                                padding: 20,
-                                                fontSize: 12
-                                            }}>
-                                                Brak elementów
-                                            </div>
-                                        )}
                                     </div>
                                 </Card>
-                            </Col>
-                        )
-                    })}
-                </Row>
-            </div>
+                            )
+                        })
+                    }
+                    return items
+                })()}
+            />
 
             {/* Groups below */}
             <div style={{ marginTop: 16 }}>
@@ -252,13 +409,15 @@ export default function ProjectElements({
             </div>
 
             {/* Modal edycji kafelków */}
-            <TileEditModal
+            <TileEditModalV3
                 open={isEditModalOpen}
                 onClose={handleModalClose}
                 onSave={handleTileSave}
                 tile={editingTile || undefined}
                 projectId={project.id}
             />
+
+            {/* Modal przypisywania materiałów */}
         </div>
     )
 }

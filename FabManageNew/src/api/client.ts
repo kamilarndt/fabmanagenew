@@ -1,19 +1,18 @@
+// This file is deprecated - use ../lib/httpClient instead
+// Keeping for backwards compatibility during migration
+
+import { api } from '../lib/httpClient'
+
 type FetchOptions = RequestInit & { json?: unknown }
 
 export async function apiFetch<T>(path: string, opts: FetchOptions = {}): Promise<T> {
-    const base = import.meta.env.VITE_API_BASE_URL || ''
-    const headers = new Headers(opts.headers)
-    headers.set('Content-Type', 'application/json')
-    const res = await fetch(`${base}${path}`, {
-        ...opts,
-        headers,
-        body: opts.json !== undefined ? JSON.stringify(opts.json) : opts.body
+    // Migrate to new httpClient
+    const method = (opts.method || 'GET') as 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+    const data = opts.json || (opts.body ? JSON.parse(opts.body as string) : undefined)
+
+    return api.call<T>(path, {
+        method,
+        data
     })
-    if (!res.ok) {
-        const text = await res.text()
-        throw new Error(`API ${res.status}: ${text}`)
-    }
-    if (res.status === 204) return undefined as T
-    return await res.json() as T
 }
 

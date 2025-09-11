@@ -82,11 +82,9 @@ export default function ProjectCard({ project, onEdit }: ProjectCardProps) {
                     icon={<LinkOutlined />}
                     onClick={(e) => {
                         e.stopPropagation()
-                        if (project.link_model_3d) {
-                            window.open(project.link_model_3d, '_blank')
-                        }
+                        // Zawsze nawiguj do zakładki model_3d – nawet bez przypiętego linku
+                        navigate(`/projekt/${project.id}?tab=model_3d`)
                     }}
-                    disabled={!project.link_model_3d}
                 >
                     3D Model
                 </Button>

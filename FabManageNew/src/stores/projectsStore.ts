@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { listProjects, createProject, updateProject as sbUpdate } from '../services/projects'
+import { listProjects, createProject, updateProject as sbUpdate, updateProjectModelLink, deleteProject as apiDelete } from '../services/projects'
 import { generateProjectColorScheme } from '../lib/clientUtils'
 import { subscribeTable } from '../lib/realtime'
 import { config } from '../lib/config'
@@ -24,6 +24,7 @@ interface ProjectsState {
     update: (id: string, project: Partial<Project>) => Promise<void>
     remove: (id: string) => Promise<void>
     setProjects: (projects: Project[]) => void
+    updateProjectModel: (projectId: string, streamUrl: string) => Promise<void>
     syncWithClients: () => void
 
     // Client integration
@@ -54,6 +55,7 @@ interface ProjectsState {
     getModuleStats: () => any
     getProjectsByStatusAndModule: (status: Project['status'], module: ProjectModule) => Project[]
     getProjectsByDeadlineRange: (days: number, status: Project['status'], module: ProjectModule) => Project[]
+    getProjectDataForGantt: (projectId: string) => import('./calendarStore').GanttTask[]
 }
 
 export const useProjectsStore = create<ProjectsState>()(
@@ -67,42 +69,34 @@ export const useProjectsStore = create<ProjectsState>()(
             // Cache dla optymalizacji
             _clientProjectsCache: new Map(),
 
-            initialize: async () => {
+            initialize: async (force = false) => {
+                // Prevent multiple initializations unless forced
+                const currentState = get()
+                if (!force && (currentState.isInitialized || currentState.isLoading)) {
+                    console.log('🔄 Projects store already initialized, skipping...')
+                    console.log('🔄 Current projects count:', currentState.projects.length)
+                    console.log('🔄 Sample project:', currentState.projects[0])
+                    return
+                }
+
+                console.log('🚀 Starting projects store initialization...')
                 set({ isLoading: true })
 
                 try {
-                    // Try to load from API
+                    // Simplified: just call API, httpClient handles all fallback logic
                     const data = await listProjects()
+                    console.log('📊 Projects loaded:', data.length, 'projects')
 
-                    if (data.length > 0) {
-                        // API has data - use it
-                        set({ projects: data, projectsById: Object.fromEntries(data.map(p => [p.id, p])), isInitialized: true })
-                        get().syncWithClients()
-                    } else if (config.useMockData) {
-                        // API empty but mock data enabled - use mock projects
-                        const { logger } = await import('../lib/logger')
-                        const { mockProjects } = await import('../data/development')
+                    set({
+                        projects: data,
+                        projectsById: Object.fromEntries(data.map(p => [p.id, p])),
+                        isInitialized: true
+                    })
 
-                        logger.info('API empty, using mock projects for development')
-
-                        set({ projects: mockProjects, projectsById: Object.fromEntries(mockProjects.map(p => [p.id, p])), isInitialized: true })
-                        get().syncWithClients()
-                    } else {
-                        // No data and mock disabled - empty state
-                        set({ projects: [], projectsById: {}, isInitialized: true })
-                    }
+                    get().syncWithClients()
                 } catch (error) {
-                    const { logger } = await import('../lib/logger')
-                    logger.error('Błąd podczas ładowania projektów:', error)
-
-                    // Fallback only if mock data is enabled
-                    if (config.useMockData) {
-                        const { mockProjects } = await import('../data/development')
-                        set({ projects: mockProjects, projectsById: Object.fromEntries(mockProjects.map(p => [p.id, p])), isInitialized: true })
-                        get().syncWithClients()
-                    } else {
-                        set({ projects: [], projectsById: {}, isInitialized: true })
-                    }
+                    console.error('Failed to initialize projects store:', error)
+                    set({ projects: [], projectsById: {}, isInitialized: true })
                 } finally {
                     set({ isLoading: false })
                 }
@@ -164,6 +158,30 @@ export const useProjectsStore = create<ProjectsState>()(
                 }
             },
 
+            updateProjectModel: async (projectId: string, streamUrl: string) => {
+                // Optimistic update of link_model_3d
+                const prev = get().projectsById[projectId]
+                if (!prev) return
+                const next = { ...prev, link_model_3d: streamUrl }
+                set(state => ({
+                    projects: state.projects.map(p => p.id === projectId ? next : p),
+                    projectsById: { ...state.projectsById, [projectId]: next }
+                }))
+
+                try {
+                    await updateProjectModelLink(projectId, streamUrl)
+                } catch (error) {
+                    const { logger } = await import('../lib/logger')
+                    logger.error('Błąd podczas zapisu linku modelu 3D:', error)
+                    // rollback
+                    set(state => ({
+                        projects: state.projects.map(p => p.id === projectId ? prev : p),
+                        projectsById: { ...state.projectsById, [projectId]: prev }
+                    }))
+                    throw error
+                }
+            },
+
             remove: async (id: string) => {
                 // Remove from state immediately
                 set(state => ({
@@ -172,7 +190,7 @@ export const useProjectsStore = create<ProjectsState>()(
                 }))
 
                 try {
-                    // API delete logic here if needed
+                    await apiDelete(id)
                 } catch (error) {
                     const { logger } = await import('../lib/logger')
                     logger.error('Błąd podczas usuwania projektu:', error)
@@ -389,6 +407,23 @@ export const useProjectsStore = create<ProjectsState>()(
                     p.deadline &&
                     p.deadline <= futureDate
                 )
+            },
+
+            getProjectDataForGantt: (projectId: string) => {
+                const state = get()
+                const project = state.projectsById[projectId] || state.projects.find(p => p.id === projectId)
+                if (!project) return []
+                const tasks: import('./calendarStore').GanttTask[] = []
+                const projStart = (project as any).start || (project as any).data_utworzenia || new Date()
+                const ps = (projStart instanceof Date ? projStart : new Date(projStart)).toISOString().slice(0, 10)
+                tasks.push({ id: project.id, text: project.name, start_date: ps, duration: 5, progress: (project as any).progress || 0, type: 'project', status: project.status as any })
+                const groups = (project as any).groups || []
+                for (const group of groups) {
+                    const gid = group.id || `${project.id}-grp-${group.name}`
+                    tasks.push({ id: gid, text: group.name || 'Moduł', start_date: ps, duration: 3, parent: project.id, type: 'module', progress: group.progress || 0, status: (group as any).status })
+                }
+                // Do not reach into tilesStore here to avoid circular deps.
+                return tasks
             }
         }),
         {
@@ -403,24 +438,23 @@ export const useProjectsStore = create<ProjectsState>()(
                     state.isInitialized = true
                 }
 
-                // Initialize if not done yet
-                if (!state.isInitialized) {
-                    state.initialize()
-                }
-
-                // Subscribe to realtime updates if configured
-                if (config.enableRealtimeUpdates) {
-                    const unsubscribe = subscribeTable<Project>('projects', (rows) => {
-                        const map = { ...state.projectsById }
-                        rows.forEach(r => { map[r.id] = r })
-                        state.setProjects(Object.values(map))
-                    }, (ids) => {
-                        const map = { ...state.projectsById }
-                        ids.forEach(id => { delete map[id] })
-                        state.setProjects(Object.values(map))
-                    })
-                        // Store unsubscribe function
-                        ; (state as any)._unsubscribeProjects = unsubscribe
+                // Subscribe to realtime updates if configured (don't call initialize here to prevent loops)
+                try {
+                    if (config.enableRealtimeUpdates) {
+                        const unsubscribe = subscribeTable<Project>('projects', (rows) => {
+                            const map = { ...state.projectsById }
+                            rows.forEach(r => { map[r.id] = r })
+                            state.setProjects(Object.values(map))
+                        }, (ids) => {
+                            const map = { ...state.projectsById }
+                            ids.forEach(id => { delete map[id] })
+                            state.setProjects(Object.values(map))
+                        })
+                            // Store unsubscribe function
+                            ; (state as any)._unsubscribeProjects = unsubscribe
+                    }
+                } catch (error) {
+                    console.warn('Failed to setup realtime subscription for projects:', error)
                 }
             }
         }

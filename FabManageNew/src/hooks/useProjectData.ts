@@ -3,10 +3,17 @@ import type { Project } from '../types/projects.types'
 import type { Tile } from '../types/tiles.types'
 
 export function useProjectData(project: Project, tiles: Tile[]) {
-    const projectTiles = useMemo(() =>
-        tiles.filter(t => t.project === project.id),
-        [tiles, project.id]
-    )
+    const projectTiles = useMemo(() => {
+        const filtered = tiles.filter(t => t.project === project.id)
+        console.log('🔧 useProjectData DEBUG:', {
+            projectId: project.id,
+            allTilesCount: tiles.length,
+            filteredTilesCount: filtered.length,
+            allTileProjects: tiles.map(t => ({ id: t.id, name: t.name, project: t.project })),
+            filtered: filtered
+        })
+        return filtered
+    }, [tiles, project.id])
 
     const tileCosts = useMemo(() =>
         projectTiles.map(t =>

@@ -1,0 +1,142 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e8]:
+        - generic [ref=e9]: 🏭 Fabryka
+        - generic [ref=e10]: Dekoracji
+      - button "menu-fold Zwiń menu" [ref=e12] [cursor=pointer]:
+        - img "menu-fold" [ref=e14] [cursor=pointer]:
+          - img [ref=e15] [cursor=pointer]
+        - generic [ref=e17] [cursor=pointer]: Zwiń menu
+      - menu [ref=e18]:
+        - menuitem "home Dashboard" [ref=e19] [cursor=pointer]:
+          - img "home" [ref=e20] [cursor=pointer]:
+            - img [ref=e21] [cursor=pointer]
+          - generic [ref=e23] [cursor=pointer]: Dashboard
+        - menuitem "folder Projekty" [ref=e24] [cursor=pointer]:
+          - img "folder" [ref=e25] [cursor=pointer]:
+            - img [ref=e26] [cursor=pointer]
+          - generic [ref=e28] [cursor=pointer]: Projekty
+        - menuitem "team Klienci" [ref=e29] [cursor=pointer]:
+          - img "team" [ref=e30] [cursor=pointer]:
+            - img [ref=e31] [cursor=pointer]
+          - generic [ref=e33] [cursor=pointer]: Klienci
+        - menuitem "calendar Kalendarz" [ref=e34] [cursor=pointer]:
+          - img "calendar" [ref=e35] [cursor=pointer]:
+            - img [ref=e36] [cursor=pointer]
+          - generic [ref=e38] [cursor=pointer]: Kalendarz
+        - menuitem "bg-colors Dział Projektowy" [ref=e39] [cursor=pointer]:
+          - img "bg-colors" [ref=e40] [cursor=pointer]:
+            - img [ref=e41] [cursor=pointer]
+          - generic [ref=e43] [cursor=pointer]: Dział Projektowy
+        - menuitem "tool CNC" [ref=e44] [cursor=pointer]:
+          - img "tool" [ref=e45] [cursor=pointer]:
+            - img [ref=e46] [cursor=pointer]
+          - generic [ref=e48] [cursor=pointer]: CNC
+        - menuitem "build Produkcja" [ref=e49] [cursor=pointer]:
+          - img "build" [ref=e50] [cursor=pointer]:
+            - img [ref=e51] [cursor=pointer]
+          - generic [ref=e53] [cursor=pointer]: Produkcja
+        - menuitem "inbox Magazyn" [ref=e54] [cursor=pointer]:
+          - img "inbox" [ref=e55] [cursor=pointer]:
+            - img [ref=e56] [cursor=pointer]
+          - generic [ref=e58] [cursor=pointer]: Magazyn
+        - menuitem "truck Podwykonawcy" [ref=e59] [cursor=pointer]:
+          - img "truck" [ref=e60] [cursor=pointer]:
+            - img [ref=e61] [cursor=pointer]
+          - generic [ref=e63] [cursor=pointer]: Podwykonawcy
+        - menuitem "shopping-cart Zapotrzebowania" [ref=e64] [cursor=pointer]:
+          - img "shopping-cart" [ref=e65] [cursor=pointer]:
+            - img [ref=e66] [cursor=pointer]
+          - generic [ref=e68] [cursor=pointer]: Zapotrzebowania
+      - generic [ref=e70] [cursor=pointer]:
+        - img "user" [ref=e72] [cursor=pointer]:
+          - img [ref=e73] [cursor=pointer]
+        - generic [ref=e75] [cursor=pointer]:
+          - generic [ref=e76] [cursor=pointer]: Kamil Arndt
+          - generic [ref=e77] [cursor=pointer]: Administrator
+  - generic [ref=e78]:
+    - banner [ref=e79]:
+      - navigation [ref=e81]:
+        - list [ref=e82]:
+          - listitem [ref=e83]:
+            - generic [ref=e85]:
+              - generic [ref=e86]: 🏠
+              - generic [ref=e87]: Dashboard
+          - listitem [ref=e88]: /
+          - listitem [ref=e89]:
+            - generic [ref=e92]: Strona
+      - generic [ref=e94]:
+        - button "moon" [ref=e96] [cursor=pointer]:
+          - img "moon" [ref=e98] [cursor=pointer]:
+            - img [ref=e99] [cursor=pointer]
+        - button "bell 3" [ref=e102] [cursor=pointer]:
+          - generic [ref=e103] [cursor=pointer]:
+            - img "bell" [ref=e104] [cursor=pointer]:
+              - img [ref=e105] [cursor=pointer]
+            - superscript [ref=e107] [cursor=pointer]:
+              - generic [ref=e110] [cursor=pointer]: "3"
+        - button "user" [ref=e112] [cursor=pointer]:
+          - img "user" [ref=e114] [cursor=pointer]:
+            - img [ref=e115] [cursor=pointer]
+    - main [ref=e117]:
+      - generic [ref=e119]:
+        - generic [ref=e123]: Baza danych
+        - button "reload" [ref=e125] [cursor=pointer]:
+          - img "reload" [ref=e127] [cursor=pointer]:
+            - img [ref=e128] [cursor=pointer]
+      - generic [ref=e131]:
+        - generic [ref=e133]:
+          - heading "Elementy (Kafelki)" [level=4] [ref=e134]
+          - paragraph [ref=e135]: Wizualny inwentarz wszystkich komponentów projektu
+        - generic [ref=e138]:
+          - generic [ref=e141]:
+            - generic [ref=e142]:
+              - img "search" [ref=e144]:
+                - img [ref=e145]
+              - searchbox "Szukaj kafelków..." [ref=e147]
+            - button "search" [ref=e149] [cursor=pointer]:
+              - img "search" [ref=e151] [cursor=pointer]:
+                - img [ref=e152] [cursor=pointer]
+          - generic [ref=e155] [cursor=pointer]:
+            - combobox [ref=e159] [cursor=pointer]
+            - generic:
+              - img:
+                - img
+          - generic [ref=e162] [cursor=pointer]:
+            - combobox [ref=e166] [cursor=pointer]
+            - generic:
+              - img:
+                - img
+          - generic [ref=e169]:
+            - button "plus Dodaj Nowy Kafelek" [disabled] [ref=e171]:
+              - generic:
+                - img "plus":
+                  - img
+              - generic: Dodaj Nowy Kafelek
+            - button "Odśwież" [ref=e173] [cursor=pointer]:
+              - generic [ref=e174] [cursor=pointer]: Odśwież
+        - generic [ref=e175]:
+          - generic [ref=e179]:
+            - heading "0" [level=3] [ref=e180]
+            - generic [ref=e181]: Wszystkich kafelków
+          - generic [ref=e185]:
+            - heading "0" [level=3] [ref=e186]
+            - generic [ref=e187]: Zakończonych
+          - generic [ref=e191]:
+            - heading "0" [level=3] [ref=e192]
+            - generic [ref=e193]: W projektowaniu
+          - generic [ref=e197]:
+            - heading "0" [level=3] [ref=e198]
+            - generic [ref=e199]: Wymagają poprawek
+        - generic [ref=e201]:
+          - heading "Brak kafelków" [level=4] [ref=e202]
+          - paragraph [ref=e203]: Nie znaleziono kafelków spełniających kryteria wyszukiwania.
+          - button "plus Dodaj pierwszy kafelek" [ref=e204] [cursor=pointer]:
+            - img "plus" [ref=e206] [cursor=pointer]:
+              - img [ref=e207] [cursor=pointer]
+            - generic [ref=e210] [cursor=pointer]: Dodaj pierwszy kafelek
+```

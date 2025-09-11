@@ -1,0 +1,57 @@
+graph TD
+    subgraph "Przeglądarka Użytkownika (Frontend)"
+        A[React App - Vite]
+        B(Interfejs Użytkownika - Ant Design)
+        C{Zarządzanie Stanem}
+        D[Router - React Router]
+        E[Dostęp do Danych - TanStack Query]
+        F[Logika UI - Komponenty & Hooki]
+    end
+
+    subgraph "Warstwa Pośrednicząca (API Layer)"
+        G[API Gateway / Serverless Functions]
+        H{Walidacja Danych - Zod}
+        I{Autoryzacja - JWT Middleware}
+    end
+
+    subgraph "Backend & Baza Danych (Supabase)"
+        J[Baza Danych - PostgreSQL]
+        K[API - PostgREST]
+        L[Uwierzytelnianie - Supabase Auth]
+        M[Magazyn Plików - Supabase Storage]
+        N[Funkcje Serverless - Edge Functions]
+        O[Subskrypcje Realtime]
+    end
+
+    subgraph "Usługi Zewnętrzne"
+        P[System Logowania - Sentry]
+        Q[Serwer deweloperski - localhost]
+        R[Integracja z Rhino/CAD - Speckle]
+    end
+
+    %% Połączenia
+    A --> B
+    A --> D
+    B --> F
+    F --> C
+    F --> E
+    D --> B
+
+    E --> G
+    C -- Przechowuje stan UI --> F
+
+    G -- Zapytania HTTP --> K
+    G -- Wywołuje logikę biznesową --> N
+    G -- Waliduje --> H
+    G -- Weryfikuje token --> I
+    I -- Sprawdza użytkownika --> L
+
+    K -- Dostęp do danych --> J
+    N -- Dostęp do danych --> J
+    O -- Nasłuchuje zmian w --> J
+    O -- Wysyła powiadomienia --> A
+    A -- Wysyła/odczytuje pliki --> M
+
+    A -- Wysyła błędy --> P
+    A -- Łączy się w trybie dev --> Q
+    N -- Komunikuje się z --> R

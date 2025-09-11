@@ -3,6 +3,7 @@
 import type { ProcessedClient } from '../types/clientData.types';
 import type { Project } from '../types/projects.types';
 import type { Tile } from '../types/tiles.types';
+import { TILE_STATUSES, MATERIAL_STATUSES } from '../types/enums'
 
 // --- BAZA DANYCH KLIENTÓW ---
 export const mockClients: ProcessedClient[] = [
@@ -186,7 +187,7 @@ export const mockTiles: Tile[] = [
         załączniki: ['stol-prezenterski-dxf.pdf', 'stol-prezenterski-render.jpg'],
         przypisany_projektant: 'K. Arndt',
         termin: '2025-09-15',
-        priority: 'Wysoki',
+        priority: 'high',
         technology: 'Frezowanie CNC + Lakierowanie',
         laborCost: 2500,
         assignee: 'Kamil Arndt',
@@ -207,7 +208,7 @@ export const mockTiles: Tile[] = [
         załączniki: ['panel-led-a-dxf.pdf'],
         przypisany_projektant: 'A. Kowalska',
         termin: '2025-09-20',
-        priority: 'Wysoki',
+        priority: 'high',
         technology: 'Konstrukcja aluminiowa',
         laborCost: 1800,
         assignee: 'Anna Kowalska',
@@ -216,78 +217,78 @@ export const mockTiles: Tile[] = [
         ]
     },
     {
-        id: 'T-003', name: 'Podest kamery', status: 'W KOLEJCE', project: 'P-001', priority: 'Średni', technology: 'Konstrukcja ze sklejki', laborCost: 800, assignee: 'Piotr Nowak', bom: [
+        id: 'T-003', name: 'Podest kamery', status: 'W KOLEJCE', project: 'P-001', priority: 'medium', technology: 'Konstrukcja ze sklejki', laborCost: 800, assignee: 'Piotr Nowak', bom: [
             { id: 'B-3-1', type: 'Materiał surowy', name: 'Sklejka 18mm', materialId: 'MAT_R012-variant-18', quantity: 4, unit: 'arkusz', status: 'Na stanie', unitCost: 110.00 },
         ]
     },
-    { id: 'T-004', name: 'Green Screen - stelaż', status: 'W TRAKCIE CIĘCIA', project: 'P-001', priority: 'Średni', technology: 'System modułowy', laborCost: 1200, assignee: 'Kamil Arndt', bom: [] },
+    { id: 'T-004', name: 'Green Screen - stelaż', status: 'W TRAKCIE CIĘCIA', project: 'P-001', priority: 'medium', technology: 'System modułowy', laborCost: 1200, assignee: 'Kamil Arndt', bom: [] },
 
     // --- P-002: Polsat TTBZ ---
     {
-        id: 'T-005', name: 'Podest Centralny - Schody', status: 'W KOLEJCE', project: 'P-002', priority: 'Wysoki', technology: 'Konstrukcja ze sklejki', laborCost: 3200, assignee: 'Piotr Nowak', bom: [
+        id: 'T-005', name: 'Podest Centralny - Schody', status: 'W KOLEJCE', project: 'P-002', priority: 'high', technology: 'Konstrukcja ze sklejki', laborCost: 3200, assignee: 'Piotr Nowak', bom: [
             { id: 'B-5-1', type: 'Materiał surowy', name: 'Sklejka 18mm', materialId: 'MAT_R012-variant-18', quantity: 10, unit: 'arkusz', status: 'Do zamówienia', unitCost: 110.00 },
         ]
     },
     {
-        id: 'T-006', name: 'Element dekoracyjny - Kula', status: 'W produkcji CNC', project: 'P-002', priority: 'Średni', technology: 'Druk 3D + Szpachlowanie', laborCost: 900, assignee: 'Kamil Arndt', bom: [
+        id: 'T-006', name: 'Element dekoracyjny - Kula', status: 'W produkcji CNC', project: 'P-002', priority: 'medium', technology: 'Druk 3D + Szpachlowanie', laborCost: 900, assignee: 'Kamil Arndt', bom: [
             { id: 'B-6-1', type: 'Materiał surowy', name: 'Filament PLA 1.75mm', materialId: 'MAT_R022', quantity: 5, unit: 'kg', status: 'Na stanie', unitCost: 89.00 },
         ]
     },
-    { id: 'T-007', name: 'Fotel Jurora (replika)', status: 'Do akceptacji', project: 'P-002', priority: 'Niski', technology: 'Tapicerstwo, stolarstwo', laborCost: 4000, assignee: 'Anna Kowalska', bom: [] },
+    { id: 'T-007', name: 'Fotel Jurora (replika)', status: 'Do akceptacji', project: 'P-002', priority: 'low', technology: 'Tapicerstwo, stolarstwo', laborCost: 4000, assignee: 'Anna Kowalska', bom: [] },
     {
-        id: 'T-008', name: 'Ściana video - konstrukcja nośna', status: 'Do akceptacji', project: 'P-002', priority: 'Wysoki', technology: 'Konstrukcja stalowa', laborCost: 6000, assignee: 'Piotr Nowak', bom: [
+        id: 'T-008', name: 'Ściana video - konstrukcja nośna', status: 'Do akceptacji', project: 'P-002', priority: 'high', technology: 'Konstrukcja stalowa', laborCost: 6000, assignee: 'Piotr Nowak', bom: [
             { id: 'B-8-1', type: 'Materiał surowy', name: 'Profil stalowy 40x40mm', materialId: 'MAT_R017-variant-stal', quantity: 80, unit: 'mb', status: 'Do zamówienia', unitCost: 45.00 },
         ]
     },
 
     // --- P-003: TVN Fakty ---
-    { id: 'T-009', name: 'Panel boczny - fornir', status: 'W KOLEJCE', project: 'P-003', priority: 'Średni', technology: 'Stolarstwo', laborCost: 700, assignee: 'Marek Wiśniewski', bom: [] },
-    { id: 'T-010', name: 'Logo "Fakty" - podświetlane', status: 'Projektowanie', project: 'P-003', priority: 'Wysoki', technology: 'Plexi + LED', laborCost: 1500, assignee: 'Marek Wiśniewski', bom: [] },
+    { id: 'T-009', name: 'Panel boczny - fornir', status: 'W KOLEJCE', project: 'P-003', priority: 'medium', technology: 'Stolarstwo', laborCost: 700, assignee: 'Marek Wiśniewski', bom: [] },
+    { id: 'T-010', name: 'Logo "Fakty" - podświetlane', status: 'Projektowanie', project: 'P-003', priority: 'high', technology: 'Plexi + LED', laborCost: 1500, assignee: 'Marek Wiśniewski', bom: [] },
 
     // --- P-004: Nowy Styl ---
     {
-        id: 'T-011', name: 'Ściana Wystawiennicza - Moduł Główny', status: 'Gotowy do montażu', project: 'P-004', priority: 'Wysoki', technology: 'System modułowy', laborCost: 1500, assignee: 'Anna Kowalska', bom: [
+        id: 'T-011', name: 'Ściana Wystawiennicza - Moduł Główny', status: 'Gotowy do montażu', project: 'P-004', priority: 'high', technology: 'System modułowy', laborCost: 1500, assignee: 'Anna Kowalska', bom: [
             { id: 'B-11-1', type: 'Materiał surowy', name: 'Płyta wiórowa 18mm Laminowana', materialId: 'MAT_R014-variant-18', quantity: 6, unit: 'arkusz', status: 'Na stanie', unitCost: 75.00 },
         ]
     },
-    { id: 'T-012', name: 'Lada recepcyjna', status: 'Zakończony', project: 'P-004', priority: 'Wysoki', technology: 'Stolarstwo', laborCost: 2200, assignee: 'Anna Kowalska', bom: [] },
+    { id: 'T-012', name: 'Lada recepcyjna', status: TILE_STATUSES.COMPLETED as any, project: 'P-004', priority: 'Wysoki' as any, technology: 'Stolarstwo', laborCost: 2200, assignee: 'Anna Kowalska', bom: [] },
 
     // --- P-005: Canal+ Sport ---
     {
-        id: 'T-013', name: 'Stół analityczny - dotykowy', status: 'W produkcji CNC', project: 'P-005', priority: 'Wysoki', technology: 'Integracja ekranów', laborCost: 4500, assignee: 'Katarzyna Wójcik', bom: [
-            { id: 'B-13-1', type: 'Komponent gotowy', name: 'Ekran dotykowy 65"', quantity: 1, unit: 'szt', status: 'Zamówione', unitCost: 8000.00 },
+        id: 'T-013', name: 'Stół analityczny - dotykowy', status: 'W produkcji CNC' as any, project: 'P-005', priority: 'Wysoki' as any, technology: 'Integracja ekranów', laborCost: 4500, assignee: 'Katarzyna Wójcik', bom: [
+            { id: 'B-13-1', type: 'Komponent gotowy', name: 'Ekran dotykowy 65"', quantity: 1, unit: 'szt', status: MATERIAL_STATUSES.ORDERED as any, unitCost: 8000.00 },
         ]
     },
-    { id: 'T-014', name: 'Tło studia - mapa boiska', status: 'Gotowy do montażu', project: 'P-005', priority: 'Średni', technology: 'Wydruk wielkoformatowy', laborCost: 900, assignee: 'Katarzyna Wójcik', bom: [] },
+    { id: 'T-014', name: 'Tło studia - mapa boiska', status: 'Gotowy do montażu' as any, project: 'P-005', priority: 'Średni' as any, technology: 'Wydruk wielkoformatowy', laborCost: 900, assignee: 'Katarzyna Wójcik', bom: [] },
 
     // --- Dodatkowe ---
-    { id: 'T-015', name: 'Element sceny - Open\'er', status: 'Projektowanie', project: 'P-006', priority: 'Wysoki', technology: 'Rusztowania', laborCost: 10000, assignee: 'Tomasz Kamiński', bom: [] },
+    { id: 'T-015', name: 'Element sceny - Open\'er', status: 'Projektowanie' as any, project: 'P-006', priority: 'Wysoki' as any, technology: 'Rusztowania', laborCost: 10000, assignee: 'Tomasz Kamiński', bom: [] },
     {
-        id: 'T-016', name: 'Gablota na eksponat "Bitwa pod Grunwaldem"', status: 'Zaakceptowane', project: 'P-007', priority: 'Wysoki', technology: 'Szkło hartowane', laborCost: 5000, assignee: 'Ewa Lis', bom: [
-            { id: 'B-16-1', type: 'Materiał surowy', name: 'Szkło hartowane 10mm', materialId: 'MAT_R018-variant-szklo', quantity: 15, unit: 'm²', status: 'Do zamówienia', unitCost: 450.00 },
+        id: 'T-016', name: 'Gablota na eksponat "Bitwa pod Grunwaldem"', status: 'Zaakceptowane' as any, project: 'P-007', priority: 'Wysoki' as any, technology: 'Szkło hartowane', laborCost: 5000, assignee: 'Ewa Lis', bom: [
+            { id: 'B-16-1', type: 'Materiał surowy', name: 'Szkło hartowane 10mm', materialId: 'MAT_R018-variant-szklo', quantity: 15, unit: 'm²', status: MATERIAL_STATUSES.ORDERED as any, unitCost: 450.00 },
         ]
     },
-    { id: 'T-017', name: 'Tron operowy "Halka"', status: 'Gotowy do montażu', project: 'P-008', priority: 'Wysoki', technology: 'Rzeźbienie, stolarstwo', laborCost: 8000, assignee: 'Adam Dąbrowski', bom: [] },
-    { id: 'T-018', name: 'Cyberpunkowy neon - Gamescom', status: 'Do akceptacji', project: 'P-009', priority: 'Wysoki', technology: 'Neony LED', laborCost: 3500, assignee: 'Monika Zając', bom: [] },
+    { id: 'T-017', name: 'Tron operowy "Halka"', status: 'Gotowy do montażu' as any, project: 'P-008', priority: 'Wysoki' as any, technology: 'Rzeźbienie, stolarstwo', laborCost: 8000, assignee: 'Adam Dąbrowski', bom: [] },
+    { id: 'T-018', name: 'Cyberpunkowy neon - Gamescom', status: 'Do akceptacji' as any, project: 'P-009', priority: 'Wysoki' as any, technology: 'Neony LED', laborCost: 3500, assignee: 'Monika Zając', bom: [] },
     {
-        id: 'T-019', name: 'Podświetlane logo Allegro', status: 'W KOLEJCE', project: 'P-010', priority: 'Średni', technology: 'Frezowanie CNC', laborCost: 1200, assignee: 'Paweł Szymański', bom: [
-            { id: 'B-19-1', type: 'Materiał surowy', name: 'Plexi 15mm', materialId: 'MAT_R016-variant-15', quantity: 2, unit: 'arkusz', status: 'Na stanie', unitCost: 220.00 },
+        id: 'T-019', name: 'Podświetlane logo Allegro', status: 'W KOLEJCE' as any, project: 'P-010', priority: 'Średni' as any, technology: 'Frezowanie CNC', laborCost: 1200, assignee: 'Paweł Szymański', bom: [
+            { id: 'B-19-1', type: 'Materiał surowy', name: 'Plexi 15mm', materialId: 'MAT_R016-variant-15', quantity: 2, unit: 'arkusz', status: MATERIAL_STATUSES.AVAILABLE as any, unitCost: 220.00 },
         ]
     },
     // --- Nowe aktywne kafelki ---
     {
-        id: 'T-020', name: 'Konstrukcja baneru - Brand Day', status: 'W TRAKCIE CIĘCIA', project: 'P-010', priority: 'Wysoki', technology: 'Konstrukcja aluminiowa', laborCost: 1800, assignee: 'Paweł Szymański', bom: [
-            { id: 'B-20-1', type: 'Materiał surowy', name: 'Profil aluminiowy 30x30', materialId: 'MAT_R017', quantity: 50, unit: 'mb', status: 'Do zamówienia', unitCost: 22.50 },
+        id: 'T-020', name: 'Konstrukcja baneru - Brand Day', status: 'W TRAKCIE CIĘCIA' as any, project: 'P-010', priority: 'Wysoki' as any, technology: 'Konstrukcja aluminiowa', laborCost: 1800, assignee: 'Paweł Szymański', bom: [
+            { id: 'B-20-1', type: 'Materiał surowy', name: 'Profil aluminiowy 30x30', materialId: 'MAT_R017', quantity: 50, unit: 'mb', status: MATERIAL_STATUSES.ORDERED as any, unitCost: 22.50 },
         ]
     },
     {
-        id: 'T-021', name: 'Stoisko demo - PAX East', status: 'Zaakceptowane', project: 'P-018', priority: 'Wysoki', technology: 'System modułowy', laborCost: 7500, assignee: 'Monika Zając', bom: [
-            { id: 'B-21-1', type: 'Materiał surowy', name: 'Sklejka 12mm', materialId: 'MAT_R012-variant-12', quantity: 12, unit: 'arkusz', status: 'Do zamówienia', unitCost: 95.00 },
+        id: 'T-021', name: 'Stoisko demo - PAX East', status: 'Zaakceptowane' as any, project: 'P-018', priority: 'Wysoki' as any, technology: 'System modułowy', laborCost: 7500, assignee: 'Monika Zając', bom: [
+            { id: 'B-21-1', type: 'Materiał surowy', name: 'Sklejka 12mm', materialId: 'MAT_R012-variant-12', quantity: 12, unit: 'arkusz', status: MATERIAL_STATUSES.ORDERED as any, unitCost: 95.00 },
         ]
     },
     {
-        id: 'T-022', name: 'Element sceny - Ekstraklasa', status: 'W KOLEJCE', project: 'P-014', priority: 'Średni', technology: 'Konstrukcja stalowa', laborCost: 4200, assignee: 'Katarzyna Wójcik', bom: [
-            { id: 'B-22-1', type: 'Materiał surowy', name: 'Profil stalowy 30x30', materialId: 'MAT_R017-variant-stal', quantity: 60, unit: 'mb', status: 'Na stanie', unitCost: 39.00 },
+        id: 'T-022', name: 'Element sceny - Ekstraklasa', status: 'W KOLEJCE' as any, project: 'P-014', priority: 'Średni' as any, technology: 'Konstrukcja stalowa', laborCost: 4200, assignee: 'Katarzyna Wójcik', bom: [
+            { id: 'B-22-1', type: 'Materiał surowy', name: 'Profil stalowy 30x30', materialId: 'MAT_R017-variant-stal', quantity: 60, unit: 'mb', status: MATERIAL_STATUSES.AVAILABLE as any, unitCost: 39.00 },
         ]
     },
 ];

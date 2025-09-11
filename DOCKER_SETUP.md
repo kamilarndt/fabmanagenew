@@ -1,165 +1,248 @@
 # 🐳 FabManage Docker Setup
 
+Kompletna dokumentacja konfiguracji i uruchamiania aplikacji FabManage w kontenerach Docker.
+
 ## 📋 Wymagania
 
-- Docker Desktop (Windows/Mac) lub Docker Engine (Linux)
-- Docker Compose
+- **Docker Desktop** - [Pobierz tutaj](https://www.docker.com/products/docker-desktop/)
+- **Git** - do klonowania repozytorium
+- **Minimum 4GB RAM** - dla stabilnego działania kontenerów
 
-## 🚀 Szybki start
+## 🚀 Szybki Start
 
 ### Windows (PowerShell)
 ```powershell
-# Uruchomienie wszystkich serwisów w tle
-.\docker-manage.ps1 start
+# Uruchom środowisko deweloperskie
+.\docker-manage.ps1 dev
 
-# Sprawdzenie statusu
-.\docker-manage.ps1 status
+# Zobacz logi
+.\docker-manage.ps1 logs
 
-# Zatrzymanie serwisów
+# Zatrzymaj aplikację
 .\docker-manage.ps1 stop
 ```
 
-### Linux/Mac (Bash)
+### Linux/macOS (Bash)
 ```bash
-# Uruchomienie wszystkich serwisów w tle
-./docker-manage.sh start
+# Uruchom środowisko deweloperskie
+./docker-manage.sh dev
 
-# Sprawdzenie statusu
-./docker-manage.sh status
+# Zobacz logi
+./docker-manage.sh logs
 
-# Zatrzymanie serwisów
+# Zatrzymaj aplikację
 ./docker-manage.sh stop
 ```
 
-### Ręczne zarządzanie
-```bash
-# Uruchomienie w tle
-docker-compose up -d
+## 🏗️ Architektura
 
-# Sprawdzenie statusu
-docker-compose ps
-
-# Logi
-docker-compose logs -f
-
-# Zatrzymanie
-docker-compose down
-```
-
-## 🌐 Dostępne serwisy
-
-| Serwis       | Port | URL                                 | Opis                    |
-| ------------ | ---- | ----------------------------------- | ----------------------- |
-| **Frontend** | 3000 | http://localhost:3000               | React + Vite dev server |
-| **Backend**  | 3001 | http://localhost:3001/api/materials | Node.js API server      |
-
-## 📁 Struktura Docker
-
-```
-docker-compose.yml          # Główna konfiguracja
-├── services/
-│   ├── backend/           # API server (port 3001)
-│   └── frontend/          # React dev server (port 3000)
-├── volumes/               # Mapowanie plików
-│   ├── rhino.txt         # Baza materiałów
-│   ├── stocks.json       # Stany magazynowe
-│   └── demands.json      # Zapotrzebowania
-└── networks/              # Sieć Docker
-```
-
-## 🔧 Konfiguracja
-
-### Backend (Node.js)
-- **Port**: 3001
-- **Environment**: NODE_ENV=development
-- **Volumes**: 
-  - `rhino.txt` (read-only)
-  - `stocks.json` (read-write)
-  - `demands.json` (read-write)
-- **Healthcheck**: `/health` endpoint
+Aplikacja składa się z dwóch głównych serwisów:
 
 ### Frontend (React + Vite)
-- **Port**: 3000
-- **Hot Reload**: ✅ Enabled
-- **Volumes**: 
-  - `src/` (live reload)
-  - `public/` (live reload)
-- **Dependencies**: Backend health check
+- **Port**: 5173
+- **URL**: http://localhost:5173
+- **Technologie**: React 18, TypeScript, Ant Design, Zustand
+- **Hot Reload**: Automatyczne przeładowanie przy zmianach
 
-## 📊 Zarządzanie
+### Backend (Node.js + Express)
+- **Port**: 3001  
+- **URL**: http://localhost:3001
+- **Health Check**: http://localhost:3001/health
+- **Baza danych**: SQLite (plik lokalny)
+- **API**: REST endpoints dla zarządzania danymi
 
-### Dostępne komendy
-- `start` - Uruchomienie serwisów
-- `stop` - Zatrzymanie serwisów  
-- `restart` - Restart serwisów
-- `status` - Status serwisów
-- `logs` - Wyświetlenie logów
-- `build` - Rebuild obrazów
-- `clean` - Czyszczenie zasobów
+## 📁 Struktura Plików
 
-### Monitorowanie
+```
+fabManage/
+├── FabManageNew/           # Frontend React
+│   ├── src/               # Kod źródłowy
+│   ├── public/            # Pliki statyczne
+│   ├── docker-compose.yml # Konfiguracja kontenerów
+│   └── package.json       # Zależności npm
+├── backend/               # Backend Node.js
+│   ├── server.js          # Główny serwer
+│   ├── db.js             # Konfiguracja bazy danych
+│   └── package.json       # Zależności npm
+├── docker/               # Pliki Docker
+│   ├── Dockerfile.backend
+│   ├── Dockerfile.frontend.dev
+│   └── docker-compose.yml
+├── docker-manage.ps1     # Skrypt zarządzania (Windows)
+└── docker-manage.sh      # Skrypt zarządzania (Linux/macOS)
+```
+
+## 🔧 Dostępne Komendy
+
+### Podstawowe operacje
+
+| Komenda   | Opis                             |
+| --------- | -------------------------------- |
+| `dev`     | Uruchom środowisko deweloperskie |
+| `prod`    | Uruchom środowisko produkcyjne   |
+| `stop`    | Zatrzymaj wszystkie kontenery    |
+| `restart` | Restartuj kontenery              |
+| `logs`    | Pokaż logi wszystkich serwisów   |
+| `build`   | Przebuduj obrazy Docker          |
+| `clean`   | Wyczyść kontenery i obrazy       |
+
+### Przykłady użycia
+
 ```bash
-# Logi wszystkich serwisów
+# Przebuduj tylko frontend
+./docker-manage.sh build frontend
+
+# Zobacz logi tylko backendu
+./docker-manage.sh logs backend
+
+# Restartuj konkretny serwis
+./docker-manage.sh restart frontend
+```
+
+## 🔍 Monitorowanie
+
+### Health Checks
+Backend ma zaimplementowany endpoint health check:
+```bash
+curl http://localhost:3001/health
+```
+
+Odpowiedź:
+```json
+{
+  "status": "ok",
+  "timestamp": "2025-01-09T10:30:00.000Z",
+  "uptime": 125.5,
+  "db": true
+}
+```
+
+### Logi w czasie rzeczywistym
+```bash
+# Wszystkie serwisy
 docker-compose logs -f
 
-# Logi konkretnego serwisu
-docker-compose logs -f backend
+# Konkretny serwis
 docker-compose logs -f frontend
-
-# Status serwisów
-docker-compose ps
 ```
 
-## 🚨 Rozwiązywanie problemów
+## 🛠️ Rozwiązywanie Problemów
 
-### Port już zajęty
+### Problem: Kontenery nie startują
 ```bash
-# Sprawdź co używa portu
-netstat -ano | findstr :3001  # Windows
-lsof -i :3001                 # Linux/Mac
+# Sprawdź status Docker
+docker info
 
-# Zatrzymaj proces lub zmień port w docker-compose.yml
+# Wyczyść środowisko i spróbuj ponownie
+./docker-manage.sh clean
+./docker-manage.sh dev
 ```
 
-### Błędy build
+### Problem: Port już zajęty
 ```bash
-# Rebuild bez cache
-docker-compose build --no-cache
+# Znajdź proces używający portu
+netstat -tulpn | grep :5173
+# lub na Windows
+netstat -ano | findstr :5173
 
-# Usuń obrazy i rebuild
-docker-compose down --rmi all
-docker-compose build
+# Zatrzymaj konfliktowe procesy
+./docker-manage.sh stop
 ```
 
-### Problemy z volumes
+### Problem: Brak dostępu do plików
 ```bash
-# Sprawdź mapowanie plików
-docker-compose exec backend ls -la /srv/app/
+# Sprawdź uprawnienia (Linux/macOS)
+ls -la FabManageNew/
+chmod -R 755 FabManageNew/
 
-# Restart z czystymi volumes
-docker-compose down -v
-docker-compose up -d
+# Na Windows - uruchom PowerShell jako Administrator
 ```
 
-## 🔄 Automatyczne restarty
+### Problem: Błędy kompilacji frontend
+```bash
+# Przebuduj frontend z czystym cache
+./docker-manage.sh build frontend
 
-- **Backend**: `restart: unless-stopped`
-- **Frontend**: `restart: unless-stopped`
-- **Healthcheck**: Backend sprawdza `/health` co 30s
+# Sprawdź logi
+./docker-manage.sh logs frontend
+```
 
-## 💡 Wskazówki
+## 🔒 Bezpieczeństwo
 
-1. **Pierwsze uruchomienie**: Użyj `build` przed `start`
-2. **Development**: Frontend ma hot reload - zmiany w kodzie automatycznie odświeżają stronę
-3. **API**: Backend automatycznie ładuje `rhino.txt` i watchuje zmiany
-4. **Logs**: Użyj `logs -f` do monitorowania w czasie rzeczywistym
-5. **Cleanup**: Użyj `clean` co jakiś czas do czyszczenia nieużywanych zasobów
+### Produkcja
+- Kontenery uruchamiają się z nieprivilegowanym użytkownikiem
+- Baza danych jest chroniona w wolumenie Docker
+- Pliki uploads są izolowane w kontenerze
 
-## 🎯 Korzyści Docker
+### Development
+- Hot reload umożliwia szybkie iteracje
+- Wolumeny zapewniają synchronizację kodu
+- Debug logi są dostępne w czasie rzeczywistym
 
-✅ **Automatyczne uruchamianie** - serwisy startują z systemem  
-✅ **Izolacja** - każdy serwis w osobnym kontenerze  
-✅ **Portability** - działa identycznie na każdym systemie  
-✅ **Versioning** - kontrolowane wersje zależności  
-✅ **Scaling** - łatwe skalowanie i load balancing  
-✅ **Monitoring** - wbudowane health checks i logi
+## 📊 Monitoring Zasobów
+
+```bash
+# Sprawdź użycie zasobów
+docker stats
+
+# Sprawdź rozmiar obrazów
+docker images
+
+# Sprawdź wolumeny
+docker volume ls
+```
+
+## 🔄 Aktualizacje
+
+### Aktualizacja kodu
+```bash
+# 1. Zatrzymaj kontenery
+./docker-manage.sh stop
+
+# 2. Zaktualizuj kod (git pull, etc.)
+git pull origin main
+
+# 3. Przebuduj obrazy
+./docker-manage.sh build
+
+# 4. Uruchom ponownie
+./docker-manage.sh dev
+```
+
+### Aktualizacja zależności
+```bash
+# 1. Zatrzymaj kontenery
+./docker-manage.sh stop
+
+# 2. Wyczyść cache
+./docker-manage.sh clean
+
+# 3. Uruchom z przebudową
+./docker-manage.sh build
+./docker-manage.sh dev
+```
+
+## 📝 Zmienne Środowiskowe
+
+### Frontend
+- `VITE_API_BASE_URL` - URL do API backendu (domyślnie: http://localhost:3001)
+- `VITE_USE_MOCK_DATA` - czy używać mock danych (false w Docker)
+- `NODE_ENV` - środowisko (development/production)
+
+### Backend  
+- `PORT` - port serwera (domyślnie: 3001)
+- `NODE_ENV` - środowisko aplikacji
+- `DB_PATH` - ścieżka do bazy SQLite
+
+## 🆘 Wsparcie
+
+Jeśli napotkasz problemy:
+
+1. **Sprawdź logi**: `./docker-manage.sh logs`
+2. **Zrestartuj serwisy**: `./docker-manage.sh restart`
+3. **Wyczyść środowisko**: `./docker-manage.sh clean && ./docker-manage.sh dev`
+4. **Sprawdź dokumentację**: Ten plik zawiera rozwiązania typowych problemów
+
+---
+
+**Powodzenia w rozwoju! 🚀**

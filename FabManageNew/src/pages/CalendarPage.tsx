@@ -1,10 +1,13 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
-import { Typography, Button, Select, Space, Alert, Segmented, Progress, Card } from 'antd'
-import { Calendar as RBCalendar, Views } from 'react-big-calendar'
-import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
-import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
+import { Typography, Button, Select, Space, Alert, Segmented, Progress, Card, DatePicker } from 'antd'
+import dayjs from 'dayjs'
+import FullCalendar from '@fullcalendar/react'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction'
+import listPlugin from '@fullcalendar/list'
+// FullCalendar CSS imports removed to avoid package specifier issues in build
 import { useCalendarStore, type CalendarEvent, type CalendarResource } from '../stores/calendarStore'
-import { localizer } from '../lib/calendarLocalizer'
 import EventFormModal from '../components/Calendar/EventFormModal'
 
 const MOCK_RESOURCES: CalendarResource[] = [
@@ -47,7 +50,7 @@ const MOCK_EVENTS: Omit<CalendarEvent, 'id'>[] = [
     },
 ]
 
-const DnDCalendar = withDragAndDrop<CalendarEvent, CalendarResource>(RBCalendar as any)
+// FullCalendar setup uses interactionPlugin for selecting/dragging
 
 export default function CalendarPage() {
     const { events, resources, setEvents, setResources, createEvent, updateEventTimes, updateEvent, deleteEvent } = useCalendarStore()
@@ -55,7 +58,9 @@ export default function CalendarPage() {
     const [editing, setEditing] = useState<CalendarEvent | null>(null)
     const [pendingRange, setPendingRange] = useState<{ start: Date; end: Date } | null>(null)
     const [resourceFilter, setResourceFilter] = useState<string | undefined>(undefined)
-    const [currentView, setCurrentView] = useState<'month' | 'week' | 'day'>('week')
+    const [mainView, setMainView] = useState<'timeline' | 'month' | 'week'>('timeline')
+    const [groupBy, setGroupBy] = useState<'designer' | 'team' | 'project'>('designer')
+    const [currentDate, setCurrentDate] = useState<Date>(new Date())
 
     useEffect(() => {
         if (events.length === 0) {
@@ -66,14 +71,7 @@ export default function CalendarPage() {
         }
     }, [events.length, setEvents, setResources])
 
-    const eventPropGetter = (event: CalendarEvent) => {
-        const resource = resources.find(r => r.id === event.resourceId)
-        let baseColor = resource?.color || 'var(--primary-main)'
-        if (event.phase === 'projektowanie') baseColor = '#1677ff'
-        if (event.phase === 'wycinanie') baseColor = '#faad14'
-        if (event.phase === 'produkcja') baseColor = '#52c41a'
-        return { style: { backgroundColor: baseColor, borderColor: baseColor } }
-    }
+    // Colors are computed inline when mapping events
 
     const handleSelectSlot = useCallback(({ start, end }: { start: Date; end: Date }) => {
         setEditing(null)
@@ -88,12 +86,14 @@ export default function CalendarPage() {
         setModalOpen(true)
     }, [])
 
-    const handleEventDrop = useCallback(({ event, start, end, resourceId }: any) => {
-        updateEventTimes(event.id, start, end, resourceId)
+    const handleEventDrop = useCallback((arg: any) => {
+        const { event } = arg
+        updateEventTimes(event.id, event.start, event.end, (event as any).extendedProps.resourceId)
     }, [updateEventTimes])
 
-    const handleEventResize = useCallback(({ event, start, end }: any) => {
-        updateEventTimes(event.id, start, end)
+    const handleEventResize = useCallback((arg: any) => {
+        const { event } = arg
+        updateEventTimes(event.id, event.start, event.end)
     }, [updateEventTimes])
 
     const handleCreateOrUpdate = useCallback((values: Omit<CalendarEvent, 'id'>) => {
@@ -155,16 +155,59 @@ export default function CalendarPage() {
         return by
     }, [events])
 
+    function markConflicts(input: CalendarEvent[]): Array<CalendarEvent & { __conflict?: boolean }> {
+        const arr = [...input].sort((a, b) => +a.start - +b.start)
+        const result = arr.map(e => ({ ...e, __conflict: false as boolean }))
+        for (let i = 0; i < result.length; i++) {
+            for (let j = i + 1; j < result.length; j++) {
+                if (result[j].start < result[i].end) {
+                    result[i].__conflict = true
+                    result[j].__conflict = true
+                } else {
+                    break
+                }
+            }
+        }
+        return result
+    }
+
+    // Helpers for timeline lanes
+    const lanes = useMemo(() => {
+        if (mainView !== 'timeline') return [] as { id: string; title: string; color?: string }[]
+        if (groupBy === 'project') {
+            const map = new Map<string, { id: string; title: string }>()
+            filteredEvents.forEach(e => {
+                const pid = (e.meta as any)?.projectId || 'unknown'
+                if (!map.has(pid)) map.set(pid, { id: pid, title: `Projekt ${pid}` })
+            })
+            return Array.from(map.values())
+        }
+        const type = groupBy === 'designer' ? 'designer' : 'team'
+        return resources.filter(r => r.type === type)
+    }, [filteredEvents, resources, groupBy, mainView])
+
     return (
         <div>
             <Typography.Title level={4} style={{ marginTop: 0 }}>Kalendarz Planowania</Typography.Title>
             <div style={{ height: '75vh', backgroundColor: 'var(--bg-card)', padding: '1rem' }}>
                 <Space style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, width: '100%' }}>
-                    <Space>
+                    <Space wrap>
+                        <Segmented
+                            options={[{ label: 'Oś Czasu', value: 'timeline' }, { label: 'Miesiąc', value: 'month' }, { label: 'Tydzień', value: 'week' }]}
+                            value={mainView}
+                            onChange={(val) => setMainView(val as any)}
+                        />
+                        {mainView === 'timeline' && (
+                            <Segmented
+                                options={[{ label: 'Projektant', value: 'designer' }, { label: 'Zespół', value: 'team' }, { label: 'Projekt', value: 'project' }]}
+                                value={groupBy}
+                                onChange={(val) => setGroupBy(val as any)}
+                            />
+                        )}
                         <Select
                             allowClear
-                            placeholder="Filtr zasobu"
-                            style={{ minWidth: 240 }}
+                            placeholder={mainView === 'timeline' ? 'Filtr zasobu/projektu' : 'Filtr zasobu'}
+                            style={{ minWidth: 260 }}
                             value={resourceFilter}
                             onChange={(v) => setResourceFilter(v)}
                             options={resources.map(r => ({
@@ -173,13 +216,12 @@ export default function CalendarPage() {
                                 )
                             }))}
                         />
-                        <Segmented
-                            options={[{ label: 'Miesiąc', value: 'month' }, { label: 'Tydzień', value: 'week' }, { label: 'Dzień', value: 'day' }]}
-                            value={currentView}
-                            onChange={(val) => setCurrentView(val as any)}
-                        />
                     </Space>
-                    <Button type="primary" onClick={() => { setEditing(null); setPendingRange({ start: new Date(), end: new Date(new Date().getTime() + 60 * 60 * 1000) }); setModalOpen(true) }}>Dodaj</Button>
+                    <Space>
+                        <Button onClick={() => setCurrentDate(new Date())}>Dziś</Button>
+                        <DatePicker value={dayjs(currentDate)} onChange={(d) => d && setCurrentDate(d.toDate())} />
+                        <Button type="primary" onClick={() => { setEditing(null); setPendingRange({ start: new Date(), end: new Date(new Date().getTime() + 60 * 60 * 1000) }); setModalOpen(true) }}>Dodaj</Button>
+                    </Space>
                 </Space>
                 {hasConflicts && (
                     <Alert type="warning" showIcon style={{ marginBottom: 8 }} message="Konflikty w grafiku dla wybranego zasobu" />
@@ -202,36 +244,79 @@ export default function CalendarPage() {
                         )
                     })}
                 </div>
-                <DnDCalendar
-                    localizer={localizer}
-                    events={filteredEvents}
-                    startAccessor="start"
-                    endAccessor="end"
-                    defaultView={Views.WEEK}
-                    views={[Views.MONTH, Views.WEEK, Views.DAY]}
-                    view={currentView}
-                    onView={(v) => setCurrentView(v as any)}
-                    selectable
-                    resizable
-                    onSelectSlot={handleSelectSlot as any}
-                    onSelectEvent={handleSelectEvent as any}
-                    onEventDrop={handleEventDrop as any}
-                    onEventResize={handleEventResize as any}
-                    eventPropGetter={eventPropGetter}
-                    messages={{
-                        next: 'Następny',
-                        previous: 'Poprzedni',
-                        today: 'Dziś',
-                        month: 'Miesiąc',
-                        week: 'Tydzień',
-                        day: 'Dzień',
-                        agenda: 'Agenda',
-                        date: 'Data',
-                        time: 'Godzina',
-                        event: 'Wydarzenie',
-                        noEventsInRange: 'Brak wydarzeń w tym okresie.',
-                    }}
-                />
+                {mainView === 'timeline' ? (
+                    <div style={{ display: 'grid', gap: 8 }}>
+                        {lanes.map(lane => (
+                            <div key={lane.id} style={{ border: '1px solid var(--border-subtle)', borderRadius: 6, overflow: 'hidden' }}>
+                                <div style={{ padding: '6px 10px', background: 'var(--bg-elevated)' }}>
+                                    <span style={{ fontWeight: 600 }}>
+                                        {lane.title}
+                                    </span>
+                                </div>
+                                <FullCalendar
+                                    key={`${lane.id}-${currentDate.toDateString()}`}
+                                    plugins={[timeGridPlugin, interactionPlugin]}
+                                    initialView={'timeGridWeek'}
+                                    headerToolbar={false}
+                                    initialDate={currentDate}
+                                    events={markConflicts(filteredEvents
+                                        .filter(e => {
+                                            if (groupBy === 'project') {
+                                                return ((e.meta as any)?.projectId || 'unknown') === lane.id
+                                            }
+                                            return e.resourceId === lane.id
+                                        }))
+                                        .map(e => ({
+                                            id: e.id,
+                                            title: e.title,
+                                            start: e.start,
+                                            end: e.end,
+                                            backgroundColor: e.__conflict ? '#ff4d4f' : (resources.find(r => r.id === (groupBy === 'project' ? e.resourceId : lane.id))?.color),
+                                            borderColor: e.__conflict ? '#ff4d4f' : (resources.find(r => r.id === (groupBy === 'project' ? e.resourceId : lane.id))?.color),
+                                            extendedProps: { ...e }
+                                        }))}
+                                    selectable
+                                    editable
+                                    selectMirror
+                                    select={(info) => handleSelectSlot({ start: info.start, end: info.end })}
+                                    eventClick={(info) => handleSelectEvent(info.event.extendedProps as CalendarEvent)}
+                                    eventDrop={handleEventDrop}
+                                    eventResize={handleEventResize}
+                                    dayMaxEvents={true}
+                                    height={220}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <FullCalendar
+                        key={`${mainView}-${currentDate.toDateString()}`}
+                        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+                        initialView={mainView === 'month' ? 'dayGridMonth' : 'timeGridWeek'}
+                        headerToolbar={false}
+                        initialDate={currentDate}
+                        events={markConflicts(filteredEvents).map(e => ({
+                            id: e.id,
+                            title: e.title,
+                            start: e.start,
+                            end: e.end,
+                            backgroundColor: e.__conflict ? '#ff4d4f' : (resources.find(r => r.id === e.resourceId)?.color),
+                            borderColor: e.__conflict ? '#ff4d4f' : (resources.find(r => r.id === e.resourceId)?.color),
+                            extendedProps: { ...e }
+                        }))}
+                        /* resource timeline options removed for non-timeline views */
+                        selectable
+                        editable
+                        selectMirror
+                        select={(info) => handleSelectSlot({ start: info.start, end: info.end })}
+                        eventClick={(info) => handleSelectEvent(info.event.extendedProps as CalendarEvent)}
+                        eventDrop={handleEventDrop}
+                        eventResize={handleEventResize}
+                        dayMaxEvents={true}
+                        height={'auto'}
+                        locale={'pl'}
+                    />
+                )}
                 <EventFormModal
                     open={modalOpen}
                     initial={editing ?? (pendingRange ? { start: pendingRange.start, end: pendingRange.end } : undefined)}

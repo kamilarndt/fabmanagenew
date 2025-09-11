@@ -1,10 +1,11 @@
 import { useMemo, useState, useCallback } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useProjectsStore } from '../stores/projectsStore'
 import { showToast } from '../lib/notifications'
 import { useTilesStore, type Tile } from '../stores/tilesStore'
 import type { Project } from '../types/projects.types'
-import TileEditModal from '../components/Tiles/TileEditModal'
+import TileEditModalV3 from '../components/Tiles/TileEditModalV3'
 import EditProjectModal from '../components/EditProjectModal'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -12,11 +13,12 @@ import { Card, Result, Button } from 'antd'
 
 // New modular components
 import ProjectHeader from '../components/Project/ProjectHeader'
-import ProjectTabs from '../components/Project/ProjectTabs'
+import ProjectTabs, { type TabId } from '../components/Project/ProjectTabs'
 import ProjectOverview from '../components/Project/ProjectOverview'
 import ProjectElements from '../components/Project/ProjectElements'
 import ProjectMaterials from '../components/Project/ProjectMaterials'
 import AddMemberModal from '../components/Modals/AddMemberModal'
+import SelectSpeckleModelModal from '../components/Modals/SelectSpeckleModelModal'
 import CreateGroupModal from '../components/Groups/CreateGroupModal'
 
 // Hooks
@@ -30,10 +32,8 @@ const LogisticsTab = lazy(() => import('../modules/Logistics/LogisticsTab'))
 const AccommodationTab = lazy(() => import('../modules/Accommodation/AccommodationTab'))
 import { StageStepper } from '../components/Ui/StageStepper'
 import { ModuleLoading } from '../components/Ui/LoadingSpinner'
-import { Calendar as RBCalendar, Views } from 'react-big-calendar'
-import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
-import { localizer } from '../lib/calendarLocalizer'
-import { useCalendarStore, type CalendarEvent, type CalendarResource } from '../stores/calendarStore'
+import GanttChart from '../components/Gantt/GanttChart'
+import SpeckleViewer from '../components/SpeckleViewer'
 
 
 
@@ -64,36 +64,55 @@ interface TeamMember {
 
 export default function Projekt() {
     const { id } = useParams()
+    const location = useLocation()
     const navigate = useNavigate()
     const { projects, update } = useProjectsStore()
     const { tiles, updateTile, addTile } = useTilesStore()
-    const [activeTab, setActiveTab] = useState<'overview' | 'elementy' | 'zakupy' | 'koncepcja' | 'wycena' | 'logistyka' | 'zakwaterowanie' | 'kalendarz'>('overview')
+    const [activeTab, setActiveTab] = useState<TabId>(() => {
+        const params = new URLSearchParams(location.search)
+        const tab = params.get('tab') as TabId | null
+        return (tab && ['overview', 'koncepcja', 'wycena', 'elementy', 'zakupy', 'logistyka', 'zakwaterowanie', 'harmonogram', 'model_3d'].includes(tab)) ? tab : 'overview'
+    })
     const [showTileModal, setShowTileModal] = useState(false)
     const [editingTile, setEditingTile] = useState<Tile | null>(null)
     const [showCreateGroup, setShowCreateGroup] = useState(false)
     const [showEditProject, setShowEditProject] = useState(false)
     const [showAddMember, setShowAddMember] = useState(false)
+    const [showSelectModel, setShowSelectModel] = useState(false)
 
     const project = useMemo(() => projects.find(p => p.id === id), [projects, id])
-    const { events, resources, updateEventTimes } = useCalendarStore()
-    const DnDCalendar = withDragAndDrop<CalendarEvent, CalendarResource>(RBCalendar as any)
-
-    // Move all hooks before conditional return
-    const safeProject: Project = project ?? {
+    // Define safeProject before any usage
+    const safeProject = (project ?? {
         id: 'unknown',
         numer: 'P-2025/01/UNK',
         name: 'Unknown',
-        typ: 'Inne',
+        typ: 'Event' as any,
         lokalizacja: 'Nieznana',
         clientId: '',
         client: '',
-        status: 'Nowy',
+        status: 'new' as any,
         data_utworzenia: new Date().toISOString().slice(0, 10),
         deadline: '',
         postep: 0,
         groups: [],
         modules: []
-    }
+    }) as Project
+    const { getProjectDataForGantt } = useProjectsStore()
+    // Ensure tiles are initialized for the project (in case not yet)
+    const { initialize: initTiles } = useTilesStore()
+    useEffect(() => { if (tiles.length === 0) { initTiles().catch(() => { }) } }, [tiles.length, initTiles])
+    const [ganttView, setGanttView] = useState<'Day' | 'Week' | 'Month' | 'Year'>('Week')
+    const ganttTasks = useMemo(() => {
+        // Prefer pure helper to avoid circular store deps
+        try {
+            // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+            const { buildGanttTasks } = require('../lib/gantt') as typeof import('../lib/gantt')
+            return buildGanttTasks(project, tiles)
+        } catch {
+            // fallback to existing selector (project & groups only)
+            return getProjectDataForGantt(safeProject.id)
+        }
+    }, [project, tiles, getProjectDataForGantt, safeProject.id])
     const {
         projectTiles,
         tileCosts,
@@ -176,14 +195,6 @@ export default function Projekt() {
         showToast(`Dodano ${memberIds.length} członków`, 'success')
     }, [])
 
-    const eventPropGetter = useCallback((event: CalendarEvent) => {
-        const resource = resources.find(r => r.id === event.resourceId)
-        if (resource) {
-            return { style: { backgroundColor: resource.color, borderColor: resource.color } }
-        }
-        return {}
-    }, [resources])
-
     if (!project) {
         return (
             <Result
@@ -221,8 +232,6 @@ export default function Projekt() {
         }
     ]
 
-    const projectEvents = events.filter(e => e.meta?.projectId === (project?.id || safeProject.id))
-
     const documents: ProjectDocument[] = [
         {
             id: 'doc-1',
@@ -241,23 +250,6 @@ export default function Projekt() {
             size: '1.8 MB'
         }
     ]
-
-    const handleEventClick = (event: CalendarEvent) => {
-        if (event.meta?.tileId) {
-            const tile = tiles.find(t => t.id === event.meta!.tileId)
-            if (tile) {
-                setEditingTile(tile)
-                setShowTileModal(true)
-            }
-        }
-    }
-
-    const handleEventDrop = ({ event, start, end, resourceId }: any) => {
-        updateEventTimes(event.id, start, end, resourceId)
-    }
-    const handleEventResize = ({ event, start, end }: any) => {
-        updateEventTimes(event.id, start, end)
-    }
 
     return (
         <DndProvider backend={HTML5Backend}>
@@ -344,78 +336,89 @@ export default function Projekt() {
                         </Suspense>
                     )}
 
-                    {activeTab === 'kalendarz' && (
-                        <Card style={{ marginTop: 12 }}>
-                            <div style={{ display: 'flex', gap: 12 }}>
-                                <div style={{ width: 300 }}>
-                                    <div style={{ fontWeight: 600, marginBottom: 8 }}>Niezaplanowane kafelki</div>
-                                    <div style={{ maxHeight: 480, overflow: 'auto', border: '1px solid var(--border-medium)', padding: 8 }}>
-                                        {projectTiles.filter(t => !events.some(e => e.meta?.tileId === t.id)).map(t => (
-                                            <div key={t.id} style={{ padding: 8, marginBottom: 8, background: 'var(--bg-card)', border: '1px dashed var(--border-medium)' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <div>
-                                                        <div style={{ fontWeight: 500 }}>{t.name}</div>
-                                                        <div style={{ fontSize: 12, opacity: 0.8 }}>{t.id}</div>
-                                                    </div>
-                                                    <div style={{ display: 'flex', gap: 6 }}>
-                                                        <Button size="small" draggable onDragStart={() => { (window as any)._dragTileId = t.id; (window as any)._dragPhase = 'projektowanie' }} title="Projektowanie">P</Button>
-                                                        <Button size="small" draggable onDragStart={() => { (window as any)._dragTileId = t.id; (window as any)._dragPhase = 'wycinanie' }} title="Wycinanie">W</Button>
-                                                        <Button size="small" type="primary" draggable onDragStart={() => { (window as any)._dragTileId = t.id; (window as any)._dragPhase = 'produkcja' }} title="Produkcja">Prod</Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
+                    {activeTab === 'model_3d' && (
+                        <Card>
+                            <h3>Model 3D Projektu</h3>
+                            {project.link_model_3d ? (
+                                <div>
+                                    <SpeckleViewer
+                                        initialStreamUrl={project.link_model_3d}
+                                        height={600}
+                                        enableSelection={false}
+                                    />
+                                    <div style={{ textAlign: 'right', marginTop: 12 }}>
+                                        <Button
+                                            type="default"
+                                            href={project.link_model_3d}
+                                            target="_blank"
+                                            icon={<i className="ri-external-link-line" />}
+                                        >
+                                            Otwórz w nowej karcie
+                                        </Button>
                                     </div>
                                 </div>
-                                <div style={{ flex: 1, height: '60vh' }}>
-                                    <DnDCalendar
-                                        localizer={localizer}
-                                        events={projectEvents}
-                                        startAccessor="start"
-                                        endAccessor="end"
-                                        defaultView={Views.WEEK}
-                                        views={[Views.MONTH, Views.WEEK, Views.DAY]}
-                                        eventPropGetter={eventPropGetter as any}
-                                        selectable
-                                        resizable
-                                        onEventDrop={handleEventDrop as any}
-                                        onEventResize={handleEventResize as any}
-                                        onSelectEvent={handleEventClick as any}
-                                        onDropFromOutside={({ start, end, allDay }) => {
-                                            const tileId = (window as any)._dragTileId
-                                            const phase = (window as any)._dragPhase as 'projektowanie' | 'wycinanie' | 'produkcja' | undefined
-                                            if (tileId) {
-                                                const title = projectTiles.find(t => t.id === tileId)?.name || 'Zadanie'
-                                                const newEvent = {
-                                                    title: `${(phase || 'produkcja').charAt(0).toUpperCase() + (phase || 'produkcja').slice(1)}: ${title}`,
-                                                    start,
-                                                    end,
-                                                    allDay: !!allDay,
-                                                    resourceId: resources[0]?.id,
-                                                    phase: (phase || 'produkcja'),
-                                                    meta: { tileId, projectId: project.id }
-                                                }
-                                                useCalendarStore.getState().createEvent(newEvent as any)
-                                                    ; (window as any)._dragTileId = undefined; (window as any)._dragPhase = undefined
-                                            }
-                                        }}
-                                        dragFromOutsideItem={() => {
-                                            const tileId = (window as any)._dragTileId
-                                            const phase = (window as any)._dragPhase
-                                            if (!tileId) return { id: 'temp', title: 'Zadanie', start: new Date(), end: new Date(Date.now() + 60 * 60 * 1000) } as any
-                                            const title = projectTiles.find(t => t.id === tileId)?.name || 'Zadanie'
-                                            return { id: 'temp', title: `${(phase || 'produkcja')}: ${title}`, start: new Date(), end: new Date(Date.now() + 60 * 60 * 1000) } as any
-                                        }}
-                                        handleDragStart={(event) => void event}
-                                    />
+                            ) : (
+                                <div>
+                                    <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                                        <i className="ri-3d-view" style={{ fontSize: '40px', color: '#ccc' }}></i>
+                                        <h4 style={{ color: '#999', marginTop: 12 }}>Brak przypiętego modelu 3D</h4>
+                                        <p style={{ color: '#999' }}>Możesz otworzyć przeglądarkę Speckle i wybrać strumień/commit.</p>
+                                        <Button type="primary" onClick={() => setShowSelectModel(true)}>
+                                            Wybierz z Speckle
+                                        </Button>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                        {/* Zbiorczy model z elementów projektu (jeśli kafelki mają linki) */}
+                                        <SpeckleViewer
+                                            initialStreamUrl={projectTiles.map(t => t.link_model_3d!).filter(Boolean)}
+                                            height={500}
+                                        />
+                                    </div>
                                 </div>
+                            )}
+                        </Card>
+                    )}
+                    <SelectSpeckleModelModal
+                        open={showSelectModel}
+                        onClose={() => setShowSelectModel(false)}
+                        onSelect={async (url) => {
+                            try {
+                                const { useProjectsStore } = await import('../stores/projectsStore')
+                                await useProjectsStore.getState().updateProjectModel(safeProject.id, url)
+                                setShowSelectModel(false)
+                            } catch {
+                                showToast('Nie udało się zapisać linku modelu', 'danger')
+                            }
+                        }}
+                    />
+
+                    {activeTab === 'harmonogram' && (
+                        <Card style={{ marginTop: 12 }}>
+                            <div className="d-flex" style={{ justifyContent: 'space-between', marginBottom: 8, gap: 8, flexWrap: 'wrap' }}>
+                                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                    <span style={{ color: '#aaa' }}>Widok:</span>
+                                    <Button size="small" onClick={() => setGanttView('Day')}>Dzień</Button>
+                                    <Button size="small" onClick={() => setGanttView('Week')}>Tydzień</Button>
+                                    <Button size="small" onClick={() => setGanttView('Month')}>Miesiąc</Button>
+                                    <Button size="small" onClick={() => setGanttView('Year')}>Rok</Button>
+                                    <Button size="small" onClick={() => {
+                                        const today = new Date().toISOString().slice(0, 10)
+                                        showToast(`Dziś: ${today}`, 'info')
+                                    }}>Dziś</Button>
+                                </div>
+                                <Button onClick={async () => {
+                                    const { useTilesStore } = await import('../stores/tilesStore')
+                                    useTilesStore.getState().autoScheduleProject(project.id)
+                                    showToast('Harmonogram zaktualizowany na podstawie zależności', 'success')
+                                }}>Auto‑Plan (zależności)</Button>
                             </div>
+                            <GanttChart tasks={ganttTasks as any} viewMode={ganttView} />
                         </Card>
                     )}
                 </div>
 
                 {/* Modals */}
-                <TileEditModal
+                <TileEditModalV3
                     open={showTileModal}
                     onClose={() => setShowTileModal(false)}
                     onSave={handleSaveTile}

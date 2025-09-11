@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { Typography, Button, Segmented, Card, Progress, Tooltip, Alert, Space, Select } from 'antd';
+import { Typography, Button, Segmented, Card, Progress, Tooltip, Alert, Space, Select, message } from 'antd';
 import { Calendar as RBCalendar, Views } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import { localizer } from '../../lib/calendarLocalizer';
@@ -201,19 +201,42 @@ export default function CalendarShell({
                         />
                     </Space>
 
-                    <Button
-                        type="primary"
-                        onClick={() => {
-                            setEditing(null);
-                            setPendingRange({
-                                start: new Date(),
-                                end: new Date(new Date().getTime() + 60 * 60 * 1000)
-                            });
-                            setModalOpen(true)
-                        }}
-                    >
-                        Dodaj
-                    </Button>
+                    <Space>
+                        <Button
+                            type="primary"
+                            onClick={() => {
+                                setEditing(null);
+                                setPendingRange({
+                                    start: new Date(),
+                                    end: new Date(new Date().getTime() + 60 * 60 * 1000)
+                                });
+                                setModalOpen(true)
+                            }}
+                        >
+                            Dodaj
+                        </Button>
+                        <Button
+                            onClick={async () => {
+                                try {
+                                    const { useCalendarStore } = await import('../../stores/calendarStore')
+                                    const exportBlob = await useCalendarStore.getState().exportWeekToBlob(new Date(), resourceFilter)
+                                    const url = URL.createObjectURL(exportBlob)
+                                    const a = document.createElement('a')
+                                    a.href = url
+                                    a.download = 'harmonogram.txt'
+                                    document.body.appendChild(a)
+                                    a.click()
+                                    a.remove()
+                                    URL.revokeObjectURL(url)
+                                    message.success('Wyeksportowano harmonogram tygodniowy')
+                                } catch {
+                                    message.error('Nie udało się wyeksportować harmonogramu')
+                                }
+                            }}
+                        >
+                            Eksport
+                        </Button>
+                    </Space>
                 </Space>
 
                 {hasConflicts.length > 0 && (
@@ -272,7 +295,7 @@ export default function CalendarShell({
                         />
                     </div>
 
-                    <Card title="Obłożenie zasobów" style={{ width: 280 }}>
+                    <Card title="Obłożenie zasobów" style={{ width: 320 }}>
                         <div style={{ maxHeight: 400, overflow: 'auto' }}>
                             {workload.map(({ resource, percentage, hours, events }) => (
                                 <div key={resource.id} style={{ marginBottom: 12 }}>
@@ -284,10 +307,15 @@ export default function CalendarShell({
                                         <Progress
                                             percent={percentage}
                                             size="small"
-                                            strokeColor={resource.color}
+                                            strokeColor={hours > 40 ? '#ff4d4f' : resource.color}
+                                            status={hours > 40 ? 'exception' : 'normal'}
                                             showInfo={false}
                                         />
                                     </Tooltip>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+                                        <Button size="small" onClick={() => setResourceFilter(resource.id)}>Pokaż</Button>
+                                        <Button size="small" onClick={() => setResourceFilter(undefined)}>Wyczyść</Button>
+                                    </div>
                                 </div>
                             ))}
                         </div>

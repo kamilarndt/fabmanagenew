@@ -1,7 +1,7 @@
 import { useTilesStore } from '../stores/tilesStore'
 import { useDrag } from 'react-dnd'
 import { useCallback, useMemo, useState } from 'react'
-import TileEditModal from '../components/Tiles/TileEditModal'
+import TileEditModalV3 from '../components/Tiles/TileEditModalV3'
 import { PageHeader } from '../components/Ui/PageHeader'
 import { Toolbar } from '../components/Ui/Toolbar'
 import { Row, Col, Card, Button, Space, Typography, Tag } from 'antd'
@@ -155,7 +155,7 @@ export default function CNC() {
                 </Row>
             </div>
 
-            <TileEditModal
+            <TileEditModalV3
                 open={!!editing}
                 onClose={() => setEditing(null)}
                 onSave={(tileData) => {
