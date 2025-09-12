@@ -113,3 +113,62 @@ temp/
 
 # Anima
 .anima/
+
+# -----------------------------
+# Project-specific ignores
+# -----------------------------
+
+# Local databases and SQLite sidecars
+*.db
+*.db-shm
+*.db-wal
+fabmanage.db*
+backend/fabmanage.db*
+data/db/
+backend/data/db/
+
+# Uploaded/runtime files
+backend/uploads/
+
+# Test artifacts and playwright outputs
+test-results/
+**/test-results/
+playwright-report/
+**/playwright-report/
+.playwright/
+
+# Logs and misc local files
+*.log
+http.log
+lt.log
+lt2.log
+preview.log
+e --is-inside-work-tree
+
+# Large generated caches
+.cache/
+.parcel-cache/
+
+# Backups and archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.bak
+*.backup
+
+# Build outputs (catch-all across subpackages)
+**/dist/
+**/build/
+**/.next/
+**/out/
+**/coverage/
+
+# Environment and local config
+.supabase/
+**/.supabase/
+*.local
+
+# OS junk (Windows)
+Thumbs.db
+ehthumbs.db
