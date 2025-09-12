@@ -244,8 +244,8 @@ export default function CalendarShell({
                         message="Wykryto konflikty w harmonogramie"
                         description={
                             <div>
-                                {hasConflicts.map((conflict, i) => (
-                                    <div key={i} style={{ marginBottom: 4 }}>
+                                {hasConflicts.map((conflict) => (
+                                    <div key={`${conflict.resource}-${conflict.events.map(e => e.id).join('-')}`} style={{ marginBottom: 4 }}>
                                         <strong>{conflict.resource}:</strong> {conflict.events.map(e => e.title).join(' vs ')}
                                     </div>
                                 ))}

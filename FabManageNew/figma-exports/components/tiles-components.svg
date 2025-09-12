@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="900" height="700" viewBox="0 0 900 700"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+      .component-box { fill: #f8f9fa; stroke: #dee2e6; stroke-width: 2; rx: 8; }
+      .component-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; fill: #495057; font-weight: 500; }
+      .category-header { font-family: 'Segoe UI', Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #212529; }
+      .description { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; fill: #6c757d; }
+      .props-box { fill: #fff3e0; stroke: #ff9800; stroke-width: 1; rx: 4; }
+      .props-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; fill: #f57c00; }
+      .arrow { stroke: #6c757d; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .main-component { fill: #e8f5e8; stroke: #4caf50; stroke-width: 3; rx: 8; }
+        </style>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#6c757d" />
+        </marker>
+    </defs>
+
+    <!-- Title -->
+    <text x="450" y="40" text-anchor="middle" class="category-header">Tiles Management Components</text>
+
+    <!-- TileCard -->
+    <rect x="50" y="80" width="200" height="120" class="component-box"/>
+    <text x="150" y="105" text-anchor="middle" class="component-text">TileCard</text>
+    <text x="60" y="125" class="description">Card display for individual tiles/elements</text>
+
+    <rect x="60" y="140" width="180" height="50" class="props-box"/>
+    <text x="70" y="155" class="props-text">Props: tile, onEdit, onView, onAssign</text>
+    <text x="70" y="170" class="props-text">Features: Tile info, Status badge, Material summary, Actions</text>
+    <text x="70" y="185" class="props-text">Dependencies: Tile type, formatDate utility</text>
+
+    <!-- TileEditModal -->
+    <rect x="300" y="80" width="200" height="120" class="main-component"/>
+    <text x="400" y="105" text-anchor="middle" class="component-text">TileEditModal</text>
+    <text x="310" y="125" class="description">Modal for editing tile details and BOM</text>
+
+    <rect x="310" y="140" width="180" height="50" class="props-box"/>
+    <text x="320" y="155" class="props-text">Props: open, onClose, onSave, tile, projectId</text>
+    <text x="320" y="170" class="props-text">Features: Form validation, BOM management, File upload</text>
+    <text x="320" y="185" class="props-text">Dependencies: Modal, Form, Input, Select, Upload, BomItem type</text>
+
+    <!-- tile-edit-drawer -->
+    <rect x="550" y="80" width="200" height="120" class="component-box"/>
+    <text x="650" y="105" text-anchor="middle" class="component-text">tile-edit-drawer</text>
+    <text x="560" y="125" class="description">Sliding drawer for tile editing</text>
+
+    <rect x="560" y="140" width="180" height="50" class="props-box"/>
+    <text x="570" y="155" class="props-text">Props: open, onClose, onSave, tile, projectId</text>
+    <text x="570" y="170" class="props-text">Features: SlideOver integration, Form handling</text>
+    <text x="570" y="185" class="props-text">Dependencies: SlideOver, Form components</text>
+
+    <!-- TileCreateModal -->
+    <rect x="800" y="80" width="100" height="120" class="component-box"/>
+    <text x="850" y="105" text-anchor="middle" class="component-text">TileCreateModal</text>
+    <text x="810" y="125" class="description">Modal for creating new tiles</text>
+
+    <rect x="810" y="140" width="80" height="50" class="props-box"/>
+    <text x="820" y="155" class="props-text">Props: (minimal)</text>
+    <text x="820" y="170" class="props-text">Features: New tile creation</text>
+    <text x="820" y="185" class="props-text">Dependencies: Modal, Form</text>
+
+    <!-- KanbanBoard -->
+    <rect x="50" y="250" width="200" height="120" class="component-box"/>
+    <text x="150" y="275" text-anchor="middle" class="component-text">KanbanBoard</text>
+    <text x="60" y="295" class="description">Kanban board for tile workflow management</text>
+
+    <rect x="60" y="310" width="180" height="50" class="props-box"/>
+    <text x="70" y="325" class="props-text">Props: projectTiles, onTileUpdate, onTileClick, tileCosts</text>
+    <text x="70" y="340" class="props-text">Features: Drag & drop, Status columns, Cost display</text>
+    <text x="70" y="355" class="props-text">Dependencies: KanbanColumn, react-dnd, Tile type</text>
+
+    <!-- KanbanCard -->
+    <rect x="300" y="250" width="200" height="120" class="component-box"/>
+    <text x="400" y="275" text-anchor="middle" class="component-text">KanbanCard</text>
+    <text x="310" y="295" class="description">Draggable card for kanban columns</text>
+
+    <rect x="310" y="310" width="180" height="50" class="props-box"/>
+    <text x="320" y="325" class="props-text">Props: tile, onTileClick, tileCost</text>
+    <text x="320" y="340" class="props-text">Features: Drag handle, Status badge, Cost display</text>
+    <text x="320" y="355" class="props-text">Dependencies: useDrag, react-dnd, Tile type</text>
+
+    <!-- KanbanColumn -->
+    <rect x="550" y="250" width="200" height="120" class="component-box"/>
+    <text x="650" y="275" text-anchor="middle" class="component-text">KanbanColumn</text>
+    <text x="560" y="295" class="description">Drop zone for kanban cards</text>
+
+    <rect x="560" y="310" width="180" height="50" class="props-box"/>
+    <text x="570" y="325" class="props-text">Props: columnId, title, color, tiles, onTileUpdate</text>
+    <text x="570" y="340" class="props-text">Features: Drop zone, Status mapping, Permission checks</text>
+    <text x="570" y="355" class="props-text">Dependencies: useDrop, react-dnd, useAuthStore</text>
+
+    <!-- KanbanBoardGeneric -->
+    <rect x="800" y="250" width="100" height="120" class="component-box"/>
+    <text x="850" y="275" text-anchor="middle" class="component-text">KanbanBoardGeneric</text>
+    <text x="810" y="295" class="description">Generic kanban board component</text>
+
+    <rect x="810" y="310" width="80" height="50" class="props-box"/>
+    <text x="820" y="325" class="props-text">Props: tiles, columns, getColumnId</text>
+    <text x="820" y="340" class="props-text">Features: Reusable kanban logic</text>
+    <text x="820" y="355" class="props-text">Dependencies: KanbanColumn</text>
+
+    <!-- Component Relationships -->
+    <line x1="250" y1="140" x2="300" y2="140" class="arrow"/>
+    <line x1="500" y1="140" x2="550" y2="140" class="arrow"/>
+    <line x1="750" y1="140" x2="800" y2="140" class="arrow"/>
+
+    <line x1="150" y1="200" x2="150" y2="250" class="arrow"/>
+    <line x1="400" y1="200" x2="400" y2="250" class="arrow"/>
+    <line x1="650" y1="200" x2="650" y2="250" class="arrow"/>
+    <line x1="850" y1="200" x2="850" y2="250" class="arrow"/>
+
+    <!-- Usage Flow -->
+    <rect x="50" y="420" width="850" height="150" class="component-box"/>
+    <text x="475" y="445" text-anchor="middle" class="component-text">Tile Management Workflow</text>
+
+    <text x="60" y="470" class="description">1. TileCard: Display tile in various views (grid, list, kanban)</text>
+    <text x="60" y="490" class="description">2. TileEditModal: Edit tile details, BOM, materials, and specifications</text>
+    <text x="60" y="510" class="description">3. tile-edit-drawer: Alternative slide-out editor for quick edits</text>
+    <text x="60" y="530" class="description">4. TileCreateModal: Create new tiles with initial configuration</text>
+    <text x="60" y="550" class="description">5. KanbanBoard: Manage tile workflow through status columns</text>
+    <text x="60" y="570" class="description">6. KanbanCard: Draggable representation of tiles in workflow</text>
+    <text x="60" y="590" class="description">7. KanbanColumn: Drop zones for different workflow stages</text>
+    <text x="60" y="610" class="description">8. KanbanBoardGeneric: Reusable kanban implementation</text>
+
+    <!-- Key Features -->
+    <rect x="50" y="600" width="850" height="80" class="component-box"/>
+    <text x="475" y="625" text-anchor="middle" class="component-text">Key Features</text>
+
+    <text x="60" y="650" class="description">• Drag & drop workflow management with status tracking</text>
+    <text x="60" y="670" class="description">• Unified tile editing experience across modals and drawers</text>
+    <text x="60" y="690" class="description">• Real-time cost calculation and material tracking</text>
+    <text x="60" y="710" class="description">• Permission-based access control for workflow changes</text>
+
+</svg>

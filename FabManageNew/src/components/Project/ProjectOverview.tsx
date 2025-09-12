@@ -99,7 +99,7 @@ export default function ProjectOverview({
                     </div>
                     <FileManager
                         files={documents.map(d => ({ id: d.id, name: d.name }))}
-                        onUpload={(file) => { /* TODO: integrate storage */ console.log('upload', file.name) }}
+                        onUpload={(file) => { /* TODO: integrate storage */ console.warn('TODO: upload', file.name) }}
                     />
                 </Card>
             </Col>

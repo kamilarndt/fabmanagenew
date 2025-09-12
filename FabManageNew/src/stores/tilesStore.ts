@@ -42,38 +42,38 @@ export const useTilesStore = create<TilesState>()(
             isInitialized: false,
 
             initialize: async () => {
-                console.log('🚀 TilesStore: Starting initialization...')
+                console.warn('🚀 TilesStore: Starting initialization...')
 
                 // Prevent multiple initializations
                 const currentState = get()
                 if (currentState.isInitialized || currentState.isLoading) {
-                    console.log('🔧 TilesStore: Already initialized or loading, skipping...')
+                    console.warn('🔧 TilesStore: Already initialized or loading, skipping...')
                     return
                 }
 
-                console.log('🔧 TilesStore: Setting loading state...')
+                console.warn('🔧 TilesStore: Setting loading state...')
                 set({ isLoading: true })
 
                 try {
                     // DEMO MODE: Clear any cached tiles to ensure fresh data
-                    console.log('🔧 TilesStore: Clearing cached tiles for demo mode...')
+                    console.warn('🔧 TilesStore: Clearing cached tiles for demo mode...')
                     try {
                         localStorage.removeItem('fabmanage-tiles')
-                    } catch (e) {
+                    } catch {
                         console.warn('🔧 TilesStore: localStorage not available, skipping cache clear')
                     }
 
                     // Force refresh - always load fresh data for demo
-                    console.log('🔧 TilesStore: Force loading fresh tiles data for demo...')
+                    console.warn('🔧 TilesStore: Force loading fresh tiles data for demo...')
                     // if (currentState.tiles.length > 0) {
                     //     set({ isInitialized: true, isLoading: false })
                     //     return
                     // }
 
                     // Simplified: just call API, httpClient handles all fallback logic
-                    console.log('🔧 TilesStore: Calling listTiles()...')
+                    console.warn('🔧 TilesStore: Calling listTiles()...')
                     const data = await listTiles()
-                    console.log('🔧 TilesStore INITIALIZED:', {
+                    console.warn('🔧 TilesStore INITIALIZED:', {
                         tilesCount: data.length,
                         tiles: data.map(t => ({ id: t.id, name: t.name, project: t.project }))
                     })
@@ -82,7 +82,7 @@ export const useTilesStore = create<TilesState>()(
                         tilesById: Object.fromEntries(data.map(t => [t.id, t])),
                         isInitialized: true
                     })
-                    console.log('✅ TilesStore: Successfully initialized with', data.length, 'tiles')
+                    console.warn('✅ TilesStore: Successfully initialized with', data.length, 'tiles')
                 } catch (error) {
                     console.error('❌ TilesStore: Failed to initialize tiles store:', error)
                     if (error && typeof error === 'object') {
@@ -91,7 +91,7 @@ export const useTilesStore = create<TilesState>()(
                     }
                     set({ tiles: [], tilesById: {}, isInitialized: true })
                 } finally {
-                    console.log('🔧 TilesStore: Setting loading to false...')
+                    console.warn('🔧 TilesStore: Setting loading to false...')
                     set({ isLoading: false })
                 }
             },
@@ -146,7 +146,7 @@ export const useTilesStore = create<TilesState>()(
                     const current = state.tilesById[id]
                     if (current && patch.status && !canTransitionTo(current.status, patch.status)) {
                         // block illegal transition in state
-                        const { status, ...rest } = patch
+                        const { status: _status, ...rest } = patch
                         patch = rest
                     }
                     const nextTiles = state.tiles.map(t => t.id === id ? { ...t, ...patch } : t)

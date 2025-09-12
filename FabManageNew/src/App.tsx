@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Suspense, lazy, useEffect } from 'react'
-import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
+import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary'
 import { PageLoading } from './components/Ui/LoadingSpinner'
 import useOfflineDetection from './hooks/useOfflineDetection'
 import { useInitializeRealData } from './hooks/useInitializeRealData'
@@ -47,7 +47,7 @@ function App() {
     // Initialize connection monitor on app start
     useEffect(() => {
         const initializeApp = async () => {
-            console.log('🔌 Initializing connection monitor...')
+            console.warn('🔌 Initializing connection monitor...')
             // Wait for connection check before initializing stores
             await connectionMonitor.forceCheck()
 

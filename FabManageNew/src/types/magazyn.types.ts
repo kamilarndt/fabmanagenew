@@ -26,7 +26,7 @@ export interface MaterialProperties {
   fireResistant?: boolean
   flexible?: boolean
   waterResistant?: boolean
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export interface MaterialCategory {

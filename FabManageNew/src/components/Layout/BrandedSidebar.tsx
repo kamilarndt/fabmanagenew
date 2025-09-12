@@ -134,16 +134,16 @@ export default function BrandedSidebar({ collapsed, onCollapse }: BrandedSidebar
     const handleUserMenuClick = ({ key }: { key: string }) => {
         switch (key) {
             case 'profile':
-                console.log('Otwórz profil użytkownika')
+                console.warn('TODO: Otwórz profil użytkownika')
                 break
             case 'settings':
                 navigate('/settings')
                 break
             case 'help':
-                console.log('Otwórz pomoc')
+                console.warn('TODO: Otwórz pomoc')
                 break
             case 'logout':
-                console.log('Wyloguj użytkownika')
+                console.warn('TODO: Wyloguj użytkownika')
                 // TODO: Implementuj wylogowanie
                 break
         }

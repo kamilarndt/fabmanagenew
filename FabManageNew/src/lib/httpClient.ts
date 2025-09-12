@@ -3,6 +3,7 @@ import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { isSupabaseConfigured, supabase } from './supabase'
 import { toBackendTileStatus, toUiTileStatus } from './statusUtils'
 import { connectionMonitor } from './connectionMonitor'
+import { log } from './logger'
 
 // Types
 export interface ApiResponse<T = any> {
@@ -20,9 +21,9 @@ export interface HttpClientOptions {
 // Error types
 export class ApiError extends Error {
     public status: number
-    public response?: any
+    public response?: unknown
 
-    constructor(message: string, status: number, response?: any) {
+    constructor(message: string, status: number, response?: unknown) {
         super(message)
         this.name = 'ApiError'
         this.status = status
@@ -52,18 +53,18 @@ class HttpClient {
     private setupInterceptors() {
         // Request interceptor
         this.axiosInstance.interceptors.request.use(
-            (config) => {
+            async (config) => {
                 // Add auth token if available
-                const token = this.getAuthToken()
+                const token = await this.getAuthToken()
                 if (token) {
                     config.headers.Authorization = `Bearer ${token}`
                 }
 
-                console.log(`🔄 API Request: ${config.method?.toUpperCase()} ${config.url}`)
+                log.api.request(config.method?.toUpperCase() || 'GET', config.url || '', config.data)
                 return config
             },
             (error) => {
-                console.error('❌ Request Error:', error)
+                log.error('Request Error', error)
                 return Promise.reject(error)
             }
         )
@@ -71,14 +72,14 @@ class HttpClient {
         // Response interceptor
         this.axiosInstance.interceptors.response.use(
             (response: AxiosResponse) => {
-                console.log(`✅ API Response: ${response.status} ${response.config.url}`)
+                log.api.response(response.status, response.config.url || '', response.data)
                 return response
             },
             (error) => {
                 const status = error.response?.status || 0
                 const message = error.response?.data?.message || error.message
 
-                console.error(`❌ API Error: ${status} ${error.config?.url} - ${message}`)
+                log.error(`API Error: ${status} ${error.config?.url} - ${message}`)
 
                 // Transform to our custom error
                 throw new ApiError(message, status, error.response?.data)
@@ -86,13 +87,20 @@ class HttpClient {
         )
     }
 
-    private getAuthToken(): string | null {
-        // Try to get from localStorage, sessionStorage, or Supabase
+    private async getAuthToken(): Promise<string | null> {
+        // Try to get from Supabase session first, then fallback to localStorage
         try {
-            return localStorage.getItem('authToken') ||
-                sessionStorage.getItem('authToken') ||
-                null
-        } catch {
+            if (isSupabaseConfigured) {
+                const { data: { session } } = await this.supabaseClient.auth.getSession()
+                if (session?.access_token) {
+                    return session.access_token
+                }
+            }
+
+            // Fallback to localStorage for backward compatibility
+            return localStorage.getItem('authToken') || null
+        } catch (error) {
+            console.warn('Failed to get auth token:', error)
             return null
         }
     }
@@ -103,17 +111,17 @@ class HttpClient {
         return response.data
     }
 
-    async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
         const response = await this.axiosInstance.post<T>(url, data, config)
         return response.data
     }
 
-    async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    async put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
         const response = await this.axiosInstance.put<T>(url, data, config)
         return response.data
     }
 
-    async patch<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    async patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
         const response = await this.axiosInstance.patch<T>(url, data, config)
         return response.data
     }
@@ -126,7 +134,7 @@ class HttpClient {
     // Unified API method that chooses between HTTP and Supabase with connection monitoring
     async apiCall<T>(endpoint: string, options: {
         method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
-        data?: any
+        data?: unknown
         table?: string
         useSupabase?: boolean
         statusTransform?: boolean
@@ -193,9 +201,9 @@ class HttpClient {
                 const { mockClients } = await import('../data/development')
                 return mockClients as T
             } else if (endpoint.includes('/api/tiles')) {
-                console.log('🔧 httpClient: Loading mock tiles data...')
+                console.warn('🔧 httpClient: Loading mock tiles data...')
                 const { mockTiles } = await import('../data/development')
-                console.log('🔧 httpClient: Loaded mock tiles:', { count: mockTiles.length, first: mockTiles[0] })
+                console.warn('🔧 httpClient: Loaded mock tiles:', { count: mockTiles.length, first: mockTiles[0] })
                 return mockTiles as T
             } else if (endpoint.includes('/api/materials')) {
                 const { mockMaterials } = await import('../data/development')
@@ -220,7 +228,7 @@ class HttpClient {
                 const cached = localStorage.getItem(cacheKey)
 
                 if (cached) {
-                    console.log('📂 Using cached data for:', endpoint)
+                    console.warn('📂 Using cached data for:', endpoint)
                     return JSON.parse(cached) as T
                 }
             }
@@ -408,14 +416,14 @@ export { HttpClient }
 // Convenience exports
 export const api = {
     get: <T>(url: string, config?: AxiosRequestConfig) => httpClient.get<T>(url, config),
-    post: <T>(url: string, data?: any, config?: AxiosRequestConfig) => httpClient.post<T>(url, data, config),
-    put: <T>(url: string, data?: any, config?: AxiosRequestConfig) => httpClient.put<T>(url, data, config),
-    patch: <T>(url: string, data?: any, config?: AxiosRequestConfig) => httpClient.patch<T>(url, data, config),
+    post: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => httpClient.post<T>(url, data, config),
+    put: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => httpClient.put<T>(url, data, config),
+    patch: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => httpClient.patch<T>(url, data, config),
     delete: <T>(url: string, config?: AxiosRequestConfig) => httpClient.delete<T>(url, config),
     call: <T>(endpoint: string, options?: Parameters<HttpClient['apiCall']>[1]) => httpClient.apiCall<T>(endpoint, options)
 }
 
-export async function callEdgeFunction<T = any>(fnName: string, payload?: any): Promise<T> {
+export async function callEdgeFunction<T = unknown>(fnName: string, payload?: unknown): Promise<T> {
     if (!isSupabaseConfigured) {
         throw new Error('Supabase is not configured')
     }
@@ -425,7 +433,8 @@ export async function callEdgeFunction<T = any>(fnName: string, payload?: any): 
         } as any)
         if (error) throw error
         return data as T
-    } catch (err: any) {
-        throw new ApiError(err?.message || 'Edge function call failed', err?.status || 500, err)
+    } catch (err: unknown) {
+        const error = err as { message?: string; status?: number }
+        throw new ApiError(error?.message || 'Edge function call failed', error?.status || 500, err)
     }
 }

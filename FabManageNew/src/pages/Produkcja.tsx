@@ -80,8 +80,8 @@ export default function Produkcja() {
                     { label: 'OLE', value: '76%', extra: '▲ 2%' },
                     { label: 'Scrap rate', value: '3.2%', extra: 'vs 4% target' },
                     { label: 'Labor productivity', value: '52 pcs/h', extra: 'good' },
-                ].map((k, i) => (
-                    <Col xs={12} lg={6} key={i}><Card><div style={{ textAlign: 'center' }}><div style={{ fontSize: 20 }}>{k.value}</div><Typography.Text type="secondary" style={{ display: 'block' }}>{k.label}</Typography.Text><Typography.Text style={{ color: 'var(--success-strong)' }}>{k.extra}</Typography.Text></div></Card></Col>
+                ].map((k) => (
+                    <Col xs={12} lg={6} key={k.label}><Card><div style={{ textAlign: 'center' }}><div style={{ fontSize: 20 }}>{k.value}</div><Typography.Text type="secondary" style={{ display: 'block' }}>{k.label}</Typography.Text><Typography.Text style={{ color: 'var(--success-strong)' }}>{k.extra}</Typography.Text></div></Card></Col>
                 ))}
             </Row>
             <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
@@ -90,8 +90,8 @@ export default function Produkcja() {
                     { label: 'MTTR', value: '12 min' },
                     { label: 'Energy efficiency', value: '1.9 kWh/pc' },
                     { label: 'Safety record', value: '27 dni' },
-                ].map((k, i) => (
-                    <Col xs={12} lg={6} key={i}><Card><div style={{ textAlign: 'center' }}><div style={{ fontSize: 20 }}>{k.value}</div><Typography.Text type="secondary">{k.label}</Typography.Text></div></Card></Col>
+                ].map((k) => (
+                    <Col xs={12} lg={6} key={k.label}><Card><div style={{ textAlign: 'center' }}><div style={{ fontSize: 20 }}>{k.value}</div><Typography.Text type="secondary">{k.label}</Typography.Text></div></Card></Col>
                 ))}
             </Row>
 
@@ -159,7 +159,7 @@ export default function Produkcja() {
                             <div style={{ maxHeight: 360, overflowY: 'auto' }}>
                                 <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                                     {Array.from({ length: 16 }).map((_, i) => (
-                                        <li key={i} style={{ padding: '4px 0', borderBottom: '1px solid var(--border-medium)' }}>{i % 2 ? 'Start' : 'Complete'} • {orders[i % orders.length].name} • 08:{(10 + i) % 60}</li>
+                                        <li key={`activity-${i}`} style={{ padding: '4px 0', borderBottom: '1px solid var(--border-medium)' }}>{i % 2 ? 'Start' : 'Complete'} • {orders[i % orders.length].name} • 08:{(10 + i) % 60}</li>
                                     ))}
                                 </ul>
                             </div>
@@ -169,7 +169,7 @@ export default function Produkcja() {
                         <Card title={<span style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}><span>Quality panel</span><Button size="small" icon={<i className="ri-refresh-line"></i> as any} /></span>}>
                             <Row gutter={[8, 8]}>
                                 {Array.from({ length: 12 }).map((_, i) => (
-                                    <Col span={8} key={i}><Tag color={i % 5 === 0 ? 'error' : 'success'} style={{ display: 'block', textAlign: 'center' }}>{i % 5 === 0 ? 'FAIL' : 'PASS'}</Tag></Col>
+                                    <Col span={8} key={`test-${i}`}><Tag color={i % 5 === 0 ? 'error' : 'success'} style={{ display: 'block', textAlign: 'center' }}>{i % 5 === 0 ? 'FAIL' : 'PASS'}</Tag></Col>
                                 ))}
                             </Row>
                         </Card>

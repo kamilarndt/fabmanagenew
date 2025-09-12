@@ -149,8 +149,8 @@ export default function ProjectCard({ project, onEdit }: ProjectCardProps) {
                     </Text>
                     {project.modules && project.modules.length > 0 ? (
                         <div className="modules-list">
-                            {project.modules.slice(0, 3).map((module, index) => (
-                                <div key={index} className="module-item" style={{
+                            {project.modules.slice(0, 3).map((module) => (
+                                <div key={module} className="module-item" style={{
                                     fontSize: '0.85rem',
                                     marginBottom: 2
                                 }}>

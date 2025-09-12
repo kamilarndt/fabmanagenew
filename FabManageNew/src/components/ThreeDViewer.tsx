@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+interface SpeckleViewerInstance {
+    init(): Promise<void>
+    loadObject(url: string, authToken?: string): Promise<void>
+    zoomExtents(): Promise<void>
+    dispose(): void
+}
+
 type ThreeDViewerProps = {
     // Accept single URL or an array of URLs to render composite model
     initialStreamUrl?: string | string[]
@@ -72,14 +79,14 @@ export function ThreeDViewer({ initialStreamUrl, authToken, style, className, he
 
     useEffect(() => {
         let disposed = false
-        let viewer: any
+        let viewer: SpeckleViewerInstance | null = null
 
         async function init() {
             if (!containerRef.current || normalizedUrls.length === 0) return
 
             try {
                 const [{ Viewer }] = await Promise.all([
-                    import('@speckle/viewer') as unknown as Promise<{ Viewer: any }>
+                    import('@speckle/viewer') as unknown as Promise<{ Viewer: new (container: HTMLElement, options?: any) => SpeckleViewerInstance }>
                 ])
 
                 if (disposed) return

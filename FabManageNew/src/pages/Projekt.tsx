@@ -5,11 +5,12 @@ import { useProjectsStore } from '../stores/projectsStore'
 import { showToast } from '../lib/notifications'
 import { useTilesStore, type Tile } from '../stores/tilesStore'
 import type { Project } from '../types/projects.types'
-import TileEditModalV3 from '../components/Tiles/TileEditModalV3'
+import TileEditDrawer from '../components/Tiles/tile-edit-drawer'
 import EditProjectModal from '../components/EditProjectModal'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Card, Result, Button } from 'antd'
+// import { buildGanttTasks } from '../lib/gantt' // Unused for now
 
 // New modular components
 import ProjectHeader from '../components/Project/ProjectHeader'
@@ -32,9 +33,9 @@ const LogisticsTab = lazy(() => import('../modules/Logistics/LogisticsTab'))
 const AccommodationTab = lazy(() => import('../modules/Accommodation/AccommodationTab'))
 import { StageStepper } from '../components/Ui/StageStepper'
 import { ModuleLoading } from '../components/Ui/LoadingSpinner'
-import GanttChart from '../components/Gantt/GanttChart'
+// import GanttChart from '../components/Gantt/GanttChart' // Unused for now
 import SpeckleViewer from '../components/SpeckleViewer'
-
+import ProjectGanttChart from '../components/Gantt/ProjectGanttChart'
 
 
 interface ProjectDocument {
@@ -97,22 +98,20 @@ export default function Projekt() {
         groups: [],
         modules: []
     }) as Project
-    const { getProjectDataForGantt } = useProjectsStore()
+    // const { getProjectDataForGantt } = useProjectsStore() // Unused for now
     // Ensure tiles are initialized for the project (in case not yet)
     const { initialize: initTiles } = useTilesStore()
     useEffect(() => { if (tiles.length === 0) { initTiles().catch(() => { }) } }, [tiles.length, initTiles])
-    const [ganttView, setGanttView] = useState<'Day' | 'Week' | 'Month' | 'Year'>('Week')
-    const ganttTasks = useMemo(() => {
-        // Prefer pure helper to avoid circular store deps
-        try {
-            // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-            const { buildGanttTasks } = require('../lib/gantt') as typeof import('../lib/gantt')
-            return buildGanttTasks(project, tiles)
-        } catch {
-            // fallback to existing selector (project & groups only)
-            return getProjectDataForGantt(safeProject.id)
-        }
-    }, [project, tiles, getProjectDataForGantt, safeProject.id])
+    // const [ganttView, setGanttView] = useState<'Day' | 'Week' | 'Month' | 'Year'>('Week') // Unused for now
+    // const ganttTasks = useMemo(() => {
+    //     // Prefer pure helper to avoid circular store deps
+    //     try {
+    //         return buildGanttTasks(project, tiles)
+    //     } catch {
+    //         // fallback to existing selector (project & groups only)
+    //         return getProjectDataForGantt(safeProject.id)
+    //     }
+    // }, [project, tiles, getProjectDataForGantt, safeProject.id]) // Unused for now
     const {
         projectTiles,
         tileCosts,
@@ -393,32 +392,15 @@ export default function Projekt() {
                     />
 
                     {activeTab === 'harmonogram' && (
-                        <Card style={{ marginTop: 12 }}>
-                            <div className="d-flex" style={{ justifyContent: 'space-between', marginBottom: 8, gap: 8, flexWrap: 'wrap' }}>
-                                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                                    <span style={{ color: '#aaa' }}>Widok:</span>
-                                    <Button size="small" onClick={() => setGanttView('Day')}>Dzień</Button>
-                                    <Button size="small" onClick={() => setGanttView('Week')}>Tydzień</Button>
-                                    <Button size="small" onClick={() => setGanttView('Month')}>Miesiąc</Button>
-                                    <Button size="small" onClick={() => setGanttView('Year')}>Rok</Button>
-                                    <Button size="small" onClick={() => {
-                                        const today = new Date().toISOString().slice(0, 10)
-                                        showToast(`Dziś: ${today}`, 'info')
-                                    }}>Dziś</Button>
-                                </div>
-                                <Button onClick={async () => {
-                                    const { useTilesStore } = await import('../stores/tilesStore')
-                                    useTilesStore.getState().autoScheduleProject(project.id)
-                                    showToast('Harmonogram zaktualizowany na podstawie zależności', 'success')
-                                }}>Auto‑Plan (zależności)</Button>
-                            </div>
-                            <GanttChart tasks={ganttTasks as any} viewMode={ganttView} />
-                        </Card>
+                        <ProjectGanttChart
+                            projectId={project.id}
+                            tiles={tiles.filter(t => t.project === project.id)}
+                        />
                     )}
                 </div>
 
                 {/* Modals */}
-                <TileEditModalV3
+                <TileEditDrawer
                     open={showTileModal}
                     onClose={() => setShowTileModal(false)}
                     onSave={handleSaveTile}

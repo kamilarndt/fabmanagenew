@@ -3,10 +3,10 @@
 
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
-import type { 
-  UniversalMaterial, 
-  InventoryData, 
-  MaterialOrder, 
+import type {
+  UniversalMaterial,
+  InventoryData,
+  MaterialOrder,
   CustomMaterial,
   OrderStatus,
   MaterialFilters,
@@ -18,42 +18,42 @@ import type {
 interface UmmsState {
   // Katalog materiałów (wszystkie dostępne materiały - ~200)
   materialCatalog: UniversalMaterial[]
-  
+
   // Stany magazynowe (tylko materiały na stanie - ~20)
   inventoryData: InventoryData[]
-  
+
   // Zamówienia materiałów (materiały potrzebne ale niedostępne)
   materialOrders: MaterialOrder[]
-  
+
   // Materiały niestandardowe
   customMaterials: CustomMaterial[]
-  
+
   // Konfiguracja widoku
   viewConfig: MaterialViewConfig
-  
+
   // Actions dla katalogu
   loadMaterialCatalog: () => Promise<void>
   addMaterialToCatalog: (material: Omit<UniversalMaterial, 'id'>) => void
   updateMaterialInCatalog: (id: string, updates: Partial<UniversalMaterial>) => void
   removeMaterialFromCatalog: (id: string) => void
-  
+
   // Actions dla magazynu
   loadInventoryData: () => Promise<void>
   addMaterialToWarehouse: (materialId: string, initialStock: number, location?: string) => void
   updateMaterialStock: (materialId: string, newStock: number) => void
   adjustMaterialStock: (materialId: string, delta: number, notes?: string) => void
   removeMaterialFromWarehouse: (materialId: string) => void
-  
+
   // Actions dla zamówień
   loadMaterialOrders: () => Promise<void>
   createMaterialOrder: (order: Omit<MaterialOrder, 'id' | 'requestedAt'>) => void
   updateOrderStatus: (orderId: string, status: OrderStatus) => void
   cancelMaterialOrder: (orderId: string) => void
-  
+
   // Actions dla materiałów niestandardowych
   createCustomMaterial: (material: Omit<CustomMaterial, 'id'>) => void
   updateCustomMaterial: (id: string, updates: Partial<CustomMaterial>) => void
-  
+
   // Utility functions
   getMaterialById: (id: string) => UniversalMaterial | undefined
   getInventoryByMaterialId: (materialId: string) => InventoryData | undefined
@@ -62,14 +62,14 @@ interface UmmsState {
   getMaterialsLowStock: () => UniversalMaterial[]
   validateMaterialThickness: (materialId: string, actualThickness: number) => ValidationResult
   calculateStats: () => MaterialStats
-  
+
   // Filtering and search
   filterMaterials: (filters: MaterialFilters) => UniversalMaterial[]
   searchMaterials: (query: string) => UniversalMaterial[]
-  
+
   // View configuration
   updateViewConfig: (config: Partial<MaterialViewConfig>) => void
-  
+
   // Sync with backend
   syncFromBackend: () => Promise<void>
   syncToBackend: () => Promise<void>
@@ -97,11 +97,11 @@ export const useUmmsStore = create<UmmsState>()(
           try {
             // W rozwoju użyj mock data, w produkcji API
             const { config } = await import('../lib/config')
-            
+
             if (config.useMockData) {
               const { ummsTestCatalog } = await import('../data/ummsTestCatalog')
               set({ materialCatalog: ummsTestCatalog })
-              console.log(`📋 Loaded ${ummsTestCatalog.length} materials to catalog`)
+              console.warn(`📋 Loaded ${ummsTestCatalog.length} materials to catalog`)
             } else {
               // TODO: Implement API call
               const response = await fetch('/api/materials/catalog')
@@ -141,11 +141,11 @@ export const useUmmsStore = create<UmmsState>()(
         loadInventoryData: async () => {
           try {
             const { config } = await import('../lib/config')
-            
+
             if (config.useMockData) {
               const { ummsTestInventory } = await import('../data/ummsTestCatalog')
               set({ inventoryData: ummsTestInventory })
-              console.log(`📦 Loaded ${ummsTestInventory.length} materials to warehouse`)
+              console.warn(`📦 Loaded ${ummsTestInventory.length} materials to warehouse`)
             } else {
               // TODO: Implement API call
               const response = await fetch('/api/materials/inventory')
@@ -183,12 +183,12 @@ export const useUmmsStore = create<UmmsState>()(
         updateMaterialStock: (materialId, newStock) => {
           set(state => ({
             inventoryData: state.inventoryData.map(inv =>
-              inv.materialId === materialId 
-                ? { 
-                    ...inv, 
-                    currentStock: Math.max(0, newStock),
-                    availableQuantity: Math.max(0, newStock - inv.reservedQuantity)
-                  }
+              inv.materialId === materialId
+                ? {
+                  ...inv,
+                  currentStock: Math.max(0, newStock),
+                  availableQuantity: Math.max(0, newStock - inv.reservedQuantity)
+                }
                 : inv
             )
           }))
@@ -199,9 +199,9 @@ export const useUmmsStore = create<UmmsState>()(
           if (inventory) {
             const newStock = Math.max(0, inventory.currentStock + delta)
             get().updateMaterialStock(materialId, newStock)
-            
+
             // TODO: Add movement record
-            console.log(`Stock adjusted for ${materialId}: ${delta > 0 ? '+' : ''}${delta} (${notes || 'No notes'})`)
+            console.warn(`Stock adjusted for ${materialId}: ${delta > 0 ? '+' : ''}${delta} (${notes || 'No notes'})`)
           }
         },
 
@@ -215,11 +215,11 @@ export const useUmmsStore = create<UmmsState>()(
         loadMaterialOrders: async () => {
           try {
             const { config } = await import('../lib/config')
-            
+
             if (config.useMockData) {
               const { ummsTestOrders } = await import('../data/ummsTestCatalog')
               set({ materialOrders: ummsTestOrders })
-              console.log(`📋 Loaded ${ummsTestOrders.length} material orders`)
+              console.warn(`📋 Loaded ${ummsTestOrders.length} material orders`)
             } else {
               // TODO: Implement API call
               const response = await fetch('/api/materials/orders')
@@ -347,7 +347,7 @@ export const useUmmsStore = create<UmmsState>()(
 
         calculateStats: () => {
           const { materialCatalog, inventoryData, materialOrders } = get()
-          
+
           let totalValue = 0
           let criticalCount = 0
           let lowCount = 0
@@ -386,7 +386,7 @@ export const useUmmsStore = create<UmmsState>()(
         // Filtering
         filterMaterials: (filters) => {
           const { materialCatalog, inventoryData } = get()
-          
+
           return materialCatalog.filter(material => {
             // Category filter
             if (filters.category && filters.category.length > 0) {
@@ -427,7 +427,7 @@ export const useUmmsStore = create<UmmsState>()(
                 material.type,
                 material.metadata.description || ''
               ].join(' ').toLowerCase()
-              
+
               if (!searchableText.includes(query)) return false
             }
 
@@ -457,7 +457,7 @@ export const useUmmsStore = create<UmmsState>()(
 
         syncToBackend: async () => {
           // TODO: Implement sync to backend
-          console.log('Syncing to backend...')
+          console.warn('Syncing to backend...')
         }
       }),
       {

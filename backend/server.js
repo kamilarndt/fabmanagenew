@@ -4,24 +4,35 @@ const fs = require('fs');
 const path = require('path');
 const chokidar = require('chokidar');
 const multer = require('multer');
+const { createBackup, restoreFromBackup, getDatabaseStatus } = require('./db');
+const { BackupScheduler } = require('./backup-scheduler');
 
 const app = express();
-// DB init
+// DB init with better error handling
 let dbReady = false;
 try {
     const db = require('./db');
     db.init();
     dbReady = true;
-    console.log('[db] initialized')
+    console.log('[db] initialized successfully')
+
+    // Test database connection
+    const testDb = db.getDb();
+    const testResult = testDb.prepare('SELECT 1 as test').get();
+    console.log('[db] connection test:', testResult);
 } catch (e) {
-    console.warn('[db] init failed, backend will run without DB:', e.message)
+    console.error('[db] init failed:', e.message);
+    console.error('[db] stack:', e.stack);
 }
 
 const PORT = process.env.PORT || 3001;
 // Global projects files root directory
 // Prefer env PROJECTS_ROOT_DIR (e.g., /mnt/projects in Docker) or fall back to common Windows path Z:\\_NoweRozdanie
+const SETTINGS_JSON = path.join(__dirname, 'projects-config.json');
 const KNOWN_WINDOWS_ROOTS = ['Z:/_NoweRozdanie', 'Z:\\_NoweRozdanie'];
 const FALLBACK_LOCAL_ROOT = path.join(__dirname, '..', 'PROJECTS_FILES');
+
+// In Docker, use environment variable; otherwise use local fallback
 let PROJECTS_ROOT_DIR = process.env.PROJECTS_ROOT_DIR;
 // Load persisted settings if present (env still takes precedence)
 try {
@@ -51,7 +62,6 @@ try {
     console.warn('[fs] Unable to ensure projects root directory:', PROJECTS_ROOT_DIR, e.message);
 }
 const RHINO_TXT = path.join(__dirname, 'rhino.txt');
-const SETTINGS_JSON = path.join(__dirname, 'projects-config.json');
 const STOCKS_JSON = path.join(__dirname, 'stocks.json');
 const DEMANDS_JSON = path.join(__dirname, 'demands.json');
 const TILES_JSON = path.join(__dirname, 'tiles.json');
@@ -60,15 +70,31 @@ const UPLOADS_DIR = path.join(__dirname, 'uploads');
 app.use(cors());
 app.use(express.json());
 
+// ============================================================================
+// HEALTH & STATUS ENDPOINTS
+// ============================================================================
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.json({
-        status: 'ok',
-        database: dbReady ? 'connected' : 'disconnected',
-        timestamp: new Date().toISOString(),
-        projectsRoot: PROJECTS_ROOT_DIR,
-        version: '1.0.0'
-    });
+    try {
+        const dbStatus = getDatabaseStatus();
+        res.json({
+            status: 'ok',
+            database: dbStatus.connected ? 'connected' : 'disconnected',
+            timestamp: new Date().toISOString(),
+            projectsRoot: PROJECTS_ROOT_DIR,
+            version: '1.0.0'
+        });
+    } catch (error) {
+        res.json({
+            status: 'ok',
+            database: 'disconnected',
+            timestamp: new Date().toISOString(),
+            projectsRoot: PROJECTS_ROOT_DIR,
+            version: '1.0.0',
+            error: error.message
+        });
+    }
 });
 app.use('/files', express.static(UPLOADS_DIR));
 
@@ -78,7 +104,9 @@ if (!fs.existsSync(TILES_JSON)) fs.writeFileSync(TILES_JSON, JSON.stringify([], 
 
 app.get('/health', (_req, res) => res.status(200).json({ ok: true, db: dbReady }));
 
-// ---------- Filesystem helpers for per-project folder structure ----------
+// ============================================================================
+// FILESYSTEM HELPERS
+// ============================================================================
 /** Sanitize a name for filesystem usage */
 function sanitizeName(name) {
     if (!name) return 'unnamed';
@@ -101,7 +129,10 @@ function canWriteDir(dirPath) {
     }
 }
 
-// Settings endpoints
+// ============================================================================
+// SETTINGS & CONFIGURATION API
+// ============================================================================
+
 app.get('/api/settings/files-root', (_req, res) => {
     const current = PROJECTS_ROOT_DIR;
     let exists = false, writable = false;
@@ -239,7 +270,10 @@ function ensureProjectFolders({ clientName, projectName, modules, hasClientMater
     }
 }
 
-// Admin endpoint to regenerate realistic data
+// ============================================================================
+// ADMIN ENDPOINTS
+// ============================================================================
+
 app.post('/admin/regenerate-data', (_req, res) => {
     if (!dbReady) {
         return res.status(500).json({ error: 'Database not available' });
@@ -291,6 +325,76 @@ app.post('/admin/generate-demo-library', (_req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+// Database management API endpoints
+app.get('/api/database/status', (req, res) => {
+    try {
+        const status = getDatabaseStatus()
+        res.json({
+            ...status,
+            timestamp: new Date().toISOString()
+        })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
+app.post('/api/database/backup', async (req, res) => {
+    try {
+        const { type = 'manual' } = req.body
+        const backupPath = await createBackup(type)
+        res.json({
+            success: true,
+            backupPath,
+            timestamp: new Date().toISOString()
+        })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
+app.post('/api/database/restore', async (req, res) => {
+    try {
+        const { backupPath } = req.body
+        await restoreFromBackup(backupPath)
+        res.json({
+            success: true,
+            message: 'Database restored successfully',
+            timestamp: new Date().toISOString()
+        })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
+app.get('/api/database/backups', (req, res) => {
+    try {
+        const { BACKUP_DIR } = require('./db')
+        const backups = {
+            daily: [],
+            weekly: [],
+            manual: []
+        }
+
+        for (const type of Object.keys(backups)) {
+            const typeDir = path.join(BACKUP_DIR, type)
+            if (fs.existsSync(typeDir)) {
+                backups[type] = fs.readdirSync(typeDir)
+                    .map(file => ({
+                        name: file,
+                        path: path.join(typeDir, file),
+                        size: fs.statSync(path.join(typeDir, file)).size,
+                        mtime: fs.statSync(path.join(typeDir, file)).mtime
+                    }))
+                    .sort((a, b) => b.mtime.getTime() - a.mtime.getTime())
+            }
+        }
+
+        res.json(backups)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
 
 // DB status and backup endpoints
 app.get('/admin/db-status', (_req, res) => {
@@ -735,7 +839,10 @@ try {
     console.warn('[watch] disabled:', e.message);
 }
 
-// Manual reload endpoint (useful for Dockerized runtime)
+// ============================================================================
+// MATERIALS & STOCKS API
+// ============================================================================
+
 app.post('/api/materials/reload', (_req, res) => {
     try {
         loadMaterials();
@@ -1070,7 +1177,10 @@ app.get('/', (_req, res) => {
     res.json({ status: 'ok', service: 'fabryka-backend' });
 });
 
-// --- Clients & Projects (DB) ---
+// ============================================================================
+// CLIENTS API
+// ============================================================================
+
 app.get('/api/clients', (_req, res) => {
     try {
         const { getDb } = require('./db')
@@ -1099,6 +1209,10 @@ app.post('/api/clients', (req, res) => {
         res.status(500).json({ error: e.message })
     }
 })
+
+// ============================================================================
+// PROJECTS API
+// ============================================================================
 
 app.get('/api/projects', (req, res) => {
     try {
@@ -1265,6 +1379,10 @@ function buildBomForTile(d, tileId) {
     } catch (_) { return [] }
 }
 
+// ============================================================================
+// TILES API
+// ============================================================================
+
 app.get('/api/tiles', (req, res) => {
     try {
         const { projectId } = req.query || {}
@@ -1403,11 +1521,11 @@ app.delete('/api/tiles/:id', (req, res) => {
 });
 
 // Enhanced tiles API endpoints
-const { 
-    createEnhancedTile, 
-    updateEnhancedTile, 
-    getEnhancedTiles, 
-    getTileGroups 
+const {
+    createEnhancedTile,
+    updateEnhancedTile,
+    getEnhancedTiles,
+    getTileGroups
 } = require('./enhanced-tiles-api');
 
 // Enhanced tile creation endpoint
@@ -1466,7 +1584,7 @@ app.get('/api/tiles/:id/enhanced', (req, res) => {
         const { getDb } = require('./db')
         const d = getDb()
         const tile = d.prepare('SELECT * FROM tiles WHERE id = ?').get(tileId)
-        
+
         if (!tile) {
             return res.status(404).json({ error: 'not_found' })
         }
@@ -1618,6 +1736,10 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// ============================================================================
+// FILE UPLOAD API
+// ============================================================================
+
 app.post('/api/upload', upload.single('file'), (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: 'file_required' });
@@ -1691,21 +1813,139 @@ app.get('/api/materials/bom', (req, res) => {
     }
 })
 
-// Health check endpoint for Docker
-app.get('/health', (req, res) => {
-    res.status(200).json({
-        status: 'ok',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-        materials: materialsFlat.length,
-        stocks: Object.keys(stocks).length
-    })
+// ============================================================================
+// GANTT TASKS API - Project Scheduling
+// ============================================================================
+app.get('/api/gantt-tasks', (req, res) => {
+    try {
+        const { project_id, tile_id } = req.query
+        const { getDb } = require('./db')
+        const d = getDb()
+
+        let query = 'SELECT * FROM gantt_tasks WHERE 1=1'
+        const params = []
+
+        if (project_id) {
+            query += ' AND project_id = ?'
+            params.push(project_id)
+        }
+
+        if (tile_id) {
+            query += ' AND tile_id = ?'
+            params.push(tile_id)
+        }
+
+        query += ' ORDER BY start_date, task_type'
+
+        const tasks = d.prepare(query).all(...params)
+        res.json(tasks)
+    } catch (e) {
+        res.status(500).json({ error: e.message })
+    }
 })
 
-// Concept and Estimate endpoints remain (omitted here for brevity in this file excerpt)
+app.post('/api/gantt-tasks', (req, res) => {
+    try {
+        const { project_id, tile_id, name, task_type, start_date, end_date, progress, dependencies, status, assigned_to, estimated_hours, priority, notes } = req.body || {}
+
+        if (!project_id || !name || !task_type || !start_date || !end_date) {
+            return res.status(400).json({ error: 'project_id, name, task_type, start_date, end_date are required' })
+        }
+
+        const { getDb } = require('./db')
+        const d = getDb()
+        const id = `gt-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+        const now = new Date().toISOString()
+
+        d.prepare(`
+            INSERT INTO gantt_tasks (
+                id, project_id, tile_id, name, task_type, start_date, end_date, 
+                progress, dependencies, status, assigned_to, estimated_hours, 
+                priority, notes, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+            id, project_id, tile_id || null, name, task_type, start_date, end_date,
+            progress || 0, dependencies || null, status || 'planned', assigned_to || null,
+            estimated_hours || null, priority || 'medium', notes || null, now, now
+        )
+
+        const created = d.prepare('SELECT * FROM gantt_tasks WHERE id = ?').get(id)
+        res.json(created)
+    } catch (e) {
+        res.status(500).json({ error: e.message })
+    }
+})
+
+app.put('/api/gantt-tasks/:id', (req, res) => {
+    try {
+        const { getDb } = require('./db')
+        const d = getDb()
+        const id = req.params.id
+        const exist = d.prepare('SELECT * FROM gantt_tasks WHERE id = ?').get(id)
+
+        if (!exist) return res.status(404).json({ error: 'not_found' })
+
+        const updates = req.body || {}
+        const updated_at = new Date().toISOString()
+
+        // Build dynamic update query
+        const fields = []
+        const values = []
+
+        Object.keys(updates).forEach(key => {
+            if (key !== 'id' && updates[key] !== undefined) {
+                fields.push(`${key} = ?`)
+                values.push(updates[key])
+            }
+        })
+
+        if (fields.length === 0) {
+            return res.json(exist)
+        }
+
+        fields.push('updated_at = ?')
+        values.push(updated_at, id)
+
+        const query = `UPDATE gantt_tasks SET ${fields.join(', ')} WHERE id = ?`
+        d.prepare(query).run(...values)
+
+        const updated = d.prepare('SELECT * FROM gantt_tasks WHERE id = ?').get(id)
+        res.json(updated)
+    } catch (e) {
+        res.status(500).json({ error: e.message })
+    }
+})
+
+app.delete('/api/gantt-tasks/:id', (req, res) => {
+    try {
+        const { getDb } = require('./db')
+        const d = getDb()
+        const id = req.params.id
+
+        const exist = d.prepare('SELECT * FROM gantt_tasks WHERE id = ?').get(id)
+        if (!exist) return res.status(404).json({ error: 'not_found' })
+
+        d.prepare('DELETE FROM gantt_tasks WHERE id = ?').run(id)
+        res.json({ success: true })
+    } catch (e) {
+        res.status(500).json({ error: e.message })
+    }
+})
+
+// ============================================================================
+// SERVER STARTUP
+// ============================================================================
+
+// Initialize backup scheduler
+let backupScheduler = null
+if (process.env.FABMANAGE_AUTO_BACKUP !== 'false') {
+    backupScheduler = new BackupScheduler()
+    backupScheduler.start()
+}
 
 app.listen(PORT, () => {
-    console.log(`Backend listening on :${PORT}`);
-});
-
-
+    console.log(`🚀 Backend listening on port ${PORT}`)
+    console.log(`📁 Projects root: ${PROJECTS_ROOT_DIR}`)
+    console.log(`💾 Database: ${dbReady ? 'connected' : 'disconnected'}`)
+    console.log(`🔄 Backup scheduler: ${backupScheduler ? 'enabled' : 'disabled'}`)
+})

@@ -135,7 +135,7 @@ export const useLogisticsStore = create<LogisticsStore>()(
               packingLists: realLogisticsData.packingLists
             })
 
-            console.log('🚛 Loaded realistic logistics data')
+            console.warn('🚛 Loaded realistic logistics data')
           }
         } catch (error) {
           console.warn('Failed to load logistics data:', error)

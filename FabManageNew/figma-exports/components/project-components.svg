@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1000" height="800" viewBox="0 0 1000 800"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+      .component-box { fill: #f8f9fa; stroke: #dee2e6; stroke-width: 2; rx: 8; }
+      .component-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; fill: #495057; font-weight: 500; }
+      .category-header { font-family: 'Segoe UI', Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #212529; }
+      .description { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; fill: #6c757d; }
+      .props-box { fill: #e8f5e8; stroke: #4caf50; stroke-width: 1; rx: 4; }
+      .props-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; fill: #2e7d32; }
+      .arrow { stroke: #6c757d; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .main-component { fill: #e3f2fd; stroke: #2196f3; stroke-width: 3; rx: 8; }
+        </style>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#6c757d" />
+        </marker>
+    </defs>
+
+    <!-- Title -->
+    <text x="500" y="40" text-anchor="middle" class="category-header">Project Management Components</text>
+
+    <!-- ProjectCard -->
+    <rect x="50" y="80" width="200" height="120" class="component-box"/>
+    <text x="150" y="105" text-anchor="middle" class="component-text">ProjectCard</text>
+    <text x="60" y="125" class="description">Card display for project overview</text>
+
+    <rect x="60" y="140" width="180" height="50" class="props-box"/>
+    <text x="70" y="155" class="props-text">Props: project, onEdit, onDelete</text>
+    <text x="70" y="170" class="props-text">Features: Project stats, Status badges, Action buttons</text>
+    <text x="70" y="185" class="props-text">Dependencies: useNavigate, Project types</text>
+
+    <!-- ProjectHeader -->
+    <rect x="300" y="80" width="200" height="120" class="component-box"/>
+    <text x="400" y="105" text-anchor="middle" class="component-text">ProjectHeader</text>
+    <text x="310" y="125" class="description">Project page header with team info</text>
+
+    <rect x="310" y="140" width="180" height="50" class="props-box"/>
+    <text x="320" y="155" class="props-text">Props: project, teamMembers, onEditProject, onAddMember</text>
+    <text x="320" y="170" class="props-text">Features: Project title, Team avatars, Action buttons</text>
+    <text x="320" y="185" class="props-text">Dependencies: Project, TeamMember types</text>
+
+    <!-- ProjectElements -->
+    <rect x="550" y="80" width="200" height="120" class="main-component"/>
+    <text x="650" y="105" text-anchor="middle" class="component-text">ProjectElements</text>
+    <text x="560" y="125" class="description">Main project elements management</text>
+
+    <rect x="560" y="140" width="180" height="50" class="props-box"/>
+    <text x="570" y="155" class="props-text">Props: project, projectTiles, tileCosts, onTileUpdate</text>
+    <text x="570" y="170" class="props-text">Features: Kanban board, Tile management, Quick actions</text>
+    <text x="570" y="185" class="props-text">Dependencies: KanbanBoard, TileEditModal, useTilesStore</text>
+
+    <!-- ProjectTabs -->
+    <rect x="800" y="80" width="150" height="120" class="component-box"/>
+    <text x="875" y="105" text-anchor="middle" class="component-text">ProjectTabs</text>
+    <text x="810" y="125" class="description">Tab navigation for project sections</text>
+
+    <rect x="810" y="140" width="130" height="50" class="props-box"/>
+    <text x="820" y="155" class="props-text">Props: activeTab, onTabChange, project</text>
+    <text x="820" y="170" class="props-text">Features: Tab switching, Project context</text>
+    <text x="820" y="185" class="props-text">Dependencies: TabId type, Project type</text>
+
+    <!-- ProjectOverview -->
+    <rect x="50" y="250" width="200" height="120" class="component-box"/>
+    <text x="150" y="275" text-anchor="middle" class="component-text">ProjectOverview</text>
+    <text x="60" y="295" class="description">Project overview with activities and docs</text>
+
+    <rect x="60" y="310" width="180" height="50" class="props-box"/>
+    <text x="70" y="325" class="props-text">Props: project, comments, documents, teamMembers</text>
+    <text x="70" y="340" class="props-text">Features: Activity feed, Document list, Team info</text>
+    <text x="70" y="355" class="props-text">Dependencies: ProjectComment, ProjectDocument types</text>
+
+    <!-- ProjectMaterials -->
+    <rect x="300" y="250" width="200" height="120" class="component-box"/>
+    <text x="400" y="275" text-anchor="middle" class="component-text">ProjectMaterials</text>
+    <text x="310" y="295" class="description">Project materials and purchase list</text>
+
+    <rect x="310" y="310" width="180" height="50" class="props-box"/>
+    <text x="320" y="325" class="props-text">Props: purchaseList, projectId (optional)</text>
+    <text x="320" y="340" class="props-text">Features: Material list, Purchase tracking</text>
+    <text x="320" y="355" class="props-text">Dependencies: PurchaseItem type</text>
+
+    <!-- EditProjectModal -->
+    <rect x="550" y="250" width="200" height="120" class="component-box"/>
+    <text x="650" y="275" text-anchor="middle" class="component-text">EditProjectModal</text>
+    <text x="560" y="295" class="description">Modal for editing project details</text>
+
+    <rect x="560" y="310" width="180" height="50" class="props-box"/>
+    <text x="570" y="325" class="props-text">Props: open, projectId, onClose</text>
+    <text x="570" y="340" class="props-text">Features: Project form, Module selection, Status update</text>
+    <text x="570" y="355" class="props-text">Dependencies: SlideOver, useProjectsStore, PROJECT_MODULES</text>
+
+    <!-- EstimateModule -->
+    <rect x="800" y="250" width="150" height="120" class="component-box"/>
+    <text x="875" y="275" text-anchor="middle" class="component-text">EstimateModule</text>
+    <text x="810" y="295" class="description">Project cost estimation</text>
+
+    <rect x="810" y="310" width="130" height="50" class="props-box"/>
+    <text x="820" y="325" class="props-text">Props: projectId</text>
+    <text x="820" y="340" class="props-text">Features: Cost calculation, Tree view, PDF export</text>
+    <text x="820" y="355" class="props-text">Dependencies: useProjectCosts, Tree, Card</text>
+
+    <!-- Component Relationships -->
+    <line x1="250" y1="140" x2="300" y2="140" class="arrow"/>
+    <line x1="500" y1="140" x2="550" y2="140" class="arrow"/>
+    <line x1="750" y1="140" x2="800" y2="140" class="arrow"/>
+
+    <line x1="150" y1="200" x2="150" y2="250" class="arrow"/>
+    <line x1="400" y1="200" x2="400" y2="250" class="arrow"/>
+    <line x1="650" y1="200" x2="650" y2="250" class="arrow"/>
+    <line x1="875" y1="200" x2="875" y2="250" class="arrow"/>
+
+    <!-- Usage Flow -->
+    <rect x="50" y="420" width="900" height="150" class="component-box"/>
+    <text x="500" y="445" text-anchor="middle" class="component-text">Project Management Flow</text>
+
+    <text x="60" y="470" class="description">1. ProjectCard: Display project in list/grid view with basic info and actions</text>
+    <text x="60" y="490" class="description">2. ProjectHeader: Show detailed project info with team members and actions</text>
+    <text x="60" y="510" class="description">3. ProjectTabs: Navigate between different project sections (overview, elements, materials, etc.)</text>
+    <text x="60" y="530" class="description">4. ProjectElements: Main workspace for managing project tiles/elements with Kanban board</text>
+    <text x="60" y="550" class="description">5. ProjectOverview: Project details, activities, comments, and team information</text>
+    <text x="60" y="570" class="description">6. ProjectMaterials: Material requirements and purchase tracking for the project</text>
+    <text x="60" y="590" class="description">7. EditProjectModal: Edit project details, modules, and status</text>
+    <text x="60" y="610" class="description">8. EstimateModule: Cost calculation and estimation for project materials and labor</text>
+
+    <!-- Key Features -->
+    <rect x="50" y="600" width="900" height="150" class="component-box"/>
+    <text x="500" y="625" text-anchor="middle" class="component-text">Key Features</text>
+
+    <text x="60" y="650" class="description">• Unified project management interface with consistent UX</text>
+    <text x="60" y="670" class="description">• Real-time collaboration with team member management</text>
+    <text x="60" y="690" class="description">• Integrated cost estimation and material tracking</text>
+    <text x="60" y="710" class="description">• Kanban-based workflow for element management</text>
+    <text x="60" y="730" class="description">• Responsive design with mobile-friendly components</text>
+
+</svg>

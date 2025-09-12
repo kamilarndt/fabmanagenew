@@ -64,7 +64,11 @@ export default function GanttChart({ tasks, viewMode = 'Week' }: Props) {
         }
         setTimeout(applyFullWidth, 0)
         window.addEventListener('resize', applyFullWidth)
-        try { gantt.change_view_mode(viewMode) } catch { }
+        try {
+            gantt.change_view_mode(viewMode)
+        } catch (error) {
+            console.warn('Failed to change Gantt view mode:', error)
+        }
         return () => {
             window.removeEventListener('resize', applyFullWidth)
             if (ref.current) ref.current.innerHTML = ''

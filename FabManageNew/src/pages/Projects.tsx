@@ -26,7 +26,7 @@ export default function Projects() {
     const setTileStatus = useTilesStore(s => s.setStatus)
 
     // DEBUG: Log projects data
-    console.log('📋 Projects DEBUG:', {
+    console.warn('📋 Projects DEBUG:', {
         projectsCount: projects.length,
         isLoading,
         isInitialized,
@@ -461,7 +461,7 @@ export default function Projects() {
                             dataSource={paginatedProjects}
                             onRow={(record) => ({
                                 onClick: () => {
-                                    console.log('🔗 Table row navigation:', { id: record.id, name: record.name, record })
+                                    console.warn('🔗 Table row navigation:', { id: record.id, name: record.name, record })
                                     navigate(`/projekt/${record.id}`)
                                 }
                             })}
@@ -624,7 +624,7 @@ export default function Projects() {
                                                     <div className="text-muted small">{p.id} • {p.client}</div>
                                                 </div>
                                                 <Button size="small" onClick={() => {
-                                                    console.log('🔗 Navigating to project:', { id: p.id, name: p.name, fullProject: p })
+                                                    console.warn('🔗 Navigating to project:', { id: p.id, name: p.name, fullProject: p })
                                                     navigate(`/projekt/${p.id}`)
                                                 }} aria-label={`Otwórz projekt ${p.name}`}>Otwórz</Button>
                                             </Space>
@@ -682,7 +682,7 @@ export default function Projects() {
                         try {
                             const c = await createClient({ name: createForm.client.trim() })
                             clientId = c.id
-                        } catch (e) {
+                        } catch {
                             clientId = `c-${Date.now()}`
                         }
                     }

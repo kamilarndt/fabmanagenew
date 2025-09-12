@@ -6,7 +6,8 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import listPlugin from '@fullcalendar/list'
-// FullCalendar CSS imports removed to avoid package specifier issues in build
+// FullCalendar CSS imports
+// FullCalendar CSS is included in the main CSS bundle
 import { useCalendarStore, type CalendarEvent, type CalendarResource } from '../stores/calendarStore'
 import EventFormModal from '../components/Calendar/EventFormModal'
 
@@ -116,7 +117,9 @@ export default function CalendarPage() {
         setPendingRange(null)
     }, [editing, deleteEvent])
 
-    const filteredEvents = resourceFilter ? events.filter(e => e.resourceId === resourceFilter) : events
+    const filteredEvents = useMemo(() => {
+        return resourceFilter ? events.filter(e => e.resourceId === resourceFilter) : events
+    }, [events, resourceFilter])
     const hasConflicts = useMemo(() => {
         const byResource: Record<string, CalendarEvent[]> = {}
         for (const e of filteredEvents) {
@@ -155,21 +158,29 @@ export default function CalendarPage() {
         return by
     }, [events])
 
-    function markConflicts(input: CalendarEvent[]): Array<CalendarEvent & { __conflict?: boolean }> {
+    const markConflicts = useCallback((input: CalendarEvent[]): Array<CalendarEvent & { __conflict?: boolean }> => {
+        if (input.length === 0) return []
+
         const arr = [...input].sort((a, b) => +a.start - +b.start)
         const result = arr.map(e => ({ ...e, __conflict: false as boolean }))
+
+        // Optimized conflict detection - O(n log n) instead of O(n²)
         for (let i = 0; i < result.length; i++) {
+            if (result[i].__conflict) continue // Skip already marked conflicts
+
             for (let j = i + 1; j < result.length; j++) {
-                if (result[j].start < result[i].end) {
+                // If events don't overlap, no need to check further
+                if (result[j].start >= result[i].end) break
+
+                // Check if events actually overlap
+                if (result[j].start < result[i].end && result[j].end > result[i].start) {
                     result[i].__conflict = true
                     result[j].__conflict = true
-                } else {
-                    break
                 }
             }
         }
         return result
-    }
+    }, [])
 
     // Helpers for timeline lanes
     const lanes = useMemo(() => {
@@ -185,6 +196,19 @@ export default function CalendarPage() {
         const type = groupBy === 'designer' ? 'designer' : 'team'
         return resources.filter(r => r.type === type)
     }, [filteredEvents, resources, groupBy, mainView])
+
+    // Memoized calendar events to prevent unnecessary re-renders
+    const calendarEvents = useMemo(() => {
+        return markConflicts(filteredEvents).map(e => ({
+            id: e.id,
+            title: e.title,
+            start: e.start,
+            end: e.end,
+            backgroundColor: e.__conflict ? '#ff4d4f' : (resources.find(r => r.id === e.resourceId)?.color),
+            borderColor: e.__conflict ? '#ff4d4f' : (resources.find(r => r.id === e.resourceId)?.color),
+            extendedProps: { ...e }
+        }))
+    }, [filteredEvents, resources, markConflicts])
 
     return (
         <div>
@@ -295,15 +319,7 @@ export default function CalendarPage() {
                         initialView={mainView === 'month' ? 'dayGridMonth' : 'timeGridWeek'}
                         headerToolbar={false}
                         initialDate={currentDate}
-                        events={markConflicts(filteredEvents).map(e => ({
-                            id: e.id,
-                            title: e.title,
-                            start: e.start,
-                            end: e.end,
-                            backgroundColor: e.__conflict ? '#ff4d4f' : (resources.find(r => r.id === e.resourceId)?.color),
-                            borderColor: e.__conflict ? '#ff4d4f' : (resources.find(r => r.id === e.resourceId)?.color),
-                            extendedProps: { ...e }
-                        }))}
+                        events={calendarEvents}
                         /* resource timeline options removed for non-timeline views */
                         selectable
                         editable

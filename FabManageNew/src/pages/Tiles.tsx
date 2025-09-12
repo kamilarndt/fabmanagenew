@@ -6,7 +6,7 @@ import { useAuthStore } from '../stores/authStore'
 import { useProjectsStore } from '../stores/projectsStore'
 import type { Tile } from '../types/tiles.types'
 import TileCard from '../components/Tiles/TileCard'
-import TileEditModalV3 from '../components/Tiles/TileEditModalV3'
+import TileEditDrawer from '../components/Tiles/tile-edit-drawer'
 import { PageHeader } from '../components/Ui/PageHeader'
 
 const { Search } = Input
@@ -43,12 +43,12 @@ export default function TilesPage() {
 
     const handleView = (tile: Tile) => {
         // Navigate to tile details or open in drawer
-        console.log('View tile:', tile)
+        console.warn('TODO: View tile:', tile)
     }
 
     const handleAssign = (tile: Tile) => {
         // Open assign designer modal
-        console.log('Assign tile:', tile)
+        console.warn('TODO: Assign tile:', tile)
     }
 
     const handleSaveTile = async (tileData: Omit<Tile, 'id'>) => {
@@ -62,7 +62,7 @@ export default function TilesPage() {
             }
             setEditModalOpen(false)
             setEditingTile(null)
-        } catch (_error) {
+        } catch {
             message.error('Błąd podczas zapisywania kafelka')
         }
     }
@@ -212,7 +212,7 @@ export default function TilesPage() {
             )}
 
             {/* Modal edycji */}
-            <TileEditModalV3
+            <TileEditDrawer
                 open={editModalOpen}
                 onClose={() => {
                     setEditModalOpen(false)

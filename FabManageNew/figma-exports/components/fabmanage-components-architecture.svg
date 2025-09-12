@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" viewBox="0 0 1200 800"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+      .component-box { fill: #f8f9fa; stroke: #dee2e6; stroke-width: 1; rx: 4; }
+      .component-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; fill: #495057; }
+      .category-header { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #212529; }
+      .category-bg { fill: #e9ecef; stroke: #adb5bd; stroke-width: 1; rx: 6; }
+      .connection-line { stroke: #6c757d; stroke-width: 1; fill: none; }
+      .arrow { stroke: #6c757d; stroke-width: 1; fill: #6c757d; }
+        </style>
+    </defs>
+
+    <!-- Title -->
+    <text x="600" y="30" text-anchor="middle" class="category-header" font-size="18">FabManage Component Architecture</text>
+
+    <!-- Layout Components -->
+    <rect x="50" y="60" width="200" height="120" class="category-bg"/>
+    <text x="150" y="80" text-anchor="middle" class="category-header">Layout</text>
+
+    <rect x="60" y="90" width="80" height="25" class="component-box"/>
+    <text x="100" y="107" text-anchor="middle" class="component-text">BrandedSidebar</text>
+
+    <rect x="150" y="90" width="90" height="25" class="component-box"/>
+    <text x="195" y="107" text-anchor="middle" class="component-text">ContextualHeader</text>
+
+    <rect x="60" y="125" width="80" height="25" class="component-box"/>
+    <text x="100" y="142" text-anchor="middle" class="component-text">SlideOver</text>
+
+    <rect x="150" y="125" width="80" height="25" class="component-box"/>
+    <text x="190" y="142" text-anchor="middle" class="component-text">PageHeader</text>
+
+    <!-- Project Components -->
+    <rect x="300" y="60" width="200" height="160" class="category-bg"/>
+    <text x="400" y="80" text-anchor="middle" class="category-header">Project</text>
+
+    <rect x="310" y="90" width="80" height="25" class="component-box"/>
+    <text x="350" y="107" text-anchor="middle" class="component-text">ProjectCard</text>
+
+    <rect x="400" y="90" width="90" height="25" class="component-box"/>
+    <text x="445" y="107" text-anchor="middle" class="component-text">ProjectHeader</text>
+
+    <rect x="310" y="125" width="90" height="25" class="component-box"/>
+    <text x="355" y="142" text-anchor="middle" class="component-text">ProjectElements</text>
+
+    <rect x="410" y="125" width="80" height="25" class="component-box"/>
+    <text x="450" y="142" text-anchor="middle" class="component-text">ProjectTabs</text>
+
+    <rect x="310" y="160" width="90" height="25" class="component-box"/>
+    <text x="355" y="177" text-anchor="middle" class="component-text">ProjectOverview</text>
+
+    <rect x="410" y="160" width="90" height="25" class="component-box"/>
+    <text x="455" y="177" text-anchor="middle" class="component-text">ProjectMaterials</text>
+
+    <rect x="360" y="195" width="80" height="25" class="component-box"/>
+    <text x="400" y="212" text-anchor="middle" class="component-text">EditProjectModal</text>
+
+    <!-- Tiles Components -->
+    <rect x="550" y="60" width="200" height="120" class="category-bg"/>
+    <text x="650" y="80" text-anchor="middle" class="category-header">Tiles</text>
+
+    <rect x="560" y="90" width="70" height="25" class="component-box"/>
+    <text x="595" y="107" text-anchor="middle" class="component-text">TileCard</text>
+
+    <rect x="640" y="90" width="100" height="25" class="component-box"/>
+    <text x="690" y="107" text-anchor="middle" class="component-text">TileEditModal</text>
+
+    <rect x="560" y="125" width="100" height="25" class="component-box"/>
+    <text x="610" y="142" text-anchor="middle" class="component-text">tile-edit-drawer</text>
+
+    <rect x="670" y="125" width="100" height="25" class="component-box"/>
+    <text x="720" y="142" text-anchor="middle" class="component-text">TileCreateModal</text>
+
+    <!-- Kanban Components -->
+    <rect x="800" y="60" width="200" height="120" class="category-bg"/>
+    <text x="900" y="80" text-anchor="middle" class="category-header">Kanban</text>
+
+    <rect x="810" y="90" width="80" height="25" class="component-box"/>
+    <text x="850" y="107" text-anchor="middle" class="component-text">KanbanBoard</text>
+
+    <rect x="900" y="90" width="80" height="25" class="component-box"/>
+    <text x="940" y="107" text-anchor="middle" class="component-text">KanbanCard</text>
+
+    <rect x="810" y="125" width="90" height="25" class="component-box"/>
+    <text x="855" y="142" text-anchor="middle" class="component-text">KanbanColumn</text>
+
+    <rect x="910" y="125" width="80" height="25" class="component-box"/>
+    <text x="950" y="142" text-anchor="middle" class="component-text">KanbanBoardGeneric</text>
+
+    <!-- Groups Components -->
+    <rect x="1050" y="60" width="200" height="120" class="category-bg"/>
+    <text x="1150" y="80" text-anchor="middle" class="category-header">Groups</text>
+
+    <rect x="1060" y="90" width="80" height="25" class="component-box"/>
+    <text x="1100" y="107" text-anchor="middle" class="component-text">GroupCard</text>
+
+    <rect x="1150" y="90" width="80" height="25" class="component-box"/>
+    <text x="1190" y="107" text-anchor="middle" class="component-text">GroupView</text>
+
+    <rect x="1105" y="125" width="100" height="25" class="component-box"/>
+    <text x="1155" y="142" text-anchor="middle" class="component-text">CreateGroupModal</text>
+
+    <!-- Magazyn Components -->
+    <rect x="50" y="250" width="200" height="180" class="category-bg"/>
+    <text x="150" y="270" text-anchor="middle" class="category-header">Magazyn</text>
+
+    <rect x="60" y="285" width="80" height="25" class="component-box"/>
+    <text x="100" y="302" text-anchor="middle" class="component-text">MaterialCard</text>
+
+    <rect x="150" y="285" width="90" height="25" class="component-box"/>
+    <text x="195" y="302" text-anchor="middle" class="component-text">MaterialCardV3</text>
+
+    <rect x="60" y="320" width="100" height="25" class="component-box"/>
+    <text x="110" y="337" text-anchor="middle" class="component-text">MaterialDetailDrawer</text>
+
+    <rect x="170" y="320" width="100" height="25" class="component-box"/>
+    <text x="220" y="337" text-anchor="middle" class="component-text">MaterialDetailsPanel</text>
+
+    <rect x="60" y="355" width="90" height="25" class="component-box"/>
+    <text x="105" y="372" text-anchor="middle" class="component-text">CategorySidebar</text>
+
+    <rect x="160" y="355" width="80" height="25" class="component-box"/>
+    <text x="200" y="372" text-anchor="middle" class="component-text">FilterPanelV3</text>
+
+    <rect x="60" y="390" width="100" height="25" class="component-box"/>
+    <text x="110" y="407" text-anchor="middle" class="component-text">SimpleMaterialsGrid</text>
+
+    <rect x="170" y="390" width="80" height="25" class="component-box"/>
+    <text x="210" y="407" text-anchor="middle" class="component-text">TagFilter</text>
+
+    <rect x="110" y="425" width="80" height="25" class="component-box"/>
+    <text x="150" y="442" text-anchor="middle" class="component-text">OperationForm</text>
+
+    <!-- Calendar Components -->
+    <rect x="300" y="250" width="200" height="100" class="category-bg"/>
+    <text x="400" y="270" text-anchor="middle" class="category-header">Calendar</text>
+
+    <rect x="310" y="285" width="90" height="25" class="component-box"/>
+    <text x="355" y="302" text-anchor="middle" class="component-text">CalendarShell</text>
+
+    <rect x="410" y="285" width="80" height="25" class="component-box"/>
+    <text x="450" y="302" text-anchor="middle" class="component-text">EventFormModal</text>
+
+    <rect x="360" y="320" width="80" height="25" class="component-box"/>
+    <text x="400" y="337" text-anchor="middle" class="component-text">ConnectionStatusIndicator</text>
+
+    <!-- Gantt Components -->
+    <rect x="550" y="250" width="200" height="100" class="category-bg"/>
+    <text x="650" y="270" text-anchor="middle" class="category-header">Gantt</text>
+
+    <rect x="560" y="285" width="80" height="25" class="component-box"/>
+    <text x="600" y="302" text-anchor="middle" class="component-text">GanttChart</text>
+
+    <rect x="650" y="285" width="90" height="25" class="component-box"/>
+    <text x="695" y="302" text-anchor="middle" class="component-text">ProjectGanttChart</text>
+
+    <rect x="605" y="320" width="80" height="25" class="component-box"/>
+    <text x="645" y="337" text-anchor="middle" class="component-text">EstimateModule</text>
+
+    <!-- Subcontractors Components -->
+    <rect x="800" y="250" width="200" height="120" class="category-bg"/>
+    <text x="900" y="270" text-anchor="middle" class="category-header">Subcontractors</text>
+
+    <rect x="810" y="285" width="90" height="25" class="component-box"/>
+    <text x="855" y="302" text-anchor="middle" class="component-text">SubcontractorCard</text>
+
+    <rect x="910" y="285" width="90" height="25" class="component-box"/>
+    <text x="955" y="302" text-anchor="middle" class="component-text">SubcontractorProfile</text>
+
+    <rect x="860" y="320" width="80" height="25" class="component-box"/>
+    <text x="900" y="337" text-anchor="middle" class="component-text">OrdersKanban</text>
+
+    <!-- Modals Components -->
+    <rect x="1050" y="250" width="200" height="120" class="category-bg"/>
+    <text x="1150" y="270" text-anchor="middle" class="category-header">Modals</text>
+
+    <rect x="1060" y="285" width="80" height="25" class="component-box"/>
+    <text x="1100" y="302" text-anchor="middle" class="component-text">AddMemberModal</text>
+
+    <rect x="1150" y="285" width="100" height="25" class="component-box"/>
+    <text x="1200" y="302" text-anchor="middle" class="component-text">SelectSpeckleModelModal</text>
+
+    <rect x="1105" y="320" width="100" height="25" class="component-box"/>
+    <text x="1155" y="337" text-anchor="middle" class="component-text">MaterialAssignmentModal</text>
+
+    <!-- UI Components -->
+    <rect x="50" y="480" width="200" height="200" class="category-bg"/>
+    <text x="150" y="500" text-anchor="middle" class="category-header">UI Components</text>
+
+    <rect x="60" y="515" width="80" height="25" class="component-box"/>
+    <text x="100" y="532" text-anchor="middle" class="component-text">LoadingSpinner</text>
+
+    <rect x="150" y="515" width="80" height="25" class="component-box"/>
+    <text x="190" y="532" text-anchor="middle" class="component-text">StatusBadge</text>
+
+    <rect x="60" y="550" width="80" height="25" class="component-box"/>
+    <text x="100" y="567" text-anchor="middle" class="component-text">ErrorMessage</text>
+
+    <rect x="150" y="550" width="80" height="25" class="component-box"/>
+    <text x="190" y="567" text-anchor="middle" class="component-text">EntityTable</text>
+
+    <rect x="60" y="585" width="80" height="25" class="component-box"/>
+    <text x="100" y="602" text-anchor="middle" class="component-text">FileManager</text>
+
+    <rect x="150" y="585" width="90" height="25" class="component-box"/>
+    <text x="195" y="602" text-anchor="middle" class="component-text">FileUploadZone</text>
+
+    <rect x="60" y="620" width="80" height="25" class="component-box"/>
+    <text x="100" y="637" text-anchor="middle" class="component-text">FormModal</text>
+
+    <rect x="150" y="620" width="80" height="25" class="component-box"/>
+    <text x="190" y="637" text-anchor="middle" class="component-text">Toolbar</text>
+
+    <rect x="60" y="655" width="80" height="25" class="component-box"/>
+    <text x="100" y="672" text-anchor="middle" class="component-text">StageStepper</text>
+
+    <rect x="150" y="655" width="80" height="25" class="component-box"/>
+    <text x="190" y="672" text-anchor="middle" class="component-text">AuthPanel</text>
+
+    <!-- 3D Viewer Components -->
+    <rect x="300" y="480" width="200" height="100" class="category-bg"/>
+    <text x="400" y="500" text-anchor="middle" class="category-header">3D Viewers</text>
+
+    <rect x="310" y="515" width="80" height="25" class="component-box"/>
+    <text x="350" y="532" text-anchor="middle" class="component-text">SpeckleViewer</text>
+
+    <rect x="400" y="515" width="80" height="25" class="component-box"/>
+    <text x="440" y="532" text-anchor="middle" class="component-text">ThreeDViewer</text>
+
+    <rect x="355" y="550" width="80" height="25" class="component-box"/>
+    <text x="395" y="567" text-anchor="middle" class="component-text">MaterialsView</text>
+
+    <!-- Materials Components -->
+    <rect x="550" y="480" width="200" height="100" class="category-bg"/>
+    <text x="650" y="500" text-anchor="middle" class="category-header">Materials</text>
+
+    <rect x="560" y="515" width="80" height="25" class="component-box"/>
+    <text x="600" y="532" text-anchor="middle" class="component-text">MaterialsView</text>
+
+    <rect x="650" y="515" width="100" height="25" class="component-box"/>
+    <text x="700" y="532" text-anchor="middle" class="component-text">MaterialAssignmentModal</text>
+
+    <rect x="605" y="550" width="80" height="25" class="component-box"/>
+    <text x="645" y="567" text-anchor="middle" class="component-text">AsyncStates</text>
+
+    <!-- Error Handling -->
+    <rect x="800" y="480" width="200" height="100" class="category-bg"/>
+    <text x="900" y="500" text-anchor="middle" class="category-header">Error Handling</text>
+
+    <rect x="810" y="515" width="80" height="25" class="component-box"/>
+    <text x="850" y="532" text-anchor="middle" class="component-text">ErrorBoundary</text>
+
+    <rect x="900" y="515" width="80" height="25" class="component-box"/>
+    <text x="940" y="532" text-anchor="middle" class="component-text">ErrorMessage</text>
+
+    <rect x="855" y="550" width="80" height="25" class="component-box"/>
+    <text x="895" y="567" text-anchor="middle" class="component-text">AsyncStates</text>
+
+    <!-- Legend -->
+    <rect x="1050" y="480" width="200" height="200" class="category-bg"/>
+    <text x="1150" y="500" text-anchor="middle" class="category-header">Legend</text>
+
+    <rect x="1060" y="515" width="80" height="25" class="component-box"/>
+    <text x="1100" y="532" text-anchor="middle" class="component-text">Component</text>
+
+    <rect x="1060" y="550" width="80" height="25" class="category-bg"/>
+    <text x="1100" y="567" text-anchor="middle" class="component-text">Category</text>
+
+    <text x="1060" y="600" class="component-text">• Layout: Navigation & Structure</text>
+    <text x="1060" y="620" class="component-text">• Project: Project Management</text>
+    <text x="1060" y="640" class="component-text">• Tiles: Element Management</text>
+    <text x="1060" y="660" class="component-text">• Kanban: Workflow Management</text>
+    <text x="1060" y="680" class="component-text">• Magazyn: Inventory Management</text>
+    <text x="1060" y="700" class="component-text">• UI: Reusable Components</text>
+
+    <!-- Connections between related components -->
+    <line x1="250" y1="120" x2="300" y2="120" class="connection-line"/>
+    <line x1="500" y1="120" x2="550" y2="120" class="connection-line"/>
+    <line x1="750" y1="120" x2="800" y2="120" class="connection-line"/>
+    <line x1="1000" y1="120" x2="1050" y2="120" class="connection-line"/>
+
+    <line x1="250" y1="340" x2="300" y2="340" class="connection-line"/>
+    <line x1="500" y1="340" x2="550" y2="340" class="connection-line"/>
+    <line x1="750" y1="340" x2="800" y2="340" class="connection-line"/>
+    <line x1="1000" y1="340" x2="1050" y2="340" class="connection-line"/>
+
+    <line x1="250" y1="570" x2="300" y2="570" class="connection-line"/>
+    <line x1="500" y1="570" x2="550" y2="570" class="connection-line"/>
+    <line x1="750" y1="570" x2="800" y2="570" class="connection-line"/>
+    <line x1="1000" y1="570" x2="1050" y2="570" class="connection-line"/>
+
+</svg>

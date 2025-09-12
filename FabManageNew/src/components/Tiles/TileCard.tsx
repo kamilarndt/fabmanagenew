@@ -29,8 +29,8 @@ export default function TileCard({ tile, onEdit, onView, onAssign }: TileCardPro
         return (
             <div className="material-summary">
                 <div className="key-materials">
-                    {keyMaterials.map((material, index) => (
-                        <div key={index} className="material-item">
+                    {keyMaterials.map((material) => (
+                        <div key={`${material.name}-${material.quantity}`} className="material-item">
                             <Text type="secondary" style={{ fontSize: '0.8rem' }}>
                                 - {material.name} ... {material.quantity} {material.unit}
                             </Text>

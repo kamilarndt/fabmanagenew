@@ -1,0 +1,37 @@
+{
+  "name": "FabManage Design System Generator",
+  "id": "fabmanage-design-system",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": [
+    "figma"
+  ],
+  "networkAccess": {
+    "allowedDomains": [
+      "*"
+    ],
+    "reasoning": "Plugin needs network access to fetch external design resources and integrate with FabManage application APIs for component generation and data synchronization."
+  },
+  "permissions": [
+    "currentuser"
+  ],
+  "menu": [
+    {
+      "name": "Generate ProjectCard",
+      "command": "generate-project-card"
+    },
+    {
+      "name": "Generate ProjectElements",
+      "command": "generate-project-elements"
+    },
+    {
+      "name": "Generate Design System",
+      "command": "generate-design-system"
+    },
+    {
+      "name": "Analyze Components",
+      "command": "analyze-components"
+    }
+  ]
+}

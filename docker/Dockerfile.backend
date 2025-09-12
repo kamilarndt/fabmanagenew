@@ -17,8 +17,10 @@ COPY backend/ ./
 
 # Create necessary directories and set permissions
 RUN mkdir -p /srv/app/uploads && \
-    mkdir -p /srv/app/data && \
-    chown -R node:node /srv/app
+    mkdir -p /srv/app/data/db && \
+    mkdir -p /mnt/projects && \
+    chown -R node:node /srv/app && \
+    chown -R node:node /mnt/projects
 
 # Switch to non-root user for security
 USER node

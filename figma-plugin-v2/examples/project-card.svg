@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="600" viewBox="0 0 400 600"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+      .organism { fill: #ff4d4f; stroke: #cf1322; stroke-width: 2; }
+      .molecule { fill: #52c41a; stroke: #389e0d; stroke-width: 2; }
+      .atom { fill: #1890ff; stroke: #096dd9; stroke-width: 2; }
+      .text { font-family: Arial, sans-serif; font-size: 12px; fill: #333; }
+      .title { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #333; }
+      .secondary { font-family: Arial, sans-serif; font-size: 11px; fill: #666; }
+      .gradient { fill: url(#cardGradient); }
+        </style>
+        <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+
+    <!-- ORGANISM: ProjectCard -->
+    <g id="project-card-organism" class="organism">
+        <!-- Card container -->
+        <rect x="20" y="20" width="360" height="560" rx="8" fill="white" stroke="#e8e8e8" stroke-width="1"/>
+
+        <!-- COVER MOLECULE: Project Thumbnail -->
+        <g id="project-thumbnail-molecule" class="molecule">
+            <rect x="30" y="30" width="340" height="200" rx="4" fill="url(#cardGradient)"/>
+            <text x="200" y="140" text-anchor="middle" class="text" fill="white" font-size="24">🖼️</text>
+            <text x="200" y="220" text-anchor="middle" class="secondary">Thumbnail</text>
+        </g>
+
+        <!-- HEADER MOLECULE: Project Title and Status -->
+        <g id="project-header-molecule" class="molecule">
+            <rect x="30" y="250" width="340" height="60" rx="4" fill="#f5f5f5"/>
+
+            <!-- Title Section -->
+            <g id="project-title-section-atom" class="atom">
+                <text x="40" y="270" class="title">Nazwa Projektu</text>
+                <text x="40" y="285" class="secondary">Nr: PROJ-2024-001</text>
+            </g>
+
+            <!-- Status Badge Atom -->
+            <g id="status-badge-atom" class="atom">
+                <rect x="320" y="260" width="40" height="20" rx="10" fill="#52c41a"/>
+                <text x="340" y="273" text-anchor="middle" class="text" fill="white" font-size="10">Active</text>
+            </g>
+        </g>
+
+        <!-- META MOLECULE: Project Type and Location -->
+        <g id="project-meta-molecule" class="molecule">
+            <rect x="30" y="330" width="340" height="40" rx="4" fill="#fafafa"/>
+
+            <!-- Type Tag Atom -->
+            <g id="type-tag-atom" class="atom">
+                <rect x="40" y="340" width="60" height="20" rx="4" fill="#1890ff"/>
+                <text x="70" y="353" text-anchor="middle" class="text" fill="white" font-size="10">Targi</text>
+            </g>
+
+            <!-- Location Text Atom -->
+            <g id="location-text-atom" class="atom">
+                <text x="120" y="353" class="secondary">📍 Warszawa, PL</text>
+            </g>
+        </g>
+
+        <!-- INFO MOLECULE: Client and Deadline -->
+        <g id="project-info-molecule" class="molecule">
+            <rect x="30" y="390" width="340" height="60" rx="4" fill="#fafafa"/>
+
+            <!-- Client Info Atom -->
+            <g id="client-info-atom" class="atom">
+                <circle cx="45" cy="405" r="6" fill="#666"/>
+                <text x="40" y="408" text-anchor="middle" class="text" fill="white" font-size="8">👤</text>
+                <text x="60" y="408" class="text" font-weight="bold">Klient: ABC Company</text>
+            </g>
+
+            <!-- Deadline Info Atom -->
+            <g id="deadline-info-atom" class="atom">
+                <circle cx="45" cy="425" r="6" fill="#666"/>
+                <text x="40" y="428" text-anchor="middle" class="text" fill="white" font-size="8">📅</text>
+                <text x="60" y="428" class="text">Deadline: 15.03.2024</text>
+            </g>
+        </g>
+
+        <!-- PROGRESS MOLECULE: Progress Bar -->
+        <g id="project-progress-molecule" class="molecule">
+            <rect x="30" y="470" width="340" height="40" rx="4" fill="#fafafa"/>
+
+            <!-- Progress Header Atom -->
+            <g id="progress-header-atom" class="atom">
+                <text x="40" y="485" class="text" font-weight="bold">Postęp</text>
+                <text x="350" y="485" class="text">75%</text>
+            </g>
+
+            <!-- Progress Bar Atom -->
+            <g id="progress-bar-atom" class="atom">
+                <rect x="40" y="490" width="300" height="8" rx="4" fill="#f0f0f0"/>
+                <rect x="40" y="490" width="225" height="8" rx="4" fill="#52c41a"/>
+            </g>
+        </g>
+
+        <!-- MODULES MOLECULE: Project Modules -->
+        <g id="project-modules-molecule" class="molecule">
+            <rect x="30" y="530" width="340" height="40" rx="4" fill="#fafafa"/>
+
+            <!-- Modules Title Atom -->
+            <g id="modules-title-atom" class="atom">
+                <text x="40" y="545" class="text" font-weight="bold">MODUŁY PROJEKTU:</text>
+            </g>
+
+            <!-- Module Items Atom -->
+            <g id="module-items-atom" class="atom">
+                <text x="40" y="560" class="secondary">- Scenografia główna</text>
+                <text x="200" y="560" class="secondary">- System oświetlenia</text>
+            </g>
+        </g>
+
+        <!-- ACTIONS MOLECULE: Action Buttons -->
+        <g id="card-actions-molecule" class="molecule">
+            <rect x="30" y="580" width="340" height="40" rx="4" fill="#fafafa"/>
+
+            <!-- Edit Button Atom -->
+            <g id="edit-button-atom" class="atom">
+                <rect x="40" y="590" width="80" height="20" rx="4" fill="#1890ff"/>
+                <text x="80" y="603" text-anchor="middle" class="text" fill="white" font-size="10">📝 Edytuj</text>
+            </g>
+
+            <!-- 3D Model Button Atom -->
+            <g id="3d-model-button-atom" class="atom">
+                <rect x="140" y="590" width="100" height="20" rx="4" fill="#52c41a"/>
+                <text x="190" y="603" text-anchor="middle" class="text" fill="white" font-size="10">🎯 3D Model</text>
+            </g>
+
+            <!-- Manager Info Atom -->
+            <g id="manager-info-atom" class="atom">
+                <circle cx="270" cy="600" r="8" fill="#f0f0f0"/>
+                <text x="270" y="604" text-anchor="middle" class="text" fill="#666" font-size="8">👤</text>
+                <text x="285" y="603" class="secondary">Manager: Jan Kowalski</text>
+            </g>
+        </g>
+    </g>
+
+    <!-- Labels for component types -->
+    <text x="20" y="15" class="text" font-size="10" fill="#666">ORGANISM: ProjectCard</text>
+
+    <!-- Component structure legend -->
+    <g id="legend" transform="translate(400, 20)">
+        <rect x="0" y="0" width="150" height="120" rx="4" fill="#f9f9f9" stroke="#ddd" stroke-width="1"/>
+        <text x="10" y="20" class="text" font-weight="bold">Atomic Design Structure:</text>
+        <text x="10" y="40" class="text" font-size="10">🦠 Organism: ProjectCard</text>
+        <text x="10" y="55" class="text" font-size="10">🧬 Molecules: Header, Meta, Info, Progress, Modules, Actions</text>
+        <text x="10" y="70" class="text" font-size="10">⚛️ Atoms: Text, Buttons, Tags, Progress Bar, Icons</text>
+        <text x="10" y="90" class="text" font-size="10">📊 Props: project, onEdit, onDelete</text>
+        <text x="10" y="105" class="text" font-size="10">🎨 Features: Thumbnail, Status, Progress, Modules</text>
+    </g>
+</svg>

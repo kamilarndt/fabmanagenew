@@ -93,40 +93,40 @@ export default function ContextualHeader({ style }: ContextualHeaderProps) {
     const handleUserMenuClick = ({ key }: { key: string }) => {
         switch (key) {
             case 'profile':
-                console.log('Profil użytkownika')
+                console.warn('TODO: Profil użytkownika')
                 break
             case 'settings':
-                console.log('Ustawienia')
+                console.warn('TODO: Ustawienia')
                 break
             case 'help':
-                console.log('Pomoc')
+                console.warn('TODO: Pomoc')
                 break
             case 'logout':
-                console.log('Wylogowanie')
+                console.warn('TODO: Wylogowanie')
                 break
         }
     }
 
     const handleNotificationClick = ({ key }: { key: string }) => {
-        console.log('Kliknięto powiadomienie:', key)
+        console.warn('TODO: Kliknięto powiadomienie:', key)
     }
 
     return (
         <Header
-      style={{
-        background: 'var(--bg-secondary)',
-        padding: '0 24px',
-        borderBottom: '1px solid var(--border-main)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        height: 64,
-        position: 'sticky',
-        top: 0,
-        zIndex: 99,
-        fontFamily: 'var(--font-family)',
-        ...style
-      }}
+            style={{
+                background: 'var(--bg-secondary)',
+                padding: '0 24px',
+                borderBottom: '1px solid var(--border-main)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                height: 64,
+                position: 'sticky',
+                top: 0,
+                zIndex: 99,
+                fontFamily: 'var(--font-family)',
+                ...style
+            }}
         >
             {/* Breadcrumbs (lewa strona) */}
             <div style={{ flex: '0 0 auto', marginRight: 24 }}>
@@ -139,10 +139,10 @@ export default function ContextualHeader({ style }: ContextualHeaderProps) {
                             </span>
                         )
                     }))}
-                    style={{ 
-            fontSize: 14,
-            fontFamily: 'var(--font-family)'
-          }}
+                    style={{
+                        fontSize: 14,
+                        fontFamily: 'var(--font-family)'
+                    }}
                 />
             </div>
 

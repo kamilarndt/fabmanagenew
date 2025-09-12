@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { Select, Button, Switch } from 'antd'
 import { useDrag, useDrop } from 'react-dnd'
 import { useTilesStore, type Tile } from '../stores/tilesStore'
-import TileEditModalV3 from '../components/Tiles/TileEditModalV3'
+import TileEditDrawer from '../components/Tiles/tile-edit-drawer'
 import { useProjectsStore } from '../stores/projectsStore'
 
 type DesignStatus = 'Projektowanie' | 'W trakcie projektowania' | 'Do akceptacji' | 'Zaakceptowane' | 'Wymagają poprawek'
@@ -263,7 +263,7 @@ export default function Projektowanie() {
             </div>
 
             {/* Tile Edit Modal */}
-            <TileEditModalV3
+            <TileEditDrawer
                 open={showTileModal}
                 onClose={() => {
                     setShowTileModal(false)

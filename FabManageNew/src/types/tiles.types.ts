@@ -37,9 +37,9 @@ export type Tile = {
     group?: string
     dependencies?: string[]
     // Speckle 3D Integration fields
-    geometry_data?: any // JSONB geometry data from Speckle
+    geometry_data?: Record<string, unknown> // JSONB geometry data from Speckle
     screenshot_url?: string // URL to 3D screenshot
-    material_assignments?: any // JSONB material assignment data
+    material_assignments?: Record<string, unknown> // JSONB material assignment data
 }
 
 export type TileMaterial = {

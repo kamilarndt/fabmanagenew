@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="500" viewBox="0 0 400 500"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+      .entity-bg { fill: #f8f9fa; stroke: #dee2e6; stroke-width: 2; }
+      .entity-title { fill: #495057; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600; }
+      .field-name { fill: #6c757d; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; }
+      .field-type { fill: #28a745; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 400; }
+      .field-description { fill: #6c757d; font-family: 'Inter', sans-serif; font-size: 10px; font-style: italic; }
+      .pk-field { fill: #dc3545; font-weight: 600; }
+      .fk-field { fill: #007bff; font-weight: 500; }
+      .enum-field { fill: #fd7e14; font-weight: 500; }
+        </style>
+    </defs>
+
+    <!-- Entity Background -->
+    <rect class="entity-bg" x="10" y="10" width="380" height="480" rx="8" />
+
+    <!-- Entity Title -->
+    <text x="200" y="35" text-anchor="middle" class="entity-title">CLIENT</text>
+
+    <!-- Fields -->
+    <text x="20" y="60" class="field-name pk-field">id</text>
+    <text x="80" y="60" class="field-type">string</text>
+    <text x="120" y="60" class="field-description">PK</text>
+
+    <text x="20" y="80" class="field-name">nazwa_firmy</text>
+    <text x="80" y="80" class="field-type">string</text>
+
+    <text x="20" y="100" class="field-name">nip</text>
+    <text x="80" y="100" class="field-type">string</text>
+
+    <text x="20" y="120" class="field-name">regon</text>
+    <text x="80" y="120" class="field-type">string</text>
+
+    <text x="20" y="140" class="field-name">ulica</text>
+    <text x="80" y="140" class="field-type">string</text>
+
+    <text x="20" y="160" class="field-name">numer_domu</text>
+    <text x="80" y="160" class="field-type">string</text>
+
+    <text x="20" y="180" class="field-name">numer_lokalu</text>
+    <text x="80" y="180" class="field-type">string</text>
+
+    <text x="20" y="200" class="field-name">kod_pocztowy</text>
+    <text x="80" y="200" class="field-type">string</text>
+
+    <text x="20" y="220" class="field-name">miasto</text>
+    <text x="80" y="220" class="field-type">string</text>
+
+    <text x="20" y="240" class="field-name">adres_strony</text>
+    <text x="80" y="240" class="field-type">string</text>
+
+    <text x="20" y="260" class="field-name">mail_firmowy</text>
+    <text x="80" y="260" class="field-type">string</text>
+
+    <text x="20" y="280" class="field-name">opis_firmy</text>
+    <text x="80" y="280" class="field-type">string</text>
+
+    <text x="20" y="300" class="field-name">logotyp</text>
+    <text x="80" y="300" class="field-type">string</text>
+    <text x="120" y="300" class="field-description">"URL"</text>
+
+    <text x="20" y="320" class="field-name">website</text>
+    <text x="80" y="320" class="field-type">string</text>
+
+    <text x="20" y="340" class="field-name">status</text>
+    <text x="80" y="340" class="field-type enum-field">enum</text>
+    <text x="120" y="340" class="field-description">"Active|Inactive|Pending"</text>
+
+    <text x="20" y="360" class="field-name">segment</text>
+    <text x="80" y="360" class="field-type enum-field">enum</text>
+    <text x="120" y="360" class="field-description">"Mały|Średni|Duży"</text>
+
+    <text x="20" y="380" class="field-name">cardColor</text>
+    <text x="80" y="380" class="field-type">string</text>
+
+    <text x="20" y="400" class="field-name">additionalInfo</text>
+    <text x="80" y="400" class="field-type">string</text>
+
+    <text x="20" y="420" class="field-name">contacts</text>
+    <text x="80" y="420" class="field-type">json</text>
+    <text x="120" y="420" class="field-description">"ContactPerson[]"</text>
+
+    <text x="20" y="440" class="field-name">files</text>
+    <text x="80" y="440" class="field-type">json</text>
+    <text x="120" y="440" class="field-description">"string[]"</text>
+</svg>

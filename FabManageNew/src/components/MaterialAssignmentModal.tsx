@@ -8,7 +8,7 @@ import type { SpeckleObjectGeometry } from '../services/speckleMaterials'
 interface MaterialAssignmentModalProps {
     open: boolean
     onClose: () => void
-    onSuccess: (assignments: any[]) => void
+    onSuccess: (assignments: Record<string, unknown>[]) => void
     selectedObjectIds: string[]
     streamUrl?: string
     tileId?: string
@@ -48,7 +48,7 @@ export default function MaterialAssignmentModal({
     } | null>(null)
     const [error, setError] = useState<string | null>(null)
 
-    const materials = useMaterialsStore((s: any) => s.materials) as Material[]
+    const materials = useMaterialsStore((s) => s.materials) as Material[]
 
     useEffect(() => {
         if (open && streamUrl && selectedObjectIds.length > 0) {

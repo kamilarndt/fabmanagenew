@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>SVG to Components Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            padding: 20px; 
+            background: #f8f9fa; 
+            color: #1a1a1a;
+            line-height: 1.5;
+        }
+
+        .container { 
+            max-width: 480px; 
+            margin: 0 auto; 
+        }
+
+        .section { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 16px; 
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e1e5e9;
+        }
+
+        .section h2 {
+            margin-bottom: 12px;
+            color: #1a1a1a;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .section h3 {
+            margin-bottom: 8px;
+            color: #1a1a1a;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .svg-input { 
+            width: 100%; 
+            height: 200px; 
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; 
+            border: 2px dashed #e1e5e9;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            line-height: 1.4;
+            resize: vertical;
+            background: #fafbfc;
+        }
+
+        .svg-input:focus {
+            outline: none;
+            border-color: #0d99ff;
+            background: white;
+        }
+
+        .btn { 
+            background: #0d99ff; 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .btn:hover { 
+            background: #0c8ce9; 
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: #e1e5e9;
+            color: #8b949e;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f6f8fa;
+            color: #1a1a1a;
+            border: 1px solid #d0d7de;
+        }
+
+        .btn-secondary:hover {
+            background: #f3f4f6;
+        }
+
+        .progress { 
+            width: 100%; 
+            height: 6px; 
+            background: #e1e5e9; 
+            border-radius: 3px; 
+            overflow: hidden; 
+            margin: 12px 0;
+        }
+
+        .progress-bar { 
+            height: 100%; 
+            background: linear-gradient(90deg, #0d99ff, #00d4aa);
+            width: 0%; 
+            transition: width 0.3s ease; 
+        }
+
+        .log { 
+            background: #f8f9fa; 
+            padding: 12px; 
+            border-radius: 6px; 
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; 
+            font-size: 11px; 
+            max-height: 150px; 
+            overflow-y: auto; 
+            border: 1px solid #e1e5e9;
+        }
+
+        .log div {
+            margin-bottom: 4px;
+            padding: 2px 0;
+        }
+
+        .log .error {
+            color: #d73a49;
+        }
+
+        .log .success {
+            color: #28a745;
+        }
+
+        .log .info {
+            color: #0366d6;
+        }
+
+        .structure-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .structure-item input[type="checkbox"] {
+            margin-right: 12px;
+            transform: scale(1.1);
+        }
+
+        .structure-item label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-right: 8px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .type-element {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .type-group {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .type-variant {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .type-component {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0d99ff;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6a737d;
+            margin-top: 4px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .file-input-label:hover {
+            background: #f3f4f6;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #6a737d;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="section">
+            <h2>🎨 SVG to Components Converter</h2>
+            <p style="color: #6a737d; margin-bottom: 16px;">
+                Convert your structured SVG files into Figma components using Atomic Design principles.
+            </p>
+            
+            <div class="file-input-wrapper">
+                <input type="file" id="file-input" class="file-input" accept=".svg" />
+                <label for="file-input" class="file-input-label">
+                    📁 Load SVG File
+                </label>
+            </div>
+            
+            <textarea id="svg-input" class="svg-input" 
+                placeholder="Paste your structured SVG code here...
+
+Example structure:
+<g id='ELEMENTS'>
+  <g id='Card' class='element' data-figma-component='container'>
+  <g id='Progress' class='element' data-figma-component='progress'>
+</g>
+
+<g id='GROUPS'>
+  <g id='ProjectHeader' class='group' data-figma-component='header'>
+</g>
+
+<g id='VARIANTS'>
+  <g id='CompactProject' class='variant' data-figma-variant='compact'>
+</g>"></textarea>
+            
+            <div style="margin-top: 12px;">
+                <button id="analyze-btn" class="btn">🔍 Analyze SVG Structure</button>
+                <button id="convert-btn" class="btn" disabled>⚡ Create Components</button>
+                <button id="clear-btn" class="btn btn-secondary">🗑️ Clear</button>
+            </div>
+        </div>
+
+        <div class="section hidden" id="analysis-section">
+            <h3>📋 Detected Structure</h3>
+            <div id="structure-list"></div>
+            <div class="stats" id="structure-stats"></div>
+        </div>
+
+        <div class="section hidden" id="progress-section">
+            <h3>⚙️ Conversion Progress</h3>
+            <div class="progress">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+            <div id="log" class="log"></div>
+        </div>
+
+        <div class="section hidden" id="results-section">
+            <h3>✅ Results</h3>
+            <div class="stats" id="results-stats"></div>
+            <div id="results-log" class="log"></div>
+        </div>
+    </div>
+
+    <script src="ui.js"></script>
+</body>
+</html>

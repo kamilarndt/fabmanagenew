@@ -104,12 +104,12 @@ export default function MaterialsView({ tiles: propTiles }: MaterialsViewProps) 
 
     const handleExportExcel = () => {
         // Mock export functionality
-        console.log('Exporting to Excel...', filteredMaterials)
+        console.warn('TODO: Exporting to Excel...', filteredMaterials)
     }
 
     const handleExportPDF = () => {
         // Mock export functionality
-        console.log('Exporting to PDF...', filteredMaterials)
+        console.warn('TODO: Exporting to PDF...', filteredMaterials)
     }
 
     const columns = [

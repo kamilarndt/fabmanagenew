@@ -313,3 +313,125 @@ Full PWA Implementation: Enhance offline capabilities, allowing users to work wi
 Advanced Analytics: Integrate a dedicated analytics service to gather insights on production bottlenecks and team performance.
 
 Extensibility: Develop a plugin architecture to allow for custom integrations (e.g., accounting software, client CRMs).
+
+### Analyzer Rules: Code QA + Task Generator for FabrykaManage
+
+Purpose
+
+- Define how an automated analyzer model evaluates this repository (React + Vite + Ant Design + Zustand + TanStack Query + Supabase) and emits precise, actionable tasks for a separate fixer model
+- Align findings to our architecture and UX conventions
+
+Operating Mode
+
+- Inputs: working tree, this document, `package.json` scripts, Vite config, ESLint config, TypeScript configs, Docker files, Supabase functions and SQL, test folders
+- Outputs: 1) concise Markdown report, 2) machine-readable task list (JSON schema below)
+- Priorities (descending): Security & data integrity > RLS/authorization correctness > Performance & DX (build size, speed) > UX consistency > Code clarity
+- Respect product conventions: single, unified tile edit experience and side-drawer modals opening from the right [[memory:8536734]] [[memory:8536213]]
+
+Validation Pipeline (non-interactive)
+
+1. Install: `npm ci` (or `npm install` if lock update required)
+2. Lint: `npm run lint`
+3. Type-check: `tsc -b --pretty false`
+4. Build: `npm run build`
+5. Unit tests (if configured): `npx vitest run --reporter=dot`
+6. Smoke/E2E (optional locally): `npm run test:smoke` and/or `npm run playwright:smoke`
+7. Bundle analysis: verify `dist/stats.html` exists (Vite visualizer); flag any single JS chunk > 300KB gzip
+
+Checks & Heuristics
+
+1) Architecture & Config
+
+- Vite: ensure chunking groups are effective (`react-vendor`, `antd-vendor`, `calendar-vendor`, `forms-vendor`, `http-vendor`, `state-vendor`, `dnd-vendor`, `utils-vendor`, `three-vendor`); report large residual `vendor` chunk
+- PWA: `VitePWA` config present; flag missing icons, oversize Workbox cache (>6MB per asset) and disabled `devOptions` only in dev
+- Docker: frontend build works and exposes static assets via Nginx; ensure no secrets baked into image
+
+2) TypeScript & ESLint
+
+- TS strictness: fail on implicit any, unreachable code, unused locals; prefer `interface` for object contracts
+- Enforce consistent type imports, no `any` in exported types, eliminate unused variables, prefer RORO
+- Public exports and component props must be explicitly typed
+
+3) React & Ant Design
+
+- Functional components only; named exports; avoid inline lambdas in JSX props for hot paths
+- Use `React.memo` selectively; wrap expensive lists with virtualization where needed (`react-window`)
+- AntD: prefer controlled components, form validation via Zod + React Hook Form resolvers; tree-shaking safe imports
+- Loading and empty states must be explicit; all lists require stable `key` (no index unless immutable order)
+
+4) State & Data (Zustand + TanStack Query)
+
+- Zustand: create focused slices; use selectors to minimize re-renders; avoid storing server cache
+- React Query: define `queryKey` factories, set `staleTime`/`gcTime`; use mutations with optimistic updates and rollback; no `useEffect` for fetching when Query can handle it
+
+5) Supabase (Auth, RLS, Realtime, Storage, Edge Functions)
+
+- Client: never ship service-role keys; auth token attached via interceptor only
+- RLS: verify policies exist for projects/materials/tiles; managers/admins have full, others scoped by assignment
+- Realtime: subscriptions cleaned on unmount; channel names scoped; debounce UI updates if high-frequency
+- Storage: bucket policies restrict cross-tenant read/write; signed URLs for private assets with proper TTL
+- Edge Functions: validate inputs with Zod; return problem details JSON on errors; avoid long CPU tasks in request path
+
+6) Security
+
+- Sanitize any HTML with DOMPurify; validate all user inputs; never interpolate untrusted strings into `dangerouslySetInnerHTML`
+- Secrets from environment only; forbid leaking keys into client bundles
+- Add rate limiting and error redaction in serverless endpoints
+
+7) Performance & Web Vitals
+
+- Enforce image optimization (WebP preferred), lazy loading, explicit sizes
+- Code-split heavy views (CAD/Speckle, DXF) via dynamic import; ensure those bundles do not load on unrelated screens
+- Set performance budgets: each route total JS < 250KB gzip; flag regressions against `dist/stats.html`
+
+8) Accessibility
+
+- Semantic HTML with ARIA as needed; keyboard navigation; focus management on dialogs/drawers; color contrast AA+
+
+9) CAD/Speckle/DXF
+
+- Load Speckle viewer and DXF parsing lazily; consider running parsing in a Web Worker; avoid blocking main thread
+
+10) UX Consistency
+
+- Tile editing uses a single shared component and presents as a right-side Drawer for all pages [[memory:8536734]] [[memory:8219734]]
+- All modals default to right-side sliding drawers with consistent widths and close behavior; no disparate modal styles [[memory:8219734]]
+
+Deliverables
+
+- Markdown report: sections for Failures, Warnings, Infos, with file links and suggested edits
+- JSON tasks: one per issue with severity and clear acceptance criteria
+
+Task JSON Schema (Analyzer → Fixer)
+
+```json
+{
+  "id": "string",
+  "title": "Fix: concise, outcome-focused",
+  "severity": "critical|high|medium|low",
+  "priority": "P0|P1|P2|P3",
+  "area": "security|rls|performance|ux|accessibility|typescript|lint|build|supabase|testing|docs|devops",
+  "files": ["relative/path.tsx"],
+  "summary": "What is wrong and why it matters",
+  "proposed_solution": "Approach at a high level",
+  "acceptance_criteria": ["measurable outcome 1", "measurable outcome 2"],
+  "repro_steps": ["optional reproduction steps"],
+  "blockers": ["optional known dependencies"]
+}
+```
+
+Severity & Priority Mapping
+
+- critical: security/authorization flaws, data loss, broken builds → P0
+- high: significant performance regressions, UX-breaking bugs → P1
+- medium: maintainability, a11y issues, missing tests → P2
+- low: stylistic inconsistencies, minor refactors → P3
+
+Stop Criteria
+
+- Build, lint, and type-check pass; no critical/high issues remain; performance budgets satisfied
+
+Notes for Fixer Model
+
+- Prefer minimal, localized edits; include tests when changing logic
+- For UX changes, conform to the unified side-drawer pattern for edits and modals ([[memory:8536734]], [[memory:8219734]])

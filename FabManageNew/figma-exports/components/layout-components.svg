@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+      .component-box { fill: #f8f9fa; stroke: #dee2e6; stroke-width: 2; rx: 8; }
+      .component-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; fill: #495057; font-weight: 500; }
+      .category-header { font-family: 'Segoe UI', Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #212529; }
+      .description { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; fill: #6c757d; }
+      .props-box { fill: #e3f2fd; stroke: #2196f3; stroke-width: 1; rx: 4; }
+      .props-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; fill: #1976d2; }
+      .arrow { stroke: #6c757d; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+        </style>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#6c757d" />
+        </marker>
+    </defs>
+
+    <!-- Title -->
+    <text x="400" y="40" text-anchor="middle" class="category-header">Layout Components</text>
+
+    <!-- BrandedSidebar -->
+    <rect x="50" y="80" width="300" height="120" class="component-box"/>
+    <text x="200" y="105" text-anchor="middle" class="component-text">BrandedSidebar</text>
+    <text x="60" y="125" class="description">Main navigation sidebar with branding and user profile</text>
+
+    <!-- Props for BrandedSidebar -->
+    <rect x="60" y="140" width="280" height="50" class="props-box"/>
+    <text x="70" y="155" class="props-text">Props: collapsed, onCollapse</text>
+    <text x="70" y="170" class="props-text">Features: Logo, Navigation Menu, User Profile, Collapse Toggle</text>
+    <text x="70" y="185" class="props-text">Dependencies: Layout, Menu, Button, Avatar, Typography</text>
+
+    <!-- ContextualHeader -->
+    <rect x="400" y="80" width="300" height="120" class="component-box"/>
+    <text x="550" y="105" text-anchor="middle" class="component-text">ContextualHeader</text>
+    <text x="410" y="125" class="description">Top header with breadcrumbs, search, and user actions</text>
+
+    <!-- Props for ContextualHeader -->
+    <rect x="410" y="140" width="280" height="50" class="props-box"/>
+    <text x="420" y="155" class="props-text">Props: style (optional)</text>
+    <text x="420" y="170" class="props-text">Features: Breadcrumbs, Search, Notifications, User Menu</text>
+    <text x="420" y="185" class="props-text">Dependencies: Layout, Breadcrumb, Input, Button, Badge, Avatar</text>
+
+    <!-- SlideOver -->
+    <rect x="50" y="250" width="300" height="120" class="component-box"/>
+    <text x="200" y="275" text-anchor="middle" class="component-text">SlideOver</text>
+    <text x="60" y="295" class="description">Sliding panel from the right side for forms and details</text>
+
+    <!-- Props for SlideOver -->
+    <rect x="60" y="310" width="280" height="50" class="props-box"/>
+    <text x="70" y="325" class="props-text">Props: open, title, width, onClose, headerExtra, footer, children</text>
+    <text x="70" y="340" class="props-text">Features: Right-side sliding panel, ESC key support, Customizable width</text>
+    <text x="70" y="355" class="props-text">Dependencies: React, useEffect, KeyboardEvent</text>
+
+    <!-- PageHeader -->
+    <rect x="400" y="250" width="300" height="120" class="component-box"/>
+    <text x="550" y="275" text-anchor="middle" class="component-text">PageHeader</text>
+    <text x="410" y="295" class="description">Standard page header with title, subtitle and actions</text>
+
+    <!-- Props for PageHeader -->
+    <rect x="410" y="310" width="280" height="50" class="props-box"/>
+    <text x="420" y="325" class="props-text">Props: title, subtitle (optional), actions (optional)</text>
+    <text x="420" y="340" class="props-text">Features: Title, Subtitle, Action buttons</text>
+    <text x="420" y="355" class="props-text">Dependencies: React</text>
+
+    <!-- Component Relationships -->
+    <line x1="200" y1="200" x2="200" y2="250" class="arrow"/>
+    <line x1="550" y1="200" x2="550" y2="250" class="arrow"/>
+
+    <!-- Usage Examples -->
+    <rect x="50" y="420" width="700" height="150" class="component-box"/>
+    <text x="400" y="445" text-anchor="middle" class="component-text">Usage Examples</text>
+
+    <text x="60" y="470" class="description">• BrandedSidebar: Main navigation with collapsible menu</text>
+    <text x="60" y="490" class="description">• ContextualHeader: Page-specific header with breadcrumbs and search</text>
+    <text x="60" y="510" class="description">• SlideOver: Edit forms, detail views, settings panels</text>
+    <text x="60" y="530" class="description">• PageHeader: Standard page titles with action buttons</text>
+
+    <text x="60" y="555" class="description">All components follow the unified design system with consistent styling and behavior.</text>
+
+</svg>

@@ -22,18 +22,17 @@ function getEnvironment(): Environment {
 }
 
 function shouldUseMockData(): boolean {
-    // DEMO MODE: Always use mock data for demonstration
+    // Use mock data only when explicitly enabled
     const forceMock = import.meta.env.VITE_USE_MOCK_DATA === 'true'
-    const noApiUrl = !import.meta.env.VITE_API_BASE_URL
-    const isDev = getEnvironment() === 'development'
+    const noApiUrl = !import.meta.env.VITE_API_BASE_URL && getEnvironment() !== 'development'
 
-    // Force mock data for demo - always return true in development
-    return isDev || forceMock || noApiUrl
+    // Only use mock data if explicitly requested or no API URL (except in development)
+    return forceMock || noApiUrl
 }
 
 export const config: AppConfig = {
     environment: getEnvironment(),
-    apiBaseUrl: import.meta.env.VITE_API_BASE_URL || '/api',
+    apiBaseUrl: import.meta.env.VITE_API_BASE_URL || (getEnvironment() === 'development' ? '/api' : 'http://localhost:3001/api'),
     useMockData: shouldUseMockData(),
     enableRealtimeUpdates: import.meta.env.VITE_ENABLE_REALTIME !== 'false',
     logLevel: import.meta.env.VITE_LOG_LEVEL || (getEnvironment() === 'development' ? 'debug' : 'info'),

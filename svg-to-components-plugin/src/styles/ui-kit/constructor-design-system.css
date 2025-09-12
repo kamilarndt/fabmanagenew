@@ -1,0 +1,287 @@
+/* Constructor X 6.0 Design System for FabrykaManage V2 */
+
+:root {
+  /* Color Palette */
+  --constructor-primary-50: #eff6ff;
+  --constructor-primary-100: #dbeafe;
+  --constructor-primary-200: #bfdbfe;
+  --constructor-primary-300: #93c5fd;
+  --constructor-primary-400: #60a5fa;
+  --constructor-primary-500: #3b82f6;
+  --constructor-primary-600: #2563eb;
+  --constructor-primary-700: #1d4ed8;
+  --constructor-primary-800: #1e40af;
+  --constructor-primary-900: #1e3a8a;
+  
+  --constructor-success-50: #f0fdf4;
+  --constructor-success-100: #dcfce7;
+  --constructor-success-200: #bbf7d0;
+  --constructor-success-300: #86efac;
+  --constructor-success-400: #4ade80;
+  --constructor-success-500: #22c55e;
+  --constructor-success-600: #16a34a;
+  --constructor-success-700: #15803d;
+  --constructor-success-800: #166534;
+  --constructor-success-900: #14532d;
+  
+  --constructor-warning-50: #fffbeb;
+  --constructor-warning-100: #fef3c7;
+  --constructor-warning-200: #fde68a;
+  --constructor-warning-300: #fcd34d;
+  --constructor-warning-400: #fbbf24;
+  --constructor-warning-500: #f59e0b;
+  --constructor-warning-600: #d97706;
+  --constructor-warning-700: #b45309;
+  --constructor-warning-800: #92400e;
+  --constructor-warning-900: #78350f;
+  
+  --constructor-error-50: #fef2f2;
+  --constructor-error-100: #fee2e2;
+  --constructor-error-200: #fecaca;
+  --constructor-error-300: #fca5a5;
+  --constructor-error-400: #f87171;
+  --constructor-error-500: #ef4444;
+  --constructor-error-600: #dc2626;
+  --constructor-error-700: #b91c1c;
+  --constructor-error-800: #991b1b;
+  --constructor-error-900: #7f1d1d;
+  
+  --constructor-gray-50: #f9fafb;
+  --constructor-gray-100: #f3f4f6;
+  --constructor-gray-200: #e5e7eb;
+  --constructor-gray-300: #d1d5db;
+  --constructor-gray-400: #9ca3af;
+  --constructor-gray-500: #6b7280;
+  --constructor-gray-600: #4b5563;
+  --constructor-gray-700: #374151;
+  --constructor-gray-800: #1f2937;
+  --constructor-gray-900: #111827;
+  
+  /* Typography Scale */
+  --constructor-text-xs: 0.75rem;    /* 12px */
+  --constructor-text-sm: 0.875rem;   /* 14px */
+  --constructor-text-base: 1rem;     /* 16px */
+  --constructor-text-lg: 1.125rem;   /* 18px */
+  --constructor-text-xl: 1.25rem;    /* 20px */
+  --constructor-text-2xl: 1.5rem;    /* 24px */
+  --constructor-text-3xl: 1.875rem;  /* 30px */
+  --constructor-text-4xl: 2.25rem;   /* 36px */
+  
+  /* Spacing Scale */
+  --constructor-space-1: 0.25rem;    /* 4px */
+  --constructor-space-2: 0.5rem;     /* 8px */
+  --constructor-space-3: 0.75rem;    /* 12px */
+  --constructor-space-4: 1rem;       /* 16px */
+  --constructor-space-5: 1.25rem;    /* 20px */
+  --constructor-space-6: 1.5rem;     /* 24px */
+  --constructor-space-8: 2rem;       /* 32px */
+  --constructor-space-10: 2.5rem;    /* 40px */
+  --constructor-space-12: 3rem;      /* 48px */
+  --constructor-space-16: 4rem;      /* 64px */
+  --constructor-space-20: 5rem;      /* 80px */
+  --constructor-space-24: 6rem;      /* 96px */
+  
+  /* Border Radius */
+  --constructor-radius-sm: 0.375rem;  /* 6px */
+  --constructor-radius-md: 0.5rem;    /* 8px */
+  --constructor-radius-lg: 0.75rem;   /* 12px */
+  --constructor-radius-xl: 1rem;      /* 16px */
+  --constructor-radius-2xl: 1.5rem;   /* 24px */
+  --constructor-radius-full: 9999px;
+  
+  /* Shadows */
+  --constructor-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --constructor-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --constructor-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --constructor-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --constructor-shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  
+  /* Transitions */
+  --constructor-transition-fast: 150ms ease-in-out;
+  --constructor-transition-normal: 200ms ease-in-out;
+  --constructor-transition-slow: 300ms ease-in-out;
+}
+
+/* Constructor X 6.0 Component Base Styles */
+.constructor-component {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  color: var(--constructor-gray-900);
+}
+
+/* Enhanced Focus States */
+.constructor-focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.constructor-focus-ring-primary {
+  @apply focus:ring-blue-500 focus:ring-offset-2;
+}
+
+.constructor-focus-ring-success {
+  @apply focus:ring-green-500 focus:ring-offset-2;
+}
+
+.constructor-focus-ring-warning {
+  @apply focus:ring-yellow-500 focus:ring-offset-2;
+}
+
+.constructor-focus-ring-error {
+  @apply focus:ring-red-500 focus:ring-offset-2;
+}
+
+/* Enhanced Hover States */
+.constructor-hover-lift {
+  transition: transform var(--constructor-transition-normal), 
+              box-shadow var(--constructor-transition-normal);
+}
+
+.constructor-hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--constructor-shadow-lg);
+}
+
+/* Loading States */
+.constructor-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.constructor-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: constructor-shimmer 1.5s infinite;
+}
+
+@keyframes constructor-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Enhanced Card Interactions */
+.constructor-card-interactive {
+  cursor: pointer;
+  transition: all var(--constructor-transition-normal);
+}
+
+.constructor-card-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--constructor-shadow-xl);
+}
+
+.constructor-card-interactive:active {
+  transform: translateY(-2px);
+  box-shadow: var(--constructor-shadow-lg);
+}
+
+/* Status-specific color schemes */
+.constructor-status-queue {
+  background: linear-gradient(135deg, var(--constructor-primary-50), var(--constructor-primary-100));
+  border-color: var(--constructor-primary-200);
+}
+
+.constructor-status-production {
+  background: linear-gradient(135deg, var(--constructor-warning-50), var(--constructor-warning-100));
+  border-color: var(--constructor-warning-200);
+}
+
+.constructor-status-completed {
+  background: linear-gradient(135deg, var(--constructor-success-50), var(--constructor-success-100));
+  border-color: var(--constructor-success-200);
+}
+
+.constructor-status-maintenance {
+  background: linear-gradient(135deg, var(--constructor-error-50), var(--constructor-error-100));
+  border-color: var(--constructor-error-200);
+}
+
+/* Priority indicators */
+.constructor-priority-high {
+  border-left-color: var(--constructor-error-500);
+  background: linear-gradient(135deg, var(--constructor-error-50), white);
+}
+
+.constructor-priority-medium {
+  border-left-color: var(--constructor-warning-500);
+  background: linear-gradient(135deg, var(--constructor-warning-50), white);
+}
+
+.constructor-priority-low {
+  border-left-color: var(--constructor-success-500);
+  background: linear-gradient(135deg, var(--constructor-success-50), white);
+}
+
+/* Zone-specific styling */
+.constructor-zone-indicator {
+  background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+  border-color: #c084fc;
+  color: #7c3aed;
+}
+
+/* Enhanced button states */
+.constructor-button-enhanced {
+  position: relative;
+  overflow: hidden;
+}
+
+.constructor-button-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.constructor-button-enhanced:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Responsive utilities */
+@media (max-width: 640px) {
+  .constructor-responsive-hide-sm {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .constructor-responsive-hide-md {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .constructor-responsive-hide-lg {
+    display: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .constructor-print-hide {
+    display: none !important;
+  }
+  
+  .constructor-print-break {
+    page-break-before: always;
+  }
+}

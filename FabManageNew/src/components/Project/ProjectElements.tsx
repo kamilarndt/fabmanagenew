@@ -6,7 +6,7 @@ import { useTilesStore } from '../../stores/tilesStore'
 import { showToast } from '../../lib/notifications'
 import { Card, Form, Input, Button, Space, Row, Col, Tabs, message } from 'antd'
 import TileCard from '../Tiles/TileCard'
-import TileEditModalV3 from '../Tiles/TileEditModalV3'
+import TileEditDrawer from '../Tiles/tile-edit-drawer'
 import { createTileFromSelection } from '../../services/tiles'
 import { useProjectsStore } from '../../stores/projectsStore'
 import { showNotification } from '../../lib/notifications'
@@ -148,7 +148,7 @@ export default function ProjectElements({
             }
             showToast(editingTile ? 'Element zaktualizowany' : 'Element utworzony', 'success')
             handleModalClose()
-        } catch (_error) {
+        } catch {
             showToast('Błąd podczas zapisywania elementu', 'danger')
         }
     }
@@ -409,7 +409,7 @@ export default function ProjectElements({
             </div>
 
             {/* Modal edycji kafelków */}
-            <TileEditModalV3
+            <TileEditDrawer
                 open={isEditModalOpen}
                 onClose={handleModalClose}
                 onSave={handleTileSave}

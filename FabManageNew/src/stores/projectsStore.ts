@@ -52,7 +52,7 @@ interface ProjectsState {
     getProjectsByQuarter: (year: number, quarter: number) => Project[]
     getProjectsByBudgetCategory: () => { low: Project[]; medium: Project[]; high: Project[] }
     getProjectsByDuration: () => Project[]
-    getModuleStats: () => any
+    getModuleStats: () => Record<string, unknown>
     getProjectsByStatusAndModule: (status: Project['status'], module: ProjectModule) => Project[]
     getProjectsByDeadlineRange: (days: number, status: Project['status'], module: ProjectModule) => Project[]
     getProjectDataForGantt: (projectId: string) => import('./calendarStore').GanttTask[]
@@ -73,19 +73,19 @@ export const useProjectsStore = create<ProjectsState>()(
                 // Prevent multiple initializations unless forced
                 const currentState = get()
                 if (!force && (currentState.isInitialized || currentState.isLoading)) {
-                    console.log('🔄 Projects store already initialized, skipping...')
-                    console.log('🔄 Current projects count:', currentState.projects.length)
-                    console.log('🔄 Sample project:', currentState.projects[0])
+                    console.warn('🔄 Projects store already initialized, skipping...')
+                    console.warn('🔄 Current projects count:', currentState.projects.length)
+                    console.warn('🔄 Sample project:', currentState.projects[0])
                     return
                 }
 
-                console.log('🚀 Starting projects store initialization...')
+                console.warn('🚀 Starting projects store initialization...')
                 set({ isLoading: true })
 
                 try {
                     // Simplified: just call API, httpClient handles all fallback logic
                     const data = await listProjects()
-                    console.log('📊 Projects loaded:', data.length, 'projects')
+                    console.warn('📊 Projects loaded:', data.length, 'projects')
 
                     set({
                         projects: data,

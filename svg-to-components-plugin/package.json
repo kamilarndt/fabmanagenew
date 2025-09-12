@@ -1,0 +1,80 @@
+{
+  "name": "svg-to-components-plugin",
+  "version": "2.0.0",
+  "description": "Enhanced Figma plugin to convert React/TSX components and structured SVG to Figma components using Atomic Design principles",
+  "main": "dist/code.js",
+  "scripts": {
+    "build": "webpack --mode=production",
+    "dev": "webpack --mode=development --watch",
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix"
+  },
+  "keywords": [
+    "figma",
+    "plugin",
+    "svg",
+    "react",
+    "tsx",
+    "components",
+    "atomic-design",
+    "converter",
+    "ant-design",
+    "design-system"
+  ],
+  "author": "FabManage Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.90.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "html-webpack-plugin": "^5.5.0",
+    "jest": "^29.0.0",
+    "rimraf": "^5.0.0",
+    "ts-jest": "^29.0.0",
+    "ts-loader": "^9.4.0",
+    "typescript": "^5.2.0",
+    "webpack": "^5.80.0",
+    "webpack-cli": "^5.1.0"
+  },
+  "dependencies": {
+    "typescript": "^5.2.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fabmanage/svg-to-components-plugin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fabmanage/svg-to-components-plugin/issues"
+  },
+  "homepage": "https://github.com/fabmanage/svg-to-components-plugin#readme",
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "roots": ["<rootDir>/src", "<rootDir>/tests"],
+    "testMatch": ["**/__tests__/**/*.test.ts", "**/?(*.)+(spec|test).ts"],
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/**/*.d.ts"
+    ]
+  },
+  "eslintConfig": {
+    "extends": [
+      "@typescript-eslint/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "plugins": ["@typescript-eslint"],
+    "rules": {
+      "@typescript-eslint/no-unused-vars": "error",
+      "@typescript-eslint/no-explicit-any": "warn"
+    }
+  }
+}

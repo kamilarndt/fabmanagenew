@@ -34,7 +34,7 @@ export interface RhinoMaterialData {
         waterResistant?: boolean
         diameter?: string
         angle?: string
-        [key: string]: any
+        [key: string]: unknown
     }
 }
 

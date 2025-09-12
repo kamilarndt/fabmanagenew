@@ -66,7 +66,7 @@ export async function listProjects(): Promise<Project[]> {
 }
 
 export async function createProject(p: Omit<Project, 'id'>): Promise<Project | null> {
-    const payload: any = {
+    const payload: Record<string, unknown> = {
         client_id: p.clientId,
         name: p.name,
         status: PROJECT_STATUSES.NEW,

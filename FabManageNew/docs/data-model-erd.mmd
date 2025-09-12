@@ -1,0 +1,461 @@
+erDiagram
+    %% ================================================
+    %% FABMANAGE DATA MODEL - ENTITY RELATIONSHIP DIAGRAM
+    %% ================================================
+
+    PROJECT {
+        string id PK
+        string numer "P-2025/09/01"
+        string name
+        enum typ "Teatr|Muzeum|Event|Wnętrza|TV|Retail|Koncert"
+        string lokalizacja
+        string clientId FK
+        string client "nazwa klienta"
+        enum status "new|active|on_hold|done|cancelled"
+        string data_utworzenia
+        string data_rozpoczęcia
+        string deadline
+        number postep "0-100%"
+        number budget
+        string manager
+        string manager_id FK
+        string description
+        string miniatura "URL"
+        string repozytorium_plikow
+        string link_model_3d
+        string speckle_stream_url
+        string speckle_stream_id
+        enum model_3d_status "not_loaded|loading|loaded|error"
+        string clientColor
+        json colorScheme "primary|light|dark|accent"
+        json modules "ProjectModule[]"
+        number modulesCount
+        number tilesCount
+    }
+
+    PROJECT_GROUP {
+        string id PK
+        string project_id FK
+        string name
+        string description
+        string thumbnail "URL"
+    }
+
+    GROUP_FILE {
+        string id PK
+        string group_id FK
+        string name
+        string url
+        string type
+        number size
+    }
+
+    CLIENT {
+        string id PK
+        string nazwa_firmy
+        string nip
+        string regon
+        string ulica
+        string numer_domu
+        string numer_lokalu
+        string kod_pocztowy
+        string miasto
+        string adres_strony
+        string mail_firmowy
+        string opis_firmy
+        string logotyp "URL"
+        string website
+        enum status "Active|Inactive|Pending"
+        enum segment "Mały|Średni|Duży"
+        string cardColor
+        string additionalInfo
+        json contacts "ContactPerson[]"
+        json files "string[]"
+    }
+
+    CONTACT_PERSON {
+        string id PK
+        string client_id FK
+        string imie
+        string nazwisko
+        string adres_email
+        string telefon_kontaktowy
+        string opis
+    }
+
+    TILE {
+        string id PK
+        string project_id FK
+        string name
+        enum status "new|in_progress|waiting_for_approval|approved|in_production|completed|on_hold|cancelled"
+        string moduł_nadrzędny
+        string opis
+        string link_model_3d
+        json speckle_object_ids "string[]"
+        json załączniki "string[]"
+        string przypisany_projektant
+        string termin
+        enum priority "Niski|Średni|Wysoki|Pilny"
+        number estimated_cost "PLN"
+        string group
+        json dependencies "string[]"
+        json geometry_data "JSONB"
+        string screenshot_url
+        json material_assignments "JSONB"
+        string dxfFile "URL"
+        string assemblyDrawing "URL"
+    }
+
+    BOM_ITEM {
+        string id PK
+        string tile_id FK
+        enum type "Materiał surowy|Komponent gotowy|Usługa"
+        string name
+        number quantity
+        string unit
+        string supplier
+        enum status "available|low_stock|out_of_stock|ordered|discontinued"
+        number unitCost
+        string materialId FK
+    }
+
+    TILE_MATERIAL {
+        string id PK
+        string tile_id FK
+        string material_id FK
+        string speckle_object_id
+        number volume_m3
+        number area_m2
+        number estimated_plates
+        number waste_percentage
+        string created_at
+    }
+
+    MATERIAL {
+        string id PK
+        string code
+        string name
+        json category "string[]"
+        string subcategory
+        number thickness
+        string unit
+        number stock
+        number minStock
+        number maxStock
+        string supplier
+        string supplierCode
+        number price
+        string lastDelivery
+        string location
+        enum abcClass "A|B|C"
+        json properties "MaterialProperties"
+    }
+
+    MATERIAL_PROPERTIES {
+        string id PK
+        string material_id FK
+        string color
+        string finish
+        boolean fireResistant
+        boolean flexible
+        boolean waterResistant
+        json additional "key-value pairs"
+    }
+
+    MATERIAL_CATEGORY {
+        string id PK
+        string name
+        string parent
+        json children "MaterialCategory[]"
+        number materialsCount
+        string icon
+    }
+
+    MATERIAL_MOVEMENT {
+        string id PK
+        string materialId FK
+        string documentNumber
+        enum type "IN|OUT|TRANSFER"
+        number quantity
+        string date
+        string user
+        string notes
+        string fromLocation
+        string toLocation
+    }
+
+    WAREHOUSE_LOCATION {
+        string id PK
+        string code
+        string name
+        enum type "shelf|pallet|container"
+        string zone
+        string row
+        string column
+        string level
+        number capacity
+        number occupied
+    }
+
+    SUBCONTRACTOR {
+        string id PK
+        string name
+        enum category "Tapicer|Stal|Tworzywa sztuczne|Szklarz|Drukarnia|Inne"
+        string logo "URL"
+        string contactPerson
+        string email
+        string phone
+        string address
+        string city
+        string postalCode
+        string website
+        number rating "1-5"
+        enum status "Aktywny|Nieaktywny|Zawieszony"
+        string description
+        json specialties "string[]"
+        json capacity "maxOrders|currentOrders"
+        json pricing "minOrder|averageCost|currency"
+        json deliveryTime "standard|rush days"
+        json notes "string[]"
+        string createdAt
+        string updatedAt
+        number totalOrders
+        number completedOrders
+        number averageRating
+        string lastOrderDate
+    }
+
+    SUBCONTRACTOR_ORDER {
+        string id PK
+        string subcontractorId FK
+        string tileId FK
+        string projectId FK
+        string title
+        string description
+        enum status "Do zamówienia|Zamówione|W produkcji|W transporcie|Dostarczone|Anulowane"
+        string orderDate
+        string deadline
+        number cost
+        string currency
+        number quantity
+        json specifications "string[]"
+        json attachments "string[]"
+        string notes
+        number progress "0-100%"
+        string createdAt
+        string updatedAt
+    }
+
+    CALENDAR_EVENT {
+        string id PK
+        string resourceId FK
+        string title
+        string start
+        string end
+        string backgroundColor
+        string borderColor
+        json extendedProps "type|status|tileId|projectId|notes"
+        enum type "PROJECT_MILESTONE|TILE_PRODUCTION|CONCEPT_WORK|DESIGN_TASK|MEETING|VACATION"
+        enum status "planned|in-progress|completed|delayed"
+        string tileId FK
+        string projectId FK
+        string notes
+    }
+
+    CALENDAR_RESOURCE {
+        string id PK
+        string title
+    }
+
+    USER {
+        string id PK
+        string imie_nazwisko
+        string email
+        enum rola "Projektant|Manager|OperatorCNC|Magazynier|Produkcja|Admin"
+        json uprawnienia
+        string avatar "URL"
+        boolean isActive
+        string createdAt
+        string updatedAt
+    }
+
+    PROJECT_TEAM {
+        string id PK
+        string project_id FK
+        string user_id FK
+        enum rola "Manager|Projektant|Observer"
+        string dodany
+    }
+
+    ACTIVITY_LOG {
+        string id PK
+        enum typ "Projekt|Kafelek|Zamowienie|Magazyn"
+        string encja_id FK
+        string akcja
+        string autor_id FK
+        json dane_przed
+        json dane_po
+        string data
+    }
+
+    NOTIFICATION {
+        string id PK
+        string user_id FK
+        string tytul
+        string tresc
+        enum typ "Info|Ostrzezenie|Błąd|Sukces"
+        boolean przeczytana
+        string data_utworzenia
+        string data_przeczytania
+    }
+
+    FILE_ASSET {
+        string id PK
+        enum dla "Projekt|Kafelek|Material|Subcontractor"
+        string encja_id FK
+        string nazwa
+        string url
+        string wersja
+        string dodany_przez FK
+        string data_dodania
+        number rozmiar
+        string typ_pliku
+    }
+
+    MACHINE {
+        string id PK
+        string nazwa
+        string opis
+        enum status "Dostepna|Zajeta|Serwis"
+        string ostatni_serwis
+        string created_at
+        string updated_at
+    }
+
+    TILE_DEPENDENCY {
+        string id PK
+        string tile_id FK
+        string depends_on_tile_id FK
+        enum typ "Blokuje|Wymaga|Wspolzalezy"
+        string opis
+        string created_at
+    }
+
+    QUESTION {
+        string id PK
+        string tile_id FK
+        string autor_id FK
+        string tresc
+        string odpowiedz
+        enum status "Otwarte|Zamkniete"
+        string data_dodania
+        string data_odpowiedzi
+    }
+
+    PURCHASE_REQUEST {
+        string id PK
+        string material_id FK
+        number quantity
+        enum status "Pending|Approved|Ordered|Delivered|Cancelled"
+        enum priority "Low|Medium|High|Urgent"
+        string notes
+        string requested_by FK
+        string approved_by FK
+        string order_date
+        string delivery_date
+        string created_at
+        string updated_at
+    }
+
+    SUPPLIER_QUOTE {
+        string id PK
+        string material_id FK
+        string supplier
+        number price
+        string currency
+        number lead_time "days"
+        string valid_until
+        enum status "Pending|Accepted|Rejected|Expired"
+        string notes
+        string created_at
+        string updated_at
+    }
+
+    STOCK_RESERVATION {
+        string id PK
+        string material_id FK
+        string project_id FK
+        string tile_id FK
+        number quantity
+        enum status "reserved|released|consumed"
+        string reserved_by FK
+        string released_by FK
+        string created_at
+        string updated_at
+    }
+
+    DELIVERY_TRACKING {
+        string id PK
+        string purchase_request_id FK
+        string tracking_number
+        string carrier
+        enum status "ordered|in_transit|delivered|delayed"
+        string estimated_delivery
+        string actual_delivery
+        string notes
+        string created_at
+        string updated_at
+    }
+
+    %% Relationships
+    CLIENT ||--o{ PROJECT : "posiada"
+    CLIENT ||--o{ CONTACT_PERSON : "ma kontakt"
+    
+    PROJECT ||--o{ PROJECT_GROUP : "zawiera grupy"
+    PROJECT ||--o{ TILE : "składa się z kafelków"
+    PROJECT ||--o{ PROJECT_TEAM : "ma zespół"
+    PROJECT ||--o{ ACTIVITY_LOG : "loguje aktywności"
+    PROJECT ||--o{ FILE_ASSET : "ma pliki"
+    PROJECT ||--o{ SUBCONTRACTOR_ORDER : "ma zamówienia"
+    PROJECT ||--o{ STOCK_RESERVATION : "rezerwuje materiały"
+    
+    PROJECT_GROUP ||--o{ GROUP_FILE : "ma pliki"
+    
+    TILE ||--o{ BOM_ITEM : "ma BOM"
+    TILE ||--o{ TILE_MATERIAL : "zużywa materiały"
+    TILE ||--o{ TILE_DEPENDENCY : "ma zależności"
+    TILE ||--o{ QUESTION : "ma pytania"
+    TILE ||--o{ SUBCONTRACTOR_ORDER : "wymaga zamówień"
+    TILE ||--o{ STOCK_RESERVATION : "rezerwuje materiały"
+    TILE ||--o{ ACTIVITY_LOG : "loguje aktywności"
+    TILE ||--o{ FILE_ASSET : "ma pliki"
+    TILE ||--o{ CALENDAR_EVENT : "ma wydarzenia"
+    
+    MATERIAL ||--o{ BOM_ITEM : "używany w BOM"
+    MATERIAL ||--o{ TILE_MATERIAL : "używany w kafelkach"
+    MATERIAL ||--o{ MATERIAL_PROPERTIES : "ma właściwości"
+    MATERIAL ||--o{ MATERIAL_MOVEMENT : "ma ruchy"
+    MATERIAL ||--o{ PURCHASE_REQUEST : "wymaga zamówień"
+    MATERIAL ||--o{ SUPPLIER_QUOTE : "ma oferty"
+    MATERIAL ||--o{ STOCK_RESERVATION : "jest rezerwowany"
+    
+    MATERIAL_CATEGORY ||--o{ MATERIAL_CATEGORY : "ma dzieci"
+    MATERIAL_CATEGORY ||--o{ MATERIAL : "kategoryzuje"
+    
+    WAREHOUSE_LOCATION ||--o{ MATERIAL : "przechowuje"
+    
+    SUBCONTRACTOR ||--o{ SUBCONTRACTOR_ORDER : "realizuje zamówienia"
+    
+    USER ||--o{ PROJECT_TEAM : "członek zespołu"
+    USER ||--o{ ACTIVITY_LOG : "wykonuje akcje"
+    USER ||--o{ NOTIFICATION : "otrzymuje powiadomienia"
+    USER ||--o{ QUESTION : "tworzy pytania"
+    USER ||--o{ FILE_ASSET : "dodaje pliki"
+    USER ||--o{ PURCHASE_REQUEST : "składa wnioski"
+    
+    CALENDAR_RESOURCE ||--o{ CALENDAR_EVENT : "ma wydarzenia"
+    
+    PURCHASE_REQUEST ||--o{ SUPPLIER_QUOTE : "ma oferty"
+    PURCHASE_REQUEST ||--o{ DELIVERY_TRACKING : "jest śledzony"
+    
+    MACHINE ||--o{ TILE : "obrabia"

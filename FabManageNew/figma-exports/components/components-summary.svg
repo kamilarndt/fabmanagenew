@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="600" viewBox="0 0 1200 600"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+      .category-box { fill: #f8f9fa; stroke: #dee2e6; stroke-width: 2; rx: 8; }
+      .category-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 16px; fill: #495057; font-weight: 600; }
+      .count-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; fill: #6c757d; }
+      .description { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; fill: #6c757d; }
+      .title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 24px; font-weight: bold; fill: #212529; }
+      .layout-category { fill: #e3f2fd; stroke: #2196f3; stroke-width: 2; }
+      .project-category { fill: #e8f5e8; stroke: #4caf50; stroke-width: 2; }
+      .tiles-category { fill: #fff3e0; stroke: #ff9800; stroke-width: 2; }
+      .magazyn-category { fill: #f3e5f5; stroke: #9c27b0; stroke-width: 2; }
+      .ui-category { fill: #fce4ec; stroke: #e91e63; stroke-width: 2; }
+      .specialized-category { fill: #e0f2f1; stroke: #009688; stroke-width: 2; }
+        </style>
+    </defs>
+
+    <!-- Title -->
+    <text x="600" y="40" text-anchor="middle" class="title">FabManage Components Summary</text>
+
+    <!-- Layout Components -->
+    <rect x="50" y="80" width="200" height="120" class="layout-category"/>
+    <text x="150" y="105" text-anchor="middle" class="category-text">Layout Components</text>
+    <text x="150" y="125" text-anchor="middle" class="count-text">4 Components</text>
+    <text x="60" y="145" class="description">• BrandedSidebar</text>
+    <text x="60" y="160" class="description">• ContextualHeader</text>
+    <text x="60" y="175" class="description">• SlideOver</text>
+    <text x="60" y="190" class="description">• PageHeader</text>
+
+    <!-- Project Components -->
+    <rect x="300" y="80" width="200" height="120" class="project-category"/>
+    <text x="400" y="105" text-anchor="middle" class="category-text">Project Components</text>
+    <text x="400" y="125" text-anchor="middle" class="count-text">7 Components</text>
+    <text x="310" y="145" class="description">• ProjectCard</text>
+    <text x="310" y="160" class="description">• ProjectHeader</text>
+    <text x="310" y="175" class="description">• ProjectElements</text>
+    <text x="310" y="190" class="description">• ProjectTabs</text>
+
+    <!-- Tiles Components -->
+    <rect x="550" y="80" width="200" height="120" class="tiles-category"/>
+    <text x="650" y="105" text-anchor="middle" class="category-text">Tiles Components</text>
+    <text x="650" y="125" text-anchor="middle" class="count-text">8 Components</text>
+    <text x="560" y="145" class="description">• TileCard</text>
+    <text x="560" y="160" class="description">• TileEditModal</text>
+    <text x="560" y="175" class="description">• tile-edit-drawer</text>
+    <text x="560" y="190" class="description">• KanbanBoard</text>
+
+    <!-- Magazyn Components -->
+    <rect x="800" y="80" width="200" height="120" class="magazyn-category"/>
+    <text x="900" y="105" text-anchor="middle" class="category-text">Magazyn Components</text>
+    <text x="900" y="125" text-anchor="middle" class="count-text">10 Components</text>
+    <text x="810" y="145" class="description">• MaterialCard</text>
+    <text x="810" y="160" class="description">• MaterialCardV3</text>
+    <text x="810" y="175" class="description">• CategorySidebar</text>
+    <text x="810" y="190" class="description">• FilterPanelV3</text>
+
+    <!-- UI Components -->
+    <rect x="50" y="250" width="200" height="120" class="ui-category"/>
+    <text x="150" y="275" text-anchor="middle" class="category-text">UI Components</text>
+    <text x="150" y="295" text-anchor="middle" class="count-text">12 Components</text>
+    <text x="60" y="315" class="description">• LoadingSpinner</text>
+    <text x="60" y="330" class="description">• StatusBadge</text>
+    <text x="60" y="345" class="description">• ErrorMessage</text>
+    <text x="60" y="360" class="description">• EntityTable</text>
+
+    <!-- Specialized Components -->
+    <rect x="300" y="250" width="200" height="120" class="specialized-category"/>
+    <text x="400" y="275" text-anchor="middle" class="category-text">Specialized Components</text>
+    <text x="400" y="295" text-anchor="middle" class="count-text">8 Components</text>
+    <text x="310" y="315" class="description">• SpeckleViewer</text>
+    <text x="310" y="330" class="description">• ThreeDViewer</text>
+    <text x="310" y="345" class="description">• CalendarShell</text>
+    <text x="310" y="360" class="description">• GanttChart</text>
+
+    <!-- Calendar Components -->
+    <rect x="550" y="250" width="200" height="120" class="specialized-category"/>
+    <text x="650" y="275" text-anchor="middle" class="category-text">Calendar Components</text>
+    <text x="650" y="295" text-anchor="middle" class="count-text">2 Components</text>
+    <text x="560" y="315" class="description">• CalendarShell</text>
+    <text x="560" y="330" class="description">• EventFormModal</text>
+    <text x="560" y="345" class="description">• ConnectionStatusIndicator</text>
+    <text x="560" y="360" class="description">• (Integrated with Calendar)</text>
+
+    <!-- Gantt Components -->
+    <rect x="800" y="250" width="200" height="120" class="specialized-category"/>
+    <text x="900" y="275" text-anchor="middle" class="category-text">Gantt Components</text>
+    <text x="900" y="295" text-anchor="middle" class="count-text">2 Components</text>
+    <text x="810" y="315" class="description">• GanttChart</text>
+    <text x="810" y="330" class="description">• ProjectGanttChart</text>
+    <text x="810" y="345" class="description">• EstimateModule</text>
+    <text x="810" y="360" class="description">• (Integrated with Gantt)</text>
+
+    <!-- Statistics -->
+    <rect x="50" y="420" width="950" height="150" class="category-box"/>
+    <text x="525" y="445" text-anchor="middle" class="category-text" font-size="18">Component Statistics</text>
+
+    <text x="70" y="470" class="description">Total Components: 49</text>
+    <text x="70" y="490" class="description">Layout Layer: 4 components (8.2%)</text>
+    <text x="70" y="510" class="description">Business Logic Layer: 25 components (51.0%)</text>
+    <text x="70" y="530" class="description">UI Components Layer: 12 components (24.5%)</text>
+    <text x="70" y="550" class="description">Specialized/Integration Layer: 8 components (16.3%)</text>
+
+    <text x="400" y="470" class="description">Key Features:</text>
+    <text x="400" y="490" class="description">• Unified design system with consistent styling</text>
+    <text x="400" y="510" class="description">• Modular architecture with clear separation of concerns</text>
+    <text x="400" y="530" class="description">• Reusable UI components across all modules</text>
+    <text x="400" y="550" class="description">• Integration with external services (Speckle, 3D viewers)</text>
+
+    <!-- Architecture Benefits -->
+    <rect x="50" y="420" width="950" height="150" class="category-box"/>
+    <text x="525" y="445" text-anchor="middle" class="category-text" font-size="18">Architecture Benefits</text>
+
+    <text x="70" y="470" class="description">• Maintainability: Clear component boundaries and responsibilities</text>
+    <text x="70" y="490" class="description">• Scalability: Modular design allows easy addition of new features</text>
+    <text x="70" y="510" class="description">• Reusability: UI components can be used across different modules</text>
+    <text x="70" y="530" class="description">• Testability: Isolated components are easier to test individually</text>
+    <text x="70" y="550" class="description">• Performance: Lazy loading and code splitting capabilities</text>
+
+    <text x="400" y="470" class="description">Design Patterns:</text>
+    <text x="400" y="490" class="description">• Container/Presentational pattern for data management</text>
+    <text x="400" y="510" class="description">• Compound components for complex UI elements</text>
+    <text x="400" y="530" class="description">• Higher-order components for cross-cutting concerns</text>
+    <text x="400" y="550" class="description">• Custom hooks for shared logic and state management</text>
+
+</svg>

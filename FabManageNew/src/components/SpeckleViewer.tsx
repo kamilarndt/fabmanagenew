@@ -1,6 +1,23 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { Card, Button, Space, message, Spin, Alert } from 'antd'
 import { EyeOutlined, SelectOutlined, CameraOutlined, BuildOutlined } from '@ant-design/icons'
+// import { log } from '../lib/logger'
+
+interface SpeckleViewerInstance {
+    init(): Promise<void>
+    loadObject(url: string, authToken?: string): Promise<void>
+    zoomExtents(): Promise<void>
+    dispose(): void
+    getScreenshot?(): Promise<HTMLCanvasElement>
+    getSelectedObjects?(): Promise<Array<{ id?: string; object?: { id: string } }>>
+    selectObjects?(ids: string[]): Promise<void>
+    setSelection?(ids: string[]): Promise<void>
+    clearSelection?(): Promise<void>
+    isolateObjects?(ids: string[]): Promise<void>
+    on?(event: string, callback: () => void): void
+    DomEvents?: unknown
+    renderer?: { domElement: HTMLCanvasElement }
+}
 
 type SpeckleViewerProps = {
     // Accept single URL or an array of URLs to render composite model
@@ -92,7 +109,7 @@ export function SpeckleViewer({
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [selectedObjects, setSelectedObjects] = useState<string[]>([])
-    const [viewer, setViewer] = useState<any>(null)
+    const [viewer, setViewer] = useState<SpeckleViewerInstance | null>(null)
     const [isComponentReady, setIsComponentReady] = useState(false)
 
     const normalizedUrls = useMemo(() => normalizeUrlList(initialStreamUrl), [initialStreamUrl])
@@ -105,7 +122,7 @@ export function SpeckleViewer({
     }, [])
 
     // Debug environment variables
-    console.log('🔧 SpeckleViewer Environment Debug:', {
+    console.warn('🔧 SpeckleViewer Environment Debug:', {
         VITE_SPECKLE_SERVER: import.meta.env.VITE_SPECKLE_SERVER,
         VITE_SPECKLE_TOKEN: import.meta.env.VITE_SPECKLE_TOKEN ? '***TOKEN_SET***' : 'NOT_SET',
         NODE_ENV: import.meta.env.NODE_ENV,
@@ -150,7 +167,7 @@ export function SpeckleViewer({
 
         try {
             const selection = await viewer.getSelectedObjects?.() || []
-            return selection.map((s: any) => s?.id || s?.object?.id).filter(Boolean)
+            return selection.map((s: { id?: string; object?: { id: string } }) => s?.id || s?.object?.id).filter((id): id is string => Boolean(id))
         } catch {
             return []
         }
@@ -158,7 +175,7 @@ export function SpeckleViewer({
 
     useLayoutEffect(() => {
         let disposed = false
-        let viewerInstance: any
+        let viewerInstance: SpeckleViewerInstance | null = null
         let initTimeout: NodeJS.Timeout | undefined
 
         async function init() {
@@ -187,7 +204,7 @@ export function SpeckleViewer({
                 const containerWidth = containerRef.current.offsetWidth
                 const containerHeight = containerRef.current.offsetHeight
 
-                console.log('🔧 SpeckleViewer: Initializing viewer...', {
+                console.warn('🔧 SpeckleViewer: Initializing viewer...', {
                     containerElement: containerRef.current,
                     containerWidth,
                     containerHeight,
@@ -215,7 +232,7 @@ export function SpeckleViewer({
                     const retryWidth = containerRef.current.offsetWidth
                     const retryHeight = containerRef.current.offsetHeight
 
-                    console.log('🔧 SpeckleViewer: Retry dimensions:', {
+                    console.warn('🔧 SpeckleViewer: Retry dimensions:', {
                         retryWidth,
                         retryHeight
                     })
@@ -230,7 +247,7 @@ export function SpeckleViewer({
                 }
 
                 const [{ Viewer }] = await Promise.all([
-                    import('@speckle/viewer') as unknown as Promise<{ Viewer: any }>
+                    import('@speckle/viewer') as unknown as Promise<{ Viewer: new (container: HTMLElement, options?: any) => SpeckleViewerInstance }>
                 ])
 
                 if (disposed) return
@@ -251,7 +268,7 @@ export function SpeckleViewer({
                         throw new Error('Container element became unavailable during initialization and retry failed')
                     }
 
-                    console.log('🔧 SpeckleViewer: Container recovered after retry')
+                    console.warn('🔧 SpeckleViewer: Container recovered after retry')
                 }
 
                 // Final check before creating viewer
@@ -311,8 +328,8 @@ export function SpeckleViewer({
                         }
 
                         const domEvents = viewerInstance.DomEvents
-                        if (domEvents && typeof domEvents.addEventListener === 'function') {
-                            domEvents.addEventListener('click', onSelect)
+                        if (domEvents && typeof (domEvents as any).addEventListener === 'function') {
+                            (domEvents as any).addEventListener('click', onSelect)
                         }
                     } catch {
                         // selection not available, ignore
@@ -325,24 +342,24 @@ export function SpeckleViewer({
                         highlight: async (ids: string[]) => {
                             try {
                                 if (!ids || ids.length === 0) return
-                                if (viewerInstance.selectObjects) await viewerInstance.selectObjects(ids)
-                                else if (viewerInstance.setSelection) await viewerInstance.setSelection(ids)
+                                if (viewerInstance?.selectObjects) await viewerInstance.selectObjects(ids)
+                                else if (viewerInstance?.setSelection) await viewerInstance.setSelection(ids)
                             } catch { /* noop */ }
                         },
                         clearHighlight: async () => {
                             try {
-                                if (viewerInstance.clearSelection) await viewerInstance.clearSelection()
-                                else if (viewerInstance.setSelection) await viewerInstance.setSelection([])
+                                if (viewerInstance?.clearSelection) await viewerInstance.clearSelection()
+                                else if (viewerInstance?.setSelection) await viewerInstance.setSelection([])
                             } catch { /* noop */ }
                         },
                         isolate: async (ids: string[]) => {
                             try {
-                                if (viewerInstance.isolateObjects) await viewerInstance.isolateObjects(ids)
+                                if (viewerInstance?.isolateObjects) await viewerInstance.isolateObjects(ids)
                             } catch { /* noop */ }
                         },
                         clearIsolation: async () => {
                             try {
-                                if (viewerInstance.isolateObjects) await viewerInstance.isolateObjects([])
+                                if (viewerInstance?.isolateObjects) await viewerInstance.isolateObjects([])
                             } catch { /* noop */ }
                         },
                         captureScreenshot,
@@ -375,7 +392,7 @@ export function SpeckleViewer({
             if (initTimeout) clearTimeout(initTimeout)
             try {
                 if (viewerInstance) {
-                    console.log('🔧 SpeckleViewer: Disposing viewer instance')
+                    console.warn('🔧 SpeckleViewer: Disposing viewer instance')
                     viewerInstance.dispose()
                 }
             } catch (err) {

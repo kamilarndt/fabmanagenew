@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="500" viewBox="0 0 400 500"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+      .entity-bg { fill: #f8f9fa; stroke: #dee2e6; stroke-width: 2; }
+      .entity-title { fill: #495057; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600; }
+      .field-name { fill: #6c757d; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; }
+      .field-type { fill: #28a745; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 400; }
+      .field-description { fill: #6c757d; font-family: 'Inter', sans-serif; font-size: 10px; font-style: italic; }
+      .pk-field { fill: #dc3545; font-weight: 600; }
+      .fk-field { fill: #007bff; font-weight: 500; }
+      .enum-field { fill: #fd7e14; font-weight: 500; }
+        </style>
+    </defs>
+
+    <!-- Entity Background -->
+    <rect class="entity-bg" x="10" y="10" width="380" height="480" rx="8" />
+
+    <!-- Entity Title -->
+    <text x="200" y="35" text-anchor="middle" class="entity-title">TILE</text>
+
+    <!-- Fields -->
+    <text x="20" y="60" class="field-name pk-field">id</text>
+    <text x="80" y="60" class="field-type">string</text>
+    <text x="120" y="60" class="field-description">PK</text>
+
+    <text x="20" y="80" class="field-name fk-field">project_id</text>
+    <text x="80" y="80" class="field-type">string</text>
+    <text x="120" y="80" class="field-description">FK</text>
+
+    <text x="20" y="100" class="field-name">name</text>
+    <text x="80" y="100" class="field-type">string</text>
+
+    <text x="20" y="120" class="field-name">status</text>
+    <text x="80" y="120" class="field-type enum-field">enum</text>
+    <text x="120" y="120" class="field-description">"new|in_progress|waiting_for_approval|approved|in_production|completed|on_hold|cancelled"</text>
+
+    <text x="20" y="140" class="field-name">moduł_nadrzędny</text>
+    <text x="80" y="140" class="field-type">string</text>
+
+    <text x="20" y="160" class="field-name">opis</text>
+    <text x="80" y="160" class="field-type">string</text>
+
+    <text x="20" y="180" class="field-name">link_model_3d</text>
+    <text x="80" y="180" class="field-type">string</text>
+
+    <text x="20" y="200" class="field-name">speckle_object_ids</text>
+    <text x="80" y="200" class="field-type">json</text>
+    <text x="120" y="200" class="field-description">"string[]"</text>
+
+    <text x="20" y="220" class="field-name">załączniki</text>
+    <text x="80" y="220" class="field-type">json</text>
+    <text x="120" y="220" class="field-description">"string[]"</text>
+
+    <text x="20" y="240" class="field-name">przypisany_projektant</text>
+    <text x="80" y="240" class="field-type">string</text>
+
+    <text x="20" y="260" class="field-name">termin</text>
+    <text x="80" y="260" class="field-type">string</text>
+
+    <text x="20" y="280" class="field-name">priority</text>
+    <text x="80" y="280" class="field-type enum-field">enum</text>
+    <text x="120" y="280" class="field-description">"Niski|Średni|Wysoki|Pilny"</text>
+
+    <text x="20" y="300" class="field-name">estimated_cost</text>
+    <text x="80" y="300" class="field-type">number</text>
+    <text x="120" y="300" class="field-description">"PLN"</text>
+
+    <text x="20" y="320" class="field-name">group</text>
+    <text x="80" y="320" class="field-type">string</text>
+
+    <text x="20" y="340" class="field-name">dependencies</text>
+    <text x="80" y="340" class="field-type">json</text>
+    <text x="120" y="340" class="field-description">"string[]"</text>
+
+    <text x="20" y="360" class="field-name">geometry_data</text>
+    <text x="80" y="360" class="field-type">json</text>
+    <text x="120" y="360" class="field-description">"JSONB"</text>
+
+    <text x="20" y="380" class="field-name">screenshot_url</text>
+    <text x="80" y="380" class="field-type">string</text>
+
+    <text x="20" y="400" class="field-name">material_assignments</text>
+    <text x="80" y="400" class="field-type">json</text>
+    <text x="120" y="400" class="field-description">"JSONB"</text>
+
+    <text x="20" y="420" class="field-name">dxfFile</text>
+    <text x="80" y="420" class="field-type">string</text>
+    <text x="120" y="420" class="field-description">"URL"</text>
+
+    <text x="20" y="440" class="field-name">assemblyDrawing</text>
+    <text x="80" y="440" class="field-type">string</text>
+    <text x="120" y="440" class="field-description">"URL"</text>
+</svg>

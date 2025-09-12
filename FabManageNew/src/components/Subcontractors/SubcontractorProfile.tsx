@@ -113,8 +113,8 @@ export default function SubcontractorProfile({ subcontractor }: SubcontractorPro
                     {/* Specjalizacje */}
                     <Card title="Specjalizacje" style={{ marginBottom: 16 }}>
                         <Space wrap>
-                            {subcontractor.specialties.map((specialty, index) => (
-                                <Tag key={index} color="blue" style={{ marginBottom: 8 }}>
+                            {subcontractor.specialties.map((specialty) => (
+                                <Tag key={specialty} color="blue" style={{ marginBottom: 8 }}>
                                     {specialty}
                                 </Tag>
                             ))}
@@ -125,8 +125,8 @@ export default function SubcontractorProfile({ subcontractor }: SubcontractorPro
                     <Card title="Aktualne Zlecenia" style={{ marginBottom: 16 }}>
                         {subcontractor.currentOrders.length > 0 ? (
                             <div>
-                                {subcontractor.currentOrders.map((order, index) => (
-                                    <div key={index} style={{ marginBottom: 16, padding: 12, border: '1px solid #f0f0f0', borderRadius: 6 }}>
+                                {subcontractor.currentOrders.map((order) => (
+                                    <div key={order.id || order.title} style={{ marginBottom: 16, padding: 12, border: '1px solid #f0f0f0', borderRadius: 6 }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                                             <Text strong>{order.title}</Text>
                                             <Tag color="blue">{order.status}</Tag>
@@ -153,8 +153,8 @@ export default function SubcontractorProfile({ subcontractor }: SubcontractorPro
                     <Card title="Notatki">
                         {subcontractor.notes.length > 0 ? (
                             <Timeline>
-                                {subcontractor.notes.map((note, index) => (
-                                    <Timeline.Item key={index}>
+                                {subcontractor.notes.map((note) => (
+                                    <Timeline.Item key={note}>
                                         {note}
                                     </Timeline.Item>
                                 ))}

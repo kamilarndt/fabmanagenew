@@ -1,0 +1,170 @@
+graph TB
+    %% ================================================
+    %% FABMANAGE - STRUKTURA PROJEKTU
+    %% ================================================
+    
+    %% Styling
+    classDef frontend fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef backend fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef data fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef ui fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef store fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    classDef docker fill:#e0f2f1,stroke:#00695c,stroke-width:2px
+    
+    %% Główna aplikacja
+    subgraph "🏗️ FABMANAGE APPLICATION"
+        MAIN["main.tsx<br/>React 19 + TypeScript<br/>Vite + Hot Reload<br/>Error Boundary<br/>Sentry Integration"]
+        
+        APP["App.tsx<br/>React Router<br/>Lazy Loading<br/>Suspense<br/>Theme Provider"]
+        
+        LAYOUT["BootstrapLayout.tsx<br/>Responsive Design<br/>Navigation<br/>Sidebar + Header<br/>Mobile Breakpoints"]
+    end
+    
+    %% Warstwa UI - Strony
+    subgraph "📄 PAGES LAYER" PAGES
+        DASHBOARD["Dashboard.tsx<br/>KPI & Statystyki<br/>Ostatnie aktywności<br/>Wykresy wydajności"]
+        
+        PROJECTS["Projects.tsx<br/>Lista projektów<br/>Filtry & Wyszukiwanie<br/>Karty projektów<br/>Akcje masowe"]
+        
+        PROJEKT["Projekt.tsx<br/>Szczegóły projektu<br/>Moduły projektu<br/>Zespół<br/>Postęp realizacji"]
+        
+        CNC["CNC.tsx<br/>Kolejka produkcji<br/>Status maszyn<br/>Programy CNC<br/>Monitoring czasu"]
+        
+        PROJEKTOWANIE["Projektowanie.tsx<br/>Designer Dashboard<br/>Kafelki do projektowania<br/>Pliki DXF/CAD<br/>Status akceptacji"]
+        
+        MAGAZYN["MagazynNew.tsx<br/>Inwentarz materiałów<br/>Kategorie & Filtry<br/>Stany krytyczne<br/>Lokalizacje"]
+        
+        PRODUKCJA["Produkcja.tsx<br/>Kafelki w produkcji<br/>Kanban board<br/>QR kody<br/>Raportowanie"]
+        
+        KALENDARZ["Calendar*.tsx<br/>Kalendarz główny<br/>Projekty & Zasoby<br/>Harmonogramy<br/>Konflikty"]
+        
+        KLIENCI["Klienci.tsx<br/>CRM Klientów<br/>Dane kontaktowe<br/>Historia projektów<br/>Faktury"]
+    end
+    
+    %% Moduły biznesowe
+    subgraph "🧩 BUSINESS MODULES" MODULES
+        ESTIMATE["Estimate Module<br/>Wycena & Kalkulacja<br/>Dobór materiałów<br/>PDF Reports<br/>Cost Analysis"]
+        
+        CONCEPT["Concept Module<br/>Prace kreatywne<br/>Szkice & Moodboardy<br/>Miro Integration<br/>Client Approval"]
+        
+        MATERIALS["Materials Module<br/>BOM Management<br/>Purchase Orders<br/>Stock Levels<br/>Supplier Quotes"]
+        
+        LOGISTICS["Logistics Module<br/>Transport Planning<br/>Installation<br/>Punch Lists<br/>Sign-off"]
+        
+        ACCOMMODATION["Accommodation Module<br/>Reservations<br/>Cost Tracking<br/>Status Management<br/>Team Housing"]
+    end
+    
+    %% Komponenty UI
+    subgraph "🎨 UI COMPONENTS" COMPONENTS
+        KANBAN["KanbanBoard<br/>Drag & Drop<br/>Status Management<br/>Visual Workflow<br/>Real-time Updates"]
+        
+        TABLES["EntityTable<br/>Data Grid<br/>Sorting & Filtering<br/>Pagination<br/>Bulk Actions"]
+        
+        MODALS["FormModals<br/>Edit Forms<br/>Validation<br/>File Upload<br/>Sidebar Drawers"]
+        
+        CHARTS["Charts & Graphs<br/>KPI Visualization<br/>Progress Tracking<br/>Performance Metrics"]
+        
+        FORMS["Form Components<br/>Input Fields<br/>Validation<br/>Auto-save<br/>Error Handling"]
+    end
+    
+    %% Warstwa stanu
+    subgraph "🏪 STATE MANAGEMENT" STORES
+        PS["projectsStore<br/>Project CRUD<br/>Status Updates<br/>Module Activation<br/>Team Management"]
+        
+        TS["tilesStore<br/>Tile Management<br/>Status Workflow<br/>BOM Tracking<br/>File Attachments"]
+        
+        MS["materialsStore<br/>Material Catalog<br/>Stock Levels<br/>Purchase Orders<br/>Supplier Data"]
+        
+        CS["clientsStore<br/>Client Database<br/>Contact Info<br/>Project History<br/>Communication"]
+        
+        AS["authStore<br/>User Authentication<br/>Permissions<br/>Session Management<br/>Role-based Access"]
+        
+        CS2["calendarStore<br/>Event Management<br/>Resource Planning<br/>Conflict Detection<br/>Scheduling"]
+    end
+    
+    %% Warstwa serwisów
+    subgraph "🔧 SERVICES LAYER" SERVICES
+        API["HTTP Client<br/>REST API<br/>Error Handling<br/>Request/Response<br/>Interceptors"]
+        
+        SUPABASE["Supabase Client<br/>Database Queries<br/>Real-time Subscriptions<br/>File Storage<br/>Authentication"]
+        
+        REALTIME["Realtime Service<br/>Live Updates<br/>Collaboration<br/>Status Sync<br/>Event Broadcasting"]
+        
+        NOTIFICATIONS["Notification Service<br/>Toast Messages<br/>Email Alerts<br/>Push Notifications<br/>System Events"]
+    end
+    
+    %% Warstwa danych
+    subgraph "💾 DATA LAYER" DATA
+        LOCAL["Local Storage<br/>Offline Support<br/>State Persistence<br/>Cache Management<br/>Fallback Data"]
+        
+        POSTGRES["PostgreSQL<br/>Primary Database<br/>ACID Compliance<br/>Complex Queries<br/>Data Integrity"]
+        
+        FILES["File Storage<br/>Supabase Storage<br/>Document Management<br/>Image Processing<br/>Version Control"]
+        
+        DEMO["Demo Data<br/>Development Seeds<br/>Mock Database<br/>Testing Data<br/>UI Prototyping"]
+    end
+    
+    %% Docker & Deployment
+    subgraph "🐳 DEPLOYMENT" DOCKER
+        DEV["Docker Dev<br/>Hot Reload<br/>Volume Mounts<br/>Development Tools<br/>Debug Support"]
+        
+        PROD["Docker Prod<br/>Nginx Reverse Proxy<br/>Optimized Build<br/>Static Assets<br/>SSL/TLS"]
+        
+        COMPOSE["Docker Compose<br/>Multi-service<br/>Environment Config<br/>Networking<br/>Health Checks"]
+    end
+    
+    %% Połączenia między warstwami
+    MAIN --> APP
+    APP --> LAYOUT
+    
+    %% Pages do Stores
+    PAGES --> STORES
+    DASHBOARD --> PS
+    PROJECTS --> PS
+    PROJEKT --> PS
+    PROJEKT --> TS
+    CNC --> TS
+    PROJEKTOWANIE --> TS
+    MAGAZYN --> MS
+    PRODUKCJA --> TS
+    KALENDARZ --> CS2
+    KLIENCI --> CS
+    
+    %% Moduły do komponentów
+    MODULES --> COMPONENTS
+    ESTIMATE --> FORMS
+    CONCEPT --> MODALS
+    MATERIALS --> TABLES
+    LOGISTICS --> KANBAN
+    ACCOMMODATION --> CHARTS
+    
+    %% Stores do Services
+    STORES --> SERVICES
+    PS --> API
+    TS --> API
+    MS --> API
+    CS --> API
+    AS --> SUPABASE
+    CS2 --> REALTIME
+    
+    %% Services do Data
+    SERVICES --> DATA
+    API --> POSTGRES
+    SUPABASE --> POSTGRES
+    SUPABASE --> FILES
+    REALTIME --> POSTGRES
+    
+    %% Fallback do Local Storage
+    STORES --> LOCAL
+    SERVICES --> DEMO
+    
+    %% Deployment
+    APP --> DOCKER
+    
+    %% Styling
+    class PAGES,MODULES,COMPONENTS frontend
+    class SERVICES,API,SUPABASE backend
+    class DATA,POSTGRES,FILES data
+    class MAIN,APP,LAYOUT ui
+    class STORES,PS,TS,MS,CS,AS,CS2 store
+    class DOCKER,DEV,PROD,COMPOSE docker

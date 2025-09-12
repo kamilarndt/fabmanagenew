@@ -1,0 +1,24 @@
+{
+    "name": "Test Plugin",
+    "id": "test-plugin-2024",
+    "api": "1.0.0",
+    "main": "dist/test-code.js",
+    "ui": "dist/test-ui.html",
+    "editorType": [
+        "figma",
+        "dev"
+    ],
+    "documentAccess": "dynamic-page",
+    "networkAccess": {
+        "allowedDomains": [
+            "none"
+        ]
+    },
+    "permissions": [
+        "currentuser"
+    ],
+    "capabilities": [
+        "inspect"
+    ],
+    "enableProposedApi": false
+}

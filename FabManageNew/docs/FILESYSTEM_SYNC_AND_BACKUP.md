@@ -20,6 +20,7 @@ Add to `docker-compose.yml` for backend service:
 ```yaml
   environment:
     - PROJECTS_ROOT_DIR=/mnt/projects
+    - FABMANAGE_AUTO_BACKUP=true
   volumes:
     - Z:\\_NoweRozdanie:/mnt/projects
 ```
@@ -39,13 +40,24 @@ Created subfolders depend on enabled modules:
 - Manual sync: `POST /api/projects/:id/fs-sync`
   - Body example: `{ "modules":["koncepcja","wycena","produkcja"], "hasClientMaterials":true }`
 
-## Database Fallback and Backups
-- Primary DB file: `backend/fabmanage.db`.
-- Offline fallback DB: `<root>/.fabmanage/fabmanage.db` (used automatically if primary is unavailable).
-- Backups: `<root>/_db_backups/`
-  - Auto-backup every 60 minutes.
-  - Manual backup: `POST /admin/db-backup`
-  - DB status: `GET /admin/db-status` → `{ path, exists, projectsRoot }`
+## Database Storage
+- **Primary DB**: `<projects_root>/.fabmanage/fabmanage.db`
+- **Backups**: `<projects_root>/.fabmanage/backups/`
+  - `daily/` - Daily backups (kept for 30 days)
+  - `weekly/` - Weekly backups (kept for 12 weeks)
+  - `manual/` - Manual backups (kept for 10 backups)
+
+### Automatic Backups
+- **Daily**: Every day at 2:00 AM
+- **Weekly**: Every Sunday at 3:00 AM
+- **On shutdown**: Before application restart
+- **Manual**: Via API or settings page
+
+### Database Management API
+- **Status**: `GET /api/database/status` → `{ connected, path, size, projectsRoot, databaseDir, backupDir }`
+- **Create backup**: `POST /api/database/backup` `{ "type": "manual|daily|weekly" }`
+- **Restore**: `POST /api/database/restore` `{ "backupPath": "/path/to/backup.db" }`
+- **List backups**: `GET /api/database/backups` → `{ daily: [], weekly: [], manual: [] }`
 
 ## Settings Page
 - Route: `/settings`
@@ -53,12 +65,17 @@ Created subfolders depend on enabled modules:
   - View/set Projects Root
   - Show DB path and projects root
   - Trigger manual DB backup
+  - View backup history
+  - Restore from backup
 
 ## Permissions & Notes
 - The application verifies write access to the chosen folder.
 - On Windows, use escaped backslashes in API calls: `Z\\_NoweRozdanie`.
 - For Docker, map host path to a Linux path inside the container and set `PROJECTS_ROOT_DIR` accordingly.
+- Database is automatically created in the projects root directory.
+- Backups are automatically cleaned up based on retention policy.
 
 ## Change Log
+- 2025-01-11: Updated database storage to use projects root directory from settings, added automatic backup system with retention policy, added database management API endpoints.
 - 2025-09-09: Introduced global projects root, auto folder structure, settings endpoints/UI, DB offline fallback, scheduled backups.
 

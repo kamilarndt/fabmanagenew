@@ -47,7 +47,8 @@ export default defineConfig({
           // Calendar related
           if (id.includes('react-big-calendar') ||
             id.includes('date-fns') ||
-            id.includes('dayjs')) {
+            id.includes('dayjs') ||
+            id.includes('@fullcalendar')) {
             return 'calendar-vendor'
           }
 
@@ -93,6 +94,41 @@ export default defineConfig({
             return 'three-vendor'
           }
 
+          // Speckle (3D viewer)
+          if (id.includes('@speckle')) {
+            return 'speckle-vendor'
+          }
+
+          // DXF libraries
+          if (id.includes('dxf-parser') || id.includes('dxf-viewer')) {
+            return 'dxf-vendor'
+          }
+
+          // React Router
+          if (id.includes('react-router')) {
+            return 'router-vendor'
+          }
+
+          // React Query
+          if (id.includes('@tanstack/react-query')) {
+            return 'query-vendor'
+          }
+
+          // React Window
+          if (id.includes('react-window')) {
+            return 'window-vendor'
+          }
+
+          // Frappe Gantt
+          if (id.includes('frappe-gantt')) {
+            return 'gantt-vendor'
+          }
+
+          // Puppeteer (dev only)
+          if (id.includes('puppeteer')) {
+            return 'puppeteer-vendor'
+          }
+
           // Other node_modules
           if (id.includes('node_modules')) {
             return 'vendor'
@@ -121,7 +157,7 @@ export default defineConfig({
     },
 
     // Chunk size warning limit
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 500,
 
     // Enable sourcemaps for production debugging
     sourcemap: process.env.NODE_ENV === 'development'
@@ -140,6 +176,8 @@ export default defineConfig({
 
       // Calendar dependencies
       'dayjs',
+      '@fullcalendar/core',
+      '@fullcalendar/react',
 
       // Form libraries
       'react-hook-form',
@@ -152,13 +190,22 @@ export default defineConfig({
 
       // HTTP
       'axios',
+      '@supabase/supabase-js',
 
       // DnD
       'react-dnd',
       'react-dnd-html5-backend',
 
       // Utilities
-      'uuid'
+      'uuid',
+      'date-fns',
+
+      // React Query
+      '@tanstack/react-query',
+
+      // React Window
+      'react-window',
+      'react-window-infinite-loader'
     ],
 
     // Force certain dependencies to be pre-bundled
@@ -166,16 +213,18 @@ export default defineConfig({
   },
 
   server: {
+    port: 5173,
+    host: '0.0.0.0',
     headers: {
       'Cache-Control': 'no-store'
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://backend:3001',
         changeOrigin: true,
       },
       '/files': {
-        target: 'http://localhost:3001',
+        target: 'http://backend:3001',
         changeOrigin: true,
       }
     }

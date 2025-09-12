@@ -5,7 +5,7 @@ import type { Tile } from '../types/tiles.types'
 export function useProjectData(project: Project, tiles: Tile[]) {
     const projectTiles = useMemo(() => {
         const filtered = tiles.filter(t => t.project === project.id)
-        console.log('🔧 useProjectData DEBUG:', {
+        console.warn('🔧 useProjectData DEBUG:', {
             projectId: project.id,
             allTilesCount: tiles.length,
             filteredTilesCount: filtered.length,

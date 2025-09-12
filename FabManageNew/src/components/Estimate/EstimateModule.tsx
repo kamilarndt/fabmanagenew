@@ -218,17 +218,17 @@ export default function EstimateModule({ projectId }: EstimateModuleProps) {
 
     const handleSaveDraft = () => {
         // Save draft functionality
-        console.log('Saving draft...', { calculations, additionalCosts })
+        console.warn('TODO: Saving draft...', { calculations, additionalCosts })
     }
 
     const handleGeneratePDF = () => {
         // Generate PDF functionality
-        console.log('Generating PDF...', { calculations, additionalCosts })
+        console.warn('TODO: Generating PDF...', { calculations, additionalCosts })
     }
 
     const handleSendToClient = () => {
         // Send to client functionality
-        console.log('Sending to client...', { calculations, additionalCosts })
+        console.warn('TODO: Sending to client...', { calculations, additionalCosts })
     }
 
     return (

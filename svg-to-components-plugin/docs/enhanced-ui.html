@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Enhanced React to Figma Converter</title>
+    <style>
+        :root {
+          --primary-color: #1890ff;
+          --primary-hover: #40a9ff;
+          --primary-active: #096dd9;
+          --success-color: #52c41a;
+          --warning-color: #faad14;
+          --error-color: #ff4d4f;
+          --text-primary: rgba(0, 0, 0, 0.88);
+          --text-secondary: rgba(0, 0, 0, 0.65);
+          --text-tertiary: rgba(0, 0, 0, 0.45);
+          --background: #ffffff;
+          --background-secondary: #fafafa;
+          --border-color: #d9d9d9;
+          --border-radius: 6px;
+          --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          --transition: all 0.2s ease;
+        }
+
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-size: 14px;
+          line-height: 1.5;
+          color: var(--text-primary);
+          background: var(--background);
+          overflow-x: hidden;
+        }
+
+        .app-container {
+          width: 100%;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+          padding: 16px 20px;
+          background: var(--background-secondary);
+          border-bottom: 1px solid var(--border-color);
+        }
+
+        .progress-bar {
+          width: 100%;
+          height: 4px;
+          background: #f0f0f0;
+          border-radius: 2px;
+          overflow: hidden;
+          margin-bottom: 12px;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+          border-radius: 2px;
+          transition: width 0.3s ease;
+          width: 0%;
+        }
+
+        .step-indicators {
+          display: flex;
+          justify-content: space-between;
+          position: relative;
+          gap: 8px;
+        }
+
+        .step-indicator {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          flex: 1;
+          position: relative;
+          min-width: 0;
+        }
+
+        .step-indicator::after {
+          content: '';
+          position: absolute;
+          top: 16px;
+          left: 50%;
+          width: calc(100% - 32px);
+          height: 2px;
+          background: #f0f0f0;
+          z-index: -1;
+          transform: translateX(-50%);
+        }
+
+        .step-indicator:last-child::after {
+          display: none;
+        }
+
+        .step-indicator.completed::after {
+          background: var(--success-color);
+        }
+
+        .step-number {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: #f0f0f0;
+          color: var(--text-tertiary);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          font-size: 14px;
+          margin-bottom: 8px;
+          transition: var(--transition);
+          position: relative;
+          z-index: 1;
+        }
+
+        .step-indicator.active .step-number {
+          background: var(--primary-color);
+          color: white;
+        }
+
+        .step-indicator.completed .step-number {
+          background: var(--success-color);
+          color: white;
+        }
+
+        .step-title {
+          font-size: 11px;
+          color: var(--text-secondary);
+          text-align: center;
+          line-height: 1.2;
+        }
+
+        .step-indicator.active .step-title {
+          color: var(--text-primary);
+          font-weight: 500;
+        }
+
+        /* Main Content */
+        .wizard-content {
+          flex: 1;
+          padding: 24px 20px;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .step-header {
+          text-align: center;
+          margin-bottom: 32px;
+        }
+
+        .step-header h2 {
+          font-size: 20px;
+          font-weight: 600;
+          margin-bottom: 8px;
+          color: var(--text-primary);
+        }
+
+        .step-header p {
+          color: var(--text-secondary);
+          font-size: 14px;
+          line-height: 1.5;
+        }
+
+        /* Input Step */
+        .input-section {
+          margin-bottom: 24px;
+        }
+
+        .input-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+        }
+
+        .input-header label {
+          font-weight: 500;
+          color: var(--text-primary);
+        }
+
+        .input-actions {
+          display: flex;
+          gap: 8px;
+        }
+
+        .code-input {
+          width: 100%;
+          min-height: 200px;
+          padding: 16px;
+          border: 2px solid var(--border-color);
+          border-radius: var(--border-radius);
+          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+          font-size: 12px;
+          line-height: 1.6;
+          resize: vertical;
+          transition: var(--transition);
+          background: #fafafa;
+        }
+
+        .code-input:focus {
+          outline: none;
+          border-color: var(--primary-color);
+          box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .code-input::placeholder {
+          color: var(--text-tertiary);
+        }
+
+        /* Validation */
+        .input-validation {
+          margin-top: 12px;
+        }
+
+        .validation-results {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+        }
+
+        .validation-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px;
+          border-radius: var(--border-radius);
+          font-size: 12px;
+          transition: var(--transition);
+        }
+
+        .validation-item.valid {
+          background: #f6ffed;
+          color: var(--success-color);
+          border: 1px solid #b7eb8f;
+        }
+
+        .validation-item.invalid {
+          background: #fff2f0;
+          color: var(--error-color);
+          border: 1px solid #ffccc7;
+        }
+
+        .validation-icon {
+          font-weight: bold;
+          font-size: 12px;
+        }
+
+        /* Features Grid */
+        .features-info {
+          background: var(--background-secondary);
+          border-radius: var(--border-radius);
+          padding: 20px;
+          margin-top: 24px;
+        }
+
+        .features-info h3 {
+          margin-bottom: 16px;
+          color: var(--text-primary);
+          font-size: 16px;
+          font-weight: 600;
+        }
+
+        .feature-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+
+        .feature-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+        }
+
+        .feature-icon {
+          font-size: 20px;
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
+
+        .feature-item strong {
+          display: block;
+          margin-bottom: 4px;
+          color: var(--text-primary);
+          font-size: 13px;
+        }
+
+        .feature-item p {
+          color: var(--text-secondary);
+          font-size: 12px;
+          line-height: 1.4;
+        }
+
+        /* Analysis Step */
+        .analysis-loading {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 200px;
+          text-align: center;
+        }
+
+        .spinner {
+          width: 32px;
+          height: 32px;
+          border: 3px solid #f0f0f0;
+          border-top: 3px solid var(--primary-color);
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        .analysis-loading h3 {
+          font-size: 16px;
+          font-weight: 600;
+          margin-bottom: 8px;
+          color: var(--text-primary);
+        }
+
+        .analysis-loading p {
+          color: var(--text-secondary);
+          font-size: 14px;
+        }
+
+        /* Analysis Results */
+        .analysis-results {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .result-section {
+          background: white;
+          border-radius: var(--border-radius);
+          border: 1px solid var(--border-color);
+          overflow: hidden;
+        }
+
+        .result-section h3 {
+          padding: 16px 20px;
+          background: var(--background-secondary);
+          border-bottom: 1px solid var(--border-color);
+          margin: 0;
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+
+        .overview-stats {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 16px;
+          padding: 20px;
+        }
+
+        .stat-item {
+          text-align: center;
+        }
+
+        .stat-number {
+          display: block;
+          font-size: 24px;
+          font-weight: 700;
+          color: var(--primary-color);
+          line-height: 1;
+          margin-bottom: 4px;
+        }
+
+        .stat-label {
+          font-size: 11px;
+          color: var(--text-secondary);
+          line-height: 1.2;
+        }
+
+        .components-list {
+          padding: 0;
+          max-height: 200px;
+          overflow-y: auto;
+        }
+
+        .component-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 16px;
+          border-bottom: 1px solid var(--border-color);
+          transition: var(--transition);
+        }
+
+        .component-item:hover {
+          background: var(--background-secondary);
+        }
+
+        .component-item:last-child {
+          border-bottom: none;
+        }
+
+        .component-icon {
+          font-size: 18px;
+          flex-shrink: 0;
+        }
+
+        .component-info {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .component-info strong {
+          display: block;
+          margin-bottom: 4px;
+          color: var(--text-primary);
+          font-size: 13px;
+          font-weight: 600;
+        }
+
+        .component-props {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+        }
+
+        .prop-tag {
+          background: #f0f0f0;
+          color: var(--text-secondary);
+          padding: 1px 6px;
+          border-radius: 10px;
+          font-size: 10px;
+          font-family: monospace;
+        }
+
+        /* Buttons */
+        .btn {
+          padding: 8px 16px;
+          border-radius: var(--border-radius);
+          border: 1px solid transparent;
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: var(--transition);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          text-decoration: none;
+          background: none;
+        }
+
+        .btn-primary {
+          background: var(--primary-color);
+          color: white;
+          border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+          background: var(--primary-hover);
+          border-color: var(--primary-hover);
+        }
+
+        .btn-primary:disabled {
+          background: #f5f5f5;
+          color: var(--text-tertiary);
+          border-color: var(--border-color);
+          cursor: not-allowed;
+        }
+
+        .btn-secondary {
+          background: white;
+          color: var(--text-primary);
+          border-color: var(--border-color);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+          color: var(--primary-color);
+          border-color: var(--primary-color);
+        }
+
+        .btn-small {
+          padding: 4px 8px;
+          font-size: 11px;
+          color: var(--primary-color);
+          border-color: var(--primary-color);
+        }
+
+        .btn-small:hover {
+          background: var(--primary-color);
+          color: white;
+        }
+
+        /* Navigation */
+        .navigation-buttons {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding-top: 20px;
+          border-top: 1px solid var(--border-color);
+          margin-top: auto;
+        }
+
+        .nav-spacer {
+          flex: 1;
+        }
+
+        /* Loading States */
+        .loading {
+          opacity: 0.6;
+          pointer-events: none;
+        }
+
+        /* Error Toast */
+        .error-toast {
+          position: fixed;
+          top: 16px;
+          right: 16px;
+          z-index: 1000;
+          max-width: 300px;
+          background: white;
+          border-radius: var(--border-radius);
+          box-shadow: var(--box-shadow);
+          border-left: 4px solid var(--error-color);
+          animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+
+        .error-content {
+          padding: 12px 16px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .error-icon {
+          font-size: 16px;
+          flex-shrink: 0;
+        }
+
+        .error-message {
+          flex: 1;
+          color: var(--text-primary);
+          font-size: 12px;
+        }
+
+        .error-close {
+          background: none;
+          border: none;
+          font-size: 16px;
+          color: var(--text-tertiary);
+          cursor: pointer;
+          padding: 0;
+          width: 16px;
+          height: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .error-close:hover {
+          color: var(--text-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 400px) {
+          .wizard-content {
+            padding: 16px;
+          }
+          
+          .overview-stats {
+            grid-template-columns: 1fr;
+          }
+          
+          .validation-results {
+            grid-template-columns: 1fr;
+          }
+          
+          .step-indicators {
+            padding-bottom: 8px;
+            overflow-x: auto;
+          }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: #c1c1c1;
+          border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background: #a1a1a1;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container" class="app-container">
+        <!-- Progress bar and step indicators -->
+        <div class="progress-bar-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="step-indicators" id="step-indicators">
+                <!-- Steps will be dynamically generated -->
+            </div>
+        </div>
+
+        <!-- Main wizard content -->
+        <div class="wizard-content" id="wizard-content">
+            <!-- Step content will be dynamically loaded here -->
+        </div>
+
+        <!-- Navigation buttons -->
+        <div class="navigation-buttons" id="navigation-buttons">
+            <!-- Navigation will be dynamically generated -->
+        </div>
+    </div>
+
+    <!-- Initial step content template -->
+    <div id="react-input-template" style="display: none;">
+        <div class="step-header">
+            <h2>Paste Your React Component</h2>
+            <p>Paste your React/TypeScript component code below. The analyzer supports Ant Design components and will automatically generate Figma components.</p>
+        </div>
+        
+        <div class="input-section">
+            <div class="input-header">
+                <label for="react-code-input">React Component Code</label>
+                <div class="input-actions">
+                    <button class="btn btn-secondary btn-small" id="load-example">Load Example</button>
+                    <button class="btn btn-secondary btn-small" id="clear-input">Clear</button>
+                </div>
+            </div>
+            <textarea 
+                id="react-code-input" 
+                class="code-input" 
+                placeholder="import { Card, Progress, Tag, Avatar, Typography, Button } from 'antd';
+
+export default function ProjectCard({ project }) {
+  return (
+    <Card 
+      hoverable
+      cover={project.miniatura ? <img src={project.miniatura} /> : <div>🖼️</div>}
+      actions={[
+        <Button onClick={() => console.log('edit')}>Edit</Button>,
+        <Button onClick={() => console.log('3d')}>3D Model</Button>
+      ]}
+    >
+      <Typography.Title level={4}>{project.name}</Typography.Title>
+      <Typography.Text type="secondary">Nr: {project.numer}</Typography.Text>
+      
+      <div style={{ marginTop: 12 }}>
+        <Tag color={getProjectTypeColor(project.typ)}>{project.typ}</Tag>
+        <Typography.Text>📍 {project.lokalizacja}</Typography.Text>
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <Typography.Text>👤 Klient: {project.client}</Typography.Text>
+        <br />
+        <Typography.Text>📅 Deadline: {formatDate(project.deadline)}</Typography.Text>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
+        <Typography.Text strong>Postęp</Typography.Text>
+        <Progress percent={project.postep || project.progress || 0} />
+      </div>
+
+      {project.manager && (
+        <div style={{ marginTop: 12, display: 'flex', alignItems: 'center' }}>
+          <Avatar size={24} />
+          <Typography.Text style={{ marginLeft: 8 }}>Manager: {project.manager}</Typography.Text>
+        </div>
+      )}
+    </Card>
+  );
+}"
+                spellcheck="false"
+            ></textarea>
+            <div class="input-validation" id="code-validation"></div>
+        </div>
+
+        <div class="features-info">
+            <h3>What We Support</h3>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <span class="feature-icon">📦</span>
+                    <div>
+                        <strong>Ant Design Components</strong>
+                        <p>Card, Button, Progress, Tag, Avatar, Typography, and more</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🔄</span>
+                    <div>
+                        <strong>Conditional Rendering</strong>
+                        <p>Automatically creates component variants from conditions</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🎨</span>
+                    <div>
+                        <strong>Dynamic Properties</strong>
+                        <p>Maps React props to Figma component properties</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="ui.js"></script>
+</body>
+</html>

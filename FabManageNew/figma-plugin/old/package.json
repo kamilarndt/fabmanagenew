@@ -1,0 +1,35 @@
+{
+    "name": "fabmanage-component-generator",
+    "version": "1.0.0",
+    "description": "Figma plugin for generating components from SVG with Atomic Design structure",
+    "main": "code.js",
+    "scripts": {
+        "build": "node scripts/build.js",
+        "build-v2": "node scripts/build-v2.js",
+        "dev": "node scripts/build.js && echo 'Plugin built. Reload in Figma to see changes.'",
+        "dev-v2": "node scripts/build-v2.js && echo 'Advanced plugin built. Reload in Figma to see changes.'",
+        "test": "node scripts/test.js",
+        "package": "npm run build",
+        "package-v2": "npm run build-v2",
+        "install": "npm run build && echo 'Plugin ready! Install fabmanage-component-generator.zip in Figma.'",
+        "install-v2": "npm run build-v2 && echo 'Advanced plugin ready! Install fabmanage-advanced-generator.zip in Figma.'"
+    },
+    "keywords": [
+        "figma",
+        "plugin",
+        "atomic-design",
+        "component-generator",
+        "svg",
+        "design-system"
+    ],
+    "author": "FabManage Team",
+    "license": "MIT",
+    "devDependencies": {
+        "@figma/plugin-typings": "^1.0.0",
+        "typescript": "^4.9.0"
+    },
+    "figma": {
+        "id": "fabmanage-component-generator",
+        "name": "FabManage Component Generator"
+    }
+}

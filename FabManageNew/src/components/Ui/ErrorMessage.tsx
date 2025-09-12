@@ -49,8 +49,8 @@ export function ErrorMessage({
                 message="Błędy w formularzu"
                 description={
                     <ul style={{ margin: 0, paddingLeft: '16px' }}>
-                        {errors.map((err, index) => (
-                            <li key={index}>{err}</li>
+                        {errors.map((err) => (
+                            <li key={err}>{err}</li>
                         ))}
                     </ul>
                 }
@@ -68,8 +68,8 @@ export function ErrorMessage({
             message={errors.length === 1 ? errors[0] : 'Wystąpiły błędy'}
             description={errors.length > 1 ? (
                 <ul style={{ margin: 0, paddingLeft: '16px' }}>
-                    {errors.map((err, index) => (
-                        <li key={index}>{err}</li>
+                    {errors.map((err) => (
+                        <li key={err}>{err}</li>
                     ))}
                 </ul>
             ) : undefined}

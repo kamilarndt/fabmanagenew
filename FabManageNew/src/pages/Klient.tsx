@@ -447,8 +447,8 @@ export default function Klient() {
                             <div className="bg-[#f8f8fc] box-border content-stretch flex flex-col gap-4 h-[889px] items-start justify-start p-4 relative rounded-lg shrink-0 w-full">
                                 {activeTab === 'contacts' && (
                                     <div className="basis-0 bg-[#f8f8fc] box-border content-start flex flex-wrap gap-4 grow items-start justify-start min-h-px min-w-px p-4 relative rounded-lg shrink-0 w-full">
-                                        {client.contacts.map((contact, index) => (
-                                            <div key={index} className="bg-[rgba(255,255,255,0.9)] box-border content-stretch flex gap-2 h-[132px] items-center justify-start p-4 relative rounded-lg shrink-0 w-[352px] border border-[rgba(7,22,112,0.21)]">
+                                        {client.contacts.map((contact) => (
+                                            <div key={`${contact.imie}-${contact.nazwisko}`} className="bg-[rgba(255,255,255,0.9)] box-border content-stretch flex gap-2 h-[132px] items-center justify-start p-4 relative rounded-lg shrink-0 w-[352px] border border-[rgba(7,22,112,0.21)]">
                                                 {/* Avatar */}
                                                 <div className="bg-gray-200 overflow-clip relative rounded-sm shrink-0 size-[100px] flex items-center justify-center">
                                                     <div className="text-2xl font-bold text-gray-500">

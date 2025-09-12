@@ -35,7 +35,7 @@ export const useAccommodationStore = create<AccommodationState>()(
 
                         set({ byProject: realAccommodationData })
 
-                        console.log('🏨 Loaded realistic accommodation data')
+                        console.warn('🏨 Loaded realistic accommodation data')
                     }
                 } catch (error) {
                     console.warn('Failed to load accommodation data:', error)

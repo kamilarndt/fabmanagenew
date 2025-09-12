@@ -35,16 +35,22 @@ class ConnectionMonitor {
             const controller = new AbortController()
             const timeoutId = setTimeout(() => controller.abort(), 3000) // 3s timeout
 
-            const response = await fetch(`${config.apiBaseUrl}/api/health`, {
-                method: 'GET',
-                signal: controller.signal,
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
+            // Check both health and database status
+            const [healthResponse, dbResponse] = await Promise.all([
+                fetch(`${config.apiBaseUrl}/health`, {
+                    method: 'GET',
+                    signal: controller.signal,
+                    headers: { 'Content-Type': 'application/json' }
+                }),
+                fetch(`${config.apiBaseUrl}/api/database/status`, {
+                    method: 'GET',
+                    signal: controller.signal,
+                    headers: { 'Content-Type': 'application/json' }
+                })
+            ])
 
             clearTimeout(timeoutId)
-            return response.ok
+            return healthResponse.ok && dbResponse.ok
         } catch (error) {
             console.warn('🔌 API connection check failed:', error)
             return false
@@ -65,7 +71,7 @@ class ConnectionMonitor {
                 source: 'database',
                 lastCheck: new Date()
             }
-            console.log('✅ Database connection active')
+            console.warn('✅ Database connection active')
         } else {
             // Fallback na lokalne dane
             newStatus = {
@@ -102,7 +108,7 @@ class ConnectionMonitor {
             this.updateConnectionStatus()
         }, intervalMs)
 
-        console.log('🔍 Connection monitoring started')
+        console.warn('🔍 Connection monitoring started')
     }
 
     /**

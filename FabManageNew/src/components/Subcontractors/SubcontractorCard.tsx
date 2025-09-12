@@ -86,8 +86,8 @@ export default function SubcontractorCard({ subcontractor, onClick }: Subcontrac
             <div style={{ marginBottom: 12 }}>
                 <Text strong>Specjalizacje:</Text>
                 <div style={{ marginTop: 4 }}>
-                    {subcontractor.specialties.slice(0, 2).map((specialty, index) => (
-                        <Tag key={index} style={{ marginBottom: 2 }}>
+                    {subcontractor.specialties.slice(0, 2).map((specialty) => (
+                        <Tag key={specialty} style={{ marginBottom: 2 }}>
                             {specialty}
                         </Tag>
                     ))}

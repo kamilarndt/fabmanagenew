@@ -3,8 +3,8 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { Row, Col, Card, Button, Space, Segmented, Tabs, Tag, Statistic, Empty, Select, Input } from 'antd'
-import { 
-  PlusOutlined, 
+import {
+  PlusOutlined,
   ReloadOutlined,
   FilterOutlined,
   ShoppingCartOutlined,
@@ -98,7 +98,7 @@ export default function MagazynUmms() {
     try {
       await syncFromBackend()
       showToast('Dane zsynchronizowane pomyślnie', 'success')
-    } catch (error) {
+    } catch {
       showToast('Błąd synchronizacji danych', 'danger')
     }
   }
@@ -121,7 +121,7 @@ export default function MagazynUmms() {
   const getStockStatus = (materialId: string) => {
     const inventory = getMaterialInventory(materialId)
     if (!inventory) return 'out-of-stock'
-    
+
     if (inventory.availableQuantity <= 0) return 'out-of-stock'
     if (inventory.availableQuantity <= inventory.reorderPoint) return 'low-stock'
     if (inventory.availableQuantity >= inventory.maxStockLevel) return 'excess-stock'
@@ -191,8 +191,8 @@ export default function MagazynUmms() {
               <Select.Option value="METAL_PROFILES">Profile metalowe</Select.Option>
               <Select.Option value="TEXTILES">Tkaniny</Select.Option>
             </Select>
-            <Button 
-              icon={<FilterOutlined />} 
+            <Button
+              icon={<FilterOutlined />}
               onClick={() => setShowFilters(!showFilters)}
               type={showFilters ? 'primary' : 'default'}
             >
@@ -260,8 +260,8 @@ export default function MagazynUmms() {
 
       {/* Main Content Tabs */}
       <Card>
-        <Tabs 
-          activeKey={activeTab} 
+        <Tabs
+          activeKey={activeTab}
           onChange={(key) => setActiveTab(key as 'warehouse' | 'orders')}
           type="card"
         >
@@ -273,7 +273,7 @@ export default function MagazynUmms() {
                 {filteredMaterials.map((material) => {
                   const inventory = getMaterialInventory(material.id)
                   const stockStatus = getStockStatus(material.id)
-                  
+
                   return (
                     <Col xs={24} sm={12} md={8} lg={6} key={material.id}>
                       <Card
@@ -289,9 +289,9 @@ export default function MagazynUmms() {
                           </Tag>
                         }
                         actions={[
-                          <Button 
-                            key="order" 
-                            size="small" 
+                          <Button
+                            key="order"
+                            size="small"
                             type="link"
                             icon={<ShoppingCartOutlined />}
                             onClick={() => handleQuickOrder(material.id)}
@@ -313,9 +313,9 @@ export default function MagazynUmms() {
                             </div>
                           )}
                         </div>
-                        
-                        <div style={{ 
-                          display: 'flex', 
+
+                        <div style={{
+                          display: 'flex',
                           justifyContent: 'space-between',
                           alignItems: 'center'
                         }}>
@@ -323,7 +323,7 @@ export default function MagazynUmms() {
                             {material.costData.costPerUnit.toFixed(2)} {material.costData.currency}
                           </div>
                           {inventory && (
-                            <Tag 
+                            <Tag
                               color={inventory.abcClass === 'A' ? 'red' : inventory.abcClass === 'B' ? 'orange' : 'green'}
                             >
                               {inventory.abcClass}
@@ -375,26 +375,26 @@ export default function MagazynUmms() {
                           </div>
                         )}
                       </div>
-                      
-                      <div style={{ 
-                        display: 'flex', 
+
+                      <div style={{
+                        display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center'
                       }}>
                         <div style={{ fontSize: '14px', fontWeight: 500 }}>
                           {order.estimatedCost?.toFixed(2) || '0.00'} PLN
                         </div>
-                        <Tag 
+                        <Tag
                           color={order.priority === 'high' ? 'red' : order.priority === 'medium' ? 'orange' : 'green'}
                         >
                           {order.priority}
                         </Tag>
                       </div>
-                      
+
                       {order.notes && (
-                        <div style={{ 
-                          marginTop: 8, 
-                          fontSize: '12px', 
+                        <div style={{
+                          marginTop: 8,
+                          fontSize: '12px',
                           color: '#8c8c8c',
                           fontStyle: 'italic'
                         }}>

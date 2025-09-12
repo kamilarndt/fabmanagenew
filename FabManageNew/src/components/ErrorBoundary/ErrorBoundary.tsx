@@ -20,7 +20,7 @@ interface State {
     errorId: string
 }
 
-export class ErrorBoundary extends Component<Props, State> {
+class ErrorBoundaryComponent extends Component<Props, State> {
     constructor(props: Props) {
         super(props)
         this.state = {
@@ -310,9 +310,9 @@ export function withErrorBoundary<P extends object>(
     errorBoundaryProps?: Omit<Props, 'children'>
 ) {
     const WrappedComponent = (props: P) => (
-        <ErrorBoundary {...errorBoundaryProps}>
+        <ErrorBoundaryComponent {...errorBoundaryProps}>
             <Component {...props} />
-        </ErrorBoundary>
+        </ErrorBoundaryComponent>
     )
 
     WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`
@@ -320,4 +320,4 @@ export function withErrorBoundary<P extends object>(
     return WrappedComponent
 }
 
-export default ErrorBoundary
+export { ErrorBoundaryComponent as ErrorBoundary }

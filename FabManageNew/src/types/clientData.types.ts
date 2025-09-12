@@ -51,7 +51,7 @@ export interface ProjectModules {
 
 export interface ProjectElements {
     ilosc: number;
-    [key: string]: any; // for element_1_nazwa, element_2_nazwa, etc.
+    [key: string]: string | number; // for element_1_nazwa, element_2_nazwa, etc.
 }
 
 export interface ProjectMaterials {

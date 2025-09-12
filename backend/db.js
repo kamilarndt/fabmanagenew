@@ -25,47 +25,60 @@ function resolveProjectsRoot() {
     return root
 }
 
-// Database resolution: prefer primary file near backend; fallback to hidden file under projects root
-const DB_PRIMARY = path.join(__dirname, 'fabmanage.db')
+// Database resolution: use projects root directory from settings
 const PROJECTS_ROOT_DIR = resolveProjectsRoot()
-const OFFLINE_DIR = path.join(PROJECTS_ROOT_DIR, '.fabmanage')
-const DB_FALLBACK = path.join(OFFLINE_DIR, 'fabmanage.db')
 
-let currentDbPath = DB_PRIMARY
+// In Docker, use /srv/app/data for database storage
+const DATABASE_DIR = process.env.NODE_ENV === 'development' && process.env.PROJECTS_ROOT_DIR
+    ? path.join(process.env.PROJECTS_ROOT_DIR, '.fabmanage')
+    : path.join(__dirname, 'data', 'db')
+
+const BACKUP_DIR = path.join(DATABASE_DIR, 'backups')
+const DB_PATH = path.join(DATABASE_DIR, 'fabmanage.db')
+
+// Ensure database directory exists
+function ensureDatabaseDir() {
+    try {
+        if (!fs.existsSync(DATABASE_DIR)) {
+            fs.mkdirSync(DATABASE_DIR, { recursive: true })
+            console.log(`📁 Created database directory: ${DATABASE_DIR}`)
+        }
+
+        // Create backup subdirectories
+        const backupDirs = ['daily', 'weekly', 'manual']
+        backupDirs.forEach(dir => {
+            const backupDir = path.join(BACKUP_DIR, dir)
+            if (!fs.existsSync(backupDir)) {
+                fs.mkdirSync(backupDir, { recursive: true })
+                console.log(`📁 Created backup directory: ${backupDir}`)
+            }
+        })
+    } catch (error) {
+        console.error('❌ Failed to create database directories:', error)
+    }
+}
+
 let db
+let currentDbPath = DB_PATH
 
 function tryOpenDatabase(dbPath) {
     const instance = new Database(dbPath)
     instance.pragma('journal_mode = WAL')
+    instance.pragma('synchronous = NORMAL')
+    instance.pragma('cache_size = 1000')
     return instance
-}
-
-function ensureFallbackDir() {
-    try { if (!fs.existsSync(OFFLINE_DIR)) fs.mkdirSync(OFFLINE_DIR, { recursive: true }) } catch { /* ignore */ }
 }
 
 function getDb() {
     if (!db) {
         try {
-            db = tryOpenDatabase(DB_PRIMARY)
-            currentDbPath = DB_PRIMARY
-        } catch (primaryErr) {
-            // Fallback to offline DB under projects root
-            ensureFallbackDir()
-            try {
-                db = tryOpenDatabase(DB_FALLBACK)
-                currentDbPath = DB_FALLBACK
-                console.warn(`[db] Primary DB unavailable, using fallback at ${DB_FALLBACK}`)
-            } catch (fallbackErr) {
-                // Last resort: attempt to create fallback
-                try {
-                    ensureFallbackDir()
-                    db = tryOpenDatabase(DB_FALLBACK)
-                    currentDbPath = DB_FALLBACK
-                } catch (e) {
-                    throw primaryErr
-                }
-            }
+            ensureDatabaseDir()
+            db = tryOpenDatabase(DB_PATH)
+            currentDbPath = DB_PATH
+            console.log(`✅ Database opened: ${DB_PATH}`)
+        } catch (error) {
+            console.error('❌ Failed to open database:', error)
+            throw error
         }
     }
     return db
@@ -368,42 +381,165 @@ function migrate() {
         );
         CREATE INDEX IF NOT EXISTS idx_audit_ts ON audit_logs(ts);
         CREATE INDEX IF NOT EXISTS idx_audit_entity ON audit_logs(entity_type, entity_id);
+        
+        -- Gantt tasks for project scheduling
+        CREATE TABLE IF NOT EXISTS gantt_tasks (
+            id TEXT PRIMARY KEY,
+            project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+            tile_id TEXT REFERENCES tiles(id) ON DELETE CASCADE,
+            name TEXT NOT NULL,
+            task_type TEXT NOT NULL, -- 'projektowanie', 'wycinanie', 'produkcja'
+            start_date TEXT NOT NULL,
+            end_date TEXT NOT NULL,
+            progress REAL NOT NULL DEFAULT 0,
+            dependencies TEXT, -- comma-separated task IDs
+            status TEXT NOT NULL DEFAULT 'planned', -- 'planned', 'in_progress', 'completed', 'blocked'
+            assigned_to TEXT,
+            estimated_hours REAL,
+            actual_hours REAL,
+            priority TEXT DEFAULT 'medium', -- 'low', 'medium', 'high', 'urgent'
+            notes TEXT,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        );
+        
+        CREATE INDEX IF NOT EXISTS idx_gantt_tasks_project ON gantt_tasks(project_id);
+        CREATE INDEX IF NOT EXISTS idx_gantt_tasks_tile ON gantt_tasks(tile_id);
+        CREATE INDEX IF NOT EXISTS idx_gantt_tasks_type ON gantt_tasks(task_type);
+        CREATE INDEX IF NOT EXISTS idx_gantt_tasks_status ON gantt_tasks(status);
     `)
 }
 
-// --- Backups ---
-const BACKUP_DIR = path.join(PROJECTS_ROOT_DIR, '_db_backups')
-function ensureBackupDir() {
-    try { if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true }) } catch { /* ignore */ }
+// Backup functions
+async function createBackup(type = 'manual') {
+    try {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+        const backupPath = path.join(BACKUP_DIR, type, `fabmanage-${timestamp}.db`)
+
+        // Ensure backup directory exists
+        const backupDir = path.dirname(backupPath)
+        if (!fs.existsSync(backupDir)) {
+            fs.mkdirSync(backupDir, { recursive: true })
+        }
+
+        // Create backup
+        fs.copyFileSync(DB_PATH, backupPath)
+        console.log(`✅ Backup created: ${backupPath}`)
+
+        // Clean old backups
+        await cleanOldBackups()
+
+        return backupPath
+    } catch (error) {
+        console.error('❌ Backup failed:', error)
+        throw error
+    }
 }
 
-function timestamp() {
-    const d = new Date()
-    const pad = (n) => String(n).padStart(2, '0')
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`
+async function cleanOldBackups() {
+    const limits = { daily: 30, weekly: 12, manual: 10 }
+
+    for (const [type, limit] of Object.entries(limits)) {
+        const typeDir = path.join(BACKUP_DIR, type)
+        if (!fs.existsSync(typeDir)) continue
+
+        const files = fs.readdirSync(typeDir)
+            .map(file => ({
+                name: file,
+                path: path.join(typeDir, file),
+                mtime: fs.statSync(path.join(typeDir, file)).mtime
+            }))
+            .sort((a, b) => b.mtime.getTime() - a.mtime.getTime())
+
+        // Remove files beyond limit
+        for (let i = limit; i < files.length; i++) {
+            try {
+                fs.unlinkSync(files[i].path)
+                console.log(`🗑️ Removed old backup: ${files[i].name}`)
+            } catch (error) {
+                console.error(`❌ Failed to remove backup ${files[i].name}:`, error)
+            }
+        }
+    }
 }
 
+async function restoreFromBackup(backupPath) {
+    if (!fs.existsSync(backupPath)) {
+        throw new Error(`Backup file not found: ${backupPath}`)
+    }
+
+    try {
+        // Close current database
+        if (db) {
+            db.close()
+            db = null
+        }
+
+        // Create backup of current database
+        await createBackup('manual')
+
+        // Restore from backup
+        fs.copyFileSync(backupPath, DB_PATH)
+
+        // Reinitialize database
+        db = tryOpenDatabase(DB_PATH)
+        currentDbPath = DB_PATH
+
+        console.log(`✅ Database restored from: ${backupPath}`)
+    } catch (error) {
+        console.error('❌ Restore failed:', error)
+        throw error
+    }
+}
+
+function getDatabaseStatus() {
+    const connected = db !== null
+    const path = currentDbPath
+    let size = 0
+
+    try {
+        if (fs.existsSync(path)) {
+            size = fs.statSync(path).size
+        }
+    } catch (error) {
+        console.error('Failed to get database size:', error)
+    }
+
+    return {
+        connected,
+        path,
+        size,
+        projectsRoot: PROJECTS_ROOT_DIR,
+        databaseDir: DATABASE_DIR,
+        backupDir: BACKUP_DIR
+    }
+}
+
+// Legacy backup function for compatibility
 function backupDatabase() {
     try {
-        ensureBackupDir()
         const src = getCurrentDbPath()
         if (!fs.existsSync(src)) return { ok: false, error: 'db_not_found', src }
 
-        const baseName = 'fabmanage'
-        const destLatest = path.join(BACKUP_DIR, `${baseName}.latest.db`)
-        const destStamp = path.join(BACKUP_DIR, `${baseName}.${timestamp()}.db`)
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+        const backupPath = path.join(BACKUP_DIR, 'manual', `fabmanage-${timestamp}.db`)
 
-        // Create backup with proper file permissions
-        fs.copyFileSync(src, destLatest)
-        fs.copyFileSync(src, destStamp)
+        // Ensure backup directory exists
+        const backupDir = path.dirname(backupPath)
+        if (!fs.existsSync(backupDir)) {
+            fs.mkdirSync(backupDir, { recursive: true })
+        }
 
-        // Clean up old backups (keep only last 30 days)
-        cleanupOldBackups()
+        // Create backup
+        fs.copyFileSync(src, backupPath)
+
+        // Clean up old backups
+        cleanOldBackups()
 
         return {
             ok: true,
-            latest: destLatest,
-            stamped: destStamp,
+            latest: backupPath,
+            stamped: backupPath,
             size: fs.statSync(src).size,
             timestamp: new Date().toISOString()
         }
@@ -416,24 +552,28 @@ function cleanupOldBackups() {
     try {
         if (!fs.existsSync(BACKUP_DIR)) return
 
-        const files = fs.readdirSync(BACKUP_DIR)
-        const backupFiles = files
-            .filter(f => f.startsWith('fabmanage.') && f.endsWith('.db') && f !== 'fabmanage.latest.db')
-            .map(f => ({
-                name: f,
-                path: path.join(BACKUP_DIR, f),
-                stat: fs.statSync(path.join(BACKUP_DIR, f))
-            }))
-            .sort((a, b) => b.stat.mtime - a.stat.mtime)
+        const limits = { daily: 30, weekly: 12, manual: 10 }
 
-        // Keep only last 30 backups (approximately 30 days with hourly backups)
-        const toDelete = backupFiles.slice(30)
-        for (const file of toDelete) {
-            try {
-                fs.unlinkSync(file.path)
-                console.log(`[backup] Cleaned up old backup: ${file.name}`)
-            } catch (e) {
-                console.warn(`[backup] Failed to delete old backup ${file.name}:`, e.message)
+        for (const [type, limit] of Object.entries(limits)) {
+            const typeDir = path.join(BACKUP_DIR, type)
+            if (!fs.existsSync(typeDir)) continue
+
+            const files = fs.readdirSync(typeDir)
+                .map(file => ({
+                    name: file,
+                    path: path.join(typeDir, file),
+                    mtime: fs.statSync(path.join(typeDir, file)).mtime
+                }))
+                .sort((a, b) => b.mtime.getTime() - a.mtime.getTime())
+
+            // Remove files beyond limit
+            for (let i = limit; i < files.length; i++) {
+                try {
+                    fs.unlinkSync(files[i].path)
+                    console.log(`🗑️ Removed old backup: ${files[i].name}`)
+                } catch (error) {
+                    console.error(`❌ Failed to remove backup ${files[i].name}:`, error)
+                }
             }
         }
     } catch (e) {
@@ -687,7 +827,7 @@ function generateRealisticProductionData() {
             const tile = {
                 id: uuid(),
                 project_id: project.id,
-                code: `${project.type.substr(0, 2).toUpperCase()}-${(j + 1).toString().padStart(3, '0')}`,
+                code: `${project.project_type.substr(0, 2).toUpperCase()}-${(j + 1).toString().padStart(3, '0')}`,
                 name: template.name,
                 quantity: Math.floor(Math.random() * 3) + 1,
                 stage: tileStages[Math.floor(Math.random() * tileStages.length)],
@@ -875,6 +1015,23 @@ function auditLog({ action, entityType, entityId, payload, actor, ip, userAgent 
     }
 }
 
-module.exports = { getDb, migrate, init, generateRealisticProductionData, forceRegenerateTestData, backupDatabase, getCurrentDbPath, auditLog, cleanupOldBackups }
+module.exports = {
+    getDb,
+    migrate,
+    init,
+    generateRealisticProductionData,
+    forceRegenerateTestData,
+    backupDatabase,
+    getCurrentDbPath,
+    auditLog,
+    cleanupOldBackups,
+    createBackup,
+    restoreFromBackup,
+    getDatabaseStatus,
+    PROJECTS_ROOT_DIR,
+    DATABASE_DIR,
+    BACKUP_DIR,
+    DB_PATH
+}
 
 

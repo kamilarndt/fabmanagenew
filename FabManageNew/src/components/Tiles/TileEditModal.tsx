@@ -109,7 +109,7 @@ export default function TileEditModal({ open, onClose, onSave, tile, projectId }
         })
     }
 
-    const updateBomItem = (index: number, field: keyof BomItem, value: any) => {
+    const updateBomItem = (index: number, field: keyof BomItem, value: string | number) => {
         patchBomItem(index, { [field]: value } as Partial<BomItem>)
     }
 
@@ -192,7 +192,7 @@ export default function TileEditModal({ open, onClose, onSave, tile, projectId }
                             {attachments.length > 0 && (
                                 <div style={{ marginTop: 8 }}>
                                     {attachments.map((file, index) => (
-                                        <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div key={file} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <Text type="secondary">{file}</Text>
                                             <Button
                                                 type="text"

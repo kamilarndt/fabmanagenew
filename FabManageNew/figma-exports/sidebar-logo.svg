@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="280" height="80" viewBox="0 0 280 80"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+      .sidebar-bg { fill: #25282E; }
+      .text-primary { fill: rgba(235, 241, 245, 0.96); }
+      .primary-main { fill: #16A34A; }
+      .border-main { stroke: rgba(235, 241, 245, 0.18); stroke-width: 1; }
+        </style>
+    </defs>
+
+    <!-- Logo Section Background -->
+    <rect class="sidebar-bg" width="280" height="80" />
+    <rect class="border-main" x="0" y="0" width="280" height="80" fill="none" />
+
+    <!-- Logo Text -->
+    <text x="140" y="35" text-anchor="middle" class="text-primary" font-family="Inter" font-size="20" font-weight="600">
+    🏭 Fabryka
+    </text>
+    <text x="140" y="55" text-anchor="middle" class="primary-main" font-family="Inter" font-size="16" font-weight="500">
+    Dekoracji
+    </text>
+</svg>

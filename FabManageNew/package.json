@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "test": "npx vitest --run",
+    "test:watch": "npx vitest",
     "export:tokens": "node ./scripts/export-tokens.mjs",
     "export:svg": "node ./scripts/export-svg.mjs",
     "preview": "vite preview",

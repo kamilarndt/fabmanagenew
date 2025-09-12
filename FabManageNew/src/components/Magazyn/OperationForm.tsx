@@ -17,7 +17,7 @@ interface OperationItem {
 interface OperationFormProps {
     type: 'receive' | 'issue' | 'transfer' | 'adjust'
     materials?: MaterialData[]
-    onSubmit: (operation: any) => void
+    onSubmit: (operation: { type: 'receive' | 'issue' | 'transfer' | 'adjust';[key: string]: unknown }) => void
     onCancel: () => void
     isOpen: boolean
     autoFillFromOrder?: boolean
@@ -95,7 +95,7 @@ export default function OperationForm({
         setSelectedMaterial('')
     }
 
-    const handleUpdateItem = (index: number, field: keyof OperationItem, value: any) => {
+    const handleUpdateItem = (index: number, field: keyof OperationItem, value: string | number) => {
         setOperationItems(prev => prev.map((item, i) =>
             i === index ? { ...item, [field]: value } : item
         ))
@@ -309,7 +309,7 @@ export default function OperationForm({
                                                 </thead>
                                                 <tbody>
                                                     {operationItems.map((item, index) => (
-                                                        <tr key={index}>
+                                                        <tr key={item.materialCode || item.materialName}>
                                                             <td>
                                                                 <code>{item.materialCode}</code>
                                                             </td>

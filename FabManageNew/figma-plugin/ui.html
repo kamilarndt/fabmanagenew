@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>FabManage Component Importer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+            padding: 16px;
+            color: #1a1a1a;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .step {
+            margin-bottom: 20px;
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e6e6e6;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        textarea {
+            width: 100%;
+            height: 300px;
+            border: 2px solid #e6e6e6;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e6e6e6;
+            border-radius: 50%;
+            border-top-color: #007bff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .example {
+            background: #f8f9fa;
+            border: 1px solid #e6e6e6;
+            border-radius: 4px;
+            padding: 8px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>FabManage Component Importer</h1>
+        <p>Analizuj i generuj komponenty React w Figma</p>
+    </div>
+
+    <div class="step">
+        <label for="componentName">Nazwa Komponentu</label>
+        <input type="text" id="componentName" value="ProjectCard" placeholder="np. ProjectCard, ProjectElements">
+        <div class="example">Wprowadź nazwę komponentu, który chcesz wygenerować</div>
+    </div>
+
+    <div class="step">
+        <label for="fileContent">Zawartość pliku .tsx</label>
+        <textarea id="fileContent" placeholder="Wklej tutaj kod z pliku .tsx..."></textarea>
+        <div class="example">Skopiuj i wklej całą zawartość pliku .tsx, który chcesz przeanalizować</div>
+    </div>
+
+    <button id="analyzeBtn">Analizuj i Generuj Komponent</button>
+
+    <div id="status" class="status"></div>
+
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <span id="loadingText">Analizowanie komponentu...</span>
+    </div>
+
+    <script>
+        const componentNameInput = document.getElementById('componentName');
+        const fileContentTextarea = document.getElementById('fileContent');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const status = document.getElementById('status');
+        const loading = document.getElementById('loading');
+        const loadingText = document.getElementById('loadingText');
+
+        // Load example content
+        const exampleContent = `import { Card, Progress, Tag, Avatar, Space, Typography, Button } from 'antd'
+import { CalendarOutlined, UserOutlined, FileTextOutlined, LinkOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
+import type { ProjectWithStats } from '../../types/projects.types'
+import { StatusBadge } from '../Ui/StatusBadge'
+
+const { Text, Title } = Typography
+
+interface ProjectCardProps {
+    project: ProjectWithStats
+    onEdit?: (project: ProjectWithStats) => void
+    onDelete?: (project: ProjectWithStats) => void
+}
+
+export default function ProjectCard({ project, onEdit }: ProjectCardProps) {
+    const navigate = useNavigate()
+
+    const handleCardClick = () => {
+        navigate(\`/projekt/\${project.id}\`)
+    }
+
+    return (
+        <Card
+            hoverable
+            className="project-card"
+            onClick={handleCardClick}
+            cover={
+                <div className="project-thumbnail">
+                    {project.miniatura ? (
+                        <img
+                            alt={project.name}
+                            src={project.miniatura}
+                            style={{ width: '100%', height: 200, objectFit: 'cover' }}
+                        />
+                    ) : (
+                        <div
+                            style={{
+                                width: '100%',
+                                height: 200,
+                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'white',
+                                fontSize: '2rem'
+                            }}
+                        >
+                            🖼️
+                        </div>
+                    )}
+                </div>
+            }
+            actions={[
+                <Button
+                    type="text"
+                    icon={<FileTextOutlined />}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        onEdit?.(project)
+                    }}
+                >
+                    Edytuj
+                </Button>,
+                <Button
+                    type="text"
+                    icon={<LinkOutlined />}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        navigate(\`/projekt/\${project.id}?tab=model_3d\`)
+                    }}
+                >
+                    3D Model
+                </Button>
+            ]}
+        >
+            <div className="project-card-content">
+                <div className="project-header">
+                    <div className="project-title-section">
+                        <Title level={4} style={{ margin: 0, marginBottom: 4 }}>
+                            {project.name}
+                        </Title>
+                        <Text type="secondary" style={{ fontSize: '0.85rem' }}>
+                            Nr: {project.numer}
+                        </Text>
+                    </div>
+                    <StatusBadge status={project.status} />
+                </div>
+
+                <div className="project-meta" style={{ marginBottom: 12 }}>
+                    <Tag color={getProjectTypeColor(project.typ)}>
+                        {project.typ}
+                    </Tag>
+                    <Text type="secondary" style={{ fontSize: '0.85rem' }}>
+                        📍 {project.lokalizacja}
+                    </Text>
+                </div>
+
+                <div className="project-info" style={{ marginBottom: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                        <UserOutlined style={{ marginRight: 6, color: '#666' }} />
+                        <Text strong>Klient: {project.client}</Text>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <CalendarOutlined style={{ marginRight: 6, color: '#666' }} />
+                        <Text>Deadline: {formatDate(project.deadline)}</Text>
+                    </div>
+                </div>
+
+                <div className="project-progress" style={{ marginBottom: 16 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <Text strong>Postęp</Text>
+                        <Text>{project.postep || project.progress || 0}%</Text>
+                    </div>
+                    <Progress
+                        percent={project.postep || project.progress || 0}
+                        size="small"
+                        strokeColor={{
+                            '0%': '#108ee9',
+                            '100%': '#87d068',
+                        }}
+                    />
+                </div>
+
+                <div className="project-modules">
+                    <Text strong style={{ fontSize: '0.9rem', marginBottom: 8, display: 'block' }}>
+                        MODUŁY PROJEKTU:
+                    </Text>
+                    {project.modules && project.modules.length > 0 ? (
+                        <div className="modules-list">
+                            {project.modules.slice(0, 3).map((module) => (
+                                <div key={module} className="module-item" style={{
+                                    fontSize: '0.85rem',
+                                    marginBottom: 2
+                                }}>
+                                    <Text>- {module.replace('_', ' ')}</Text>
+                                </div>
+                            ))}
+                            {project.modules.length > 3 && (
+                                <Text type="secondary" style={{ fontSize: '0.8rem' }}>
+                                    + {project.modules.length - 3} więcej...
+                                </Text>
+                            )}
+                        </div>
+                    ) : (
+                        <Text type="secondary" style={{ fontSize: '0.85rem' }}>
+                            Brak zdefiniowanych modułów
+                        </Text>
+                    )}
+
+                    <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #f0f0f0' }}>
+                        <Text type="secondary" style={{ fontSize: '0.8rem' }}>
+                            Łącznie elementów: <Text strong>{project.tilesCount}</Text>
+                        </Text>
+                    </div>
+                </div>
+
+                {project.manager && (
+                    <div className="project-manager" style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #f0f0f0' }}>
+                        <Space>
+                            <Avatar size="small" icon={<UserOutlined />} />
+                            <Text type="secondary" style={{ fontSize: '0.85rem' }}>
+                                Manager: {project.manager}
+                            </Text>
+                        </Space>
+                    </div>
+                )}
+            </div>
+        </Card>
+    )
+}`;
+
+        // Set example content
+        fileContentTextarea.value = exampleContent;
+
+        analyzeBtn.onclick = () => {
+            const componentName = componentNameInput.value.trim();
+            const fileContent = fileContentTextarea.value.trim();
+
+            if (!fileContent || !componentName) {
+                showStatus('Wypełnij oba pola!', 'error');
+                return;
+            }
+
+            showLoading('Analizowanie komponentu...');
+            analyzeBtn.disabled = true;
+
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'analyze-file',
+                    fileContent: fileContent,
+                    componentName: componentName
+                }
+            }, '*');
+        };
+
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+
+        function showLoading(text) {
+            loadingText.textContent = text;
+            loading.style.display = 'block';
+        }
+
+        function hideLoading() {
+            loading.style.display = 'none';
+            analyzeBtn.disabled = false;
+        }
+
+        // Listen for messages from plugin
+        window.addEventListener('message', function (event) {
+            const message = event.data.pluginMessage;
+            if (message) {
+                switch (message.type) {
+                    case 'analysis-success':
+                        hideLoading();
+                        showStatus(message.message, 'success');
+                        break;
+                    case 'analysis-error':
+                        hideLoading();
+                        showStatus('Błąd: ' + message.error, 'error');
+                        break;
+                    case 'atoms-found':
+                        showLoading(`Znaleziono atomy: ${message.atoms.join(', ')}`);
+                        break;
+                    case 'creating-variables':
+                        showLoading('Tworzenie zmiennych design system...');
+                        break;
+                    case 'creating-atoms':
+                        showLoading('Tworzenie atomów w Figma...');
+                        break;
+                    case 'creating-component':
+                        showLoading('Tworzenie głównego komponentu...');
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

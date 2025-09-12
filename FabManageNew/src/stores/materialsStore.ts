@@ -90,43 +90,47 @@ export const useMaterialsStore = create<MaterialsState>()((set, get) => ({
             if (config.useMockData) {
                 const { mockMaterials } = await import('../data/development')
 
-                const mapped: MaterialItem[] = mockMaterials.map((m: any) => ({
-                    id: m.id,
-                    code: m.code,
-                    name: m.name,
-                    category: [m.category, m.type].filter(Boolean),
-                    unit: m.unit,
-                    price: m.cena || m.unitCost || 0,
-                    stock: m.quantity || 0,
-                    minStock: Math.floor((m.quantity || 0) * 0.2),
-                    maxStock: Math.floor((m.quantity || 0) * 1.5),
-                    supplier: m.supplier,
-                    location: m.location,
-                    thickness: m.grubosc || undefined,
-                    variant: m.typ || undefined,
-                    abcClass: m.quantity > 50 ? 'A' : m.quantity > 20 ? 'B' : 'C'
-                }))
+                const mapped: MaterialItem[] = mockMaterials.map((m: Record<string, unknown>) => {
+                    const quantity = typeof m.quantity === 'number' ? m.quantity : 0
+                    return {
+                        id: String(m.id || ''),
+                        code: String(m.code || ''),
+                        name: String(m.name || ''),
+                        category: [m.category, m.type].filter(Boolean).map(String),
+                        unit: String(m.unit || ''),
+                        price: typeof (m.cena || m.unitCost) === 'number' ? (m.cena || m.unitCost) as number : 0,
+                        stock: quantity,
+                        minStock: Math.floor(quantity * 0.2),
+                        maxStock: Math.floor(quantity * 1.5),
+                        supplier: m.supplier ? String(m.supplier) : '',
+                        location: m.location ? String(m.location) : '',
+                        thickness: typeof m.grubosc === 'number' ? m.grubosc : undefined,
+                        variant: m.typ ? String(m.typ) : undefined,
+                        abcClass: quantity > 50 ? 'A' : quantity > 20 ? 'B' : 'C'
+                    }
+                })
 
                 set({ materials: mapped })
-                console.log(`📦 Loaded ${mapped.length} realistic materials`)
+                console.warn(`📦 Loaded ${mapped.length} realistic materials`)
                 return
             }
 
             const { api } = await import('../lib/httpClient')
 
-            const data = await api.call<any[]>('/api/materials', {
+            const data = await api.call<unknown[]>('/api/materials', {
                 method: 'GET',
                 table: 'materials',
                 useSupabase: false
             })
 
-            const mapped: MaterialItem[] = (Array.isArray(data) ? data : []).map((m: any) => {
-                const categoryMainRaw = (m.category ?? '').toString().trim()
+            const mapped: MaterialItem[] = (Array.isArray(data) ? data : []).map((m: unknown) => {
+                const material = m as Record<string, unknown>
+                const categoryMainRaw = (material.category ?? '').toString().trim()
                 const categoryMain = categoryMainRaw.length ? categoryMainRaw.toUpperCase() : 'UNKNOWN'
-                const categorySubRaw = (m.type ?? '').toString().trim()
+                const categorySubRaw = (material.type ?? '').toString().trim()
                 const categorySub = categorySubRaw.length ? categorySubRaw : undefined
-                const nameRaw = (m.name ?? '').toString().trim()
-                const formatRaw = (m.format_raw ?? '').toString().trim()
+                const nameRaw = (material.name ?? '').toString().trim()
+                const formatRaw = (material.format_raw ?? '').toString().trim()
 
                 // Deterministic display name
                 const displayName = nameRaw.length
@@ -143,17 +147,17 @@ export const useMaterialsStore = create<MaterialsState>()((set, get) => ({
                 const code = codeParts.join('/')
 
                 return {
-                    id: String(m.id),
+                    id: String(material.id),
                     code,
                     name: displayName,
                     category: categoryPath,
-                    unit: String(m.unit || 'szt'),
-                    price: Number(m.unitCost || 0),
-                    stock: Number(m.quantity || 0),
+                    unit: String(material.unit || 'szt'),
+                    price: Number(material.unitCost || 0),
+                    stock: Number(material.quantity || 0),
                     minStock: 10,
-                    maxStock: Math.max(Number(m.quantity || 0) * 2, 20),
-                    supplier: (m.supplier || 'Unknown') as string,
-                    location: (m.location || undefined) as string | undefined
+                    maxStock: Math.max(Number(material.quantity || 0) * 2, 20),
+                    supplier: (material.supplier || 'Unknown') as string,
+                    location: (material.location || undefined) as string | undefined
                 }
             })
             set({ materials: mapped })

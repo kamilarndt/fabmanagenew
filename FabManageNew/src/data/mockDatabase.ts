@@ -3,7 +3,7 @@
 import type { ProcessedClient } from '../types/clientData.types';
 import type { Project } from '../types/projects.types';
 import type { Tile } from '../types/tiles.types';
-import { TILE_STATUSES, MATERIAL_STATUSES } from '../types/enums'
+import { TILE_STATUSES, MATERIAL_STATUSES, type ProjectType, type ProjectStatus } from '../types/enums'
 
 // --- BAZA DANYCH KLIENTÓW ---
 export const mockClients: ProcessedClient[] = [
@@ -83,20 +83,26 @@ export const mockClients: ProcessedClient[] = [
 ];
 
 // Funkcja pomocnicza do dodawania brakujących pól do projektów
-const addMissingProjectFields = (project: any): Project => {
+const addMissingProjectFields = (project: Record<string, unknown>): Project => {
     return {
         ...project,
-        numer: project.numer || `P-2025/01/${project.id.split('-')[1]}`,
-        typ: project.typ || 'Inne',
-        lokalizacja: project.lokalizacja || 'Warszawa',
-        data_utworzenia: project.data_utworzenia || '2025-01-01',
-        data_rozpoczęcia: project.data_rozpoczęcia || '2025-01-15',
-        postep: project.postep || project.progress || 0,
-        manager_id: project.manager_id || 'M-001',
-        description: project.description || `Projekt ${project.name}`,
-        miniatura: project.miniatura || 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=200&fit=crop',
-        repozytorium_plikow: project.repozytorium_plikow || 'https://drive.google.com/drive/folders/project-files',
-        link_model_3d: project.link_model_3d || 'https://speckle.xyz/streams/project-3d'
+        id: (project.id as string) || 'unknown',
+        name: (project.name as string) || 'Unknown Project',
+        clientId: (project.clientId as string) || 'unknown',
+        client: (project.client as string) || 'Unknown Client',
+        status: (project.status as ProjectStatus) || 'new',
+        deadline: (project.deadline as string) || '2025-12-31',
+        numer: (project.numer as string) || `P-2025/01/${(project.id as string)?.split('-')[1] || '001'}`,
+        typ: (project.typ as ProjectType) || 'Inne',
+        lokalizacja: (project.lokalizacja as string) || 'Warszawa',
+        data_utworzenia: (project.data_utworzenia as string) || '2025-01-01',
+        data_rozpoczęcia: (project.data_rozpoczęcia as string) || '2025-01-15',
+        postep: (project.postep as number) || (project.progress as number) || 0,
+        manager_id: (project.manager_id as string) || 'M-001',
+        description: (project.description as string) || `Projekt ${project.name}`,
+        miniatura: (project.miniatura as string) || 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=200&fit=crop',
+        repozytorium_plikow: (project.repozytorium_plikow as string) || 'https://drive.google.com/drive/folders/project-files',
+        link_model_3d: (project.link_model_3d as string) || 'https://speckle.xyz/streams/project-3d'
     }
 }
 

@@ -27,7 +27,7 @@ export default function MagazynNew() {
   const { searchValue } = usePageSearch({
     placeholder: 'Szukaj materiałów po nazwie, kodzie, typie...',
     onSearch: (value) => {
-      console.log('Szukanie materiałów:', value)
+      console.warn('TODO: Szukanie materiałów:', value)
     }
   })
 
@@ -406,7 +406,7 @@ export default function MagazynNew() {
                         onQuickOrder={handleQuickOrder}
                         onAddToProject={(m) => {
                           // TODO: Implementuj dodawanie do projektu
-                          console.log('Dodaj do projektu:', m.name)
+                          console.warn('TODO: Dodaj do projektu:', m.name)
                         }}
                       />
                     </Col>
