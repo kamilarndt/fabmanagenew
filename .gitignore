@@ -172,3 +172,16 @@ e --is-inside-work-tree
 # OS junk (Windows)
 Thumbs.db
 ehthumbs.db
+
+# -----------------------------
+# Non-app large directories (approved)
+# -----------------------------
+docker/speckle/
+speckle/
+next-version/
+Prototyp/
+prototyp2/
+figma-plugin-v2/
+svg-to-components-plugin-backup/
+PROJECTS_FILES/
+backend/PROJECTS_FILES/
