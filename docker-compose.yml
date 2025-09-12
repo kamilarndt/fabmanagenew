@@ -1,5 +1,5 @@
 services:
-  # Backend service
+  # Backend service - optimized with Alpine and volumes
   backend:
     build:
       context: .
@@ -8,6 +8,8 @@ services:
       - NODE_ENV=development
       - PORT=3001
       - PROJECTS_ROOT_DIR=/mnt/projects
+      - SUPABASE_URL=http://supabase:54321
+      - SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
     ports:
       - "3001:3001"
     volumes:
@@ -24,8 +26,10 @@ services:
       start_period: 40s
     networks:
       - fabmanage-network
+    depends_on:
+      - supabase
 
-  # Frontend service (development)
+  # Frontend service - optimized with Alpine
   frontend:
     build:
       context: .
@@ -38,12 +42,34 @@ services:
     environment:
       - NODE_ENV=development
       - VITE_API_BASE_URL=http://backend:3001
+      - VITE_SUPABASE_URL=http://localhost:54321
+      - VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
       - VITE_USE_MOCK_DATA=false
     depends_on:
       backend:
         condition: service_healthy
     restart: unless-stopped
     command: npm run dev -- --host 0.0.0.0 --port 5173
+    networks:
+      - fabmanage-network
+
+  # Supabase local development
+  supabase:
+    image: public.ecr.aws/supabase/postgres:17.6.1.002
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "54322:5432"
+    volumes:
+      - supabase-db:/var/lib/postgresql/data
+      - ./FabManageNew/supabase/migrations:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - fabmanage-network
 
@@ -54,3 +80,4 @@ networks:
 volumes:
   fabmanage-projects:
   fabmanage-db:
+  supabase-db:

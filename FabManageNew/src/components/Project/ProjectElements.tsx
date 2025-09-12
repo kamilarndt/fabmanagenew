@@ -10,7 +10,7 @@ import TileEditDrawer from '../Tiles/tile-edit-drawer'
 import { createTileFromSelection } from '../../services/tiles'
 import { useProjectsStore } from '../../stores/projectsStore'
 import { showNotification } from '../../lib/notifications'
-import SpeckleViewer from '../SpeckleViewer'
+import LazySpeckleViewer from '../LazySpeckleViewer'
 
 interface ProjectElementsProps {
     project: Project
@@ -316,7 +316,7 @@ export default function ProjectElements({
                                     </Form>
 
                                     <div style={{ marginTop: 12 }}>
-                                        <SpeckleViewer
+                                        <LazySpeckleViewer
                                             initialStreamUrl={modelUrl || project.link_model_3d}
                                             height={520}
                                             enableSelection

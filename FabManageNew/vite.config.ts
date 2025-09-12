@@ -13,7 +13,8 @@ export default defineConfig({
       brotliSize: true,
       open: false
     }),
-    VitePWA({
+    // VitePWA disabled in development to prevent caching issues
+    ...(process.env.NODE_ENV === 'production' ? [VitePWA({
       registerType: 'autoUpdate',
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png}'],
@@ -22,7 +23,7 @@ export default defineConfig({
       devOptions: { enabled: false },
       srcDir: 'src',
       filename: 'pwa-sw.ts'
-    })
+    })] : [])
   ],
 
   build: {

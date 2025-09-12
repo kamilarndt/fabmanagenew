@@ -1,18 +1,7 @@
-import { useEffect, useState } from 'react'
 import { Card, Table, Tag, Typography, Button, Space, Spin, Alert } from 'antd'
+import { useDemandsQuery, type Demand } from '../hooks/useDemandsQuery'
 
-type Demand = {
-    id: string
-    materialId: string
-    name: string
-    requiredQty: number
-    createdAt: string
-    status: string
-    projectId?: string | null
-    tileId?: string | null
-}
-
-// Mockowe dane zaopatrzeń
+// Mockowe dane zaopatrzeń (fallback gdy API nie jest dostępne)
 const mockDemands: Demand[] = [
     {
         id: "DEM_001",
@@ -47,27 +36,13 @@ const mockDemands: Demand[] = [
 ]
 
 export default function Demands() {
-    const [items, setItems] = useState<Demand[]>([])
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    // Używamy TanStack Query zamiast useEffect
+    const { data, isLoading, error, refetch } = useDemandsQuery({})
 
-    const load = async () => {
-        setLoading(true)
-        setError(null)
-        try {
-            // Symulacja opóźnienia sieciowego
-            await new Promise(resolve => setTimeout(resolve, 500))
-
-            // Używamy mockowych danych zamiast API
-            setItems([...mockDemands])
-        } catch (e: any) {
-            setError(e?.message || 'Load failed')
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    useEffect(() => { load() }, [])
+    // Fallback do mockowych danych jeśli API nie jest dostępne
+    const items = data?.data || mockDemands
+    const loading = isLoading
+    const errorMessage = error ? (error as Error).message : null
 
     const columns = [
         { title: 'ID', dataIndex: 'id', key: 'id', render: (v: string) => <Typography.Text type="secondary">{v}</Typography.Text> },
@@ -106,7 +81,7 @@ export default function Demands() {
                     <Typography.Text type="secondary">Lista pozycji do zamówienia z Rhino/Projektów</Typography.Text>
                 </div>
                 <Space>
-                    <Button onClick={load} disabled={loading}>
+                    <Button onClick={() => refetch()} disabled={loading}>
                         <i className="ri-refresh-line" style={{ marginRight: 6 }}></i>
                         {loading ? 'Odświeżanie...' : 'Odśwież'}
                     </Button>
@@ -114,7 +89,7 @@ export default function Demands() {
             </div>
 
             <Card>
-                {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
+                {errorMessage && <Alert type="error" showIcon message={errorMessage} style={{ marginBottom: 12 }} />}
                 {loading ? (
                     <div style={{ display: 'flex', justifyContent: 'center', padding: 24 }}>
                         <Spin />

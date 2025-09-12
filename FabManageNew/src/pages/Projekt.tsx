@@ -34,7 +34,7 @@ const AccommodationTab = lazy(() => import('../modules/Accommodation/Accommodati
 import { StageStepper } from '../components/Ui/StageStepper'
 import { ModuleLoading } from '../components/Ui/LoadingSpinner'
 // import GanttChart from '../components/Gantt/GanttChart' // Unused for now
-import SpeckleViewer from '../components/SpeckleViewer'
+import LazySpeckleViewer from '../components/LazySpeckleViewer'
 import ProjectGanttChart from '../components/Gantt/ProjectGanttChart'
 
 
@@ -340,10 +340,11 @@ export default function Projekt() {
                             <h3>Model 3D Projektu</h3>
                             {project.link_model_3d ? (
                                 <div>
-                                    <SpeckleViewer
+                                    <LazySpeckleViewer
                                         initialStreamUrl={project.link_model_3d}
                                         height={600}
                                         enableSelection={false}
+                                        loadingText="Ładowanie modelu 3D projektu..."
                                     />
                                     <div style={{ textAlign: 'right', marginTop: 12 }}>
                                         <Button
@@ -368,9 +369,10 @@ export default function Projekt() {
                                     </div>
                                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                                         {/* Zbiorczy model z elementów projektu (jeśli kafelki mają linki) */}
-                                        <SpeckleViewer
+                                        <LazySpeckleViewer
                                             initialStreamUrl={projectTiles.map(t => t.link_model_3d!).filter(Boolean)}
                                             height={500}
+                                            loadingText="Ładowanie modeli 3D elementów..."
                                         />
                                     </div>
                                 </div>

@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import dayjs from 'dayjs'
-import { Modal, Form, Input, DatePicker, Select } from 'antd'
+import { Drawer, Form, Input, DatePicker, Select, Button, Space } from 'antd'
+import { SaveOutlined, CloseOutlined, CalendarOutlined } from '@ant-design/icons'
 import type { CalendarEvent, CalendarResource } from '../../stores/calendarStore'
 import { useTilesStore } from '../../stores/tilesStore'
 
@@ -44,14 +45,36 @@ export default function EventFormModal({ open, initial, resources, onCancel, onS
     }
 
     return (
-        <Modal
+        <Drawer
+            title={
+                <Space>
+                    <CalendarOutlined />
+                    {initial?.id ? 'Edytuj wydarzenie' : 'Nowe wydarzenie'}
+                </Space>
+            }
+            width={520}
             open={open}
-            title={initial?.id ? 'Edytuj wydarzenie' : 'Nowe wydarzenie'}
-            okText={initial?.id ? 'Zapisz' : 'Dodaj'}
-            onOk={handleOk}
-            onCancel={onCancel}
+            onClose={onCancel}
+            footer={
+                <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+                    {onDelete && (
+                        <Button danger onClick={onDelete}>
+                            Usuń
+                        </Button>
+                    )}
+                    <Button onClick={onCancel} icon={<CloseOutlined />}>
+                        Anuluj
+                    </Button>
+                    <Button
+                        type="primary"
+                        onClick={handleOk}
+                        icon={<SaveOutlined />}
+                    >
+                        {initial?.id ? 'Zapisz' : 'Dodaj'}
+                    </Button>
+                </Space>
+            }
             destroyOnClose
-            footer={undefined}
         >
             <Form layout="vertical" form={form} onFinish={handleOk}>
                 <Form.Item name="title" label="Tytuł" rules={[{ required: true, message: 'Podaj tytuł' }]}>
@@ -78,15 +101,8 @@ export default function EventFormModal({ open, initial, resources, onCancel, onS
                         filterOption={(input, option) => (option?.label as string).toLowerCase().includes(input.toLowerCase())}
                     />
                 </Form.Item>
-                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                    {onDelete && (
-                        <button className="ant-btn ant-btn-dangerous" type="button" onClick={onDelete}>Usuń</button>
-                    )}
-                    <button className="ant-btn" type="button" onClick={onCancel}>Anuluj</button>
-                    <button className="ant-btn ant-btn-primary" type="submit">{initial?.id ? 'Zapisz' : 'Dodaj'}</button>
-                </div>
             </Form>
-        </Modal>
+        </Drawer>
     )
 }
 
