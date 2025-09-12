@@ -1,168 +1,22 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { isSupabaseConfigured, supabase } from '../lib/supabase'
-import { listProjects, createProject, updateProject as sbUpdate, deleteProject as sbDelete } from '../services/projects'
+import { listProjects, createProject, updateProject as sbUpdate, updateProjectModelLink, deleteProject as apiDelete } from '../services/projects'
+import { generateProjectColorScheme } from '../lib/clientUtils'
+import { subscribeTable } from '../lib/realtime'
+import { config } from '../lib/config'
+import type { Project, ProjectModule, ProjectGroup, ProjectWithStats } from '../types/projects.types'
 
-export type ProjectModule = 'wycena' | 'koncepcja' | 'projektowanie_techniczne' | 'produkcja' | 'materialy' | 'logistyka_montaz'
-
-export type GroupFile = {
-    id: string
-    name: string
-    url: string
-    type: string
-    size?: number
-}
-
-export type ProjectGroup = {
-    id: string
-    name: string
-    description?: string
-    thumbnail?: string
-    files?: GroupFile[]
-}
-
-export type Project = {
-    id: string
-    name: string
-    client: string
-    status: 'Active' | 'On Hold' | 'Done'
-    deadline: string
-    budget?: number
-    manager?: string
-    description?: string
-    progress?: number
-    groups?: ProjectGroup[]
-    modules?: ProjectModule[]
-}
-
-// Sample projects data - will be automatically loaded
-const sampleProjects: Project[] = [
-    {
-        id: 'P-001',
-        name: 'Smart Kids Planet - Recepcja',
-        client: 'Smart Kids Planet',
-        status: 'Active',
-        deadline: '2025-02-15',
-        budget: 45000,
-        manager: 'Anna Kowalska',
-        description: 'Kompleksowa modernizacja recepcji z elementami interaktywnymi dla dzieci',
-        progress: 75,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy']
-    },
-    {
-        id: 'P-002',
-        name: 'Stoisko GR8 TECH - Londyn 2025',
-        client: 'GR8 TECH',
-        status: 'Active',
-        deadline: '2025-03-20',
-        budget: 120000,
-        manager: 'Paweł Nowak',
-        description: 'Stoisko targowe na London Tech Week z systemem LED i interaktywnymi ekranami',
-        progress: 45,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne']
-    },
-    {
-        id: 'P-003',
-        name: 'Studio TV - Les 12 Coups de Midi',
-        client: 'France Television',
-        status: 'On Hold',
-        deadline: '2025-04-10',
-        budget: 85000,
-        manager: 'Ola Wiśniewska',
-        description: 'Scenografia do programu telewizyjnego z elementami modułowymi',
-        progress: 30,
-        modules: ['wycena', 'koncepcja']
-    },
-    {
-        id: 'P-004',
-        name: 'Kawiarnia Nowa Oferta - Warszawa',
-        client: 'Nowa Oferta',
-        status: 'Active',
-        deadline: '2025-01-30',
-        budget: 28000,
-        manager: 'Kamil Zieliński',
-        description: 'Wnętrze kawiarni z niestandardowymi elementami dekoracyjnymi',
-        progress: 10,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy', 'logistyka_montaz']
-    },
-    {
-        id: 'P-005',
-        name: 'Muzeum Historii - Sala Interaktywna',
-        client: 'Muzeum Narodowe',
-        status: 'Active',
-        deadline: '2025-05-15',
-        budget: 95000,
-        manager: 'Maria Lis',
-        description: 'Sala interaktywna z elementami multimedialnymi i rekonstrukcjami historycznymi',
-        progress: 60,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja']
-    },
-    {
-        id: 'P-006',
-        name: 'Centrum Handlowe Galaxy - Strefa Dzieci',
-        client: 'Galaxy Mall',
-        status: 'Done',
-        deadline: '2024-12-20',
-        budget: 65000,
-        manager: 'Tomasz Kowal',
-        description: 'Strefa zabaw dla dzieci z elementami bezpiecznymi i edukacyjnymi',
-        progress: 100,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy', 'logistyka_montaz']
-    },
-    {
-        id: 'P-007',
-        name: 'Restauracja Fusion - Kraków',
-        client: 'Fusion Group',
-        status: 'Active',
-        deadline: '2025-03-10',
-        budget: 55000,
-        manager: 'Karolina Nowak',
-        description: 'Wnętrze restauracji z elementami azjatyckimi i europejskimi',
-        progress: 25,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne']
-    },
-    {
-        id: 'P-008',
-        name: 'Biuro TechCorp - Warszawa',
-        client: 'TechCorp',
-        status: 'Active',
-        deadline: '2025-04-05',
-        budget: 75000,
-        manager: 'Adam Wiśniewski',
-        description: 'Nowoczesne biuro z elementami smart office',
-        progress: 40,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy']
-    },
-    {
-        id: 'P-009',
-        name: 'Hotel Marina - Gdańsk',
-        client: 'Marina Hotels',
-        status: 'On Hold',
-        deadline: '2025-06-15',
-        budget: 180000,
-        manager: 'Ewa Kowalczyk',
-        description: 'Lobby hotelu z elementami morskimi',
-        progress: 15,
-        modules: ['wycena', 'koncepcja']
-    },
-    {
-        id: 'P-010',
-        name: 'Centrum Konferencyjne - Poznań',
-        client: 'Poznań Congress Center',
-        status: 'Active',
-        deadline: '2025-05-20',
-        budget: 220000,
-        manager: 'Piotr Zieliński',
-        description: 'Sala konferencyjna z systemem multimedialnym',
-        progress: 35,
-        modules: ['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy', 'logistyka_montaz']
-    }
-]
+// Re-export types for backward compatibility
+export type { Project, ProjectModule, ProjectGroup, ProjectWithStats }
 
 interface ProjectsState {
     projects: Project[]
+    projectsById: Record<string, Project>
     isLoading: boolean
     isInitialized: boolean
+
+    // Cache dla optymalizacji
+    _clientProjectsCache?: Map<string, Project[]>
 
     // Actions
     initialize: () => Promise<void>
@@ -170,128 +24,439 @@ interface ProjectsState {
     update: (id: string, project: Partial<Project>) => Promise<void>
     remove: (id: string) => Promise<void>
     setProjects: (projects: Project[]) => void
+    updateProjectModel: (projectId: string, streamUrl: string) => Promise<void>
+    syncWithClients: () => void
+
+    // Client integration
+    getProjectsByClient: (clientId: string) => Project[]
+    updateProjectColors: (clientId: string, newColor: string) => void
+    syncProjectWithClient: (clientId: string, clientName: string, clientColor: string) => void
+
+    // Selektory - optymalizacja wydajności
+    getProjectStats: () => { active: number; onHold: number; done: number; total: number }
+    getProjectsByStatus: (status: Project['status']) => Project[]
+    getProjectsByModule: (module: ProjectModule) => Project[]
+    getOverdueProjects: () => Project[]
+    getLowProgressProjects: () => Project[]
+    getProjectsByBudgetRange: (min: number, max: number) => Project[]
+    getProjectsByManager: (manager: string) => Project[]
+    getProjectsByClientCached: (clientId: string) => Project[]
+    getRecentProjects: (days?: number) => Project[]
+    getHighPriorityProjects: () => Project[]
+    getProjectsByProgressRange: (min: number, max: number) => Project[]
+    getProjectsWithFiles: () => Project[]
+    getProjectsWithoutFiles: () => Project[]
+    getProjectsByClientColor: (color: string) => Project[]
+    getProjectsByYear: (year: number) => Project[]
+    getProjectsByMonth: (year: number, month: number) => Project[]
+    getProjectsByQuarter: (year: number, quarter: number) => Project[]
+    getProjectsByBudgetCategory: () => { low: Project[]; medium: Project[]; high: Project[] }
+    getProjectsByDuration: () => Project[]
+    getModuleStats: () => Record<string, unknown>
+    getProjectsByStatusAndModule: (status: Project['status'], module: ProjectModule) => Project[]
+    getProjectsByDeadlineRange: (days: number, status: Project['status'], module: ProjectModule) => Project[]
+    getProjectDataForGantt: (projectId: string) => import('./calendarStore').GanttTask[]
 }
 
 export const useProjectsStore = create<ProjectsState>()(
-    persist(
-        (set) => ({
+    persist<ProjectsState, [], [], { projects: Project[] }>(
+        (set, get) => ({
             projects: [],
+            projectsById: {},
             isLoading: false,
             isInitialized: false,
 
-            initialize: async () => {
+            // Cache dla optymalizacji
+            _clientProjectsCache: new Map(),
+
+            initialize: async (force = false) => {
+                // Prevent multiple initializations unless forced
+                const currentState = get()
+                if (!force && (currentState.isInitialized || currentState.isLoading)) {
+                    console.warn('🔄 Projects store already initialized, skipping...')
+                    console.warn('🔄 Current projects count:', currentState.projects.length)
+                    console.warn('🔄 Sample project:', currentState.projects[0])
+                    return
+                }
+
+                console.warn('🚀 Starting projects store initialization...')
                 set({ isLoading: true })
 
                 try {
-                    if (!isSupabaseConfigured) {
-                        // If no database, use sample projects
-                        set({ projects: sampleProjects, isInitialized: true })
-                        return
-                    }
-
+                    // Simplified: just call API, httpClient handles all fallback logic
                     const data = await listProjects()
-                    if (data.length > 0) {
-                        set({ projects: data, isInitialized: true })
-                    } else {
-                        // If database is empty, populate with sample projects
-                        const { logger } = await import('../lib/logger')
-                        logger.info('Baza danych jest pusta, dodaję przykładowe projekty...')
-                        for (const project of sampleProjects) {
-                            try {
-                                await createProject(project)
-                            } catch (error) {
-                                const { logger } = await import('../lib/logger')
-                                logger.error('Błąd podczas dodawania projektu:', error)
-                            }
-                        }
-                        set({ projects: sampleProjects, isInitialized: true })
-                    }
+                    console.warn('📊 Projects loaded:', data.length, 'projects')
+
+                    set({
+                        projects: data,
+                        projectsById: Object.fromEntries(data.map(p => [p.id, p])),
+                        isInitialized: true
+                    })
+
+                    get().syncWithClients()
                 } catch (error) {
-                    const { logger } = await import('../lib/logger')
-                    logger.error('Błąd podczas ładowania projektów:', error)
-                    // Fallback to sample projects
-                    set({ projects: sampleProjects, isInitialized: true })
+                    console.error('Failed to initialize projects store:', error)
+                    set({ projects: [], projectsById: {}, isInitialized: true })
                 } finally {
                     set({ isLoading: false })
                 }
             },
 
-            add: async (project: Omit<Project, 'id'>) => {
-                const nextId = `P-${(useProjectsStore.getState().projects.length + 1).toString().padStart(3, '0')}`
-                const newProject = { id: nextId, ...project }
-
-                set(state => ({ projects: [...state.projects, newProject] }))
-
-                if (isSupabaseConfigured) {
-                    try {
-                        await createProject(project)
-                    } catch (error) {
-                        const { logger } = await import('../lib/logger')
-                        logger.error('Błąd podczas dodawania projektu:', error)
+            // Helper method for client synchronization
+            syncWithClients: () => {
+                setTimeout(() => {
+                    if (typeof window !== 'undefined') {
+                        import('../stores/clientDataStore').then(({ useClientDataStore }) => {
+                            const clients = useClientDataStore.getState().clients
+                            clients.forEach((client: any) => {
+                                get().syncProjectWithClient(
+                                    client.id,
+                                    client.companyName,
+                                    client.cardColor
+                                )
+                            })
+                        })
                     }
+                }, 100)
+            },
+
+            add: async (projectData: Omit<Project, 'id'>) => {
+                try {
+                    const newProject = await createProject(projectData)
+                    if (newProject) {
+                        set(state => ({
+                            projects: [...state.projects, newProject],
+                            projectsById: { ...state.projectsById, [newProject.id]: newProject }
+                        }))
+                    }
+                } catch (error) {
+                    const { logger } = await import('../lib/logger')
+                    logger.error('Błąd podczas dodawania projektu:', error)
+                    throw error
                 }
             },
 
-            update: async (id: string, project: Partial<Project>) => {
+            update: async (id: string, updates: Partial<Project>) => {
+                // Optimistic update
+                set(state => {
+                    const updatedProject = { ...state.projectsById[id], ...updates }
+                    return {
+                        projects: state.projects.map(p => p.id === id ? updatedProject : p),
+                        projectsById: { ...state.projectsById, [id]: updatedProject }
+                    }
+                })
+
+                try {
+                    await sbUpdate(id, updates)
+                } catch (error) {
+                    const { logger } = await import('../lib/logger')
+                    logger.error('Błąd podczas aktualizacji projektu:', error)
+                    // Revert optimistic update on error
+                    const { projects } = get()
+                    set({ projects: [...projects] })
+                    throw error
+                }
+            },
+
+            updateProjectModel: async (projectId: string, streamUrl: string) => {
+                // Optimistic update of link_model_3d
+                const prev = get().projectsById[projectId]
+                if (!prev) return
+                const next = { ...prev, link_model_3d: streamUrl }
                 set(state => ({
-                    projects: state.projects.map(p =>
-                        p.id === id ? { ...p, ...project } : p
-                    )
+                    projects: state.projects.map(p => p.id === projectId ? next : p),
+                    projectsById: { ...state.projectsById, [projectId]: next }
                 }))
 
-                if (isSupabaseConfigured) {
-                    try {
-                        await sbUpdate(id, project)
-                    } catch (error) {
-                        const { logger } = await import('../lib/logger')
-                        logger.error('Błąd podczas aktualizacji projektu:', error)
-                    }
+                try {
+                    await updateProjectModelLink(projectId, streamUrl)
+                } catch (error) {
+                    const { logger } = await import('../lib/logger')
+                    logger.error('Błąd podczas zapisu linku modelu 3D:', error)
+                    // rollback
+                    set(state => ({
+                        projects: state.projects.map(p => p.id === projectId ? prev : p),
+                        projectsById: { ...state.projectsById, [projectId]: prev }
+                    }))
+                    throw error
                 }
             },
 
             remove: async (id: string) => {
+                // Remove from state immediately
                 set(state => ({
-                    projects: state.projects.filter(p => p.id !== id)
+                    projects: state.projects.filter(p => p.id !== id),
+                    projectsById: Object.fromEntries(Object.entries(state.projectsById).filter(([k]) => k !== id))
                 }))
 
-                if (isSupabaseConfigured) {
-                    try {
-                        await sbDelete(id)
-                    } catch (error) {
-                        const { logger } = await import('../lib/logger')
-                        logger.error('Błąd podczas usuwania projektu:', error)
-                    }
+                try {
+                    await apiDelete(id)
+                } catch (error) {
+                    const { logger } = await import('../lib/logger')
+                    logger.error('Błąd podczas usuwania projektu:', error)
                 }
             },
 
             setProjects: (projects: Project[]) => {
-                set({ projects })
+                set({
+                    projects,
+                    projectsById: Object.fromEntries(projects.map(p => [p.id, p]))
+                })
+            },
+
+            // Client integration methods
+            getProjectsByClient: (clientId: string) => {
+                const { projects } = get()
+                return projects.filter(p => p.clientId === clientId)
+            },
+
+            updateProjectColors: (clientId: string, newColor: string) => {
+                set(state => {
+                    const updatedProjects = state.projects.map(project =>
+                        project.clientId === clientId
+                            ? { ...project, ...generateProjectColorScheme(newColor) }
+                            : project
+                    )
+                    return {
+                        projects: updatedProjects,
+                        projectsById: Object.fromEntries(updatedProjects.map(p => [p.id, p]))
+                    }
+                })
+            },
+
+            syncProjectWithClient: (clientId: string, clientName: string, clientColor: string) => {
+                set(state => {
+                    const updatedProjects = state.projects.map(project =>
+                        project.clientId === clientId
+                            ? {
+                                ...project,
+                                client: clientName,
+                                ...generateProjectColorScheme(clientColor)
+                            }
+                            : project
+                    )
+                    return {
+                        projects: updatedProjects,
+                        projectsById: Object.fromEntries(updatedProjects.map(p => [p.id, p]))
+                    }
+                })
+            },
+
+            // Selectors
+            getProjectStats: () => {
+                const { projects } = get()
+                return {
+                    active: projects.filter(p => p.status === 'W realizacji').length,
+                    onHold: projects.filter(p => p.status === 'Wstrzymany').length,
+                    done: projects.filter(p => p.status === 'Zakończony').length,
+                    total: projects.length
+                }
+            },
+
+            getProjectsByStatus: (status: Project['status']) => {
+                const { projects } = get()
+                return projects.filter(p => p.status === status)
+            },
+
+            getProjectsByModule: (module: ProjectModule) => {
+                const { projects } = get()
+                return projects.filter(p => p.modules?.includes(module))
+            },
+
+            getOverdueProjects: () => {
+                const { projects } = get()
+                const today = new Date().toISOString().slice(0, 10)
+                return projects.filter(p => p.deadline && p.deadline < today && p.status !== 'Zakończony')
+            },
+
+            getLowProgressProjects: () => {
+                const { projects } = get()
+                return projects.filter(p => p.postep < 30 && p.status === 'W realizacji')
+            },
+
+            getProjectsByBudgetRange: (min: number, max: number) => {
+                const { projects } = get()
+                return projects.filter(p => p.budget && p.budget >= min && p.budget <= max)
+            },
+
+            getProjectsByManager: (manager: string) => {
+                const { projects } = get()
+                return projects.filter(p => p.manager === manager)
+            },
+
+            getProjectsByClientCached: (clientId: string) => {
+                const cache = get()._clientProjectsCache
+                if (cache?.has(clientId)) {
+                    return cache.get(clientId)!
+                }
+                const result = get().getProjectsByClient(clientId)
+                cache?.set(clientId, result)
+                return result
+            },
+
+            getRecentProjects: (days = 30) => {
+                const { projects } = get()
+                const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+                return projects.filter(p => p.data_utworzenia >= cutoff)
+            },
+
+            getHighPriorityProjects: () => {
+                const { projects } = get()
+                return projects.filter(p => {
+                    const isOverdue = p.deadline && p.deadline < new Date().toISOString().slice(0, 10)
+                    const isLowProgress = p.postep < 50 && p.status === 'W realizacji'
+                    return isOverdue || isLowProgress
+                })
+            },
+
+            getProjectsByProgressRange: (min: number, max: number) => {
+                const { projects } = get()
+                return projects.filter(p => p.postep >= min && p.postep <= max)
+            },
+
+            getProjectsWithFiles: () => {
+                const { projects } = get()
+                return projects.filter(p => p.groups && p.groups.some(g => g.files && g.files.length > 0))
+            },
+
+            getProjectsWithoutFiles: () => {
+                const { projects } = get()
+                return projects.filter(p => !p.groups || p.groups.every(g => !g.files || g.files.length === 0))
+            },
+
+            getProjectsByClientColor: (color: string) => {
+                const { projects } = get()
+                return projects.filter(p => p.miniatura === color)
+            },
+
+            getProjectsByYear: (year: number) => {
+                const { projects } = get()
+                return projects.filter(p => new Date(p.data_utworzenia).getFullYear() === year)
+            },
+
+            getProjectsByMonth: (year: number, month: number) => {
+                const { projects } = get()
+                return projects.filter(p => {
+                    const date = new Date(p.data_utworzenia)
+                    return date.getFullYear() === year && date.getMonth() + 1 === month
+                })
+            },
+
+            getProjectsByQuarter: (year: number, quarter: number) => {
+                const { projects } = get()
+                const startMonth = (quarter - 1) * 3 + 1
+                const endMonth = quarter * 3
+                return projects.filter(p => {
+                    const date = new Date(p.data_utworzenia)
+                    const month = date.getMonth() + 1
+                    return date.getFullYear() === year && month >= startMonth && month <= endMonth
+                })
+            },
+
+            getProjectsByBudgetCategory: () => {
+                const { projects } = get()
+                return {
+                    low: projects.filter(p => (p.budget || 0) < 50000),
+                    medium: projects.filter(p => (p.budget || 0) >= 50000 && (p.budget || 0) < 200000),
+                    high: projects.filter(p => (p.budget || 0) >= 200000)
+                }
+            },
+
+            getProjectsByDuration: () => {
+                const { projects } = get()
+                return projects.sort((a, b) => {
+                    const aDuration = a.deadline ? new Date(a.deadline).getTime() - new Date(a.data_utworzenia).getTime() : 0
+                    const bDuration = b.deadline ? new Date(b.deadline).getTime() - new Date(b.data_utworzenia).getTime() : 0
+                    return bDuration - aDuration
+                })
+            },
+
+            getModuleStats: () => {
+                const { projects } = get()
+                const stats = {
+                    projektowanie: 0,
+                    produkcja: 0,
+                    logistyka: 0,
+                    koncepcja: 0,
+                    wycena: 0,
+                    zakwaterowanie: 0
+                }
+
+                projects.forEach(p => {
+                    p.modules?.forEach(module => {
+                        if (module in stats) {
+                            stats[module as keyof typeof stats]++
+                        }
+                    })
+                })
+
+                return stats
+            },
+
+            getProjectsByStatusAndModule: (status: Project['status'], module: ProjectModule) => {
+                const { projects } = get()
+                return projects.filter(p => p.status === status && p.modules?.includes(module))
+            },
+
+            getProjectsByDeadlineRange: (days: number, status: Project['status'], module: ProjectModule) => {
+                const { projects } = get()
+                const futureDate = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+                return projects.filter(p =>
+                    p.status === status &&
+                    p.modules?.includes(module) &&
+                    p.deadline &&
+                    p.deadline <= futureDate
+                )
+            },
+
+            getProjectDataForGantt: (projectId: string) => {
+                const state = get()
+                const project = state.projectsById[projectId] || state.projects.find(p => p.id === projectId)
+                if (!project) return []
+                const tasks: import('./calendarStore').GanttTask[] = []
+                const projStart = (project as any).start || (project as any).data_utworzenia || new Date()
+                const ps = (projStart instanceof Date ? projStart : new Date(projStart)).toISOString().slice(0, 10)
+                tasks.push({ id: project.id, text: project.name, start_date: ps, duration: 5, progress: (project as any).progress || 0, type: 'project', status: project.status as any })
+                const groups = (project as any).groups || []
+                for (const group of groups) {
+                    const gid = group.id || `${project.id}-grp-${group.name}`
+                    tasks.push({ id: gid, text: group.name || 'Moduł', start_date: ps, duration: 3, parent: project.id, type: 'module', progress: group.progress || 0, status: (group as any).status })
+                }
+                // Do not reach into tilesStore here to avoid circular deps.
+                return tasks
             }
         }),
         {
             name: 'fabmanage-projects',
-            partialize: (state) => ({ projects: state.projects }),
+            partialize: (state) => ({ projects: state.projects, isInitialized: state.isInitialized }),
             onRehydrateStorage: () => (state) => {
-                if (state && !state.isInitialized) {
-                    state.initialize()
+                if (!state) return
+
+                // Rebuild projectsById from persisted projects
+                if (state.projects && state.projects.length > 0) {
+                    state.projectsById = Object.fromEntries(state.projects.map(p => [p.id, p]))
+                    state.isInitialized = true
+                }
+
+                // Subscribe to realtime updates if configured (don't call initialize here to prevent loops)
+                try {
+                    if (config.enableRealtimeUpdates) {
+                        const unsubscribe = subscribeTable<Project>('projects', (rows) => {
+                            const map = { ...state.projectsById }
+                            rows.forEach(r => { map[r.id] = r })
+                            state.setProjects(Object.values(map))
+                        }, (ids) => {
+                            const map = { ...state.projectsById }
+                            ids.forEach(id => { delete map[id] })
+                            state.setProjects(Object.values(map))
+                        })
+                            // Store unsubscribe function
+                            ; (state as any)._unsubscribeProjects = unsubscribe
+                    }
+                } catch (error) {
+                    console.warn('Failed to setup realtime subscription for projects:', error)
                 }
             }
         }
     )
 )
-
-// Set up real-time subscriptions
-if (isSupabaseConfigured) {
-    supabase.channel('projects-changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, async () => {
-            try {
-                const data = await listProjects()
-                if (data) {
-                    useProjectsStore.getState().setProjects(data)
-                }
-            } catch (error) {
-                console.error('Błąd podczas synchronizacji projektów:', error)
-            }
-        })
-        .subscribe()
-}

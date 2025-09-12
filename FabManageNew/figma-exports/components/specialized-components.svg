@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1000" height="700" viewBox="0 0 1000 700"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+      .component-box { fill: #f8f9fa; stroke: #dee2e6; stroke-width: 2; rx: 8; }
+      .component-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; fill: #495057; font-weight: 500; }
+      .category-header { font-family: 'Segoe UI', Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #212529; }
+      .description { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; fill: #6c757d; }
+      .props-box { fill: #e8f5e8; stroke: #4caf50; stroke-width: 1; rx: 4; }
+      .props-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; fill: #2e7d32; }
+      .arrow { stroke: #6c757d; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .3d-component { fill: #e3f2fd; stroke: #2196f3; stroke-width: 3; rx: 8; }
+      .calendar-component { fill: #fff3e0; stroke: #ff9800; stroke-width: 2; rx: 8; }
+      .gantt-component { fill: #f3e5f5; stroke: #9c27b0; stroke-width: 2; rx: 8; }
+        </style>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#6c757d" />
+        </marker>
+    </defs>
+
+    <!-- Title -->
+    <text x="500" y="40" text-anchor="middle" class="category-header">Specialized Components</text>
+
+    <!-- SpeckleViewer -->
+    <rect x="50" y="80" width="200" height="120" class="3d-component"/>
+    <text x="150" y="105" text-anchor="middle" class="component-text">SpeckleViewer</text>
+    <text x="60" y="125" class="description">3D model viewer with Speckle integration</text>
+
+    <rect x="60" y="140" width="180" height="50" class="props-box"/>
+    <text x="70" y="155" class="props-text">Props: initialStreamUrl, authToken, enableSelection</text>
+    <text x="70" y="170" class="props-text">Features: 3D rendering, Object selection, Material assignment</text>
+    <text x="70" y="185" class="props-text">Dependencies: Speckle API, Three.js, React</text>
+
+    <!-- ThreeDViewer -->
+    <rect x="300" y="80" width="200" height="120" class="3d-component"/>
+    <text x="400" y="105" text-anchor="middle" class="component-text">ThreeDViewer</text>
+    <text x="310" y="125" class="description">Generic 3D viewer component</text>
+
+    <rect x="310" y="140" width="180" height="50" class="props-box"/>
+    <text x="320" y="155" class="props-text">Props: initialStreamUrl, authToken, enableSelection</text>
+    <text x="320" y="170" class="props-text">Features: 3D model display, Object highlighting, Isolation</text>
+    <text x="320" y="185" class="props-text">Dependencies: Three.js, React, 3D model loading</text>
+
+    <!-- CalendarShell -->
+    <rect x="550" y="80" width="200" height="120" class="calendar-component"/>
+    <text x="650" y="105" text-anchor="middle" class="component-text">CalendarShell</text>
+    <text x="560" y="125" class="description">Calendar interface with drag & drop</text>
+
+    <rect x="560" y="140" width="180" height="50" class="props-box"/>
+    <text x="570" y="155" class="props-text">Props: mode, title, resources, events, onEventCreate</text>
+    <text x="570" y="170" class="props-text">Features: Drag & drop, Resource management, Workload tracking</text>
+    <text x="570" y="185" class="props-text">Dependencies: react-big-calendar, Ant Design</text>
+
+    <!-- EventFormModal -->
+    <rect x="800" y="80" width="150" height="120" class="calendar-component"/>
+    <text x="875" y="105" text-anchor="middle" class="component-text">EventFormModal</text>
+    <text x="810" y="125" class="description">Modal for calendar events</text>
+
+    <rect x="810" y="140" width="130" height="50" class="props-box"/>
+    <text x="820" y="155" class="props-text">Props: open, initial, resources, onCancel, onSubmit</text>
+    <text x="820" y="170" class="props-text">Features: Event creation, Resource assignment, Tile linking</text>
+    <text x="820" y="185" class="props-text">Dependencies: Modal, Form, DatePicker, useTilesStore</text>
+
+    <!-- GanttChart -->
+    <rect x="50" y="250" width="200" height="120" class="gantt-component"/>
+    <text x="150" y="275" text-anchor="middle" class="component-text">GanttChart</text>
+    <text x="60" y="295" class="description">Generic Gantt chart component</text>
+
+    <rect x="60" y="310" width="180" height="50" class="props-box"/>
+    <text x="70" y="325" class="props-text">Props: tasks, viewMode</text>
+    <text x="70" y="340" class="props-text">Features: Task visualization, View modes, Responsive design</text>
+    <text x="70" y="355" class="props-text">Dependencies: frappe-gantt (CDN), React</text>
+
+    <!-- ProjectGanttChart -->
+    <rect x="300" y="250" width="200" height="120" class="gantt-component"/>
+    <text x="400" y="275" text-anchor="middle" class="component-text">ProjectGanttChart</text>
+    <text x="310" y="295" class="description">Project-specific Gantt chart</text>
+
+    <rect x="310" y="310" width="180" height="50" class="props-box"/>
+    <text x="320" y="325" class="props-text">Props: projectId, tiles</text>
+    <text x="320" y="340" class="props-text">Features: Task creation, Status management, API integration</text>
+    <text x="320" y="355" class="props-text">Dependencies: GanttChart, API client, GanttTask types</text>
+
+    <!-- EstimateModule -->
+    <rect x="550" y="250" width="200" height="120" class="component-box"/>
+    <text x="650" y="275" text-anchor="middle" class="component-text">EstimateModule</text>
+    <text x="560" y="295" class="description">Project cost estimation module</text>
+
+    <rect x="560" y="310" width="180" height="50" class="props-box"/>
+    <text x="570" y="325" class="props-text">Props: projectId</text>
+    <text x="570" y="340" class="props-text">Features: Cost calculation, Tree view, PDF export</text>
+    <text x="570" y="355" class="props-text">Dependencies: useProjectCosts, Tree, Card, Button</text>
+
+    <!-- ConnectionStatusIndicator -->
+    <rect x="800" y="250" width="150" height="120" class="component-box"/>
+    <text x="875" y="275" text-anchor="middle" class="component-text">ConnectionStatusIndicator</text>
+    <text x="810" y="295" class="description">Database connection status</text>
+
+    <rect x="810" y="310" width="130" height="50" class="props-box"/>
+    <text x="820" y="325" class="props-text">Props: (none - uses hooks)</text>
+    <text x="820" y="340" class="props-text">Features: Status display, Manual refresh, Error handling</text>
+    <text x="820" y="355" class="props-text">Dependencies: useConnectionStatus, Badge, Tooltip</text>
+
+    <!-- ErrorBoundary -->
+    <rect x="50" y="420" width="200" height="120" class="component-box"/>
+    <text x="150" y="445" text-anchor="middle" class="component-text">ErrorBoundary</text>
+    <text x="60" y="465" class="description">Error boundary with multiple levels</text>
+
+    <rect x="60" y="480" width="180" height="50" class="props-box"/>
+    <text x="70" y="495" class="props-text">Props: children, fallback, level, onError</text>
+    <text x="70" y="510" class="props-text">Features: Component, Page, Global error handling</text>
+    <text x="70" y="525" class="props-text">Dependencies: React, Result, Button, Alert</text>
+
+    <!-- MaterialsView -->
+    <rect x="300" y="420" width="200" height="120" class="component-box"/>
+    <text x="400" y="445" text-anchor="middle" class="component-text">MaterialsView</text>
+    <text x="310" y="465" class="description">Materials overview and management</text>
+
+    <rect x="310" y="480" width="180" height="50" class="props-box"/>
+    <text x="320" y="495" class="props-text">Props: tiles (optional)</text>
+    <text x="320" y="510" class="props-text">Features: Material summary, Export functionality</text>
+    <text x="320" y="525" class="props-text">Dependencies: Table, Button, MaterialSummary type</text>
+
+    <!-- Component Relationships -->
+    <line x1="250" y1="140" x2="300" y2="140" class="arrow"/>
+    <line x1="500" y1="140" x2="550" y2="140" class="arrow"/>
+    <line x1="750" y1="140" x2="800" y2="140" class="arrow"/>
+
+    <line x1="250" y1="310" x2="300" y2="310" class="arrow"/>
+    <line x1="500" y1="310" x2="550" y2="310" class="arrow"/>
+    <line x1="750" y1="310" x2="800" y2="310" class="arrow"/>
+
+    <line x1="250" y1="480" x2="300" y2="480" class="arrow"/>
+    <line x1="500" y1="480" x2="550" y2="480" class="arrow"/>
+
+    <!-- Usage Examples -->
+    <rect x="50" y="580" width="900" height="100" class="component-box"/>
+    <text x="500" y="605" text-anchor="middle" class="component-text">Specialized Component Usage</text>
+
+    <text x="60" y="630" class="description">• 3D Viewers: Display and interact with 3D models from Speckle or other sources</text>
+    <text x="60" y="650" class="description">• Calendar: Manage project schedules, resource allocation, and workload tracking</text>
+    <text x="60" y="670" class="description">• Gantt Charts: Visualize project timelines and task dependencies</text>
+    <text x="60" y="690" class="description">• Error Handling: Provide robust error boundaries and user feedback</text>
+    <text x="60" y="710" class="description">• Cost Estimation: Calculate project costs with detailed breakdowns and export capabilities</text>
+
+</svg>

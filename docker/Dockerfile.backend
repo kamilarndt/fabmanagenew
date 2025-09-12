@@ -1,17 +1,43 @@
 FROM node:20-alpine
+
 WORKDIR /srv/app
 
-# Copy package files if backend exists; keep Dockerfile ready even without backend folder yet
-COPY backend/package*.json ./
-RUN [ -f package.json ] && npm ci --omit=dev --no-audit --no-fund || true
+# Install system dependencies including curl for health checks
+RUN apk add --no-cache \
+    curl \
+    sqlite \
+    wget \
+    postgresql-client
 
-# Copy source if present
+# Copy package files and install dependencies
+COPY backend/package*.json ./
+RUN npm ci --no-audit --no-fund --only=production
+
+# Copy backend source
 COPY backend/ ./
 
-ENV NODE_ENV=production
-EXPOSE 3000
+# Create necessary directories and set permissions
+RUN mkdir -p /srv/app/uploads && \
+    mkdir -p /srv/app/data/db && \
+    mkdir -p /mnt/projects && \
+    chown -R node:node /srv/app && \
+    chown -R node:node /mnt/projects
 
-# Simple healthcheck (expects /health endpoint)
-HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD wget -qO- http://127.0.0.1:3000/health || exit 1
+# Switch to non-root user for security
+USER node
 
+# Environment variables
+ENV NODE_ENV=development
+ENV PORT=3001
+ENV SUPABASE_URL=http://supabase:54321
+ENV SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+
+# Expose port
+EXPOSE 3001
+
+# Health check endpoint
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:3001/health || exit 1
+
+# Start the application
 CMD ["node", "server.js"]

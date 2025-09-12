@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Enhanced React to Figma Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #e1e5e9;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #4a5568;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #2d3748;
+        }
+
+        .code-input {
+            width: 100%;
+            min-height: 200px;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            resize: vertical;
+            transition: border-color 0.2s ease;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #f7fafc;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .file-label:hover {
+            background: #edf2f7;
+            border-color: #a0aec0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #edf2f7;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .progress {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .log {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .structure-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .structure-item {
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: #f7fafc;
+            transition: all 0.2s ease;
+        }
+
+        .structure-item:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .structure-item label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .structure-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #667eea;
+        }
+
+        .component-info {
+            flex: 1;
+        }
+
+        .component-name {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .component-type {
+            font-size: 12px;
+            color: #718096;
+            background: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #f7fafc;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #feb2b2;
+        }
+
+        .success {
+            background: #c6f6d5;
+            color: #2f855a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #9ae6b4;
+        }
+
+        .info {
+            background: #bee3f8;
+            color: #2b6cb0;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #90cdf4;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+        }
+
+        .loading {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+            color: #718096;
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .wizard-step {
+            display: none;
+        }
+
+        .wizard-step.active {
+            display: block;
+        }
+
+        .wizard-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .step {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #718096;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .step.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .step.completed {
+            background: #48bb78;
+            color: white;
+        }
+
+        .step-line {
+            width: 40px;
+            height: 2px;
+            background: #e2e8f0;
+        }
+
+        .step-line.completed {
+            background: #48bb78;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🚀 Enhanced React to Figma Converter</h1>
+            <p>Transform your React/TSX components into professional Figma components</p>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step active" id="step-1">1</div>
+            <div class="step-line"></div>
+            <div class="step" id="step-2">2</div>
+            <div class="step-line"></div>
+            <div class="step" id="step-3">3</div>
+            <div class="step-line"></div>
+            <div class="step" id="step-4">4</div>
+        </div>
+
+        <!-- Step 1: Input -->
+        <div class="wizard-step active" id="wizard-step-1">
+            <div class="section">
+                <h2>📝 Step 1: Input React Code</h2>
+                <div class="input-group">
+                    <label for="react-input">Paste your React/TSX component code:</label>
+                    <textarea id="react-input" class="code-input" placeholder="// Paste your React component code here
+import React from 'react';
+import { Card, Button, Space } from 'antd';
+
+const ProjectCard = ({ title, description, status }) => {
+  return (
+    <Card title={title} size='small'>
+      <p>{description}</p>
+      <Space>
+        <Button type='primary'>Edit</Button>
+        <Button>Cancel</Button>
+      </Space>
+    </Card>
+  );
+};
+
+export default ProjectCard;"></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label>Or load from file:</label>
+                    <input type="file" id="file-input" class="file-input" accept=".tsx,.ts,.jsx,.js">
+                    <label for="file-input" class="file-label">
+                        📁 Choose React/TSX file
+                    </label>
+                </div>
+
+                <div class="btn-group">
+                    <button id="analyze-btn" class="btn btn-primary">
+                        🔍 Analyze Code
+                    </button>
+                    <button id="load-sample-btn" class="btn btn-secondary">
+                        📋 Load Sample
+                    </button>
+                    <button id="clear-btn" class="btn btn-secondary">
+                        🗑️ Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Analysis -->
+        <div class="wizard-step" id="wizard-step-2">
+            <div class="section">
+                <h2>🔍 Step 2: Code Analysis</h2>
+                <div id="analysis-stats" class="stats">
+                    <!-- Stats will be populated here -->
+                </div>
+                <div id="analysis-results" class="structure-list">
+                    <!-- Analysis results will be populated here -->
+                </div>
+                <div class="btn-group">
+                    <button id="back-to-input" class="btn btn-secondary">
+                        ← Back to Input
+                    </button>
+                    <button id="continue-to-mapping" class="btn btn-primary" disabled>
+                        Continue to Mapping →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Component Mapping -->
+        <div class="wizard-step" id="wizard-step-3">
+            <div class="section">
+                <h2>🎯 Step 3: Component Mapping</h2>
+                <div id="mapping-options">
+                    <!-- Mapping options will be populated here -->
+                </div>
+                <div class="btn-group">
+                    <button id="back-to-analysis" class="btn btn-secondary">
+                        ← Back to Analysis
+                    </button>
+                    <button id="continue-to-conversion" class="btn btn-primary" disabled>
+                        Continue to Conversion →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Conversion -->
+        <div class="wizard-step" id="wizard-step-4">
+            <div class="section">
+                <h2>⚡ Step 4: Convert to Figma</h2>
+                <div class="progress">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+                <div id="conversion-log" class="log"></div>
+                <div class="btn-group">
+                    <button id="back-to-mapping" class="btn btn-secondary">
+                        ← Back to Mapping
+                    </button>
+                    <button id="convert-btn" class="btn btn-primary" disabled>
+                        🚀 Convert to Figma
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="section hidden" id="results-section">
+            <h2>✅ Conversion Complete</h2>
+            <div id="results-stats" class="stats">
+                <!-- Results stats will be populated here -->
+            </div>
+            <div id="results-log" class="log"></div>
+        </div>
+    </div>
+
+    <script src="ui.js"></script>
+</body>
+</html>

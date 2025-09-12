@@ -1,0 +1,299 @@
+### WORKFLOW FabManageNew (aktualny)
+
+Dokument opisuje aktualny workflow rozwoju, budowy, testowania i wdrożenia aplikacji `FabManageNew` w oparciu o istniejące skrypty i architekturę projektu.
+
+---
+
+### 1) Zakres i cel
+
+- Aplikacja: `FabManageNew` (React 19 + TypeScript + Vite)
+- Stan: lokalna persystencja przez Zustand (localStorage); opcjonalna integracja z Supabase
+- Konteneryzacja: Docker + Docker Compose (profile `dev` i `prod`)
+
+---
+
+### 2) Wymagania wstępne
+
+- Node.js 18+
+- npm (lub pnpm/yarn — projekt domyślnie używa npm)
+- Docker + Docker Compose (dla workflow kontenerowego)
+- (Opcjonalnie) Supabase konto i klucze
+
+---
+
+### 3) Konfiguracja środowiska
+
+Utwórz plik `.env` (lub `.env.local`) w katalogu `FabManageNew/` i ustaw wymagane zmienne:
+
+```env
+# Supabase (opcjonalnie)
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+
+# Aplikacja
+VITE_APP_NAME=FabrykaManage
+VITE_API_BASE_URL=
+```
+
+Uwagi:
+- Docker Compose przekazuje zmienne do kontenerów automatycznie.
+- Uwaga: ustaw `VITE_API_BASE_URL=http://backend:3001` w docker-compose (dev/prod), aby frontend łączył się z backendem wewnątrz sieci docker.
+- Bez Supabase aplikacja korzysta z danych lokalnych (persist w localStorage).
+
+---
+
+### 4) Instalacja zależności
+
+```bash
+cd FabManageNew
+npm install
+```
+
+---
+
+### 5) Development (lokalnie)
+
+- Uruchomienie serwera deweloperskiego (Vite):
+
+```bash
+npm run dev
+```
+
+Domyślnie Vite wystawia podgląd na `http://localhost:5173` (port może zostać potwierdzony w konsoli).
+
+---
+
+### 6) Development (Docker — hot reload)
+
+- Uruchomienie profilu deweloperskiego z hot-reload:
+
+```bash
+npm run docker:dev
+```
+
+- Dostęp: `http://localhost:3002`
+
+- Zarządzanie kontenerami:
+
+```bash
+# Logi
+npm run docker:logs
+
+# Zatrzymanie
+npm run docker:stop
+
+# Pełne czyszczenie (obrazy + wolumeny)
+npm run docker:clean
+```
+
+---
+
+### 7) Budowa i podgląd produkcyjny
+
+- Build (TypeScript + Vite):
+
+```bash
+npm run build
+```
+
+- Podgląd builda (serwer statyczny Vite):
+
+```bash
+npm run preview
+```
+
+---
+
+### 8) Testy i jakość kodu
+
+- Lint:
+
+```bash
+npm run lint
+```
+
+- Smoke testy (skrypt istniejący w projekcie):
+
+```bash
+npm run test:smoke
+```
+
+- Testy jednostkowe (Vitest jest zainstalowany, brak aliasu `npm run test`):
+
+```bash
+# Uruchomienie testów vitest w trybie jednorazowym
+npx vitest --run
+
+# (opcjonalnie) UI vitest / watch
+npx vitest
+```
+
+Rekomendowana walidacja przed commit/push:
+- `npm run lint`
+- `npx vitest --run`
+- `npm run build`
+
+---
+
+### 9) Eksporty narzędziowe (design tokens / SVG)
+
+```bash
+# Eksport design tokens (scripts/export-tokens.mjs)
+npm run export:tokens
+
+# Eksport SVG (scripts/export-svg.mjs)
+npm run export:svg
+```
+
+---
+
+### 10) Architektura danych i przepływy (skrót)
+
+- Zarządzanie stanem: `Zustand` z `persist` (localStorage)
+  - `src/stores/projectsStore.ts`: projekty (CRUD)
+  - `src/stores/tilesStore.ts`: kafelki (statusy, edycja, dodawanie)
+
+- Przykładowe użycie store (kafelki):
+
+```ts
+import { useTilesStore } from '@/stores/tilesStore'
+
+const { tiles, setStatus, updateTile, addTile } = useTilesStore()
+
+// Zmiana statusu kafelka
+setStatus(tileId, 'W TRAKCIE CIĘCIA')
+```
+
+- Statusy produkcyjne kafelków (kanban CNC):
+  - `W KOLEJCE`
+  - `W TRAKCIE CIĘCIA`
+  - `WYCIĘTE`
+
+---
+
+### 11) Wdrożenie (Docker — produkcja)
+
+- Uruchomienie profilu produkcyjnego (build + nginx):
+
+```bash
+npm run docker:prod
+```
+
+- Dostęp: `http://localhost:3000`
+- Reverse proxy: `FabManageNew/nginx.conf`
+
+Checklist przed wdrożeniem:
+- `npm run lint` — brak błędów linta
+- `npx vitest --run` — testy przechodzą
+- `npm run build` — build bez błędów
+
+---
+
+### 12) Git i gałęzie (zalecenia)
+
+1. Twórz gałęzie feature od aktualnego `Ui-Design` lub `main` (zgodnie z polityką repo)
+2. Przed PR: wykonaj walidację (lint, testy, build)
+3. Małe, częste commity z opisowym message
+
+---
+
+### 13) Troubleshooting (skrót)
+
+- Docker
+  - `npm run docker:logs` — diagnostyka
+  - `npm run docker:stop` → `npm run docker:dev` — restart środowiska
+  - `npm run docker:clean` — pełne czyszczenie
+
+- Persystencja
+  - Sprawdź `localStorage` w DevTools
+  - Wyczyść dane aplikacji przy niespójnościach
+  - Zweryfikuj `.env` jeśli używasz Supabase
+
+- Hot reload
+  - Restart `docker:dev` lub lokalnego `npm run dev`
+
+---
+
+### 14) Szybka ściąga (komendy)
+
+```bash
+# Dev (lokalnie)
+npm run dev
+
+# Dev (Docker)
+npm run docker:dev
+
+# Build i preview
+npm run build && npm run preview
+
+# Lint
+npm run lint
+
+# Testy
+npm run test:smoke
+npx vitest --run
+
+# Docker: zarządzanie
+npm run docker:logs
+npm run docker:stop
+npm run docker:clean
+
+# Eksporty
+npm run export:tokens
+npm run export:svg
+```
+
+---
+
+Dokument odzwierciedla aktualne skrypty z `FabManageNew/package.json` oraz strukturę projektu. Aktualizuj go przy każdej zmianie komend lub architektury.
+
+---
+
+### 15) Przykładowy workflow w aplikacji (E2E)
+
+Poniżej praktyczny scenariusz „od projektu do gotowego elementu” z wykorzystaniem aktualnych widoków i statusów.
+
+1. Utworzenie i przygotowanie projektu (Kierownik projektu)
+   - Przejdź do `Projekty` (strona `Projects`).
+   - Kliknij „Nowy Projekt” i wprowadź dane: nazwa, klient, termin, status początkowy `Active`.
+   - Po utworzeniu otwórz szczegóły projektu (kafelek/karta lub wiersz → „Otwórz projekt”).
+
+2. Dodanie kafelków i dokumentacji (Projektant/Technolog)
+   - Otwórz edycję wybranych elementów produkcyjnych (kafelków) w modalu edycyjnym (`TileEditModal`).
+   - Ustaw parametry: `Nazwa`, `Technologia wiodąca`, `Assignee`, `Koszt robocizny`.
+   - Dołącz pliki:
+     - „Plik DXF” (do cięcia CNC). Użyj podglądu i ewentualnie „Podgląd DXF (pełny ekran)”.
+     - „Rysunek złożeniowy (PDF)” (dla montażu).
+   - Zbuduj `BOM`:
+     - Dodaj pozycje ręcznie lub kliknij „Z katalogu”, aby dodać materiały z `Magazynu`.
+     - Dla pozycji w arkuszach (np. płyty) wprowadzenie ilości automatycznie koryguje stan magazynowy (jeśli powiązano z pozycją w magazynie).
+   - Zapisz.
+
+3. Planowanie i statusy produkcyjne (Koordynacja/CNC)
+   - Przejdź do `Produkcja` → zakładka `Kanban`.
+   - Kafelki będą widoczne w odpowiednich kolumnach statusów:
+     - `W KOLEJCE` → oczekujące,
+     - `W TRAKCIE CIĘCIA` → aktywne na CNC,
+     - `WYCIĘTE` → zakończone na CNC,
+     - `Gotowy do montażu` → przygotowane do montażu.
+   - Zmieniaj statusy (akacją w kafelku lub edycją) zgodnie z postępem prac.
+
+4. Uzupełnienia i kontrola stanów (Magazyn)
+   - W `Magazyn` (strona `MagazynNew`) filtruj krytyczne/niskie stany.
+   - Szybkie zamówienie materiału możliwe z listy (przycisk koszyka przy pozycji poniżej stanu minimalnego).
+   - Panele „Krytyczne zapasy” i „Dostawcy” pomagają w priorytetyzacji.
+
+5. Po cięciu i przygotowaniu do montażu (Produkcja)
+   - Po zakończeniu cięcia ustaw kafelek na `WYCIĘTE`.
+   - Gdy zestaw jest kompletny i opisany, przenieś do `Gotowy do montażu`.
+   - Zakładka `Kolejka` wyświetla gotowe elementy dla zespołów montażowych.
+
+6. Zamknięcie projektu (Kierownik projektu)
+   - W `Projekty` przełącz status projektu na `Done` (przeciągnięcie w Kanbanie projektów lub akcja w szczegółach).
+   - Archiwizuj/eksportuj dane projektu i BOM (z widoku listy/kafelków projektów dostępny szybki eksport CSV).
+
+Uwagi operacyjne
+- Statusy produkcyjne kafelków są spójne z tablicą `Produkcja` i modalem kafelka (`TileEditModal`).
+- Zmiany ilości materiałów w BOM (dla pozycji arkuszowych) aktualizują stany w `Magazynie` natychmiast, z walidacją dostępności.
+- Podgląd DXF dostępny w trybie pełnoekranowym (`DxfFullscreenModal`) z panelem warstw.
+

@@ -1,196 +1,295 @@
+import React from 'react'
+import { Card, Tag, Row, Col, Button, Progress, Space } from 'antd'
+import {
+  ShoppingCartOutlined,
+  InfoCircleOutlined,
+  WarningOutlined,
+  CheckCircleOutlined,
+  ExclamationCircleOutlined,
+  PlusOutlined,
+  EyeOutlined
+} from '@ant-design/icons'
 import type { MaterialData } from '../../data/materialsMockData'
+import { getMaterialThumbnail, getThumbnailStyle } from '../../lib/materialThumbnails'
+
+// Removed Typography to prevent infinite loops
 
 interface MaterialCardProps {
   material: MaterialData
-  onSelect: (material: MaterialData) => void
+  onSelect?: (material: MaterialData) => void
   onQuickOrder?: (material: MaterialData) => void
+  onAddToProject?: (material: MaterialData) => void
+  selected?: boolean
 }
 
-import { memo } from 'react'
+export default function MaterialCard({
+  material,
+  onSelect,
+  onQuickOrder,
+  onAddToProject,
+  selected = false
+}: MaterialCardProps) {
 
-function MaterialCardCmp({ material, onSelect, onQuickOrder }: MaterialCardProps) {
-  const stockRatio = material.stock / material.minStock
-  const stockPercentage = Math.min(100, Math.round(stockRatio * 100))
+  // Oblicz status stanu magazynowego
+  const stockStatus = React.useMemo(() => {
+    const ratio = material.stock / material.minStock
+    if (ratio < 0.5) return { status: 'critical', color: '#ff4d4f', icon: <ExclamationCircleOutlined />, label: 'Krytyczny' }
+    if (ratio < 1) return { status: 'low', color: '#faad14', icon: <WarningOutlined />, label: 'Niski Stan' }
+    if (ratio > material.maxStock / material.minStock) return { status: 'excess', color: '#1890ff', icon: <InfoCircleOutlined />, label: 'Nadmiar' }
+    return { status: 'normal', color: '#52c41a', icon: <CheckCircleOutlined />, label: 'OK' }
+  }, [material.stock, material.minStock, material.maxStock])
 
-  // Określenie statusu i koloru
-  const getStockStatus = () => {
-    if (stockRatio < 0.5) return { color: 'danger', text: 'Krytyczny', icon: 'ri-error-warning-line' }
-    if (stockRatio < 1) return { color: 'warning', text: 'Niski', icon: 'ri-alert-line' }
-    if (stockRatio > material.maxStock / material.minStock) return { color: 'info', text: 'Nadmiar', icon: 'ri-information-line' }
-    return { color: 'success', text: 'OK', icon: 'ri-check-line' }
-  }
+  // Oblicz wartość zapasu
+  const stockValue = React.useMemo(() => {
+    return material.stock * (material.cena || material.price || 0)
+  }, [material.stock, material.cena, material.price])
 
-  const status = getStockStatus()
+  // Oblicz procent zapełnienia
+  const stockPercent = React.useMemo(() => {
+    const percent = (material.stock / material.maxStock) * 100
+    return Math.min(Math.max(percent, 0), 100)
+  }, [material.stock, material.maxStock])
 
-  // Kolor klasy ABC
-  const abcColors = {
-    'A': 'success',
-    'B': 'warning',
-    'C': 'danger'
-  }
-
-  // Ikony dla kategorii
-  const categoryIcons: Record<string, string> = {
-    '_M': 'ri-stack-line',
-    '_PLEXI': 'ri-rectangle-line',
-    '_DIBOND': 'ri-layout-grid-line',
-    '_ELEKTRYKA': 'ri-flashlight-line'
-  }
+  // Uzyskaj miniaturę materiału
+  const thumbnail = getMaterialThumbnail(material.typ, material.rodzaj)
+  const thumbnailStyle = getThumbnailStyle(thumbnail)
 
   return (
-    <div
-      className="material-card card h-100 border-0 shadow-sm hover-shadow-lg transition-all cursor-pointer"
-      onClick={() => onSelect(material)}
-      style={{ transition: 'all 0.3s ease' }}
+    <Card
+      hoverable
+      size="small"
+      className={`material-card ${selected ? 'selected' : ''}`}
+      style={{
+        height: '320px',
+        backgroundColor: 'var(--bg-card)',
+        border: selected ? '1px solid var(--primary-main)' : '1px solid var(--border-main)',
+        borderRadius: 'var(--radius-none)',
+        transition: 'all var(--transition-fast)',
+        overflow: 'hidden',
+        fontFamily: 'var(--font-family)',
+        ...(selected && {
+          boxShadow: 'var(--glow-primary)'
+        })
+      }}
+      bodyStyle={{ padding: 0, height: '100%', backgroundColor: 'var(--bg-card)' }}
+      onClick={() => onSelect?.(material)}
     >
-      {/* Nagłówek – NAZWA jako pierwszy element + grubość obok */}
-      <div className="card-header bg-transparent border-0 pb-0">
-        <div className="d-flex justify-content-between align-items-start">
-          <div className="flex-grow-1 pe-2">
-            <div className="d-flex align-items-center gap-2">
-              <h6 className="mb-0 fw-bold text-truncate" title={material.name}>
-                {material.name}
-              </h6>
-              {material.thickness && (
-                <span className="badge bg-secondary-subtle text-secondary">{material.thickness}mm</span>
-              )}
-            </div>
-            <div className="text-muted small mt-1 text-truncate">{material.code}</div>
-          </div>
-          <div className="text-end">
-            {material.abcClass && (
-              <span className={`badge bg-${abcColors[material.abcClass]}`}>Klasa {material.abcClass}</span>
-            )}
-            <div>
-              <i className={`${categoryIcons[material.category[0]] || 'ri-box-3-line'} fs-5 text-muted`}></i>
-            </div>
-          </div>
+      {/* 1. Podgląd Wizualny (Góra Karty) */}
+      <div
+        style={{
+          ...thumbnailStyle,
+          height: 80,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 32,
+          borderBottom: '1px solid var(--border-main)',
+          position: 'relative'
+        }}
+      >
+        <span style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.3))' }}>
+          {thumbnail.icon}
+        </span>
+        {/* Kod materiału w rogu */}
+        <div style={{
+          position: 'absolute',
+          top: 4,
+          right: 8,
+          background: 'var(--bg-secondary)',
+          color: 'var(--text-primary)',
+          padding: '2px 6px',
+          borderRadius: 3,
+          fontSize: 10,
+          fontFamily: 'monospace'
+        }}>
+          {material.code}
         </div>
       </div>
 
-      <div className="card-body">
-        {/* Szybki podgląd zapasu – duża liczba */}
-        <div className="d-flex align-items-center justify-content-between mb-2">
-          <div className={`badge bg-${status.color}-subtle text-${status.color}`}>
-            <i className={`${status.icon} me-1`}></i>{status.text}
-          </div>
-          <div className="fw-bold">
-            {material.stock} {material.unit}
-          </div>
-        </div>
+      {/* 2. Nazwa i Rodzaj (Sekcja Identyfikacyjna) */}
+      <div style={{ padding: '12px 16px 8px' }}>
+        <h4 style={{
+          margin: 0,
+          fontSize: 16,
+          fontWeight: 'var(--font-semibold)',
+          lineHeight: 1.2,
+          color: 'var(--text-primary)',
+          fontFamily: 'var(--font-family)'
+        }}>
+          {material.typ || material.name}
+        </h4>
+        <span style={{
+          fontSize: 12,
+          color: 'var(--text-secondary)',
+          fontFamily: 'var(--font-family)'
+        }}>
+          {material.rodzaj || material.variant || 'Standard'}
+        </span>
+      </div>
 
-        {/* Stan magazynowy */}
-        <div className="mb-3">
-          <div className="d-flex justify-content-between align-items-center mb-1">
-            <span className="small text-muted">Stan magazynowy</span>
-            <span className={`badge bg-${status.color}-subtle text-${status.color}`}>
-              <i className={`${status.icon} me-1`}></i>
-              {status.text}
+      {/* 3. Kluczowe Atrybuty (Sekcja Parametrów) */}
+      <div style={{ padding: '0 16px 8px' }}>
+        <Row justify="space-between" align="middle">
+          <Col>
+            <Space size={4}>
+              <span style={{
+                fontSize: 11,
+                color: 'var(--text-secondary)',
+                fontFamily: 'var(--font-family)'
+              }}>Grubość:</span>
+              <Tag color="blue" style={{ fontSize: 10, margin: 0 }}>
+                {material.grubosc || material.thickness + 'mm' || 'N/A'}
+              </Tag>
+            </Space>
+          </Col>
+          <Col>
+            <Tag
+              color={stockStatus.color}
+              style={{
+                fontSize: 10,
+                margin: 0,
+                border: 'none',
+                color: '#fff',
+                backgroundColor: stockStatus.color
+              }}
+            >
+              {stockStatus.icon} {stockStatus.label}
+            </Tag>
+          </Col>
+        </Row>
+      </div>
+
+      {/* 4. Dane Magazynowe i Finansowe (Sekcja Logistyczna) */}
+      <div style={{ padding: '0 16px 8px' }}>
+        <Row gutter={12}>
+          <Col span={12}>
+            <div>
+              <span style={{
+                fontSize: 11,
+                color: 'var(--text-secondary)',
+                fontFamily: 'var(--font-family)'
+              }}>Dostępne:</span>
+              <div style={{ fontWeight: 600, fontSize: 13, marginTop: 2 }}>
+                {material.stock} / {material.minStock} {material.unit}
+              </div>
+              <Progress
+                percent={stockPercent}
+                strokeColor={stockStatus.color}
+                size="small"
+                showInfo={false}
+                style={{ marginTop: 4 }}
+              />
+            </div>
+          </Col>
+          <Col span={12}>
+            <div>
+              <span style={{
+                fontSize: 11,
+                color: 'var(--text-secondary)',
+                fontFamily: 'var(--font-family)'
+              }}>Cena / {material.unit}:</span>
+              <div style={{ fontWeight: 600, fontSize: 13, marginTop: 2 }}>
+                {(material.cena || material.price || 0).toLocaleString('pl-PL', {
+                  style: 'currency',
+                  currency: 'PLN',
+                  maximumFractionDigits: 0
+                })}
+              </div>
+              <div style={{ fontSize: 11, color: '#52c41a', marginTop: 2 }}>
+                Wartość: {stockValue.toLocaleString('pl-PL', {
+                  style: 'currency',
+                  currency: 'PLN',
+                  maximumFractionDigits: 0
+                })}
+              </div>
+            </div>
+          </Col>
+        </Row>
+      </div>
+
+      {/* Dodatkowe info */}
+      <div style={{ padding: '0 16px 8px' }}>
+        {material.wielkosc_formatki && (
+          <span style={{
+            fontSize: 10,
+            color: 'var(--text-secondary)',
+            fontFamily: 'var(--font-family)'
+          }}>
+            📐 Format: {material.wielkosc_formatki}
+          </span>
+        )}
+        {material.location && (
+          <div style={{ marginTop: 2 }}>
+            <span style={{
+              fontSize: 10,
+              color: 'var(--text-secondary)',
+              fontFamily: 'var(--font-family)'
+            }}>
+              📍 {material.location}
             </span>
           </div>
-          <div className="d-flex align-items-center gap-2">
-            <div className="progress flex-grow-1" style={{ height: '8px' }}>
-              <div
-                className={`progress-bar bg-${status.color}`}
-                style={{ width: `${stockPercentage}%` }}
-                role="progressbar"
-                aria-valuenow={stockPercentage}
-                aria-valuemin={0}
-                aria-valuemax={100}
-              ></div>
-            </div>
-            <span className="small fw-medium">min {material.minStock} {material.unit}</span>
-          </div>
-        </div>
-
-        {/* Dodatkowe informacje */}
-        <div className="row g-2 mb-3">
-          <div className="col-6">
-            <div className="text-muted small">Dostawca</div>
-            <div className="fw-medium small text-truncate" title={material.supplier}>
-              {material.supplier}
-            </div>
-          </div>
-          <div className="col-6">
-            <div className="text-muted small">Lokalizacja</div>
-            <div className="fw-medium small">
-              <i className="ri-map-pin-line me-1"></i>
-              {material.location || 'Brak'}
-            </div>
-          </div>
-        </div>
-
-        {/* Właściwości */}
-        {material.properties && (
-          <div className="d-flex flex-wrap gap-1 mb-3">
-            {material.properties.fireResistant && (
-              <span className="badge bg-danger-subtle text-danger small">
-                <i className="ri-fire-line me-1"></i>Trudnopalny
-              </span>
-            )}
-            {material.properties.waterResistant && (
-              <span className="badge bg-info-subtle text-info small">
-                <i className="ri-drop-line me-1"></i>Wodoodporny
-              </span>
-            )}
-            {material.properties.flexible && (
-              <span className="badge bg-purple-subtle text-purple small">
-                <i className="ri-curve-line me-1"></i>Giętki</span>
-            )}
-            {material.thickness && (
-              <span className="badge bg-secondary-subtle text-secondary small">
-                {material.thickness}mm
-              </span>
-            )}
-          </div>
         )}
+      </div>
 
-        {/* Wartość */}
-        <div className="d-flex justify-content-between align-items-end">
-          <div>
-            <div className="text-muted small">Wartość</div>
-            <div className="fw-bold">
-              {(material.stock * material.price).toLocaleString('pl-PL', {
-                style: 'currency',
-                currency: 'PLN'
-              })}
-            </div>
-          </div>
-
-          {/* Przycisk szybkiego zamówienia dla krytycznych */}
-          {stockRatio < 1 && onQuickOrder && (
-            <button
-              className="btn btn-sm btn-danger"
+      {/* 5. Pasek Akcji (Dół Karty) */}
+      <div style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        borderTop: '1px solid var(--border-color)',
+        background: 'var(--bg-secondary)',
+        padding: '8px 12px'
+      }}>
+        <Row gutter={8} justify="space-between">
+          <Col>
+            <Button
+              type="text"
+              size="small"
+              icon={<EyeOutlined />}
               onClick={(e) => {
                 e.stopPropagation()
-                onQuickOrder(material)
+                onSelect?.(material)
               }}
-              title="Szybkie zamówienie"
             >
-              <i className="ri-shopping-cart-2-line"></i>
-            </button>
-          )}
-        </div>
-      </div>
+              Szczegóły
+            </Button>
+          </Col>
 
-      {/* Stopka z datą ostatniej dostawy */}
-      <div className="card-footer bg-transparent border-top-0 pt-0">
-        <div className="d-flex justify-content-between align-items-center text-muted small">
-          <span>
-            <i className="ri-truck-line me-1"></i>
-            Ostatnia dostawa
-          </span>
-          <span>
-            {material.lastDelivery
-              ? new Date(material.lastDelivery).toLocaleDateString('pl-PL')
-              : 'Brak danych'
-            }
-          </span>
-        </div>
+          {(stockStatus.status === 'critical' || stockStatus.status === 'low') && (
+            <Col>
+              <Button
+                type="text"
+                size="small"
+                danger={stockStatus.status === 'critical'}
+                icon={<ShoppingCartOutlined />}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onQuickOrder?.(material)
+                }}
+              >
+                Zamów
+              </Button>
+            </Col>
+          )}
+
+          <Col>
+            <Button
+              type="text"
+              size="small"
+              icon={<PlusOutlined />}
+              onClick={(e) => {
+                e.stopPropagation()
+                onAddToProject?.(material)
+              }}
+            >
+              Dodaj
+            </Button>
+          </Col>
+        </Row>
       </div>
-    </div>
+    </Card>
   )
 }
 
-export default memo(MaterialCardCmp)
-
+export { MaterialCard }

@@ -91,14 +91,18 @@ export default function MaterialDetailsPanel({
           zIndex: 1050,
           overflowY: 'auto'
         }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="material-details-title"
       >
         {/* Nagłówek */}
         <div className="sticky-top bg-white border-bottom">
           <div className="d-flex justify-content-between align-items-center p-3">
-            <h5 className="mb-0">Szczegóły materiału</h5>
+            <h5 id="material-details-title" className="mb-0">Szczegóły materiału</h5>
             <button
               className="btn btn-sm btn-ghost rounded-circle"
               onClick={onClose}
+              aria-label="Zamknij panel szczegółów"
             >
               <i className="ri-close-line fs-5"></i>
             </button>
@@ -149,7 +153,7 @@ export default function MaterialDetailsPanel({
                   </div>
                   {material.abcClass && (
                     <span className={`badge bg-${material.abcClass === 'A' ? 'success' :
-                        material.abcClass === 'B' ? 'warning' : 'danger'
+                      material.abcClass === 'B' ? 'warning' : 'danger'
                       }`}>
                       Klasa {material.abcClass}
                     </span>
@@ -192,8 +196,8 @@ export default function MaterialDetailsPanel({
                     <div className="progress" style={{ height: '10px' }}>
                       <div
                         className={`progress-bar ${stockRatio < 0.5 ? 'bg-danger' :
-                            stockRatio < 1 ? 'bg-warning' :
-                              'bg-success'
+                          stockRatio < 1 ? 'bg-warning' :
+                            'bg-success'
                           }`}
                         style={{ width: `${stockPercentage}%` }}
                       ></div>

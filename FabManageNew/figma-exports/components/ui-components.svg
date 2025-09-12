@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1000" height="800" viewBox="0 0 1000 800"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+      .component-box { fill: #f8f9fa; stroke: #dee2e6; stroke-width: 2; rx: 8; }
+      .component-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; fill: #495057; font-weight: 500; }
+      .category-header { font-family: 'Segoe UI', Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #212529; }
+      .description { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; fill: #6c757d; }
+      .props-box { fill: #e3f2fd; stroke: #2196f3; stroke-width: 1; rx: 4; }
+      .props-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; fill: #1976d2; }
+      .arrow { stroke: #6c757d; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .utility-component { fill: #fff3e0; stroke: #ff9800; stroke-width: 2; rx: 8; }
+      .form-component { fill: #e8f5e8; stroke: #4caf50; stroke-width: 2; rx: 8; }
+        </style>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#6c757d" />
+        </marker>
+    </defs>
+
+    <!-- Title -->
+    <text x="500" y="40" text-anchor="middle" class="category-header">UI Components Library</text>
+
+    <!-- LoadingSpinner -->
+    <rect x="50" y="80" width="200" height="120" class="utility-component"/>
+    <text x="150" y="105" text-anchor="middle" class="component-text">LoadingSpinner</text>
+    <text x="60" y="125" class="description">Loading indicators with multiple variants</text>
+
+    <rect x="60" y="140" width="180" height="50" class="props-box"/>
+    <text x="70" y="155" class="props-text">Props: message, size, type, style, className</text>
+    <text x="70" y="170" class="props-text">Features: Simple, Card, Overlay, Module, Page, Component loading</text>
+    <text x="70" y="185" class="props-text">Dependencies: React, CSS animations</text>
+
+    <!-- StatusBadge -->
+    <rect x="300" y="80" width="200" height="120" class="utility-component"/>
+    <text x="400" y="105" text-anchor="middle" class="component-text">StatusBadge</text>
+    <text x="310" y="125" class="description">Status indicators with icons and tooltips</text>
+
+    <rect x="310" y="140" width="180" height="50" class="props-box"/>
+    <text x="320" y="155" class="props-text">Props: status, showIcon, showTooltip, size, className</text>
+    <text x="320" y="170" class="props-text">Features: Color coding, Icons, Tooltips, Multiple sizes</text>
+    <text x="320" y="185" class="props-text">Dependencies: Badge, Tooltip, Icon components</text>
+
+    <!-- ErrorMessage -->
+    <rect x="550" y="80" width="200" height="120" class="utility-component"/>
+    <text x="650" y="105" text-anchor="middle" class="component-text">ErrorMessage</text>
+    <text x="560" y="125" class="description">Error display with multiple types</text>
+
+    <rect x="560" y="140" width="180" height="50" class="props-box"/>
+    <text x="570" y="155" class="props-text">Props: error, type, showIcon, className, style</text>
+    <text x="570" y="170" class="props-text">Features: Field, Form, Global errors, FormErrorSummary</text>
+    <text x="570" y="185" class="props-text">Dependencies: Alert, Typography, Form components</text>
+
+    <!-- EntityTable -->
+    <rect x="800" y="80" width="150" height="120" class="utility-component"/>
+    <text x="875" y="105" text-anchor="middle" class="component-text">EntityTable</text>
+    <text x="810" y="125" class="description">Generic data table component</text>
+
+    <rect x="810" y="140" width="130" height="50" class="props-box"/>
+    <text x="820" y="155" class="props-text">Props: rows, columns, rowKey, onRowClick</text>
+    <text x="820" y="170" class="props-text">Features: Sorting, Column visibility, Click handling</text>
+    <text x="820" y="185" class="props-text">Dependencies: Table, React, Generic types</text>
+
+    <!-- FileManager -->
+    <rect x="50" y="250" width="200" height="120" class="utility-component"/>
+    <text x="150" y="275" text-anchor="middle" class="component-text">FileManager</text>
+    <text x="60" y="295" class="description">File upload and management</text>
+
+    <rect x="60" y="310" width="180" height="50" class="props-box"/>
+    <text x="70" y="325" class="props-text">Props: files, onUpload, onRemove</text>
+    <text x="70" y="340" class="props-text">Features: File list, Upload, Remove actions</text>
+    <text x="70" y="355" class="props-text">Dependencies: FileItem type, Upload components</text>
+
+    <!-- FileUploadZone -->
+    <rect x="300" y="250" width="200" height="120" class="form-component"/>
+    <text x="400" y="275" text-anchor="middle" class="component-text">FileUploadZone</text>
+    <text x="310" y="295" class="description">Drag & drop file upload zone</text>
+
+    <rect x="310" y="310" width="180" height="50" class="props-box"/>
+    <text x="320" y="325" class="props-text">Props: label, value, onChange, acceptedTypes</text>
+    <text x="320" y="340" class="props-text">Features: Drag & drop, File validation, Preview</text>
+    <text x="320" y="355" class="props-text">Dependencies: React, FileReader, Drag events</text>
+
+    <!-- FormModal -->
+    <rect x="550" y="250" width="200" height="120" class="form-component"/>
+    <text x="650" y="275" text-anchor="middle" class="component-text">FormModal</text>
+    <text x="560" y="295" class="description">Generic form modal with validation</text>
+
+    <rect x="560" y="310" width="180" height="50" class="props-box"/>
+    <text x="570" y="325" class="props-text">Props: title, isOpen, initial, schema, onSubmit</text>
+    <text x="570" y="340" class="props-text">Features: Zod validation, Generic form handling</text>
+    <text x="570" y="355" class="props-text">Dependencies: Modal, ZodSchema, React</text>
+
+    <!-- SlideOver -->
+    <rect x="800" y="250" width="150" height="120" class="utility-component"/>
+    <text x="875" y="275" text-anchor="middle" class="component-text">SlideOver</text>
+    <text x="810" y="295" class="description">Sliding panel component</text>
+
+    <rect x="810" y="310" width="130" height="50" class="props-box"/>
+    <text x="820" y="325" class="props-text">Props: open, title, width, onClose, children</text>
+    <text x="820" y="340" class="props-text">Features: Right-side sliding, ESC key support</text>
+    <text x="820" y="355" class="props-text">Dependencies: React, useEffect, KeyboardEvent</text>
+
+    <!-- StageStepper -->
+    <rect x="50" y="420" width="200" height="120" class="utility-component"/>
+    <text x="150" y="445" text-anchor="middle" class="component-text">StageStepper</text>
+    <text x="60" y="465" class="description">Step indicator component</text>
+
+    <rect x="60" y="480" width="180" height="50" class="props-box"/>
+    <text x="70" y="495" class="props-text">Props: steps, currentKey</text>
+    <text x="70" y="510" class="props-text">Features: Step navigation, Current step highlighting</text>
+    <text x="70" y="525" class="props-text">Dependencies: Step type, React</text>
+
+    <!-- Toolbar -->
+    <rect x="300" y="420" width="200" height="120" class="utility-component"/>
+    <text x="400" y="445" text-anchor="middle" class="component-text">Toolbar</text>
+    <text x="310" y="465" class="description">Generic toolbar component</text>
+
+    <rect x="310" y="480" width="180" height="50" class="props-box"/>
+    <text x="320" y="495" class="props-text">Props: left, right</text>
+    <text x="320" y="510" class="props-text">Features: Left/right content areas</text>
+    <text x="320" y="525" class="props-text">Dependencies: React</text>
+
+    <!-- PageHeader -->
+    <rect x="550" y="420" width="200" height="120" class="utility-component"/>
+    <text x="650" y="445" text-anchor="middle" class="component-text">PageHeader</text>
+    <text x="560" y="465" class="description">Standard page header</text>
+
+    <rect x="560" y="480" width="180" height="50" class="props-box"/>
+    <text x="570" y="495" class="props-text">Props: title, subtitle, actions</text>
+    <text x="570" y="510" class="props-text">Features: Title, Subtitle, Action buttons</text>
+    <text x="570" y="525" class="props-text">Dependencies: React</text>
+
+    <!-- AuthPanel -->
+    <rect x="800" y="420" width="150" height="120" class="utility-component"/>
+    <text x="875" y="445" text-anchor="middle" class="component-text">AuthPanel</text>
+    <text x="810" y="465" class="description">Authentication panel</text>
+
+    <rect x="810" y="480" width="130" height="50" class="props-box"/>
+    <text x="820" y="495" class="props-text">Props: (minimal)</text>
+    <text x="820" y="510" class="props-text">Features: Auth UI components</text>
+    <text x="820" y="525" class="props-text">Dependencies: React</text>
+
+    <!-- AsyncStates -->
+    <rect x="50" y="590" width="200" height="120" class="utility-component"/>
+    <text x="150" y="615" text-anchor="middle" class="component-text">AsyncStates</text>
+    <text x="60" y="635" class="description">Loading, Empty, Error states</text>
+
+    <rect x="60" y="650" width="180" height="50" class="props-box"/>
+    <text x="70" y="665" class="props-text">Props: text, message (optional)</text>
+    <text x="70" y="680" class="props-text">Features: Loading, Empty, ErrorState components</text>
+    <text x="70" y="695" class="props-text">Dependencies: React</text>
+
+    <!-- Component Relationships -->
+    <line x1="250" y1="140" x2="300" y2="140" class="arrow"/>
+    <line x1="500" y1="140" x2="550" y2="140" class="arrow"/>
+    <line x1="750" y1="140" x2="800" y2="140" class="arrow"/>
+
+    <line x1="250" y1="310" x2="300" y2="310" class="arrow"/>
+    <line x1="500" y1="310" x2="550" y2="310" class="arrow"/>
+    <line x1="750" y1="310" x2="800" y2="310" class="arrow"/>
+
+    <line x1="250" y1="480" x2="300" y2="480" class="arrow"/>
+    <line x1="500" y1="480" x2="550" y2="480" class="arrow"/>
+    <line x1="750" y1="480" x2="800" y2="480" class="arrow"/>
+
+    <!-- Usage Examples -->
+    <rect x="300" y="590" width="650" height="120" class="component-box"/>
+    <text x="625" y="615" text-anchor="middle" class="component-text">Usage Examples</text>
+
+    <text x="310" y="640" class="description">• LoadingSpinner: Show loading states during data fetching</text>
+    <text x="310" y="660" class="description">• StatusBadge: Display status indicators throughout the app</text>
+    <text x="310" y="680" class="description">• ErrorMessage: Handle and display errors consistently</text>
+    <text x="310" y="700" class="description">• EntityTable: Display tabular data with sorting and filtering</text>
+    <text x="310" y="720" class="description">• FileUploadZone: Handle file uploads with drag & drop</text>
+    <text x="310" y="740" class="description">• FormModal: Create consistent form experiences</text>
+    <text x="310" y="760" class="description">• SlideOver: Provide slide-out panels for details and forms</text>
+
+</svg>

@@ -1,12 +1,16 @@
 import { useCallback, useMemo, useState } from 'react'
+import { Select, Button, Switch } from 'antd'
 import { useDrag, useDrop } from 'react-dnd'
 import { useTilesStore, type Tile } from '../stores/tilesStore'
-import TileEditModal from '../components/TileEditModal'
+import TileEditDrawer from '../components/Tiles/tile-edit-drawer'
+import { useProjectsStore } from '../stores/projectsStore'
 
 type DesignStatus = 'Projektowanie' | 'W trakcie projektowania' | 'Do akceptacji' | 'Zaakceptowane' | 'Wymagają poprawek'
 
 export default function Projektowanie() {
     const { tiles, updateTile } = useTilesStore()
+    const { projectsById } = useProjectsStore()
+    const { projects } = useProjectsStore()
     const [selected, setSelected] = useState<Tile | null>(null)
     const [showTileModal, setShowTileModal] = useState(false)
     const [editingTile, setEditingTile] = useState<Tile | null>(null)
@@ -24,6 +28,18 @@ export default function Projektowanie() {
         return tiles.filter(tile => designStatuses.includes(tile.status as DesignStatus))
     }, [tiles])
 
+    // Project filter state
+    const [selectedProjectId, setSelectedProjectId] = useState<string | 'all'>('all')
+    const [onlySelectedProject, setOnlySelectedProject] = useState<boolean>(false)
+
+    // Apply project filter when toggle is enabled and a project is selected
+    const filteredDesignTiles = useMemo(() => {
+        if (onlySelectedProject && selectedProjectId !== 'all') {
+            return designTiles.filter(t => t.project === selectedProjectId)
+        }
+        return designTiles
+    }, [designTiles, onlySelectedProject, selectedProjectId])
+
     const columns: { key: DesignStatus; label: string; color: string }[] = [
         { key: 'Projektowanie', label: 'Nowe Zlecenia', color: 'text-muted' },
         { key: 'W trakcie projektowania', label: 'W Trakcie Projektowania', color: 'text-primary' },
@@ -33,9 +49,30 @@ export default function Projektowanie() {
     ]
 
     const byColumn = useMemo(() =>
-        Object.fromEntries(columns.map(c => [c.key, designTiles.filter(t => t.status === c.key)])) as Record<DesignStatus, Tile[]>,
-        [designTiles, columns]
+        Object.fromEntries(columns.map(c => [c.key, filteredDesignTiles.filter(t => t.status === c.key)])) as Record<DesignStatus, Tile[]>,
+        [filteredDesignTiles, columns]
     )
+
+    // Group tiles inside each column by project id
+    const byColumnGrouped = useMemo(() => {
+        const result = {} as Record<DesignStatus, Record<string, Tile[]>>
+        (columns.map(c => c.key) as DesignStatus[]).forEach(colKey => {
+            const items = byColumn[colKey] || []
+            const groups: Record<string, Tile[]> = {}
+            for (const t of items) {
+                const pid = t.project || '—'
+                if (!groups[pid]) groups[pid] = []
+                groups[pid].push(t)
+            }
+            result[colKey] = groups
+        })
+        return result
+    }, [byColumn, columns])
+
+    // Expand/collapse state per column+project
+    const [expanded, setExpanded] = useState<Record<string, boolean>>({})
+    const toggleGroup = (key: string) => setExpanded(prev => ({ ...prev, [key]: !prev[key] }))
+    const isExpanded = (key: string) => expanded[key] !== false
 
     const moveTile = (id: string, status: DesignStatus) => {
         updateTile(id, { status })
@@ -46,7 +83,7 @@ export default function Projektowanie() {
         setShowTileModal(true)
     }
 
-    const handleSaveTile = (tileData: Partial<Tile>) => {
+    const handleSaveTile = (tileData: Omit<Tile, 'id'>) => {
         if (editingTile) {
             updateTile(editingTile.id, tileData)
         }
@@ -61,8 +98,25 @@ export default function Projektowanie() {
                     <h4 className="mb-0">Dział Projektowy</h4>
                     <p className="text-muted mb-0">Zarządzanie zadaniami projektowymi</p>
                 </div>
-                <div className="d-flex gap-2">
-                    <span className="badge bg-primary fs-6">{designTiles.length} zadań</span>
+                <div className="d-flex gap-2 align-items-center">
+                    <Select
+                        size="small"
+                        style={{ minWidth: 240 }}
+                        value={selectedProjectId}
+                        onChange={(val) => setSelectedProjectId(val)}
+                        options={[
+                            { value: 'all', label: 'Wszystkie projekty' },
+                            ...((projects || []).map(p => ({ value: p.id, label: p.name })))]}
+                    />
+                    <div className="d-flex align-items-center gap-1">
+                        <Switch
+                            size="small"
+                            checked={onlySelectedProject}
+                            onChange={(v) => setOnlySelectedProject(v)}
+                        />
+                        <span className="small text-muted">Pokaż tylko wybrany projekt</span>
+                    </div>
+                    <span className="badge bg-primary fs-6">{filteredDesignTiles.length} zadań</span>
                 </div>
             </div>
 
@@ -77,17 +131,46 @@ export default function Projektowanie() {
                                         <span className="badge bg-label-secondary">{byColumn[col.key].length}</span>
                                     </div>
                                     <ColumnDrop onDrop={(id) => moveTile(id, col.key)}>
-                                        {byColumn[col.key].map(tile => (
-                                            <DesignCardItem
-                                                key={tile.id}
-                                                tile={tile}
-                                                onSelect={() => setSelected(tile)}
-                                                onEdit={() => handleEditTile(tile)}
-                                                onAccept={() => moveTile(tile.id, 'Zaakceptowane')}
-                                                onNeedsFix={() => moveTile(tile.id, 'Wymagają poprawek')}
-                                            />
-                                        ))}
-                                        {byColumn[col.key].length === 0 && <p className="text-muted">Brak zadań</p>}
+                                        {Object.entries(byColumnGrouped[col.key] || {}).length === 0 && (
+                                            <p className="text-muted">Brak zadań</p>
+                                        )}
+                                        {Object.entries(byColumnGrouped[col.key] || {})
+                                            .sort(([a], [b]) => {
+                                                const an = projectsById[a]?.name || a
+                                                const bn = projectsById[b]?.name || b
+                                                return an.localeCompare(bn)
+                                            })
+                                            .map(([projectId, items]) => {
+                                                const headerKey = `${col.key}:${projectId}`
+                                                const name = projectsById[projectId]?.name || projectId
+                                                return (
+                                                    <div key={headerKey} className="border-bottom">
+                                                        <div className="d-flex justify-content-between align-items-center px-2 py-1 bg-light">
+                                                            <div className="fw-semibold text-truncate" title={name}>{name}</div>
+                                                            <div className="d-flex align-items-center gap-2">
+                                                                <span className="badge bg-label-secondary">{items.length}</span>
+                                                                <button className="btn btn-sm btn-outline-secondary" onClick={() => toggleGroup(headerKey)}>
+                                                                    {isExpanded(headerKey) ? 'Zwiń' : 'Rozwiń'}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        {isExpanded(headerKey) && (
+                                                            <div>
+                                                                {items.map(tile => (
+                                                                    <DesignCardItem
+                                                                        key={tile.id}
+                                                                        tile={tile}
+                                                                        onSelect={() => setSelected(tile)}
+                                                                        onEdit={() => handleEditTile(tile)}
+                                                                        onAccept={() => moveTile(tile.id, 'Zaakceptowane')}
+                                                                        onNeedsFix={() => moveTile(tile.id, 'Wymagają poprawek')}
+                                                                    />
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )
+                                            })}
                                     </ColumnDrop>
                                 </div>
                             </div>
@@ -103,11 +186,40 @@ export default function Projektowanie() {
                                 <div>
                                     <div className="h5 mb-2">{selected.name}</div>
                                     <div className="text-muted small mb-2">
-                                        {selected.project} • {selected.assignee || 'Nieprzypisany'} • {selected.priority}
+                                        {selected.project} • {selected.assignee || 'Nieprzypisany'}
                                     </div>
                                     <div className="mb-2">
                                         <span className="badge bg-label-primary me-2">{selected.status}</span>
-                                        <span className="badge bg-label-info">{selected.technology}</span>
+                                    </div>
+                                    <div className="mb-3">
+                                        <div className="text-muted small mb-1">Przypisz projektanta (Push)</div>
+                                        <div className="d-flex gap-2">
+                                            <Select
+                                                style={{ minWidth: 180 }}
+                                                size="small"
+                                                placeholder="Wybierz projektanta"
+                                                value={selected.przypisany_projektant || undefined}
+                                                onChange={(val) => updateTile(selected.id, { przypisany_projektant: val, status: 'W trakcie projektowania' as any })}
+                                                options={[
+                                                    { value: 'Anna Kowalska', label: 'Anna Kowalska' },
+                                                    { value: 'Piotr Nowak', label: 'Piotr Nowak' },
+                                                    { value: 'Kamil Arndt', label: 'Kamil Arndt' }
+                                                ]}
+                                            />
+                                            <Button size="small" onClick={async () => {
+                                                await updateTile(selected.id, { status: 'W trakcie projektowania' as any })
+                                                try {
+                                                    const { useCalendarStore } = await import('../stores/calendarStore')
+                                                    const title = `Projekt: ${selected.name}`
+                                                    useCalendarStore.getState().autoSchedule({
+                                                        resourceId: 'designer-1',
+                                                        tasks: [{ title, durationH: 2, meta: { tileId: selected.id, projectId: selected.project }, phase: 'projektowanie' }]
+                                                    })
+                                                } catch {
+                                                    // noop
+                                                }
+                                            }}>Przypisz</Button>
+                                        </div>
                                     </div>
                                     <div className="mb-3">
                                         <small className="text-muted">Koszt robocizny: {selected.laborCost || 0} PLN</small>
@@ -133,20 +245,34 @@ export default function Projektowanie() {
                             )}
                         </div>
                     </div>
+                    <div className="card mt-3">
+                        <div className="card-header fw-semibold">Pula Zadań (Pull)</div>
+                        <div className="card-body">
+                            {tiles.filter(t => t.status === 'W KOLEJCE' && (!onlySelectedProject || selectedProjectId === 'all' ? true : t.project === selectedProjectId)).map(t => (
+                                <div key={t.id} className="d-flex justify-content-between align-items-center py-1">
+                                    <div className="small text-truncate" style={{ maxWidth: 160 }}>{t.name}</div>
+                                    <button className="btn btn-sm btn-outline-success" onClick={() => updateTile(t.id, { status: 'W trakcie projektowania' })}>Weź</button>
+                                </div>
+                            ))}
+                            {tiles.filter(t => t.status === 'W KOLEJCE' && (!onlySelectedProject || selectedProjectId === 'all' ? true : t.project === selectedProjectId)).length === 0 && (
+                                <div className="text-muted small">Brak dostępnych zadań</div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
 
             {/* Tile Edit Modal */}
-            {showTileModal && editingTile && (
-                <TileEditModal
-                    tile={editingTile}
-                    onClose={() => {
-                        setShowTileModal(false)
-                        setEditingTile(null)
-                    }}
-                    onSave={handleSaveTile}
-                />
-            )}
+            <TileEditDrawer
+                open={showTileModal}
+                onClose={() => {
+                    setShowTileModal(false)
+                    setEditingTile(null)
+                }}
+                onSave={handleSaveTile}
+                tile={editingTile || undefined}
+                projectId={editingTile?.project}
+            />
         </div>
     )
 }
@@ -172,8 +298,6 @@ function DesignCardItem({ tile, onSelect, onEdit, onAccept, onNeedsFix }: {
                 <div className="fw-semibold">{tile.name}</div>
                 <div className="text-muted small">{tile.project} • {tile.assignee || 'Nieprzypisany'}</div>
                 <div className="d-flex justify-content-between mt-1 align-items-center">
-                    <span className="badge bg-label-info">{tile.priority}</span>
-                    <span className="text-muted small">{tile.technology}</span>
                 </div>
                 <div className="d-flex gap-2 mt-2">
                     <button className="btn btn-sm btn-outline-primary" onClick={(e) => { e.stopPropagation(); onEdit(); }}>

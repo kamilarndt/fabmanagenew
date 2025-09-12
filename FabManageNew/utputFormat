@@ -1,0 +1,13 @@
+HTTP/1.1 400 Bad Request
+x-request-id: adde8ae9-70dc-4a86-8fc3-75161bd179ac
+Access-Control-Allow-Origin: *
+X-RateLimit-Remaining: 49
+Content-Security-Policy: frame-ancestors 'none'
+Content-Type: application/json; charset=utf-8
+Content-Length: 406
+ETag: W/"196-HUCJKwlQurC5GNaaJnH0d+HOnRw"
+Date: Wed, 10 Sep 2025 17:13:31 GMT
+Connection: keep-alive
+Keep-Alive: timeout=61
+
+{"errors":[{"message":"This operation has been blocked as a potential Cross-Site Request Forgery (CSRF). Please either specify a 'content-type' header (with a type that is not one of application/x-www-form-urlencoded, multipart/form-data, text/plain) or provide a non-empty value for one of the following headers: x-apollo-operation-name, apollo-require-preflight\n","extensions":{"code":"BAD_REQUEST"}}]}

@@ -1,0 +1,38 @@
+# Installation Instructions - Advanced Generator V2
+
+## Quick Install:
+1. Open Figma Desktop App
+2. Go to Plugins → Development → Import plugin from file
+3. Select: fabmanage-advanced-generator.zip
+4. Click "Import"
+
+## Usage:
+1. Open the plugin in Figma
+2. Import your SVG files
+3. Configure advanced settings
+4. Click "Generate Advanced Components"
+
+## New Features V2:
+- ✅ Only atoms as components
+- ✅ Molecules/organisms as frames
+- ✅ Intelligent duplicate detection
+- ✅ Tokens Studio integration
+- ✅ Fixed empty components issue
+- ✅ Advanced statistics and monitoring
+
+## Requirements:
+- Figma Desktop App (required)
+- SVG files with proper structure
+- Components with id attributes
+
+## Support:
+- Check README-v2.md for detailed documentation
+- Use examples/sample-components.svg for testing
+- Advanced features: Tokens Studio integration
+
+## Key Improvements:
+- 🚀 Scalable component architecture
+- 🎨 Design tokens extraction
+- 🔍 Duplicate detection and grouping
+- 📊 Advanced statistics
+- 🛠️ Fixed component generation issues

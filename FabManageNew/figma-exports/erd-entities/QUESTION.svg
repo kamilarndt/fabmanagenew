@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="500" viewBox="0 0 400 500"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+      .entity-bg { fill: #f8f9fa; stroke: #dee2e6; stroke-width: 2; }
+      .entity-title { fill: #495057; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600; }
+      .field-name { fill: #6c757d; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; }
+      .field-type { fill: #28a745; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 400; }
+      .field-description { fill: #6c757d; font-family: 'Inter', sans-serif; font-size: 10px; font-style: italic; }
+      .pk-field { fill: #dc3545; font-weight: 600; }
+      .fk-field { fill: #007bff; font-weight: 500; }
+      .enum-field { fill: #fd7e14; font-weight: 500; }
+        </style>
+    </defs>
+
+    <!-- Entity Background -->
+    <rect class="entity-bg" x="10" y="10" width="380" height="480" rx="8" />
+
+    <!-- Entity Title -->
+    <text x="200" y="35" text-anchor="middle" class="entity-title">QUESTION</text>
+
+    <!-- Fields -->
+    <text x="20" y="60" class="field-name pk-field">id</text>
+    <text x="80" y="60" class="field-type">string</text>
+    <text x="120" y="60" class="field-description">PK</text>
+
+    <text x="20" y="80" class="field-name fk-field">tile_id</text>
+    <text x="80" y="80" class="field-type">string</text>
+    <text x="120" y="80" class="field-description">FK</text>
+
+    <text x="20" y="100" class="field-name fk-field">autor_id</text>
+    <text x="80" y="100" class="field-type">string</text>
+    <text x="120" y="100" class="field-description">FK</text>
+
+    <text x="20" y="120" class="field-name">tresc</text>
+    <text x="80" y="120" class="field-type">string</text>
+
+    <text x="20" y="140" class="field-name">odpowiedz</text>
+    <text x="80" y="140" class="field-type">string</text>
+
+    <text x="20" y="160" class="field-name">status</text>
+    <text x="80" y="160" class="field-type enum-field">enum</text>
+    <text x="120" y="160" class="field-description">"Otwarte|Zamkniete"</text>
+
+    <text x="20" y="180" class="field-name">data_dodania</text>
+    <text x="80" y="180" class="field-type">string</text>
+
+    <text x="20" y="200" class="field-name">data_odpowiedzi</text>
+    <text x="80" y="200" class="field-type">string</text>
+</svg>

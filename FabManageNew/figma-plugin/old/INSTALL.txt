@@ -1,0 +1,22 @@
+# Installation Instructions
+
+## Quick Install:
+1. Open Figma Desktop App
+2. Go to Plugins → Development → Import plugin from file
+3. Select: fabmanage-component-generator.zip
+4. Click "Import"
+
+## Usage:
+1. Open the plugin in Figma
+2. Import your SVG files
+3. Configure settings
+4. Click "Generate Components in Figma"
+
+## Requirements:
+- Figma Desktop App (required)
+- SVG files with proper structure
+- Components with id attributes
+
+## Support:
+- Check README.md for detailed documentation
+- Use examples/sample-components.svg for testing

@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:figma="http://www.figma.com/figma/ns"
+     viewBox="0 0 1200 800" 
+     width="1200" 
+     height="800"
+     data-figma-export="structured-components">
+    <defs>
+        <!-- Design System Colors -->
+        <style>
+      .bg-primary { fill: #1A1D21; }
+      .bg-secondary { fill: #25282E; }
+      .bg-card { fill: #2D3139; }
+      .text-primary { fill: #FFFFFF; }
+      .text-secondary { fill: #B8BCC8; }
+      .primary-main { fill: #0D99FF; }
+      .accent-info { fill: #1890FF; }
+      .status-normal { fill: #52C41A; }
+      .status-warning { fill: #FAAD14; }
+      .status-error { fill: #FF4D4F; }
+      .border-main { stroke: #404552; }
+      .component-outline { stroke: #0D99FF; stroke-width: 2; }
+      .debug-label { fill: #0D99FF; font-size: 10px; font-family: Inter, sans-serif; }
+      .hover-effect { transition: all 0.15s ease-in-out; }
+      .hover-effect:hover { fill: #373C44; }
+        </style>
+
+        <!-- Gradients -->
+        <linearGradient id="thumbnailGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+        </linearGradient>
+
+        <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#108ee9;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#87d068;stop-opacity:1" />
+        </linearGradient>
+        
+        <!-- FIGMA PLUGIN METADATA -->
+        <metadata id="figma-structure">
+            <figma:components>
+                <figma:component id="Card" type="container" category="atoms"/>
+                <figma:component id="Progress" type="indicator" category="atoms"/>
+                <figma:component id="Tag" type="badge" category="atoms"/>
+                <figma:component id="Avatar" type="avatar" category="atoms"/>
+                <figma:component id="Space" type="layout" category="atoms"/>
+                <figma:component id="Typography" type="text" category="atoms"/>
+                <figma:component id="Button" type="interactive" category="atoms"/>
+                <figma:component id="ProjectHeader" type="composite" category="molecules"/>
+                <figma:component id="ProjectMeta" type="composite" category="molecules"/>
+                <figma:component id="ProjectInfo" type="composite" category="molecules"/>
+                <figma:component id="ProjectCard" type="card" category="organisms"/>
+                <figma:component id="CompactProject" type="variant" category="organisms"/>
+                <figma:component id="DetailedProject" type="variant" category="organisms"/>
+            </figma:components>
+            <figma:properties>
+                <figma:property component="Progress" name="value" type="number" default="50" min="0" max="100"/>
+                <figma:property component="Typography" name="text" type="string" default="Sample Text"/>
+                <figma:property component="Tag" name="color" type="enum" values="blue,green,red,orange,purple" default="blue"/>
+                <figma:property component="Button" name="variant" type="enum" values="primary,secondary,text" default="primary"/>
+                <figma:property component="ProjectHeader" name="status" type="enum" values="active,inactive,pending" default="active"/>
+                <figma:property component="ProjectCard" name="variant" type="enum" values="default,compact,detailed" default="default"/>
+            </figma:properties>
+        </metadata>
+    </defs>
+
+    <!-- Background -->
+    <rect width="1200" height="800" class="bg-primary"/>
+
+    <!-- Title -->
+    <text x="20" y="30" class="text-primary" font-family="Inter" font-size="24" font-weight="700">ProjectCard Component - Figma Ready Structure</text>
+    <text x="20" y="50" class="text-secondary" font-family="Inter" font-size="14">import { Card, Progress, Tag, Avatar, Space, Typography, Button } from 'antd'</text>
+
+    <!-- ELEMENTS SECTION - Individual Ant Design Components -->
+    <g id="ELEMENTS" transform="translate(20, 100)">
+        <title>Elementy atomowe - podstawowe komponenty Ant Design</title>
+        <text x="0" y="0" class="text-primary" font-family="Inter" font-size="18" font-weight="700">ELEMENTS (Ant Design Components)</text>
+        
+        <!-- Card Element -->
+        <g id="Card" class="element" data-figma-component="container">
+            <title>Card Container</title>
+            <desc>Główny kontener karty z zaokrąglonymi rogami</desc>
+            <text x="0" y="20" class="debug-label">Card</text>
+            <rect x="0" y="25" width="80" height="50" rx="0" class="bg-card border-main component-outline" stroke-width="1"/>
+            <text x="40" y="50" text-anchor="middle" class="text-primary" font-size="10">Card</text>
+        </g>
+        
+        <!-- Progress Element -->
+        <g id="Progress" class="element" data-figma-component="progress">
+            <title>Progress Bar</title>
+            <desc>Pasek postępu z animacją</desc>
+            <text x="100" y="20" class="debug-label">Progress</text>
+            <rect x="100" y="25" width="80" height="20" rx="0" class="bg-primary"/>
+            <rect x="100" y="25" width="50" height="20" rx="0" fill="url(#progressGradient)"/>
+            <text x="140" y="38" text-anchor="middle" class="text-primary" font-size="10">Progress</text>
+        </g>
+        
+        <!-- Tag Element -->
+        <g id="Tag" class="element" data-figma-component="tag">
+            <title>Tag Badge</title>
+            <desc>Etykieta z kolorowym tłem</desc>
+            <text x="200" y="20" class="debug-label">Tag</text>
+            <rect x="200" y="25" width="60" height="20" rx="2" class="accent-info"/>
+            <text x="230" y="38" text-anchor="middle" class="text-primary" font-size="9">Tag</text>
+        </g>
+        
+        <!-- Avatar Element -->
+        <g id="Avatar" class="element" data-figma-component="avatar">
+            <title>User Avatar</title>
+            <desc>Okrągły awatar użytkownika</desc>
+            <text x="280" y="20" class="debug-label">Avatar</text>
+            <circle cx="320" cy="35" r="12" class="primary-main"/>
+            <text x="320" y="40" text-anchor="middle" class="text-primary" font-size="8">👤</text>
+        </g>
+        
+        <!-- Space Element -->
+        <g id="Space" class="element" data-figma-component="space">
+            <title>Layout Space</title>
+            <desc>Komponent układu do pozycjonowania</desc>
+            <text x="360" y="20" class="debug-label">Space</text>
+            <rect x="360" y="25" width="60" height="20" rx="0" class="bg-card"/>
+            <text x="390" y="38" text-anchor="middle" class="text-primary" font-size="9">Space</text>
+        </g>
+        
+        <!-- Typography Element -->
+        <g id="Typography" class="element" data-figma-component="text">
+            <title>Typography</title>
+            <desc>Elementy tekstowe i tytuły</desc>
+            <text x="440" y="20" class="debug-label">Typography</text>
+            <text x="440" y="35" class="text-primary" font-size="12" font-weight="600">Typography</text>
+            <text x="440" y="50" class="text-secondary" font-size="10">Text/Title</text>
+        </g>
+        
+        <!-- Button Element -->
+        <g id="Button" class="element" data-figma-component="button">
+            <title>Interactive Button</title>
+            <desc>Przycisk interaktywny</desc>
+            <text x="540" y="20" class="debug-label">Button</text>
+            <rect x="540" y="25" width="60" height="25" rx="0" class="bg-card border-main" stroke-width="1"/>
+            <text x="570" y="40" text-anchor="middle" class="text-primary" font-size="9">Button</text>
+        </g>
+    </g>
+
+    <!-- GROUPS SECTION -->
+    <g id="GROUPS" transform="translate(20, 220)">
+        <title>Kombinacje elementów - grupy funkcjonalne</title>
+        <text x="0" y="0" class="text-primary" font-family="Inter" font-size="18" font-weight="700">GROUPS (Element Combinations)</text>
+        
+        <!-- Project Header Group -->
+        <g id="ProjectHeader" class="group" data-figma-component="header">
+            <title>Project Header</title>
+            <desc>Nagłówek projektu z tytułem i statusem</desc>
+            <text x="0" y="20" class="debug-label">Project Header</text>
+            <rect x="0" y="25" width="200" height="40" class="bg-card"/>
+            <text x="10" y="40" class="text-primary" font-size="14" font-weight="600">Project Name</text>
+            <text x="10" y="55" class="text-secondary" font-size="10">Nr: PROJ-001</text>
+            <rect x="130" y="30" width="60" height="20" rx="2" class="status-normal"/>
+            <text x="160" y="43" text-anchor="middle" class="text-primary" font-size="9">Status</text>
+        </g>
+        
+        <!-- Project Meta Group -->
+        <g id="ProjectMeta" class="group" data-figma-component="meta">
+            <title>Project Meta</title>
+            <desc>Meta informacje o projekcie</desc>
+            <text x="220" y="20" class="debug-label">Project Meta</text>
+            <rect x="220" y="25" width="150" height="30" class="bg-card"/>
+            <rect x="230" y="30" width="50" height="18" rx="2" class="accent-info"/>
+            <text x="255" y="42" text-anchor="middle" class="text-primary" font-size="8">TAG</text>
+            <text x="290" y="42" class="text-secondary" font-size="9">📍 Location</text>
+        </g>
+        
+        <!-- Project Info Group -->
+        <g id="ProjectInfo" class="group" data-figma-component="info">
+            <title>Project Info</title>
+            <desc>Informacje o kliencie i terminach</desc>
+            <text x="390" y="20" class="debug-label">Project Info</text>
+            <rect x="390" y="25" width="180" height="40" class="bg-card"/>
+            <text x="400" y="40" class="text-primary" font-size="10">👤 Client: ABC Company</text>
+            <text x="400" y="55" class="text-primary" font-size="10">📅 Deadline: 15.12.2024</text>
+        </g>
+    </g>
+
+    <!-- COMPONENT SECTION - Complete ProjectCard -->
+    <g id="COMPONENT" transform="translate(20, 320)">
+        <title>Kompletny komponent ProjectCard</title>
+        <text x="0" y="0" class="text-primary" font-family="Inter" font-size="18" font-weight="700">COMPONENT (Complete ProjectCard)</text>
+        
+        <!-- Main ProjectCard Component -->
+        <g id="ProjectCard" class="main-component" data-figma-component="project-card">
+            <title>Complete ProjectCard</title>
+            <desc>Pełny komponent karty projektu z wszystkimi elementami</desc>
+            <text x="0" y="20" class="debug-label">ProjectCard Component</text>
+
+            <!-- Card Container -->
+            <g id="card-container">
+                <rect x="0" y="25" width="300" height="400" rx="0" class="bg-card border-main component-outline" stroke-width="1"/>
+            </g>
+
+            <!-- Project Thumbnail -->
+            <g id="project-thumbnail">
+                <rect x="10" y="35" width="280" height="120" fill="url(#thumbnailGradient)"/>
+                <text x="150" y="100" text-anchor="middle" class="text-primary" font-size="24">🖼️</text>
+                <text x="150" y="120" text-anchor="middle" class="text-primary" font-size="12">Project Thumbnail</text>
+            </g>
+
+            <!-- Project Header -->
+            <g id="project-header">
+                <text x="20" y="170" class="text-primary" font-size="16" font-weight="600">Modern Office Building</text>
+                <text x="20" y="185" class="text-secondary" font-size="12">Architectural Design Project</text>
+                <rect x="200" y="160" width="80" height="20" rx="2" class="status-normal"/>
+                <text x="240" y="173" text-anchor="middle" class="text-primary" font-size="10">In Progress</text>
+            </g>
+
+            <!-- Progress Section -->
+            <g id="progress-section">
+                <text x="20" y="210" class="text-secondary" font-size="12">Progress</text>
+                <rect x="20" y="215" width="260" height="8" rx="4" class="bg-primary"/>
+                <rect x="20" y="215" width="156" height="8" rx="4" fill="url(#progressGradient)"/>
+                <text x="280" y="222" class="text-secondary" font-size="10">60%</text>
+            </g>
+
+            <!-- Project Meta -->
+            <g id="project-meta">
+                <rect x="20" y="235" width="60" height="18" rx="2" class="accent-info"/>
+                <text x="50" y="247" text-anchor="middle" class="text-primary" font-size="9">ARCHITECTURE</text>
+                <text x="90" y="247" class="text-secondary" font-size="10">📍 New York, NY</text>
+            </g>
+
+            <!-- Project Info -->
+            <g id="project-info">
+                <text x="20" y="270" class="text-primary" font-size="11">👤 Client: ABC Construction</text>
+                <text x="20" y="285" class="text-primary" font-size="11">📅 Deadline: Dec 15, 2024</text>
+                <text x="20" y="300" class="text-primary" font-size="11">💰 Budget: $2.5M</text>
+            </g>
+
+            <!-- Team Section -->
+            <g id="team-section">
+                <text x="20" y="325" class="text-secondary" font-size="12">Team</text>
+                <g id="team-avatars">
+                    <circle cx="30" cy="340" r="8" class="primary-main"/>
+                    <text x="30" y="345" text-anchor="middle" class="text-primary" font-size="6">👤</text>
+                    <circle cx="45" cy="340" r="8" class="accent-info"/>
+                    <text x="45" y="345" text-anchor="middle" class="text-primary" font-size="6">👤</text>
+                    <circle cx="60" cy="340" r="8" class="status-normal"/>
+                    <text x="60" y="345" text-anchor="middle" class="text-primary" font-size="6">👤</text>
+                    <text x="75" y="345" class="text-secondary" font-size="10">+5 more</text>
+                </g>
+            </g>
+
+            <!-- Action Buttons -->
+            <g id="action-buttons">
+                <rect x="20" y="365" width="80" height="30" rx="4" class="bg-card border-main" stroke-width="1"/>
+                <text x="60" y="383" text-anchor="middle" class="text-primary" font-size="11">View Details</text>
+                <rect x="110" y="365" width="60" height="30" rx="4" class="primary-main"/>
+                <text x="140" y="383" text-anchor="middle" class="text-primary" font-size="11">Edit</text>
+            </g>
+        </g>
+    </g>
+
+    <!-- VARIANTS SECTION -->
+    <g id="VARIANTS" transform="translate(400, 100)">
+        <title>Warianty komponentu ProjectCard</title>
+        <text x="0" y="0" class="text-primary" font-family="Inter" font-size="18" font-weight="700">COMPONENT VARIANTS</text>
+        
+        <!-- Compact Variant -->
+        <g id="CompactProject" class="variant" data-figma-variant="compact">
+            <title>Compact Project Card</title>
+            <desc>Kompaktowa wersja karty projektu</desc>
+            <text x="0" y="20" class="debug-label">Compact Variant</text>
+            <rect x="0" y="25" width="200" height="250" rx="0" class="bg-card border-main component-outline" stroke-width="1"/>
+
+            <!-- Compact Thumbnail -->
+            <g id="compact-cover">
+                <rect x="10" y="35" width="180" height="80" fill="url(#thumbnailGradient)"/>
+                <text x="100" y="80" text-anchor="middle" class="text-primary" font-size="16">🖼️</text>
+            </g>
+
+            <!-- Compact Header -->
+            <g id="compact-header">
+                <text x="10" y="130" class="text-primary" font-size="14" font-weight="600">Office Building</text>
+                <text x="10" y="145" class="text-secondary" font-size="10">Architecture</text>
+                <rect x="140" y="125" width="60" height="16" rx="2" class="status-normal"/>
+                <text x="170" y="136" text-anchor="middle" class="text-primary" font-size="8">Active</text>
+            </g>
+
+            <!-- Compact Progress -->
+            <g id="compact-progress">
+                <rect x="10" y="155" width="180" height="6" rx="3" class="bg-primary"/>
+                <rect x="10" y="155" width="108" height="6" rx="3" fill="url(#progressGradient)"/>
+                <text x="190" y="161" class="text-secondary" font-size="9">60%</text>
+            </g>
+
+            <!-- Compact Info -->
+            <g id="compact-info">
+                <text x="10" y="175" class="text-primary" font-size="10">👤 ABC Construction</text>
+                <text x="10" y="190" class="text-primary" font-size="10">📅 Dec 15, 2024</text>
+            </g>
+
+            <!-- Compact Actions -->
+            <g id="compact-actions">
+                <rect x="10" y="205" width="60" height="20" rx="3" class="primary-main"/>
+                <text x="40" y="218" text-anchor="middle" class="text-primary" font-size="9">View</text>
+            </g>
+        </g>
+
+        <!-- Detailed Variant -->
+        <g id="DetailedProject" class="variant" data-figma-variant="detailed">
+            <title>Detailed Project Card</title>
+            <desc>Szczegółowa wersja karty projektu</desc>
+            <text x="250" y="20" class="debug-label">Detailed Variant</text>
+            <rect x="250" y="25" width="300" height="350" rx="0" class="bg-card border-main component-outline" stroke-width="1"/>
+
+            <!-- Detailed Thumbnail -->
+            <g id="detailed-cover">
+                <rect x="260" y="35" width="280" height="120" fill="url(#thumbnailGradient)"/>
+                <text x="400" y="100" text-anchor="middle" class="text-primary" font-size="20">🖼️</text>
+            </g>
+
+            <!-- Detailed Header -->
+            <g id="detailed-header">
+                <text x="270" y="170" class="text-primary" font-size="18" font-weight="600">Modern Office Complex</text>
+                <text x="270" y="190" class="text-secondary" font-size="14">Advanced Architectural Design</text>
+                <rect x="450" y="165" width="80" height="20" rx="2" class="status-normal"/>
+                <text x="490" y="178" text-anchor="middle" class="text-primary" font-size="10">In Progress</text>
+            </g>
+
+            <!-- Detailed Progress -->
+            <g id="detailed-progress">
+                <text x="270" y="220" class="text-secondary" font-size="12">Project Progress</text>
+                <rect x="270" y="225" width="260" height="10" rx="5" class="bg-primary"/>
+                <rect x="270" y="225" width="156" height="10" rx="5" fill="url(#progressGradient)"/>
+                <text x="540" y="232" class="text-secondary" font-size="11">60% Complete</text>
+            </g>
+
+            <!-- Detailed Meta -->
+            <g id="detailed-meta">
+                <rect x="270" y="245" width="80" height="20" rx="2" class="accent-info"/>
+                <text x="310" y="258" text-anchor="middle" class="text-primary" font-size="9">ARCHITECTURE</text>
+                <text x="360" y="258" class="text-secondary" font-size="11">📍 New York, NY</text>
+            </g>
+
+            <!-- Detailed Info -->
+            <g id="detailed-info">
+                <text x="270" y="285" class="text-primary" font-size="12">👤 Client: ABC Construction Group</text>
+                <text x="270" y="305" class="text-primary" font-size="12">📅 Deadline: December 15, 2024</text>
+                <text x="270" y="325" class="text-primary" font-size="12">💰 Budget: $2,500,000</text>
+                <text x="270" y="345" class="text-primary" font-size="12">🏗️ Phase: Design & Planning</text>
+            </g>
+
+            <!-- Detailed Team -->
+            <g id="detailed-team">
+                <text x="270" y="370" class="text-secondary" font-size="12">Project Team (8 members)</text>
+                <g id="detailed-avatars">
+                    <circle cx="280" cy="385" r="10" class="primary-main"/>
+                    <text x="280" y="390" text-anchor="middle" class="text-primary" font-size="7">👤</text>
+                    <circle cx="300" cy="385" r="10" class="accent-info"/>
+                    <text x="300" y="390" text-anchor="middle" class="text-primary" font-size="7">👤</text>
+                    <circle cx="320" cy="385" r="10" class="status-normal"/>
+                    <text x="320" y="390" text-anchor="middle" class="text-primary" font-size="7">👤</text>
+                    <text x="340" y="390" class="text-secondary" font-size="11">+5 more</text>
+                </g>
+            </g>
+
+            <!-- Detailed Actions -->
+            <g id="detailed-actions">
+                <rect x="270" y="410" width="100" height="35" rx="4" class="bg-card border-main" stroke-width="1"/>
+                <text x="320" y="430" text-anchor="middle" class="text-primary" font-size="12">View Details</text>
+                <rect x="380" y="410" width="80" height="35" rx="4" class="primary-main"/>
+                <text x="420" y="430" text-anchor="middle" class="text-primary" font-size="12">Edit Project</text>
+            </g>
+        </g>
+    </g>
+
+    <!-- ATOMIC DESIGN LEGEND -->
+    <g id="ATOMIC_DESIGN_LEGEND" transform="translate(20, 520)">
+        <title>Legenda Atomic Design dla wtyczek Figma</title>
+        <text x="0" y="0" class="text-primary" font-family="Inter" font-size="18" font-weight="700">FIGMA READY STRUCTURE</text>
+
+        <!-- Structure Levels -->
+        <g id="structure-levels">
+            <rect x="0" y="20" width="400" height="200" rx="4" class="bg-secondary border-main" stroke-width="1"/>
+            
+            <g id="atom-level">
+                <rect x="20" y="40" width="80" height="40" rx="4" class="status-normal"/>
+                <text x="60" y="55" text-anchor="middle" class="text-primary" font-size="12" font-weight="600">ATOM</text>
+                <text x="60" y="70" text-anchor="middle" class="text-primary" font-size="10">Elements</text>
+                <text x="120" y="50" class="text-secondary" font-size="11">Card, Progress, Tag, Avatar</text>
+                <text x="120" y="65" class="text-secondary" font-size="11">Typography, Button, Space</text>
+            </g>
+            
+            <g id="molecule-level">
+                <rect x="20" y="100" width="80" height="40" rx="4" class="accent-info"/>
+                <text x="60" y="115" text-anchor="middle" class="text-primary" font-size="12" font-weight="600">MOLECULE</text>
+                <text x="60" y="130" text-anchor="middle" class="text-primary" font-size="10">Groups</text>
+                <text x="120" y="110" class="text-secondary" font-size="11">ProjectHeader, ProjectMeta</text>
+                <text x="120" y="125" class="text-secondary" font-size="11">ProjectInfo, TeamSection</text>
+            </g>
+            
+            <g id="organism-level">
+                <rect x="20" y="160" width="80" height="40" rx="4" class="primary-main"/>
+                <text x="60" y="175" text-anchor="middle" class="text-primary" font-size="12" font-weight="600">ORGANISM</text>
+                <text x="60" y="190" text-anchor="middle" class="text-primary" font-size="10">Components</text>
+                <text x="120" y="170" class="text-secondary" font-size="11">ProjectCard (Complete)</text>
+                <text x="120" y="185" class="text-secondary" font-size="11">Variants: Compact, Detailed</text>
+            </g>
+        </g>
+    </g>
+
+    <!-- FIGMA WORKFLOW SECTION -->
+    <g id="FIGMA_WORKFLOW" transform="translate(20, 800)">
+        <title>Workflow dla wtyczek Figma</title>
+        <text x="0" y="0" class="text-primary" font-family="Inter" font-size="18" font-weight="700">FIGMA WORKFLOW</text>
+
+        <!-- Workflow Steps -->
+        <g id="workflow-steps">
+            <rect x="0" y="20" width="800" height="150" rx="4" class="bg-secondary border-main" stroke-width="1"/>
+            
+            <g id="step-1">
+                <text x="10" y="40" class="text-primary" font-size="14" font-weight="600">1. Import SVG to Figma</text>
+                <text x="10" y="55" class="text-secondary" font-size="12">• All elements are already grouped logically</text>
+                <text x="10" y="70" class="text-secondary" font-size="12">• Each group has descriptive ID for easy identification</text>
+            </g>
+            
+            <g id="step-2">
+                <text x="10" y="100" class="text-primary" font-size="14" font-weight="600">2. Create Components</text>
+                <text x="10" y="115" class="text-secondary" font-size="12">• Select element groups → Create Component</text>
+                <text x="10" y="130" class="text-secondary" font-size="12">• Name: Card, Progress, Tag, Avatar, Space, Typography, Button</text>
+            </g>
+            
+            <g id="step-3">
+                <text x="10" y="160" class="text-primary" font-size="14" font-weight="600">3. Create Variants</text>
+                <text x="10" y="175" class="text-secondary" font-size="12">• Select component groups → Create Variant</text>
+                <text x="10" y="190" class="text-secondary" font-size="12">• Variants: Default, Compact, Detailed</text>
+            </g>
+        </g>
+    </g>
+</svg>

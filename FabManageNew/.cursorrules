@@ -1,0 +1,54 @@
+# Cursor AI Rules for FabManage Project
+
+## Project Context
+- React TypeScript project with Ant Design components
+- Dark mode tech aesthetic with professional design system
+- SVG generation optimized for Figma plugin compatibility
+- Atomic Design methodology implementation
+
+## SVG Generation Rules
+- When converting TSX to SVG, always create structured groups for Figma plugin compatibility
+- Use semantic naming: ELEMENTS, GROUPS, VARIANTS, COMPONENT
+- Include figma-specific metadata and data attributes
+- Maintain visual hierarchy with proper nesting
+- Add descriptive titles and descriptions for each component group
+
+## Component Structure
+- ELEMENTS: Individual Ant Design components (Card, Progress, Tag, Avatar, Space, Typography, Button)
+- GROUPS: Functional combinations of elements (ProjectHeader, ProjectMeta, ProjectInfo)
+- COMPONENT: Complete UI components (ProjectCard)
+- VARIANTS: Different versions (Compact, Detailed)
+
+## Figma Integration
+- Add `data-figma-component` attributes for component identification
+- Include `<title>` and `<desc>` elements for documentation
+- Use `class` attributes for categorization (element, group, variant, main-component)
+- Implement proper `id` naming in PascalCase
+- Add Figma plugin metadata in `<defs>` section
+
+## Design System
+- Follow dark mode tech aesthetic
+- Use design system colors from design-system.css
+- Maintain consistent spacing and typography
+- Preserve Ant Design component styling
+- Include proper gradients and visual effects
+
+## Code Quality
+- Always validate SVG structure before completion
+- Ensure proper viewBox and responsive scaling
+- Include comprehensive documentation
+- Test compatibility with Figma plugins
+- Maintain clean, readable code structure
+
+## File Organization
+- Place SVG files in figma-exports/components/[component-name]/
+- Include CURSOR_INSTRUCTIONS.md for each component
+- Maintain consistent naming conventions
+- Document all generated files
+
+## Best Practices
+- Use transform attributes for positioning instead of absolute coordinates
+- Implement proper grouping hierarchy
+- Add debug labels for development
+- Include workflow instructions for Figma integration
+- Maintain visual consistency across all variants

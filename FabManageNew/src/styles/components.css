@@ -1,0 +1,482 @@
+/**
+ * FabrykaManage - Dark Mode Tech Components
+ * Component-specific styles implementing the design system
+ */
+
+/* === NAVIGATION COMPONENTS === */
+
+/* Branded Sidebar Enhancements */
+.ant-layout-sider {
+  background: var(--bg-secondary) !important;
+  border-right: 1px solid var(--border-main) !important;
+}
+
+.ant-layout-sider .ant-menu {
+  background: transparent !important;
+  border: none !important;
+  font-family: var(--font-family) !important;
+}
+
+.ant-layout-sider .ant-menu-item {
+  color: var(--text-secondary) !important;
+  font-weight: var(--font-medium) !important;
+  border-radius: var(--radius-none) !important;
+  margin: 0 !important;
+  height: 48px !important;
+  line-height: 48px !important;
+  padding-left: 24px !important;
+}
+
+.ant-layout-sider .ant-menu-item:hover {
+  background-color: var(--bg-hover) !important;
+  color: var(--primary-main) !important;
+}
+
+.ant-layout-sider .ant-menu-item-selected {
+  background-color: rgba(22, 163, 74, 0.15) !important;
+  color: var(--primary-main) !important;
+  border-right: 3px solid var(--primary-main) !important;
+}
+
+.ant-layout-sider .ant-menu-item-selected::after {
+  display: none !important;
+}
+
+/* Header Enhancements */
+.ant-layout-header {
+  background: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-main) !important;
+  font-family: var(--font-family) !important;
+}
+
+/* Breadcrumb Styling */
+.ant-breadcrumb {
+  font-family: var(--font-family) !important;
+}
+
+.ant-breadcrumb-link {
+  color: var(--text-secondary) !important;
+  font-weight: var(--font-regular) !important;
+}
+
+.ant-breadcrumb-link:hover {
+  color: var(--primary-main) !important;
+}
+
+.ant-breadcrumb-separator {
+  color: var(--text-muted) !important;
+}
+
+/* === FORM COMPONENTS === */
+
+/* Input Components */
+.ant-input,
+.ant-input-number,
+.ant-select-selector,
+.ant-picker {
+  background-color: var(--bg-input) !important;
+  border: 1px solid var(--border-main) !important;
+  border-radius: var(--radius-none) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-family) !important;
+  transition: all var(--transition-fast) !important;
+}
+
+.ant-input::placeholder,
+.ant-input-number::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.ant-input:focus,
+.ant-input-focused,
+.ant-input-number:focus,
+.ant-input-number-focused,
+.ant-select-focused .ant-select-selector,
+.ant-picker:focus,
+.ant-picker-focused {
+  border-color: var(--primary-main) !important;
+  box-shadow: var(--glow-primary) !important;
+}
+
+/* Search Input */
+.ant-input-search .ant-input-group-addon {
+  background-color: var(--primary-main) !important;
+  border: 1px solid var(--primary-main) !important;
+  border-radius: var(--radius-none) !important;
+}
+
+.ant-input-search .ant-input-group-addon .ant-btn {
+  background-color: var(--primary-main) !important;
+  border: none !important;
+  border-radius: var(--radius-none) !important;
+  color: white !important;
+}
+
+/* Select Dropdown */
+.ant-select-dropdown {
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border-main) !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+.ant-select-item {
+  color: var(--text-primary) !important;
+  font-family: var(--font-family) !important;
+}
+
+.ant-select-item-option-active {
+  background-color: var(--bg-hover) !important;
+  color: var(--primary-main) !important;
+}
+
+.ant-select-item-option-selected {
+  background-color: rgba(22, 163, 74, 0.15) !important;
+  color: var(--primary-main) !important;
+  font-weight: var(--font-medium) !important;
+}
+
+/* === BUTTON COMPONENTS === */
+
+/* Primary Button */
+.ant-btn-primary {
+  background-color: var(--primary-main) !important;
+  border-color: var(--primary-main) !important;
+  border-radius: var(--radius-none) !important;
+  font-family: var(--font-family) !important;
+  font-weight: var(--font-medium) !important;
+  color: white !important;
+  transition: all var(--transition-fast) !important;
+}
+
+.ant-btn-primary:hover {
+  background-color: var(--primary-light) !important;
+  border-color: var(--primary-light) !important;
+  color: white !important;
+}
+
+.ant-btn-primary:active {
+  background-color: var(--primary-dark) !important;
+  border-color: var(--primary-dark) !important;
+}
+
+.ant-btn-primary:focus {
+  box-shadow: var(--glow-primary) !important;
+}
+
+/* Default Button */
+.ant-btn-default {
+  background-color: transparent !important;
+  border-color: var(--border-main) !important;
+  border-radius: var(--radius-none) !important;
+  color: var(--text-secondary) !important;
+  font-family: var(--font-family) !important;
+  font-weight: var(--font-medium) !important;
+}
+
+.ant-btn-default:hover {
+  background-color: var(--bg-hover) !important;
+  border-color: var(--border-heavy) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Text Button */
+.ant-btn-text {
+  color: var(--text-secondary) !important;
+  font-family: var(--font-family) !important;
+  border-radius: var(--radius-none) !important;
+}
+
+.ant-btn-text:hover {
+  background-color: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+/* === CARD COMPONENTS === */
+
+.ant-card {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-main) !important;
+  border-radius: var(--radius-none) !important;
+  font-family: var(--font-family) !important;
+}
+
+.ant-card-head {
+  background-color: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-main) !important;
+  border-radius: var(--radius-none) !important;
+}
+
+.ant-card-head-title {
+  color: var(--text-primary) !important;
+  font-weight: var(--font-semibold) !important;
+  font-family: var(--font-family) !important;
+}
+
+.ant-card-body {
+  color: var(--text-primary) !important;
+  font-family: var(--font-family) !important;
+}
+
+/* === TABLE COMPONENTS === */
+
+.ant-table {
+  background-color: var(--bg-card) !important;
+  font-family: var(--font-family) !important;
+}
+
+.ant-table-thead > tr > th {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border-main) !important;
+  font-weight: var(--font-semibold) !important;
+  font-family: var(--font-family) !important;
+}
+
+.ant-table-tbody > tr > td {
+  border-bottom: 1px solid var(--border-light) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-family) !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background-color: var(--bg-hover) !important;
+}
+
+/* === TAG COMPONENTS === */
+
+.ant-tag {
+  border-radius: var(--radius-sm) !important;
+  font-family: var(--font-family) !important;
+  font-weight: var(--font-medium) !important;
+  border: none !important;
+}
+
+/* Status Tags */
+.status-critical {
+  background-color: var(--status-critical) !important;
+  color: white !important;
+}
+
+.status-low {
+  background-color: var(--status-low) !important;
+  color: white !important;
+}
+
+.status-normal {
+  background-color: var(--status-normal) !important;
+  color: white !important;
+}
+
+.status-excess {
+  background-color: var(--status-excess) !important;
+  color: white !important;
+}
+
+/* === PROGRESS COMPONENTS === */
+
+.ant-progress-bg {
+  background-color: var(--primary-main) !important;
+  border-radius: var(--radius-none) !important;
+}
+
+.ant-progress-inner {
+  background-color: var(--bg-primary) !important;
+  border-radius: var(--radius-none) !important;
+}
+
+/* === MODAL COMPONENTS === */
+
+.ant-modal {
+  font-family: var(--font-family) !important;
+}
+
+.ant-modal-content {
+  background-color: var(--bg-card) !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+.ant-modal-header {
+  background-color: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-main) !important;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0 !important;
+}
+
+.ant-modal-title {
+  color: var(--text-primary) !important;
+  font-weight: var(--font-semibold) !important;
+  font-family: var(--font-family) !important;
+}
+
+.ant-modal-body {
+  color: var(--text-primary) !important;
+  font-family: var(--font-family) !important;
+}
+
+.ant-modal-footer {
+  background-color: var(--bg-secondary) !important;
+  border-top: 1px solid var(--border-main) !important;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm) !important;
+}
+
+/* === DROPDOWN COMPONENTS === */
+
+.ant-dropdown {
+  font-family: var(--font-family) !important;
+}
+
+.ant-dropdown-menu {
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border-main) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.ant-dropdown-menu-item {
+  color: var(--text-primary) !important;
+  font-family: var(--font-family) !important;
+}
+
+.ant-dropdown-menu-item:hover {
+  background-color: var(--bg-hover) !important;
+  color: var(--primary-main) !important;
+}
+
+/* === SEGMENTED CONTROL === */
+
+.ant-segmented {
+  background-color: var(--bg-hover) !important;
+  border-radius: var(--radius-sm) !important;
+  font-family: var(--font-family) !important;
+}
+
+.ant-segmented-item {
+  color: var(--text-secondary) !important;
+  font-weight: var(--font-medium) !important;
+}
+
+.ant-segmented-item-selected {
+  background-color: var(--primary-main) !important;
+  color: white !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+/* === BADGE COMPONENTS === */
+
+.ant-badge-count {
+  background-color: var(--accent-error) !important;
+  color: white !important;
+  font-family: var(--font-family) !important;
+  font-weight: var(--font-medium) !important;
+}
+
+/* === MATERIAL CARD ENHANCEMENTS === */
+
+.material-card {
+  transition: all var(--transition-fast) !important;
+}
+
+.material-card:hover {
+  border-color: var(--primary-main) !important;
+  box-shadow: var(--glow-primary) !important;
+  transform: translateY(-2px) !important;
+}
+
+.material-card.selected {
+  border-color: var(--primary-main) !important;
+  box-shadow: var(--glow-primary) !important;
+}
+
+/* === TYPOGRAPHY OVERRIDES === */
+
+.ant-typography {
+  color: var(--text-primary) !important;
+  font-family: var(--font-family) !important;
+}
+
+.ant-typography-title {
+  color: var(--text-primary) !important;
+  font-family: var(--font-family) !important;
+}
+
+.ant-typography-text {
+  color: var(--text-primary) !important;
+  font-family: var(--font-family) !important;
+}
+
+/* === SCROLLBAR STYLING === */
+
+/* Webkit scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-hover);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-heavy);
+}
+
+/* Firefox scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-hover) var(--bg-primary);
+}
+
+/* === LAYOUT CONTENT === */
+
+.ant-layout-content {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-family) !important;
+}
+
+.ant-layout {
+  background-color: var(--bg-primary) !important;
+}
+
+/* === GLOBAL OVERRIDES === */
+
+/* Force dark theme for all text elements */
+.ant-typography, 
+.ant-typography h1, 
+.ant-typography h2, 
+.ant-typography h3, 
+.ant-typography h4, 
+.ant-typography h5, 
+.ant-typography h6 {
+  color: var(--text-primary) !important;
+}
+
+/* Ensure page background is always dark */
+body, #root, .ant-app {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* === RESPONSIVE ADJUSTMENTS === */
+
+@media (max-width: 768px) {
+  .ant-layout-sider .ant-menu-item {
+    padding-left: 16px !important;
+    height: 44px !important;
+    line-height: 44px !important;
+  }
+  
+  .ant-card {
+    margin-bottom: 12px !important;
+  }
+  
+  .material-card {
+    height: 280px !important;
+  }
+}

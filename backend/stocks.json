@@ -1,0 +1,827 @@
+{
+  "-material": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL"
+  },
+  "-material-mdf": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF"
+  },
+  "-material-mdf-6mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF::6mm"
+  },
+  "-material-mdf-6mm-do-giecia": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF::6mm::DO_GIECIA"
+  },
+  "-material-mdf-6mm-trudnopalna-copy": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF::6mm::TRUDNOPALNA - Copy"
+  },
+  "-material-mdf-6mm-trudnopalna": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF::6mm::TRUDNOPALNA"
+  },
+  "-material-mdf-8mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF::8mm"
+  },
+  "-material-mdf-8mm-do-giecia": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF::8mm::DO_GIECIA"
+  },
+  "-material-mdf-8mm-trudnopalna": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF::8mm::TRUDNOPALNA"
+  },
+  "-material-mdf-10mm": {
+    "stock": 20,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF::10mm"
+  },
+  "-material-mdf-10mm-do-giecia": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF::10mm::DO_GIECIA"
+  },
+  "-material-mdf-10mm-trudnopalna": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF::10mm::TRUDNOPALNA"
+  },
+  "-material-mdf-12mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF::12mm"
+  },
+  "-material-mdf-18mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF::18mm"
+  },
+  "-material-mdf-18mm-do-giecia": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF::18mm::DO_GIECIA"
+  },
+  "-material-mdf-18mm-trudnopalna": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF::18mm::TRUDNOPALNA"
+  },
+  "-material-mdf-30mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF::30mm"
+  },
+  "-material-mdf-40mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::MDF::40mm"
+  },
+  "-material-sklejka": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::SKLEJKA"
+  },
+  "-material-sklejka-3mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::SKLEJKA::3MM"
+  },
+  "-material-sklejka-3mm-do-giecia": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::SKLEJKA::3MM::DO_GIECIA"
+  },
+  "-material-sklejka-12mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::SKLEJKA::12mm"
+  },
+  "-material-sklejka-16-mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::SKLEJKA::16 mm"
+  },
+  "-material-sklejka-18-mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::SKLEJKA::18 mm"
+  },
+  "-material-wiorowa": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::WIOROWA"
+  },
+  "-material-wiorowa-6mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::WIOROWA::6mm"
+  },
+  "-material-wiorowa-6mm-laminowana": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::WIOROWA::6mm::LAMINOWANA"
+  },
+  "-material-wiorowa-6mm-surowa": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::WIOROWA::6mm::SUROWA"
+  },
+  "-material-wiorowa-8mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::WIOROWA::8mm"
+  },
+  "-material-wiorowa-10mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::WIOROWA::10mm"
+  },
+  "-material-wiorowa-12mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::WIOROWA::12mm"
+  },
+  "-material-wiorowa-18mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::WIOROWA::18mm"
+  },
+  "-material-wiorowa-18mm-laminowana": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::WIOROWA::18mm::LAMINOWANA"
+  },
+  "-material-wiorowa-30mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::WIOROWA::30mm"
+  },
+  "-material-wiorowa-40mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::WIOROWA::40mm"
+  },
+  "-material-aluminium": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::ALUMINIUM"
+  },
+  "-material-aluminium-katowniki": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::ALUMINIUM::KATOWNIKI"
+  },
+  "-material-dilite": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::DILITE"
+  },
+  "-material-dilite-m-dilite-bialy": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::DILITE::M-dilite bialy"
+  },
+  "-material-dilite-m-dilite-drapany": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::DILITE::M-dilite drapany"
+  },
+  "-material-dilite-m-dilite-srebrny": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::DILITE::M-dilite srebrny"
+  },
+  "-material-gk": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::GK"
+  },
+  "-material-gk-m-gk": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::GK::M-GK"
+  },
+  "-material-gk-m-gk-dystanse": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::GK::M-GK -dystanse"
+  },
+  "-material-gk-m-gk-profile": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::GK::M-GK -profile"
+  },
+  "-material-gk-m-gk-riflex": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::GK::M-GK riflex"
+  },
+  "-material-hdf": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::HDF"
+  },
+  "-material-hdf-m-hdf-3mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::HDF::M-HDF 3mm"
+  },
+  "-material-hdf-m-hdf-4mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::HDF::M-HDF 4mm"
+  },
+  "-material-plexi": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::PLEXI"
+  },
+  "-material-plexi-m-pleksi-4mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::PLEXI::M-pleksi 4mm"
+  },
+  "-material-plexi-m-pleksi-4mm-opal-satin": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::PLEXI::M-pleksi 4mm opal satin"
+  },
+  "-material-plexi-m-pleksi-6mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::PLEXI::M-pleksi 6mm"
+  },
+  "-material-plexi-m-plexi-10mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::PLEXI::M-plexi 10mm"
+  },
+  "-material-plexi-m-plexi-15mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::PLEXI::M-plexi 15mm"
+  },
+  "-material-plexi-m-plexi-dual-satin-6mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::PLEXI::M-plexi dual satin 6mm"
+  },
+  "-material-plexi-m-plexi-opal-6mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::PLEXI::M-plexi opal 6mm"
+  },
+  "-material-plexi-m-plexi-opal-10mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::PLEXI::M-plexi opal 10mm"
+  },
+  "-material-plexi-m-plexi-opal-30mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::PLEXI::M-plexi opal 30mm"
+  },
+  "-material-plexi-m-pleksi-5mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::PLEXI::M-pleksi 5mm"
+  },
+  "-material-poliweglan": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POLIWEGLAN"
+  },
+  "-material-poliweglan-komorowy-10mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POLIWEGLAN::KOMOROWY 10MM"
+  },
+  "-material-pozostale": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE"
+  },
+  "-material-pozostale-m-cetris-18mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-cetris 18mm"
+  },
+  "-material-pozostale-m-corian": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-corian"
+  },
+  "-material-pozostale-m-czarna-polysk": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-czarna polysk"
+  },
+  "-material-pozostale-m-hips": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-hips"
+  },
+  "-material-pozostale-m-horyzont": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-horyzont"
+  },
+  "-material-pozostale-m-ata": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-łata"
+  },
+  "-material-pozostale-m-panele": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-panele"
+  },
+  "-material-pozostale-m-pcv": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-PCV"
+  },
+  "-material-pozostale-m-perforacja-siatka": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-perforacja siatka"
+  },
+  "-material-pozostale-m-ramiaki": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-ramiaki"
+  },
+  "-material-pozostale-m-stal": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-stal"
+  },
+  "-material-pozostale-m-styrodur": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-styrodur"
+  },
+  "-material-pozostale-m-szk-o": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-szkło"
+  },
+  "-material-pozostale-m-ruby": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-śruby"
+  },
+  "-material-pozostale-m-tkanina": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-tkanina"
+  },
+  "-material-pozostale-m-wydruk3d": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-wydruk3d"
+  },
+  "-material-pozostale-m-wykladzina": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_MATERIAL::POZOSTALE::M-wykladzina"
+  },
+  "-ploter": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER"
+  },
+  "-ploter-archiv": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::_ARCHIV"
+  },
+  "-ploter-wycinanie": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::_WYCINANIE"
+  },
+  "-ploter-ilo-ci": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::ILOŚCI"
+  },
+  "-ploter-nazwy": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::NAZWY"
+  },
+  "-ploter-otwor": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::OTWOR"
+  },
+  "-ploter-otwor-d-4-0mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::OTWOR::D=4.0mm"
+  },
+  "-ploter-otwor-d-4-0mm-gl-10mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::OTWOR::D=4.0mm::GL=10mm"
+  },
+  "-ploter-otwor-d-5-0mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::OTWOR::D=5.0mm"
+  },
+  "-ploter-otwor-d-6-00mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::OTWOR::D=6.00mm"
+  },
+  "-ploter-otwor-d-8-00mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::OTWOR::D=8.00mm"
+  },
+  "-ploter-otwor-d-25-0mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::OTWOR::D=25.0mm"
+  },
+  "-ploter-otwor-d-6-0mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::OTWOR::D=6.0mm"
+  },
+  "-ploter-otwor-d-6mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::OTWOR::D=6mm"
+  },
+  "-ploter-otwor-d-6mm-gl-9-00mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::OTWOR::D=6mm::GL=9.00mm"
+  },
+  "-ploter-otwor-d-3-0mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::OTWOR::D=3.0mm"
+  },
+  "-ploter-otwor-d-8-0mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::OTWOR::D=8.0mm"
+  },
+  "-ploter-otwor-d-4mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::OTWOR::D=4mm"
+  },
+  "-ploter-frez": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ"
+  },
+  "-ploter-frez-plaski": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::_PLASKI"
+  },
+  "-ploter-frez-plaski-gl-6-0mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::_PLASKI::GL=6.0mm"
+  },
+  "-ploter-frez-plaski-gl-3-0mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::_PLASKI::GL=3.0mm"
+  },
+  "-ploter-frez-plaski-gl-2-0mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::_PLASKI::GL=2.0mm"
+  },
+  "-ploter-frez-plaski-gl-14-0mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::_PLASKI::GL=14.0mm"
+  },
+  "-ploter-frez-plaski-gl-5-0mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::_PLASKI::GL=5.0mm"
+  },
+  "-ploter-frez-plaski-gl-9-0mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::_PLASKI::GL=9.0mm"
+  },
+  "-ploter-frez-plaski-gl-6-1mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::_PLASKI::GL=6.1mm"
+  },
+  "-ploter-frez-plaski-gl-4-0mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::_PLASKI::GL=4.0mm"
+  },
+  "-ploter-frez-plaski-gl-11-1mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::_PLASKI::GL=11.1mm"
+  },
+  "-ploter-frez-plaski-gl-6-2mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::_PLASKI::GL=6.2mm"
+  },
+  "-ploter-frez-plaski-gl-8-0mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::_PLASKI::GL=8.0mm"
+  },
+  "-ploter-frez-plaski-gl-10-0mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::_PLASKI::GL=10.0mm"
+  },
+  "-ploter-frez-plaski-gl-14-2mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::_PLASKI::GL=14.2mm"
+  },
+  "-ploter-frez-plaski-gl-7-0mm": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::_PLASKI::GL=7.0mm"
+  },
+  "-ploter-frez-stozkowy": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::STOZKOWY"
+  },
+  "-ploter-frez-stozkowy-15-": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::STOZKOWY::15°"
+  },
+  "-ploter-frez-stozkowy-30-": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::STOZKOWY::30°"
+  },
+  "-ploter-frez-stozkowy-45-": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::STOZKOWY::45°"
+  },
+  "-ploter-frez-stozkowy-60-": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::FREZ::STOZKOWY::60°"
+  },
+  "-ploter-warstwy": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_PLOTER::WARSTWY"
+  },
+  "-elementy": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY"
+  },
+  "-elementy-druk3d": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::_DRUK3D"
+  },
+  "-elementy-a-blatowanie": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::A-blatowanie"
+  },
+  "-elementy-a-meble": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::A-meble"
+  },
+  "-elementy-a-podesty": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::A-podesty"
+  },
+  "-elementy-a-schody-i-pochylnie": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::A-schody i pochylnie"
+  },
+  "-elementy-a-sciana": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::A-sciana"
+  },
+  "-elementy-a-stan-istniejacy": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::A-stan istniejacy"
+  },
+  "-elementy-a-sufit": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::A-sufit"
+  },
+  "-elementy-a-trybuny": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::A-trybuny"
+  },
+  "-elementy-e-ekran": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::E_Ekran"
+  },
+  "-elementy-e-dioda": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::E-dioda"
+  },
+  "-elementy-e-komputer": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::E-komputer"
+  },
+  "-elementy-e-mechanizmy": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::E-mechanizmy"
+  },
+  "-elementy-k-bitek": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::K-Bitek"
+  },
+  "-elementy-k-peri": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::K-peri"
+  },
+  "-elementy-k-praktikable": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::K-praktikable"
+  },
+  "-elementy-k-rusztowanie": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::K-rusztowanie"
+  },
+  "-elementy-o-kolki": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_ELEMENTY::O-Kolki"
+  },
+  "-opisowe": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe"
+  },
+  "-opisowe-default": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::Default"
+  },
+  "-opisowe-roboczy": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::_ROBOCZY"
+  },
+  "-opisowe-0": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::0"
+  },
+  "-opisowe-archiwum": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::_ARCHIWUM"
+  },
+  "-opisowe-hatch": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-hatch"
+  },
+  "-opisowe-ilosci": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-ilosci"
+  },
+  "-opisowe-multileader": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-multileader"
+  },
+  "-opisowe-nazwy": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-nazwy"
+  },
+  "-opisowe-od-inwestora": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-od inwestora"
+  },
+  "-opisowe-opisy": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-opisy"
+  },
+  "-opisowe-osie": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-osie"
+  },
+  "-opisowe-pkt-bazowy": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-pkt bazowy"
+  },
+  "-opisowe-pomocnicza": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-pomocnicza"
+  },
+  "-opisowe-przekrojowa": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-przekrojowa"
+  },
+  "-opisowe-przerywana": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-przerywana"
+  },
+  "-opisowe-ramka-i-tabelka": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-ramka i tabelka"
+  },
+  "-opisowe-strzalki": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-strzalki"
+  },
+  "-opisowe-uwagi": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-UWAGI"
+  },
+  "-opisowe-viewport": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-VIEWPORT"
+  },
+  "-opisowe-wymiary-bok": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-wymiary bok"
+  },
+  "-opisowe-wymiary-front": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-wymiary front"
+  },
+  "-opisowe-wymiary-rzut": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-wymiary rzut"
+  },
+  "-opisowe-wymiary-rzut-m-gk-dystanse": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-wymiary rzut::M-GK -dystanse"
+  },
+  "-opisowe-wymiary-rzut-ramka-i-tabelka": {
+    "stock": 0,
+    "minStock": 0,
+    "name": "_Opisowe::-wymiary rzut::-ramka i tabelka"
+  },
+  "-material-mdf-25mm": {
+    "stock": 2,
+    "minStock": 0,
+    "name": "-material-mdf-25mm"
+  }
+}

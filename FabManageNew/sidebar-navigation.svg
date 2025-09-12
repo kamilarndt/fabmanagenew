@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="280" height="100vh" viewBox="0 0 280 1000"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <!-- Colors from design system -->
+        <style>
+      .sidebar-bg { fill: #25282E; }
+      .text-primary { fill: rgba(235, 241, 245, 0.96); }
+      .text-secondary { fill: rgba(235, 241, 245, 0.6); }
+      .text-muted { fill: rgba(235, 241, 245, 0.4); }
+      .primary-main { fill: #16A34A; }
+      .border-main { stroke: rgba(235, 241, 245, 0.18); stroke-width: 1; }
+      .menu-item-bg { fill: transparent; }
+      .menu-item-bg:hover { fill: rgba(235, 241, 245, 0.1); }
+      .menu-item-bg.active { fill: #16A34A; }
+      .menu-item-bg.active-border { stroke: #16A34A; stroke-width: 2; }
+        </style>
+    </defs>
+
+    <!-- Sidebar Background -->
+    <rect class="sidebar-bg" width="280" height="1000" />
+
+    <!-- Logo Section -->
+    <g id="logo-section">
+        <rect class="border-main" x="0" y="0" width="280" height="80" fill="none" />
+        <text x="140" y="35" text-anchor="middle" class="text-primary" font-family="Inter" font-size="20" font-weight="600">
+      🏭 Fabryka
+        </text>
+        <text x="140" y="55" text-anchor="middle" class="primary-main" font-family="Inter" font-size="16" font-weight="500">
+      Dekoracji
+        </text>
+    </g>
+
+    <!-- Collapse Button Section -->
+    <g id="collapse-section">
+        <rect class="border-main" x="0" y="80" width="280" height="64" fill="none" />
+        <rect id="collapse-button" class="menu-item-bg" x="16" y="92" width="248" height="40" rx="6" />
+        <text x="24" y="115" class="text-secondary" font-family="Inter" font-size="16" font-weight="500">
+      ☰ Zwiń menu
+        </text>
+    </g>
+
+    <!-- Navigation Menu Items -->
+    <g id="navigation-menu">
+        <!-- Dashboard (Active) -->
+        <g id="dashboard-item">
+            <rect id="dashboard-bg" class="menu-item-bg active" x="0" y="144" width="280" height="48" />
+            <rect class="menu-item-bg active-border" x="0" y="144" width="4" height="48" />
+            <text x="24" y="170" class="primary-main" font-family="Inter" font-size="14" font-weight="500">
+        🏠 Dashboard
+            </text>
+        </g>
+
+        <!-- Projekty -->
+        <g id="projects-item">
+            <rect id="projects-bg" class="menu-item-bg" x="0" y="192" width="280" height="48" />
+            <text x="24" y="218" class="text-primary" font-family="Inter" font-size="14" font-weight="400">
+        📁 Projekty
+            </text>
+        </g>
+
+        <!-- Klienci -->
+        <g id="clients-item">
+            <rect id="clients-bg" class="menu-item-bg" x="0" y="240" width="280" height="48" />
+            <text x="24" y="266" class="text-primary" font-family="Inter" font-size="14" font-weight="400">
+        👥 Klienci
+            </text>
+        </g>
+
+        <!-- Kalendarz -->
+        <g id="calendar-item">
+            <rect id="calendar-bg" class="menu-item-bg" x="0" y="288" width="280" height="48" />
+            <text x="24" y="314" class="text-primary" font-family="Inter" font-size="14" font-weight="400">
+        📅 Kalendarz
+            </text>
+        </g>
+
+        <!-- Dział Projektowy -->
+        <g id="design-department-item">
+            <rect id="design-department-bg" class="menu-item-bg" x="0" y="336" width="280" height="48" />
+            <text x="24" y="362" class="text-primary" font-family="Inter" font-size="14" font-weight="400">
+        🎨 Dział Projektowy
+            </text>
+        </g>
+
+        <!-- CNC -->
+        <g id="cnc-item">
+            <rect id="cnc-bg" class="menu-item-bg" x="0" y="384" width="280" height="48" />
+            <text x="24" y="410" class="text-primary" font-family="Inter" font-size="14" font-weight="400">
+        🔧 CNC
+            </text>
+        </g>
+
+        <!-- Produkcja -->
+        <g id="production-item">
+            <rect id="production-bg" class="menu-item-bg" x="0" y="432" width="280" height="48" />
+            <text x="24" y="458" class="text-primary" font-family="Inter" font-size="14" font-weight="400">
+        🏭 Produkcja
+            </text>
+        </g>
+
+        <!-- Magazyn -->
+        <g id="warehouse-item">
+            <rect id="warehouse-bg" class="menu-item-bg" x="0" y="480" width="280" height="48" />
+            <text x="24" y="506" class="text-primary" font-family="Inter" font-size="14" font-weight="400">
+        📦 Magazyn
+            </text>
+        </g>
+
+        <!-- Podwykonawcy -->
+        <g id="subcontractors-item">
+            <rect id="subcontractors-bg" class="menu-item-bg" x="0" y="528" width="280" height="48" />
+            <text x="24" y="554" class="text-primary" font-family="Inter" font-size="14" font-weight="400">
+        🚚 Podwykonawcy
+            </text>
+        </g>
+
+        <!-- Zapotrzebowania -->
+        <g id="demands-item">
+            <rect id="demands-bg" class="menu-item-bg" x="0" y="576" width="280" height="48" />
+            <text x="24" y="602" class="text-primary" font-family="Inter" font-size="14" font-weight="400">
+        🛒 Zapotrzebowania
+            </text>
+        </g>
+    </g>
+
+    <!-- User Section -->
+    <g id="user-section">
+        <rect class="border-main" x="0" y="624" width="280" height="120" fill="none" />
+        <rect id="user-profile" class="menu-item-bg" x="16" y="640" width="248" height="56" rx="6" />
+
+        <!-- User Avatar -->
+        <circle cx="40" cy="668" r="20" class="primary-main" />
+        <text x="40" y="675" text-anchor="middle" class="text-primary" font-family="Inter" font-size="16" font-weight="500">
+      👤
+        </text>
+
+        <!-- User Info -->
+        <text x="72" y="665" class="text-primary" font-family="Inter" font-size="14" font-weight="500">
+      Kamil Arndt
+        </text>
+        <text x="72" y="680" class="text-muted" font-family="Inter" font-size="12">
+      Administrator
+        </text>
+    </g>
+
+    <!-- Hover effects (invisible but present for interaction) -->
+    <g id="hover-effects" opacity="0">
+        <rect id="hover-overlay" class="menu-item-bg hover" x="0" y="0" width="280" height="48" />
+    </g>
+</svg>

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>FabManage Design System Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+            line-height: 1.5;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .step {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+
+        .folder-selector {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .folder-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e6e6e6;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .folder-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .browse-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .browse-button:hover {
+            background: #0056b3;
+        }
+
+        .scan-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .scan-button:hover {
+            background: #218838;
+        }
+
+        .scan-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .components-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e6e6e6;
+            border-radius: 6px;
+            padding: 12px;
+            background: #f8f9fa;
+        }
+
+        .component-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            background: white;
+            border: 1px solid #e6e6e6;
+        }
+
+        .component-item:hover {
+            background: #f8f9fa;
+            border-color: #007bff;
+        }
+
+        .component-item.selected {
+            background: #e3f2fd;
+            border-color: #007bff;
+        }
+
+        .component-radio {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .component-info {
+            flex: 1;
+        }
+
+        .component-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .component-path {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .component-type {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .component-type.design-system {
+            background: #e1f5fe;
+            color: #0277bd;
+        }
+
+        .component-type.project {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .component-type.atom {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .component-type.molecule {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .component-type.organism {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .button.primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .button.primary:hover {
+            background: #0056b3;
+        }
+
+        .button.secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .button.secondary:hover {
+            background: #5a6268;
+        }
+
+        .button:disabled {
+            background: #e9ecef;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e6e6e6;
+            border-radius: 50%;
+            border-top-color: #007bff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .status-message {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .atoms-analysis {
+            background: #f8f9fa;
+            border: 1px solid #e6e6e6;
+            border-radius: 6px;
+            padding: 16px;
+        }
+
+        .atom-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        .atom-name {
+            font-weight: 500;
+            margin-right: 8px;
+        }
+
+        .atom-source {
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>FabManage Design System Generator</h1>
+            <p>Importuj komponenty React do Figma krok po kroku</p>
+        </div>
+
+        <!-- Krok 1: Wybierz folder src -->
+        <div class="step" id="step1">
+            <h2 class="step-title">1. Wybierz folder src</h2>
+            <div class="folder-selector">
+                <input type="text" id="folderPath" class="folder-input"
+                    placeholder="Wprowadź ścieżkę do folderu src lub kliknij Przeglądaj..." readonly>
+                <button id="browseFolder" class="browse-button">Przeglądaj</button>
+                <button id="scanDesignSystem" class="scan-button" disabled>Skanuj design system</button>
+            </div>
+            <div id="folderStatus" class="status-message" style="display: none;"></div>
+        </div>
+
+        <!-- Krok 2: Wybierz design system -->
+        <div class="step" id="step2" style="display: none;">
+            <h2 class="step-title">2. Wybierz design system</h2>
+            <div class="components-list" id="designSystemsList">
+                <!-- Design system files będą dodane dynamicznie -->
+            </div>
+        </div>
+
+        <!-- Krok 3: Skanuj komponenty Project* -->
+        <div class="step" id="step3" style="display: none;">
+            <h2 class="step-title">3. Skanuj komponenty Project*</h2>
+            <button id="scanProjectComponents" class="scan-button">Skanuj komponenty Project*</button>
+            <div class="components-list" id="projectComponentsList" style="display: none;">
+                <!-- Komponenty Project* będą dodane dynamicznie -->
+            </div>
+        </div>
+
+        <!-- Krok 4: Wybierz komponent -->
+        <div class="step" id="step4" style="display: none;">
+            <h2 class="step-title">4. Wybierz komponent do importu</h2>
+            <div class="components-list" id="selectedComponentList">
+                <!-- Wybrany komponent będzie wyświetlony -->
+            </div>
+        </div>
+
+        <!-- Krok 5: Analizuj atomy -->
+        <div class="step" id="step5" style="display: none;">
+            <h2 class="step-title">5. Analizuj atomy</h2>
+            <div class="atoms-analysis" id="atomsAnalysis">
+                <!-- Analiza atomów będzie wyświetlona -->
+            </div>
+        </div>
+
+        <!-- Krok 6: Generuj -->
+        <div class="step" id="step6" style="display: none;">
+            <h2 class="step-title">6. Generuj komponenty</h2>
+            <button id="generateComponents" class="button primary">Generuj w Figma</button>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <span id="loadingText">Skanowanie...</span>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let designSystems = [];
+        let projectComponents = [];
+        let selectedDesignSystem = null;
+        let selectedComponent = null;
+        let atomsAnalysis = [];
+
+        // DOM elements
+        const folderPathInput = document.getElementById('folderPath');
+        const browseFolderBtn = document.getElementById('browseFolder');
+        const scanDesignSystemBtn = document.getElementById('scanDesignSystem');
+        const scanProjectComponentsBtn = document.getElementById('scanProjectComponents');
+        const generateComponentsBtn = document.getElementById('generateComponents');
+        const folderStatus = document.getElementById('folderStatus');
+        const loading = document.getElementById('loading');
+        const loadingText = document.getElementById('loadingText');
+
+        // Step elements
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        const step4 = document.getElementById('step4');
+        const step5 = document.getElementById('step5');
+        const step6 = document.getElementById('step6');
+
+        // Event listeners
+        browseFolderBtn.addEventListener('click', browseFolder);
+        scanDesignSystemBtn.addEventListener('click', scanDesignSystem);
+        scanProjectComponentsBtn.addEventListener('click', scanProjectComponents);
+        generateComponentsBtn.addEventListener('click', generateComponents);
+
+        // Browse folder
+        function browseFolder() {
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'browse-folder'
+                }
+            }, '*');
+        }
+
+        // Scan design system
+        function scanDesignSystem() {
+            const folderPath = folderPathInput.value.trim();
+            if (!folderPath) {
+                showStatus('Proszę wybrać folder src', 'error');
+                return;
+            }
+
+            showLoading('Skanowanie design system...');
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'scan-design-system',
+                    folderPath: folderPath
+                }
+            }, '*');
+        }
+
+        // Scan project components
+        function scanProjectComponents() {
+            const folderPath = folderPathInput.value.trim();
+            if (!folderPath) {
+                showStatus('Proszę wybrać folder src', 'error');
+                return;
+            }
+
+            showLoading('Skanowanie komponentów Project*...');
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'scan-project-components',
+                    folderPath: folderPath
+                }
+            }, '*');
+        }
+
+        // Generate components
+        function generateComponents() {
+            if (!selectedComponent) {
+                showStatus('Proszę wybrać komponent', 'error');
+                return;
+            }
+
+            showLoading('Generowanie komponentów...');
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'generate-component',
+                    component: selectedComponent,
+                    designSystem: selectedDesignSystem
+                }
+            }, '*');
+        }
+
+        // Display design systems
+        function displayDesignSystems(systems) {
+            designSystems = systems;
+            const list = document.getElementById('designSystemsList');
+            list.innerHTML = '';
+
+            systems.forEach((system, index) => {
+                const item = document.createElement('div');
+                item.className = 'component-item';
+                item.innerHTML = `
+                    <input type="radio" class="component-radio" name="designSystem" id="ds-${index}" value="${system.name}">
+                    <div class="component-info">
+                        <div class="component-name">${system.name}</div>
+                        <div class="component-path">${system.path}</div>
+                    </div>
+                    <span class="component-type design-system">design-system</span>
+                `;
+
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('input[name="designSystem"]').forEach(radio => radio.checked = false);
+                    document.getElementById(`ds-${index}`).checked = true;
+                    selectedDesignSystem = system;
+                    showStep3();
+                });
+
+                list.appendChild(item);
+            });
+
+            step2.style.display = 'block';
+            hideLoading();
+            showStatus(`Znaleziono ${systems.length} plików design system`, 'success');
+        }
+
+        // Display project components
+        function displayProjectComponents(components) {
+            projectComponents = components;
+            const list = document.getElementById('projectComponentsList');
+            list.innerHTML = '';
+
+            components.forEach((component, index) => {
+                const item = document.createElement('div');
+                item.className = 'component-item';
+                item.innerHTML = `
+                    <input type="radio" class="component-radio" name="projectComponent" id="pc-${index}" value="${component.name}">
+                    <div class="component-info">
+                        <div class="component-name">${component.name}</div>
+                        <div class="component-path">${component.path}</div>
+                    </div>
+                    <span class="component-type project">project</span>
+                `;
+
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('input[name="projectComponent"]').forEach(radio => radio.checked = false);
+                    document.getElementById(`pc-${index}`).checked = true;
+                    selectedComponent = component;
+                    showStep4();
+                    analyzeAtoms();
+                });
+
+                list.appendChild(item);
+            });
+
+            list.style.display = 'block';
+            hideLoading();
+            showStatus(`Znaleziono ${components.length} komponentów Project*`, 'success');
+        }
+
+        // Show step 3
+        function showStep3() {
+            step3.style.display = 'block';
+        }
+
+        // Show step 4
+        function showStep4() {
+            const list = document.getElementById('selectedComponentList');
+            list.innerHTML = `
+                <div class="component-item selected">
+                    <div class="component-info">
+                        <div class="component-name">${selectedComponent.name}</div>
+                        <div class="component-path">${selectedComponent.path}</div>
+                    </div>
+                    <span class="component-type project">project</span>
+                </div>
+            `;
+            step4.style.display = 'block';
+        }
+
+        // Analyze atoms
+        function analyzeAtoms() {
+            showLoading('Analizowanie atomów...');
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'analyze-atoms',
+                    component: selectedComponent
+                }
+            }, '*');
+        }
+
+        // Display atoms analysis
+        function displayAtomsAnalysis(atoms) {
+            atomsAnalysis = atoms;
+            const analysis = document.getElementById('atomsAnalysis');
+            analysis.innerHTML = '';
+
+            atoms.forEach(atom => {
+                const item = document.createElement('div');
+                item.className = 'atom-item';
+                item.innerHTML = `
+                    <div class="atom-name">${atom.name}</div>
+                    <div class="atom-source">${atom.source}</div>
+                `;
+                analysis.appendChild(item);
+            });
+
+            step5.style.display = 'block';
+            step6.style.display = 'block';
+            hideLoading();
+            showStatus(`Znaleziono ${atoms.length} atomów`, 'success');
+        }
+
+        // Show loading
+        function showLoading(text) {
+            loadingText.textContent = text;
+            loading.classList.add('show');
+        }
+
+        // Hide loading
+        function hideLoading() {
+            loading.classList.remove('show');
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            folderStatus.textContent = message;
+            folderStatus.className = `status-message ${type}`;
+            folderStatus.style.display = 'block';
+        }
+
+        // Listen for messages from plugin
+        window.addEventListener('message', function (event) {
+            const message = event.data.pluginMessage;
+            if (message) {
+                switch (message.type) {
+                    case 'folder-selected':
+                        folderPathInput.value = message.folderPath;
+                        scanDesignSystemBtn.disabled = false;
+                        showStatus('Folder wybrany: ' + message.folderPath, 'info');
+                        break;
+                    case 'design-systems-scanned':
+                        displayDesignSystems(message.systems);
+                        break;
+                    case 'project-components-scanned':
+                        displayProjectComponents(message.components);
+                        break;
+                    case 'atoms-analyzed':
+                        displayAtomsAnalysis(message.atoms);
+                        break;
+                    case 'generation-success':
+                        hideLoading();
+                        showStatus(message.message, 'success');
+                        break;
+                    case 'generation-error':
+                        hideLoading();
+                        showStatus('Błąd: ' + message.error, 'error');
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="280" height="48" viewBox="0 0 280 48"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+      .sidebar-bg { fill: #25282E; }
+      .text-primary { fill: rgba(235, 241, 245, 0.96); }
+      .menu-item-bg { fill: transparent; }
+        </style>
+    </defs>
+
+    <!-- Dział Projektowy Item -->
+    <rect class="sidebar-bg" width="280" height="48" />
+    <rect class="menu-item-bg" x="0" y="0" width="280" height="48" />
+    <text x="24" y="26" class="text-primary" font-family="Inter" font-size="14" font-weight="400">
+    🎨 Dział Projektowy
+    </text>
+</svg>

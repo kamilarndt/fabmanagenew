@@ -160,6 +160,7 @@ function TagFilter({ materials, activeTags, onTagToggle, onClearAll }: TagFilter
           <button
             className="btn btn-link btn-sm text-decoration-none p-0"
             onClick={onClearAll}
+            aria-label="Wyczyść wszystkie filtry"
           >
             <i className="ri-close-circle-line me-1"></i>
             Wyczyść filtry ({activeTags.length})
@@ -180,6 +181,8 @@ function TagFilter({ materials, activeTags, onTagToggle, onClearAll }: TagFilter
                 : `btn-outline-${colorClass}`
                 } tag-button d-flex align-items-center gap-1`}
               onClick={() => onTagToggle(tag.id)}
+              aria-pressed={isActive}
+              aria-label={`Filtruj: ${tag.label}`}
               style={{
                 transition: 'all 0.2s ease',
                 borderRadius: '20px',

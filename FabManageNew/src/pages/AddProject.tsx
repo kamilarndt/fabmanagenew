@@ -1,37 +1,52 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useProjectsStore, type ProjectModule } from '../stores/projectsStore'
+import { useProjectsStore, type ProjectModule, type Project } from '../stores/projectsStore'
+import { useClientDataStore } from '../stores/clientDataStore'
 
 export default function AddProject() {
     const navigate = useNavigate()
     const { add } = useProjectsStore()
+    const { clients } = useClientDataStore()
 
     const [name, setName] = useState('')
     const [description, setDescription] = useState('')
     const [deadline, setDeadline] = useState('')
-    const [client, setClient] = useState('')
+    const [clientId, setClientId] = useState('')
     const [budget, setBudget] = useState<number | ''>('')
     const [manager, setManager] = useState('')
     const [status, setStatus] = useState<'Active' | 'On Hold' | 'Done'>('Active')
     const [modules, setModules] = useState<ProjectModule[]>([])
 
-    const isValid = useMemo(() => name.trim() && client.trim() && deadline.trim(), [name, client, deadline])
+    // Pobierz nazwę klienta na podstawie ID
+    const selectedClient = useMemo(() =>
+        clients.find((c: any) => c.id === clientId), [clients, clientId]
+    )
+
+    const isValid = useMemo(() => name.trim() && clientId && deadline.trim(), [name, clientId, deadline])
 
     const toggleModule = (m: ProjectModule) => {
         setModules(prev => prev.includes(m) ? prev.filter(x => x !== m) : [...prev, m])
     }
 
     const handleSubmit = async () => {
-        if (!isValid) return
+        if (!isValid || !selectedClient) return
+
         await add({
+            numer: `P-${new Date().getFullYear()}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${String(new Date().getDate()).padStart(2, '0')}`,
             name: name.trim(),
-            client: client.trim(),
-            status,
-            deadline,
-            budget: typeof budget === 'number' ? budget : undefined,
+            typ: 'Inne',
+            lokalizacja: 'Warszawa',
+            clientId: clientId,
+            client: selectedClient.companyName,
+            status: status as Project['status'],
+            data_utworzenia: new Date().toISOString().slice(0, 10),
+            deadline: deadline,
+            postep: 0,
+            budget: budget || undefined,
             manager: manager || undefined,
             description: description || undefined,
-            modules: modules.length ? modules : undefined
+            modules: modules.length ? modules : undefined,
+            clientColor: selectedClient.cardColor
         })
         navigate('/projekty')
     }
@@ -74,7 +89,19 @@ export default function AddProject() {
                                 </div>
                                 <div className="col-sm-6">
                                     <label className="form-label">Klient</label>
-                                    <input className="form-control" placeholder="Nazwa klienta" value={client} onChange={e => setClient(e.currentTarget.value)} />
+                                    <select
+                                        className="form-select"
+                                        value={clientId}
+                                        onChange={e => setClientId(e.target.value)}
+                                        required
+                                    >
+                                        <option value="">Wybierz klienta</option>
+                                        {clients.map((client: any) => (
+                                            <option key={client.id} value={client.id}>
+                                                {client.companyName}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div className="col-sm-6">
                                     <label className="form-label">Budżet (PLN)</label>

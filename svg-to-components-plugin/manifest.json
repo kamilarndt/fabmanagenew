@@ -1,0 +1,30 @@
+{
+    "name": "Enhanced React to Figma Converter v2.0",
+    "id": "enhanced-react-figma-converter-v2",
+    "api": "1.0.0",
+    "main": "dist/code.js",
+    "ui": "dist/ui.html",
+    "editorType": [
+        "figma",
+        "dev"
+    ],
+    "documentAccess": "dynamic-page",
+    "networkAccess": {
+        "allowedDomains": [
+            "none"
+        ]
+    },
+    "permissions": [
+        "currentuser"
+    ],
+    "capabilities": [
+        "inspect"
+    ],
+    "enableProposedApi": false,
+    "relaunchButtons": [
+        {
+            "name": "Open React Converter",
+            "command": "open-converter"
+        }
+    ]
+}

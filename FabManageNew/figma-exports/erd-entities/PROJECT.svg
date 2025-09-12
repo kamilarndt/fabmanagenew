@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="500" viewBox="0 0 400 500"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+      .entity-bg { fill: #f8f9fa; stroke: #dee2e6; stroke-width: 2; }
+      .entity-title { fill: #495057; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600; }
+      .field-name { fill: #6c757d; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; }
+      .field-type { fill: #28a745; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 400; }
+      .field-description { fill: #6c757d; font-family: 'Inter', sans-serif; font-size: 10px; font-style: italic; }
+      .pk-field { fill: #dc3545; font-weight: 600; }
+      .fk-field { fill: #007bff; font-weight: 500; }
+      .enum-field { fill: #fd7e14; font-weight: 500; }
+        </style>
+    </defs>
+
+    <!-- Entity Background -->
+    <rect class="entity-bg" x="10" y="10" width="380" height="480" rx="8" />
+
+    <!-- Entity Title -->
+    <text x="200" y="35" text-anchor="middle" class="entity-title">PROJECT</text>
+
+    <!-- Fields -->
+    <text x="20" y="60" class="field-name pk-field">id</text>
+    <text x="80" y="60" class="field-type">string</text>
+    <text x="120" y="60" class="field-description">PK</text>
+
+    <text x="20" y="80" class="field-name">numer</text>
+    <text x="80" y="80" class="field-type">string</text>
+    <text x="120" y="80" class="field-description">"P-2025/09/01"</text>
+
+    <text x="20" y="100" class="field-name">name</text>
+    <text x="80" y="100" class="field-type">string</text>
+
+    <text x="20" y="120" class="field-name">typ</text>
+    <text x="80" y="120" class="field-type enum-field">enum</text>
+    <text x="120" y="120" class="field-description">"Teatr|Muzeum|Event|Wnętrza|TV|Retail|Koncert"</text>
+
+    <text x="20" y="140" class="field-name">lokalizacja</text>
+    <text x="80" y="140" class="field-type">string</text>
+
+    <text x="20" y="160" class="field-name fk-field">clientId</text>
+    <text x="80" y="160" class="field-type">string</text>
+    <text x="120" y="160" class="field-description">FK</text>
+
+    <text x="20" y="180" class="field-name">client</text>
+    <text x="80" y="180" class="field-type">string</text>
+    <text x="120" y="180" class="field-description">"nazwa klienta"</text>
+
+    <text x="20" y="200" class="field-name">status</text>
+    <text x="80" y="200" class="field-type enum-field">enum</text>
+    <text x="120" y="200" class="field-description">"new|active|on_hold|done|cancelled"</text>
+
+    <text x="20" y="220" class="field-name">data_utworzenia</text>
+    <text x="80" y="220" class="field-type">string</text>
+
+    <text x="20" y="240" class="field-name">data_rozpoczęcia</text>
+    <text x="80" y="240" class="field-type">string</text>
+
+    <text x="20" y="260" class="field-name">deadline</text>
+    <text x="80" y="260" class="field-type">string</text>
+
+    <text x="20" y="280" class="field-name">postep</text>
+    <text x="80" y="280" class="field-type">number</text>
+    <text x="120" y="280" class="field-description">"0-100%"</text>
+
+    <text x="20" y="300" class="field-name">budget</text>
+    <text x="80" y="300" class="field-type">number</text>
+
+    <text x="20" y="320" class="field-name">manager</text>
+    <text x="80" y="320" class="field-type">string</text>
+
+    <text x="20" y="340" class="field-name fk-field">manager_id</text>
+    <text x="80" y="340" class="field-type">string</text>
+    <text x="120" y="340" class="field-description">FK</text>
+
+    <text x="20" y="360" class="field-name">description</text>
+    <text x="80" y="360" class="field-type">string</text>
+
+    <text x="20" y="380" class="field-name">miniatura</text>
+    <text x="80" y="380" class="field-type">string</text>
+    <text x="120" y="380" class="field-description">"URL"</text>
+
+    <text x="20" y="400" class="field-name">repozytorium_plikow</text>
+    <text x="80" y="400" class="field-type">string</text>
+
+    <text x="20" y="420" class="field-name">link_model_3d</text>
+    <text x="80" y="420" class="field-type">string</text>
+
+    <text x="20" y="440" class="field-name">speckle_stream_url</text>
+    <text x="80" y="440" class="field-type">string</text>
+
+    <text x="20" y="460" class="field-name">speckle_stream_id</text>
+    <text x="80" y="460" class="field-type">string</text>
+
+    <text x="20" y="480" class="field-name">model_3d_status</text>
+    <text x="80" y="480" class="field-type enum-field">enum</text>
+    <text x="120" y="480" class="field-description">"not_loaded|loading|loaded|error"</text>
+</svg>

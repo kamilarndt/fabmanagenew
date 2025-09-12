@@ -1,0 +1,33 @@
+{
+    "name": "FabManage Advanced Component Generator",
+    "id": "fabmanage-advanced-generator",
+    "api": "1.0.0",
+    "main": "code-v2.js",
+    "ui": "ui-v2.html",
+    "capabilities": [],
+    "enableProposedApi": false,
+    "editorType": [
+        "figma"
+    ],
+    "networkAccess": {
+        "allowedDomains": [
+            "none"
+        ]
+    },
+    "permissions": [
+        "currentuser"
+    ],
+    "description": "Advanced Figma plugin for generating components from SVG with Atomic Design structure, duplicate detection, and Tokens Studio integration. Creates only atoms as components, molecules and organisms as frames.",
+    "version": "2.0.0",
+    "author": "FabManage Team",
+    "keywords": [
+        "figma",
+        "plugin",
+        "atomic-design",
+        "component-generator",
+        "svg",
+        "design-system",
+        "tokens-studio",
+        "design-tokens"
+    ]
+}

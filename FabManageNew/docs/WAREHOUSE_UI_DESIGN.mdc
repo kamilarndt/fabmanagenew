@@ -1,0 +1,583 @@
+# Projekt UI dla Działu Magazynów - FabManageNew
+
+**Wersja:** 1.0  
+**Data:** 15.01.2025  
+**Autor:** AI Assistant  
+**Status:** Propozycja do implementacji
+
+---
+
+## 1. Analiza wymagań biznesowych
+
+### 1.1. Kontekst biznesowy
+Dział magazynów w Fabryce Dekoracji wymaga nowoczesnego interfejsu do zarządzania materiałami produkcyjnymi, który umożliwi:
+- Efektywne zarządzanie stanami magazynowymi
+- Integrację z procesami produkcyjnymi (BOM, CNC)
+- Śledzenie przepływów materiałów i zamówień
+- Optymalizację kosztów i minimalizację przestojów
+
+### 1.2. Persony użytkowników
+
+**Kierownik Magazynu (Użytkownik główny)**
+- Cel: Strategiczne zarządzanie zapasami i optymalizacja kosztów
+- Potrzeby: Dashboard KPI, analityki, kontrola przepływów
+- Frustracje: Brak przejrzystości w stanach krytycznych, trudności w prognozowaniu
+
+**Magazynier (Operacyjny)**
+- Cel: Szybkie wykonywanie operacji przyjęć/wydań
+- Potrzeby: Skaner kodów, proste formularze, lokalizacje
+- Frustracje: Czasochłonne wyszukiwanie, błędy w lokalizacjach
+
+**Koordynator Zakupów**
+- Cel: Efektywne zarządzanie zamówieniami i dostawcami
+- Potrzeby: Monitoring krytycznych braków, porównanie ofert
+- Frustracje: Opóźnienia w informacjach, chaos w zamówieniach
+
+---
+
+## 2. Architektura informacji
+
+### 2.1. Struktura nawigacji głównej
+
+```
+Magazyn (Główna)
+├── 📊 Dashboard & KPI
+├── 📦 Materiały
+│   ├── Lista materiałów (grid/list/tree)
+│   ├── Kategorie i filtry
+│   └── Szczegóły materiału
+├── ⚠️ Stany krytyczne
+│   ├── Braki krytyczne
+│   ├── Niskie stany
+│   └── Nadmiary
+├── 📋 Zamówienia
+│   ├── Zapotrzebowania
+│   ├── Oferty dostawców
+│   └── Śledzenie dostaw
+├── 📊 Operacje
+│   ├── Przyjęcia (PZ)
+│   ├── Wydania (WZ)
+│   └── Korekty stanów
+├── 📍 Lokalizacje
+│   ├── Mapa magazynu
+│   ├── Zarządzanie strefami
+│   └── Optymalizacja rozmieszczenia
+└── 📈 Analizy
+    ├── Raporty ABC
+    ├── Rotacja zapasów
+    └── Prognozowanie
+```
+
+### 2.2. Hierarchia informacji
+
+**Poziom 1: Overview** - Dashboard z kluczowymi wskaźnikami  
+**Poziom 2: Management** - Zarządzanie materiałami i operacjami  
+**Poziom 3: Operations** - Szczegółowe operacje i transakcje  
+**Poziom 4: Analytics** - Raporty i analityki
+
+---
+
+## 3. Główne widoki i wireframes
+
+### 3.1. Dashboard (Widok główny)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ [🏠] Magazyn materiałów                    [📊] [⚙️] [👤]   │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│ ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
+│ │💰 Wartość    │  │📦 Pozycje    │  │⚠️ Krytyczne  │       │
+│ │💶 2.4M PLN   │  │🔢 1,247      │  │🔴 23         │       │
+│ │📈 +5.2%      │  │📊 +12 nowe   │  │🟡 67 niskie  │       │
+│ └──────────────┘  └──────────────┘  └──────────────┘       │
+│                                                             │
+│ ┌─────────────────┐  ┌─────────────────────────────────────┐│
+│ │📊 Rotacja ABC   │  │📋 Ostatnie operacje              │││
+│ │                 │  │                                   │││
+│ │ A: ████████ 60% │  │ ↗️ PZ-2025/001 | MDF 18mm | +50   │││
+│ │ B: ███░░░░ 30%  │  │ ↘️ WZ-2025/004 | Plexi 3mm | -12  │││
+│ │ C: ██░░░░░ 10%  │  │ ↗️ PZ-2025/002 | Dibond | +25     │││
+│ │                 │  │ 📅 Dzisiaj, 14:23                 │││
+│ └─────────────────┘  └─────────────────────────────────────┘│
+│                                                             │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │🚨 Alerty wymagające działania                          │ │
+│ │                                                        │ │
+│ │ • MDF 18mm - poniżej minimum (8/20 arkuszy)           │ │
+│ │ • Plexi 5mm - brak w magazynie (0/10 arkuszy)         │ │
+│ │ • Opóźnienie dostawy: Dibond (Aluprint, +3 dni)       │ │
+│ └─────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Kluczowe elementy:**
+- **KPI Cards** - Wartość, ilości, stany krytyczne z trendami
+- **Wykres ABC** - Wizualna reprezentacja klasyfikacji materiałów
+- **Stream operacji** - Live feed ostatnich operacji magazynowych
+- **Centrum alertów** - Priorytetyzowane ostrzeżenia i akcje
+
+### 3.2. Lista materiałów (Widok roboczy)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ [🔍] Materiały                             [⚙️] Filtry     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│ Filtry: [📦 Wszystkie] [🏭 Wszyscy dostawcy] [⚠️ Krytyczne] │
+│                                                             │
+│ ┌──────────┐ ┌─────────────────────────────────────────────┐│
+│ │🌳 Kategorie│ │📋 Lista materiałów          [🔲][📄] [⚙️]│││
+│ │           │ │                                           │││
+│ │📄 _M      │ │┌─────────────────────────────────────────┐│││
+│ │ └ MDF     │ ││MAT001 | MDF 18mm Standard              ││││
+│ │ └ Sklejka │ ││42/20 arkuszy | A1-01 | Kronopol       ││││
+│ │ └ OSB     │ ││🟢 OK | 💶 5,271 PLN                   ││││
+│ │           │ │├─────────────────────────────────────────┤│││
+│ │🔷 _PLEXI  │ ││MAT002 | MDF 18mm Do gięcia            ││││
+│ │ └ Ekstr.  │ ││8/15 arkuszy | A1-02 | Kronopol        ││││
+│ │ └ Lana    │ ││🟡 NISKI | 💶 1,344 PLN                ││││
+│ │           │ │├─────────────────────────────────────────┤│││
+│ │⚡ _ELEK   │ ││MAT003 | MDF 18mm Trudnopalna          ││││
+│ │ └ LED     │ ││5/10 arkuszy | A1-03 | Pfleiderer     ││││
+│ │ └ Kable   │ ││🔴 KRYTYCZNY | 💶 1,225 PLN            ││││
+│ │           │ │└─────────────────────────────────────────┘│││
+│ └───────────┘ └─────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Kluczowe funkcje:**
+- **Hierarchiczne kategorie** - Drzewo kategorii z licznikami
+- **Inteligentne filtry** - Status, dostawca, klasa ABC, lokalizacja
+- **Multi-view support** - Grid, lista, tabela z dynamicznym przełączaniem
+- **Status indicators** - Kolorowe wskaźniki stanów zapasów
+- **Quick actions** - Bezpośrednie akcje z poziomu listy
+
+### 3.3. Szczegóły materiału (Modal/Panel)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ ✕ MDF 18mm Standard (MAT001)                               │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐        │
+│ │📊 Stan       │ │💰 Wycena     │ │📍 Lokalizacja│        │
+│ │42/20 arkuszy │ │125.50 PLN/szt│ │A1-01         │        │
+│ │🟢 +110% min  │ │💶 5,271 total│ │Strefa A      │        │
+│ └──────────────┘ └──────────────┘ └──────────────┘        │
+│                                                             │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │📋 Właściwości                                          │ │
+│ │• Grubość: 18mm                                         │ │
+│ │• Kolor: surowy                                         │ │
+│ │• Wykończenie: gładki                                   │ │
+│ │• Trudnopalny: Nie                                      │ │
+│ │• Elastyczny: Nie                                       │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│                                                             │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │📊 Historia ruchu (ostatnie 30 dni)                     │ │
+│ │                                                        │ │
+│ │ 2025-01-10  PZ-001   +50  Dostawa Kronopol            │ │
+│ │ 2025-01-08  WZ-023   -12  Projekt P-2025-004          │ │
+│ │ 2025-01-05  WZ-019   -8   Projekt P-2025-003          │ │
+│ │ 2025-01-03  COR-004  +2   Korekta inwentaryzacji      │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│                                                             │
+│ [🛒 Zamów] [📝 Korekta] [📍 Przenieś] [📋 Historia]        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 3.4. Operacje magazynowe
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ [📋] Nowe przyjęcie (PZ)                   [💾] [✕]        │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│ Dostawca: [Kronopol ▼]    Nr dokumentu: [PZ-2025/005]     │
+│ Data: [15.01.2025]        Typ: [⬇️ Przyjęcie]             │
+│                                                             │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │📦 Pozycje do przyjęcia                                 │ │
+│ │                                                        │ │
+│ │ ┌─ MAT001 | MDF 18mm Standard ──────────────────────┐  │ │
+│ │ │ Zamówione: 50 arkuszy                             │  │ │
+│ │ │ Dostarczone: [50] arkuszy                         │  │ │
+│ │ │ Lokalizacja: [A1-01 ▼]                            │  │ │
+│ │ │ Stan: 🟢 Komplet                                  │  │ │
+│ │ └─────────────────────────────────────────────────────┘  │ │
+│ │                                                        │ │
+│ │ [➕ Dodaj pozycję] [📸 Skanuj kod]                     │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│                                                             │
+│ 📝 Uwagi: [Materiał w dobry stanie, kompleta dostawa]     │
+│                                                             │
+│ [📊 Podgląd] [💾 Zapisz i zamknij] [🖨️ Drukuj etykiety]   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 3.5. Lokalizacje i mapa magazynu
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ [📍] Mapa magazynu                         [⚙️] [🔍]       │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│ ┌─ Strefa A ────┐ ┌─ Strefa B ────┐ ┌─ Strefa C ────┐    │
+│ │ A1 A2 A3 A4   │ │ B1 B2 B3      │ │ C1 C2         │    │
+│ │ ██ ░░ ██ ██   │ │ ██ ░░ ██      │ │ ██ ░░         │    │
+│ │ ██ ░░ ░░ ██   │ │ ██ ░░ ░░      │ │ ░░ ░░         │    │
+│ │ ██ ██ ░░ ░░   │ │ ░░ ░░ ░░      │ │               │    │
+│ │ Płyty meblowe │ │ Plexi/Akryl   │ │ Kompozyty     │    │
+│ └───────────────┘ └───────────────┘ └───────────────┘    │
+│                                                             │
+│ Legenda: ██ Zajęte  ░░ Wolne  🔴 Przepełnione             │
+│                                                             │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │📋 Szczegóły lokalizacji: A1-01                        │ │
+│ │                                                        │ │
+│ │• Kategoria: Płyty MDF                                  │ │
+│ │• Pojemność: 100 arkuszy                               │ │
+│ │• Zajęte: 42 arkuszy (42%)                             │ │
+│ │• Materiały: MAT001 (42 szt)                           │ │
+│ │• Status: 🟢 Optymalne wykorzystanie                    │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│                                                             │
+│ [🎯 Znajdź materiał] [📊 Raport wykorzystania] [⚙️ Konf.] │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 4. System komponentów UI
+
+### 4.1. Komponenty bazowe
+
+#### MaterialCard
+```tsx
+interface MaterialCardProps {
+  material: MaterialData
+  variant: 'compact' | 'detailed' | 'grid'
+  showActions?: boolean
+  onSelect?: (material: MaterialData) => void
+  onQuickAction?: (action: string, material: MaterialData) => void
+}
+```
+
+#### StockIndicator
+```tsx
+interface StockIndicatorProps {
+  current: number
+  minimum: number
+  maximum: number
+  unit: string
+  variant: 'badge' | 'progress' | 'gauge'
+  showText?: boolean
+}
+```
+
+#### LocationPicker
+```tsx
+interface LocationPickerProps {
+  zones: WarehouseZone[]
+  selectedLocation?: string
+  onLocationSelect: (location: string) => void
+  filterByCategory?: string
+  showCapacity?: boolean
+}
+```
+
+#### OperationForm
+```tsx
+interface OperationFormProps {
+  type: 'receive' | 'issue' | 'transfer' | 'adjust'
+  materials?: MaterialData[]
+  onSubmit: (operation: MaterialOperation) => void
+  onCancel: () => void
+  autoFillFromOrder?: boolean
+}
+```
+
+### 4.2. Kompozycje układu
+
+#### DashboardGrid
+- Responsywny system grid 12-kolumn
+- Automatyczne dostosowanie na mobile (stack)
+- Drag & drop dla personalizacji
+
+#### FilterSidebar
+- Składane kategorie z licznikami
+- Inteligentne sugestie filtrów
+- Zapisywanie zestawów filtrów
+
+#### ActionToolbar
+- Kontekstowe akcje w zależności od selection
+- Bulk operations dla zaznaczonych elementów
+- Quick access do częstych operacji
+
+---
+
+## 5. Interakcje i przepływy UX
+
+### 5.1. Główne przepływy użytkownika
+
+**Przepływ 1: Szybkie przyjęcie materiału**
+1. Dashboard → Skanuj kod kreskowy
+2. Rozpoznanie materiału → Formularz przyjęcia
+3. Walidacja ilości → Wybór lokalizacji
+4. Potwierdzenie → Aktualizacja stanów
+
+**Przepływ 2: Zarządzanie krytycznymi brakami**
+1. Dashboard → Alert krytycznych braków
+2. Lista materiałów krytycznych → Szczegóły materiału
+3. Quick order → Formularz zapotrzebowania
+4. Wybór dostawcy → Śledzenie zamówienia
+
+**Przepływ 3: Optymalizacja lokalizacji**
+1. Lokalizacje → Mapa wykorzystania
+2. Identyfikacja nieefektywności → Propozycje zmian
+3. Planowanie transferów → Wykonanie przemieszczeń
+4. Monitoring efektów → Raportowanie
+
+### 5.2. Wzorce interakcji
+
+#### Drag & Drop Operations
+- Przenoszenie materiałów między lokalizacjami
+- Tworzenie grup materiałów
+- Reorderowanie priorytetów
+
+#### Context Menus
+- Prawy klik na materiale → menu akcji
+- Quick actions bez otwierania modali
+- Keyboard shortcuts dla power users
+
+#### Progressive Disclosure
+- Podstawowe info → rozwinięcie szczegółów
+- Smart defaults w formularzach
+- Advanced filters ukryte do potrzeby
+
+---
+
+## 6. Responsive Design & Mobile
+
+### 6.1. Breakpoints
+- **Mobile (320-768px)**: Stack layout, priorites akcje
+- **Tablet (768-1024px)**: 2-kolumnowy layout, kompaktowe karty
+- **Desktop (1024px+)**: Pełny layout z sidebars
+
+### 6.2. Mobile-first features
+- **Skaner kodów**: Camera API integration
+- **Offline mode**: Local storage dla krytycznych operacji
+- **Gesture navigation**: Swipe actions dla quick operations
+- **Voice input**: Dla rąk-free operacji w magazynie
+
+### 6.3. Progressive Web App
+- **Install prompt**: Add to homescreen
+- **Push notifications**: Alerty dla krytycznych stanów
+- **Background sync**: Synchronizacja when connected
+
+---
+
+## 7. Integracje i API
+
+### 7.1. Integracja z Produkcją
+```tsx
+// Automatyczne rezerwacje materiałów z BOM
+interface BOMIntegration {
+  reserveMaterialsForProject(projectId: string, bomItems: BomItem[]): Promise<Reservation[]>
+  releaseMaterialsOnCompletion(projectId: string): Promise<void>
+  updateProjectMaterialStatus(projectId: string, status: MaterialStatus): Promise<void>
+}
+```
+
+### 7.2. Integracja z Dostawcami
+```tsx
+// API do porównywania ofert i automated ordering
+interface SupplierIntegration {
+  requestQuotes(materials: MaterialRequest[]): Promise<Quote[]>
+  placeOrder(supplierId: string, items: OrderItem[]): Promise<Order>
+  trackDelivery(orderId: string): Promise<DeliveryStatus>
+}
+```
+
+### 7.3. Integracja z ERP/Finansami
+```tsx
+// Sync z systemami księgowymi
+interface ERPIntegration {
+  syncInventoryValues(): Promise<void>
+  generateCostReports(period: DateRange): Promise<Report>
+  validateBudgetConstraints(requisition: Requisition): Promise<boolean>
+}
+```
+
+---
+
+## 8. Performance & Optimization
+
+### 8.1. Data Management
+- **Virtual scrolling** dla dużych list materiałów
+- **Lazy loading** dla szczegółów i historii
+- **Intelligent caching** frequently accessed data
+- **Background prefetching** dla przewidywanych akcji
+
+### 8.2. Search & Filtering
+- **Debounced search** (300ms delay)
+- **Index-based filtering** dla szybkości
+- **Faceted navigation** z licznikami
+- **Search history** dla power users
+
+### 8.3. Real-time Updates
+- **WebSocket connections** dla live stock updates
+- **Optimistic updates** dla immediate feedback
+- **Conflict resolution** dla concurrent operations
+- **Event sourcing** dla audit trail
+
+---
+
+## 9. Accessibility & Usability
+
+### 9.1. WCAG 2.1 Compliance
+- **Color contrast**: Min 4.5:1 dla wszystkich tekstów
+- **Keyboard navigation**: Full keyboard accessibility
+- **Screen readers**: Proper ARIA labels i landmarks
+- **Focus management**: Logical tab order
+
+### 9.2. Usability Enhancements
+- **Smart defaults**: Przewidywanie częstych wartości
+- **Auto-complete**: Dla kodów materiałów i lokalizacji
+- **Contextual help**: Tooltips i inline guidance
+- **Error prevention**: Walidacja przed submit
+
+### 9.3. Internationalization
+- **Multi-language support**: PL/EN interface
+- **Currency formatting**: PLN/EUR z proper formatting
+- **Date/time formats**: Localized formats
+- **Number formats**: Proper decimal separators
+
+---
+
+## 10. Implementacja techniczna
+
+### 10.1. Tech Stack Recommendation
+```tsx
+// Core Technologies
+- React 19 + TypeScript (existing)
+- Zustand dla state management (existing)
+- Materialize CSS + custom components (existing)
+- PWA capabilities via Vite plugin
+
+// New Dependencies
+- @tanstack/react-virtual (virtualization)
+- react-hook-form (complex forms)
+- date-fns (date handling)
+- recharts (charts/analytics)
+- fuse.js (fuzzy search)
+```
+
+### 10.2. Folder Structure
+```
+src/
+├── modules/warehouse/
+│   ├── components/
+│   │   ├── Dashboard/
+│   │   ├── Materials/
+│   │   ├── Operations/
+│   │   ├── Locations/
+│   │   └── Common/
+│   ├── hooks/
+│   ├── stores/
+│   ├── types/
+│   ├── utils/
+│   └── services/
+├── shared/
+│   ├── components/ui/
+│   ├── hooks/
+│   └── utils/
+```
+
+### 10.3. State Architecture
+```tsx
+// Zustand stores structure
+interface WarehouseState {
+  materials: MaterialsSlice
+  operations: OperationsSlice
+  locations: LocationsSlice
+  analytics: AnalyticsSlice
+  ui: UIPreferencesSlice
+}
+```
+
+---
+
+## 11. Plan implementacji
+
+### 11.1. Faza 1: Fundament (2 tygodnie)
+- **Sprint 1.1**: Podstawowe komponenty UI (MaterialCard, StockIndicator)
+- **Sprint 1.2**: Store setup i podstawowe operacje CRUD
+- **Cele**: Działająca lista materiałów z podstawowym filtrowaniem
+
+### 11.2. Faza 2: Core Features (3 tygodnie)
+- **Sprint 2.1**: Dashboard i KPI, system alertów
+- **Sprint 2.2**: Operacje magazynowe (PZ/WZ), formularz workflow
+- **Sprint 2.3**: Lokalizacje i basic mapa magazynu
+- **Cele**: Kompletny podstawowy workflow operacji magazynowych
+
+### 11.3. Faza 3: Advanced (2 tygodnie)  
+- **Sprint 3.1**: Zaawansowane filtry, search, analytics
+- **Sprint 3.2**: Integracje z BOM/Produkcją, automated workflows
+- **Cele**: Pełna integracja z systemem produkcyjnym
+
+### 11.4. Faza 4: Polish & Optimization (1 tydzień)
+- **Sprint 4.1**: Performance optimization, accessibility, mobile polish
+- **Cele**: Production-ready module
+
+---
+
+## 12. Kryteria sukcesu
+
+### 12.1. KPIs biznesowe
+- **Redukcja czasu wyszukiwania materiałów**: 60% (z 5min do 2min)
+- **Zwiększenie dokładności stanów**: 95% (vs 80% obecnie)
+- **Redukcja przestojów z braku materiałów**: 40%
+- **Optymalizacja kosztów magazynowania**: 15%
+
+### 12.2. Metryki UX
+- **System Usability Scale (SUS)**: Min 80 punktów
+- **Task completion rate**: 95% dla podstawowych operacji
+- **Error rate**: Max 2% dla krytycznych operacji
+- **User satisfaction**: Min 4.2/5 w ankietach
+
+### 12.3. Metryki techniczne
+- **Page load time**: Max 2s dla głównych widoków
+- **Search response time**: Max 300ms dla 10k+ items
+- **Mobile performance**: Min 90 Lighthouse score
+- **Accessibility**: WCAG 2.1 AA compliance
+
+---
+
+## 13. Ryzyka i mitigation
+
+### 13.1. Ryzyka biznesowe
+- **Opór użytkowników**: Mitigation przez extensive training i stopniowe rollout
+- **Integracja z legacy systems**: Phased approach z fallback options
+- **Data migration**: Thorough testing environment przed production
+
+### 13.2. Ryzyka techniczne  
+- **Performance z dużymi dataset**: Virtual scrolling i smart pagination
+- **Mobile reliability**: Offline-first approach z sync mechanisms
+- **Complex state management**: Clear separation of concerns w store architecture
+
+---
+
+## 14. Następne kroki
+
+1. **Review i feedback** od stakeholders (Kierownik magazynu, Magazynierzy)
+2. **Technical spike** dla kluczowych uncertain areas (virtualization, offline mode)
+3. **Design system expansion** dla warehouse-specific components
+4. **Prototype development** key user journeys dla validation
+5. **Implementation kick-off** zgodnie z planem fazowym
+
+---
+
+**Dokument jest living document i będzie aktualizowany w trakcie implementacji na podstawie feedbacku użytkowników i learnings z development process.**

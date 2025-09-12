@@ -1,632 +1,546 @@
-import { useState, useMemo, useEffect } from 'react'
-import { mockMaterials, filterMaterials, calculateMaterialStats } from '../data/materialsMockData'
+import { useState, useMemo, useCallback, useEffect } from 'react'
+import { calculateMaterialStats } from '../data/materialsMockData'
 import type { MaterialData } from '../data/materialsMockData'
-import CategoryTree from '../components/Magazyn/CategoryTree'
-import MaterialCard from '../components/Magazyn/MaterialCard'
-import TagFilter from '../components/Magazyn/TagFilter'
-import MaterialDetailsPanel from '../components/Magazyn/MaterialDetailsPanel'
-import CriticalStockPanel from '../components/Magazyn/CriticalStockPanel'
-import type { ViewMode, SortField, SortOrder } from '../types/magazyn.types'
-import { showToast } from '../lib/toast'
+import { useMaterialsStore } from '../stores/materialsStore'
+// consolidated styles are loaded via index.css -> styles/design-system.css
+import OperationForm from '../components/Magazyn/OperationForm'
+import CategorySidebar from '../components/Magazyn/CategorySidebar'
+import { MaterialCard } from '../components/Magazyn/MaterialCard'
+import { PageHeader } from '../components/Ui/PageHeader'
+import { Toolbar } from '../components/Ui/Toolbar'
+import { showToast } from '../lib/notifications'
+import { EntityTable, type Column } from '../components/Ui/EntityTable'
+import { Row, Col, Card, Button, Space, Tag, Empty, Segmented, Select, Modal } from 'antd'
+import { Checkbox } from 'antd'
+import { AppstoreOutlined, BarsOutlined, FilterOutlined, SortAscendingOutlined } from '@ant-design/icons'
+import { usePageSearch } from '../contexts/SearchContext'
 
 export default function MagazynNew() {
   // Stan główny
-  const [materials] = useState<MaterialData[]>(mockMaterials)
-  const [selectedMaterial, setSelectedMaterial] = useState<MaterialData | null>(null)
-  const [detailsPanelOpen, setDetailsPanelOpen] = useState(false)
-
-  // Filtry i widok
-  const [searchQuery, setSearchQuery] = useState('')
+  const materials = useMaterialsStore(state => state.materials)
+  const syncFromBackend = useMaterialsStore(state => state.syncFromBackend)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('cards')
+
+  // Kontekstowa wyszukiwarka
+  const { searchValue } = usePageSearch({
+    placeholder: 'Szukaj materiałów po nazwie, kodzie, typie...',
+    onSearch: (value) => {
+      console.warn('TODO: Szukanie materiałów:', value)
+    }
+  })
+
+  // Filtry i sortowanie
+  const [sortBy, setSortBy] = useState<'name' | 'price' | 'stock' | 'category'>('category')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [advancedFiltersVisible, setAdvancedFiltersVisible] = useState(false)
+
+  // Zaawansowane filtry
   const [selectedSupplier, setSelectedSupplier] = useState<string>('')
-  const [selectedStatus, setSelectedStatus] = useState<'all' | 'critical' | 'low' | 'normal' | 'excess'>('all')
-  const [selectedAbcClass, setSelectedAbcClass] = useState<'all' | 'A' | 'B' | 'C'>('all')
-  const [activeTags, setActiveTags] = useState<string[]>([])
-  const [viewMode, setViewMode] = useState<ViewMode>('grid')
-  const [activeTab, setActiveTab] = useState<'overview' | 'materials' | 'critical' | 'movement'>('overview')
-  const [sortField, setSortField] = useState<SortField>('name')
-  const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
+  const [selectedAbcClass, setSelectedAbcClass] = useState<string>('')
+  const [selectedStatus, setSelectedStatus] = useState<string>('')
 
-  // Przetwarzanie tagów na filtry
+  // Automatyczne ładowanie materiałów przy wejściu
   useEffect(() => {
-    activeTags.forEach(tagId => {
-      if (tagId.startsWith('cat-')) {
-        const category = tagId.replace('cat-', '')
-        setSelectedCategories([category])
-      } else if (tagId === 'status-critical') {
-        setSelectedStatus('critical')
-      } else if (tagId === 'status-low') {
-        setSelectedStatus('low')
-      }
-    })
-  }, [activeTags])
+    if (materials.length === 0) {
+      syncFromBackend()
+    }
+  }, [materials.length, syncFromBackend])
 
-  // Filtrowane materiały
-  const filteredMaterials = useMemo(() => {
-    return filterMaterials(materials, {
-      search: searchQuery,
-      category: selectedCategories,
-      status: selectedStatus,
-      supplier: selectedSupplier || undefined,
-      abcClass: selectedAbcClass !== 'all' ? selectedAbcClass : undefined
-    })
-  }, [materials, searchQuery, selectedCategories, selectedStatus, selectedSupplier, selectedAbcClass])
-
-  // Sortowane materiały
-  const sortedMaterials = useMemo(() => {
-    const sorted = [...filteredMaterials]
-    sorted.sort((a, b) => {
-      let aVal: unknown, bVal: unknown
-
-      switch (sortField) {
-        case 'code':
-          aVal = a.code
-          bVal = b.code
-          break
-        case 'name':
-          aVal = a.name
-          bVal = b.name
-          break
-        case 'stock':
-          aVal = a.stock / a.minStock
-          bVal = b.stock / b.minStock
-          break
-        case 'supplier':
-          aVal = a.supplier
-          bVal = b.supplier
-          break
-        case 'lastDelivery':
-          aVal = a.lastDelivery ? new Date(a.lastDelivery).getTime() : 0
-          bVal = b.lastDelivery ? new Date(b.lastDelivery).getTime() : 0
-          break
-        case 'value':
-          aVal = a.stock * a.price
-          bVal = b.stock * b.price
-          break
-        default:
-          aVal = a.name
-          bVal = b.name
-      }
-
-      const result = (aVal as any) < (bVal as any) ? -1 : (aVal as any) > (bVal as any) ? 1 : 0
-      return sortOrder === 'asc' ? result : -result
-    })
-
-    return sorted
-  }, [filteredMaterials, sortField, sortOrder])
-
-  // Statystyki
-  const stats = useMemo(() => calculateMaterialStats(filteredMaterials), [filteredMaterials])
-
-  // Lista unikalnych dostawców
-  const suppliers = useMemo(() => {
-    const uniqueSuppliers = new Set(materials.map(m => m.supplier))
-    return Array.from(uniqueSuppliers).sort()
-  }, [materials])
+  // Operation form state
+  const [operationFormOpen, setOperationFormOpen] = useState(false)
+  const [operationType, setOperationType] = useState<'receive' | 'issue' | 'transfer' | 'adjust'>('receive')
 
   // Handlers
   const handleMaterialSelect = (material: MaterialData) => {
-    setSelectedMaterial(material)
-    setDetailsPanelOpen(true)
+    void material
+    // optional: open details drawer in future
   }
 
   const handleQuickOrder = (material: MaterialData) => {
     showToast(`Zamówienie dla ${material.name} zostało utworzone`, 'success')
   }
 
-  const handleTagToggle = (tagId: string) => {
-    setActiveTags(prev =>
-      prev.includes(tagId)
-        ? prev.filter(id => id !== tagId)
-        : [...prev, tagId]
-    )
-  }
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  }, [])
 
+  // select-all disabled in EntityTable variant
 
+  const handleOpenOperationForm = useCallback((type: 'receive' | 'issue') => {
+    setOperationType(type)
+    setOperationFormOpen(true)
+  }, [])
 
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortField(field)
-      setSortOrder('asc')
+  const handleOperationSubmit = useCallback((operation: { type: 'receive' | 'issue' | 'transfer' | 'adjust';[key: string]: unknown }) => {
+    setOperationFormOpen(false)
+    showToast(`${operation.type === 'receive' ? 'Przyjęcie' : 'Wydanie'} zostało zapisane`, 'success')
+  }, [])
+
+  // Filtrowanie i sortowanie materiałów
+  const filteredMaterials = useMemo(() => {
+    let result = [...materials]
+
+    // Filtr po kategoriach
+    if (selectedCategories.length > 0) {
+      result = result.filter(material => {
+        if (!Array.isArray(material.category)) return false
+
+        const [mainCat, subCat] = material.category
+        const materialCategoryKey = subCat ? `${mainCat}_${subCat}` : mainCat
+
+        return selectedCategories.some(selectedCat => {
+          if (selectedCat === mainCat) return true
+          if (selectedCat === materialCategoryKey) return true
+          return false
+        })
+      })
     }
-  }
+
+    // Filtr wyszukiwania
+    if (searchValue) {
+      const query = searchValue.toLowerCase()
+      result = result.filter(material =>
+        material.name.toLowerCase().includes(query) ||
+        material.code.toLowerCase().includes(query) ||
+        ((material as any).typ && (material as any).typ.toLowerCase().includes(query)) ||
+        ((material as any).rodzaj && (material as any).rodzaj.toLowerCase().includes(query)) ||
+        (material.supplier && material.supplier.toLowerCase().includes(query))
+      )
+    }
+
+    // Zaawansowane filtry
+    if (selectedSupplier) {
+      result = result.filter(material => material.supplier === selectedSupplier)
+    }
+
+    if (selectedAbcClass) {
+      result = result.filter(material => material.abcClass === selectedAbcClass)
+    }
+
+    if (selectedStatus) {
+      result = result.filter(material => {
+        const ratio = material.stock / material.minStock
+        if (selectedStatus === 'critical') return ratio < 0.5
+        if (selectedStatus === 'low') return ratio >= 0.5 && ratio < 1
+        if (selectedStatus === 'normal') return ratio >= 1 && ratio <= material.maxStock / material.minStock
+        if (selectedStatus === 'excess') return ratio > material.maxStock / material.minStock
+        return true
+      })
+    }
+
+    // Sortowanie
+    result.sort((a, b) => {
+      let aVal: any, bVal: any
+
+      switch (sortBy) {
+        case 'name':
+          aVal = a.name
+          bVal = b.name
+          break
+        case 'price':
+          aVal = (a as any).cena || a.price || 0
+          bVal = (b as any).cena || b.price || 0
+          break
+        case 'stock':
+          aVal = a.stock
+          bVal = b.stock
+          break
+        case 'category':
+          aVal = Array.isArray(a.category) ? a.category.join(' ') : a.category || ''
+          bVal = Array.isArray(b.category) ? b.category.join(' ') : b.category || ''
+          break
+        default:
+          return 0
+      }
+
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        const result = aVal.localeCompare(bVal, 'pl', { sensitivity: 'base' })
+        return sortOrder === 'desc' ? -result : result
+      }
+
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        const result = aVal - bVal
+        return sortOrder === 'desc' ? -result : result
+      }
+
+      return 0
+    })
+
+    return result
+  }, [materials, selectedCategories, searchValue, selectedSupplier, selectedAbcClass, selectedStatus, sortBy, sortOrder])
+
+  // Statystyki
+  const stats = useMemo(() => calculateMaterialStats(filteredMaterials), [filteredMaterials])
 
   return (
     <div className="magazyn-new">
-      <div className="row g-4">
-        {/* Sidebar z drzewem kategorii */}
-        <div className="col-12 col-lg-3 col-xl-2">
-          <div className="card h-100">
-            <div className="card-body p-0">
-              <CategoryTree
-                materials={materials}
-                selectedCategories={selectedCategories}
-                onCategorySelect={setSelectedCategories}
-                className="p-3"
+      <Row gutter={[12, 12]}>
+        {/* Lewa kolumna - Sidebar z nawigacją kategorii (25%) */}
+        <Col xs={24} lg={6}>
+          <CategorySidebar
+            materials={materials}
+            selectedCategories={selectedCategories}
+            onCategoryChange={setSelectedCategories}
+          />
+        </Col>
+
+        {/* Prawa kolumna - Główny obszar roboczy (75%) */}
+        <Col xs={24} lg={18}>
+          <div className="main-workspace" style={{ padding: 12 }}>
+            {/* Nagłówek obszaru roboczego */}
+            <div style={{ marginBottom: 12 }}>
+              <PageHeader
+                title="FabrykaStock - Magazyn"
+                subtitle={
+                  selectedCategories.length > 0
+                    ? `Materiały w wybranych kategoriach (${filteredMaterials.length} z ${materials.length})`
+                    : `Wszystkie materiały (${materials.length})`
+                }
+                actions={
+                  <Space>
+                    <Button onClick={() => syncFromBackend()}>
+                      <i className="ri-refresh-line" style={{ marginRight: 6 }}></i>
+                      Sync z Rhino
+                    </Button>
+                    <Button type="primary" onClick={() => handleOpenOperationForm('receive')}>
+                      <i className="ri-add-line" style={{ marginRight: 6 }}></i>
+                      Dodaj Nowy Materiał
+                    </Button>
+                  </Space>
+                }
+              />
+
+              {/* Pasek narzędzi */}
+              <Card size="small" style={{ marginBottom: 12 }}>
+                <Row gutter={12} align="middle" justify="space-between">
+                  <Col>
+                    <Space>
+                      <Select
+                        placeholder="Sortuj po"
+                        value={`${sortBy}_${sortOrder}`}
+                        onChange={(value) => {
+                          const [field, order] = value.split('_')
+                          setSortBy(field as any)
+                          setSortOrder(order as any)
+                        }}
+                        style={{ width: 140 }}
+                        size="middle"
+                        suffixIcon={<SortAscendingOutlined />}
+                      >
+                        <Select.Option value="category_asc">Kategoria ↑</Select.Option>
+                        <Select.Option value="category_desc">Kategoria ↓</Select.Option>
+                        <Select.Option value="name_asc">Nazwa ↑</Select.Option>
+                        <Select.Option value="name_desc">Nazwa ↓</Select.Option>
+                        <Select.Option value="price_asc">Cena ↑</Select.Option>
+                        <Select.Option value="price_desc">Cena ↓</Select.Option>
+                        <Select.Option value="stock_asc">Stan ↑</Select.Option>
+                        <Select.Option value="stock_desc">Stan ↓</Select.Option>
+                      </Select>
+
+                      <Button
+                        icon={<FilterOutlined />}
+                        onClick={() => setAdvancedFiltersVisible(true)}
+                      >
+                        Filtry
+                      </Button>
+                    </Space>
+                  </Col>
+
+                  <Col>
+                    <Segmented
+                      value={viewMode}
+                      onChange={setViewMode}
+                      options={[
+                        { value: 'table', icon: <BarsOutlined />, label: 'Tabela' },
+                        { value: 'cards', icon: <AppstoreOutlined />, label: 'Karty' }
+                      ]}
+                    />
+                  </Col>
+                </Row>
+              </Card>
+
+              {/* Pasek akcji operacyjnych */}
+              <Toolbar
+                left={
+                  <Space>
+                    <Button type="primary" onClick={() => handleOpenOperationForm('receive')}>
+                      <i className="ri-download-2-line" style={{ marginRight: 6 }}></i>
+                      Przyjęcie towaru
+                    </Button>
+                    <Button danger onClick={() => handleOpenOperationForm('issue')}>
+                      <i className="ri-upload-2-line" style={{ marginRight: 6 }}></i>
+                      Wydanie towaru
+                    </Button>
+                  </Space>
+                }
+                right={
+                  <Space>
+                    <Button>
+                      <i className="ri-file-excel-2-line" style={{ marginRight: 6 }}></i>
+                      Eksport
+                    </Button>
+                    <Button>
+                      <i className="ri-printer-line" style={{ marginRight: 6 }}></i>
+                      Etykiety
+                    </Button>
+                  </Space>
+                }
               />
             </div>
-          </div>
-        </div>
 
-        {/* Główna treść */}
-        <div className="col-12 col-lg-9 col-xl-10">
-          {/* Nagłówek */}
-          <div className="d-flex justify-content-between align-items-start mb-4">
-            <div>
-              <h4 className="mb-1">Magazyn materiałów</h4>
-              <p className="text-muted mb-0">
-                Zarządzaj stanami magazynowymi i monitoruj zapasy
-              </p>
-            </div>
-
-            <div className="d-flex gap-2">
-              <button className="btn btn-primary">
-                <i className="ri-download-2-line me-2"></i>
-                Przyjęcie towaru
-              </button>
-              <button className="btn btn-outline-primary">
-                <i className="ri-upload-2-line me-2"></i>
-                Wydanie towaru
-              </button>
-              <button className="btn btn-outline-secondary">
-                <i className="ri-file-excel-2-line me-2"></i>
-                Eksport
-              </button>
-            </div>
-          </div>
-
-          {/* Zakładki nawigacyjne */}
-          <ul className="nav nav-tabs mb-4">
-            <li className="nav-item">
-              <button
-                className={`nav-link ${activeTab === 'overview' ? 'active' : ''}`}
-                onClick={() => setActiveTab('overview')}
-              >
-                <i className="ri-dashboard-line me-1"></i>
-                Przegląd
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className={`nav-link ${activeTab === 'materials' ? 'active' : ''}`}
-                onClick={() => setActiveTab('materials')}
-              >
-                <i className="ri-stack-line me-1"></i>
-                Lista materiałów
-                <span className="badge bg-secondary ms-2">{filteredMaterials.length}</span>
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className={`nav-link ${activeTab === 'critical' ? 'active' : ''} ${stats.criticalCount > 0 ? 'text-danger' : ''
-                  }`}
-                onClick={() => setActiveTab('critical')}
-              >
-                <i className="ri-error-warning-line me-1"></i>
-                Krytyczne zapasy
+            {/* Status i statystyki */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                Znaleziono <strong>{filteredMaterials.length}</strong> materiałów
+                {selectedCategories.length > 0 && (
+                  <span> (z {materials.length} ogółem)</span>
+                )}
+              </div>
+              <Space style={{ marginLeft: 12 }}>
                 {stats.criticalCount > 0 && (
-                  <span className="badge bg-danger ms-2">{stats.criticalCount}</span>
+                  <Tag color="error"><i className="ri-error-warning-line" style={{ marginRight: 4 }}></i>{stats.criticalCount} krytyczne</Tag>
                 )}
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className={`nav-link ${activeTab === 'movement' ? 'active' : ''}`}
-                onClick={() => setActiveTab('movement')}
-              >
-                <i className="ri-exchange-line me-1"></i>
-                Ruch magazynowy
-              </button>
-            </li>
-          </ul>
-
-          {/* Zawartość zakładek */}
-          {activeTab === 'overview' && (
-            <>
-              {/* KPI Cards */}
-              <div className="row g-3 mb-4">
-                <div className="col-6 col-md-3">
-                  <div className="card">
-                    <div className="card-body">
-                      <div className="d-flex justify-content-between align-items-start">
-                        <div>
-                          <p className="text-muted small mb-1">Wartość magazynu</p>
-                          <h4 className="mb-0">
-                            {stats.totalValue.toLocaleString('pl-PL', {
-                              style: 'currency',
-                              currency: 'PLN',
-                              maximumFractionDigits: 0
-                            })}
-                          </h4>
-                        </div>
-                        <div className="bg-primary-subtle rounded p-2">
-                          <i className="ri-money-dollar-circle-line text-primary fs-4"></i>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="col-6 col-md-3">
-                  <div className="card">
-                    <div className="card-body">
-                      <div className="d-flex justify-content-between align-items-start">
-                        <div>
-                          <p className="text-muted small mb-1">Pozycje magazynowe</p>
-                          <h4 className="mb-0">{stats.totalItems}</h4>
-                        </div>
-                        <div className="bg-info-subtle rounded p-2">
-                          <i className="ri-stack-line text-info fs-4"></i>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="col-6 col-md-3">
-                  <div className="card">
-                    <div className="card-body">
-                      <div className="d-flex justify-content-between align-items-start">
-                        <div>
-                          <p className="text-muted small mb-1">Krytyczne braki</p>
-                          <h4 className="mb-0 text-danger">{stats.criticalCount}</h4>
-                        </div>
-                        <div className="bg-danger-subtle rounded p-2">
-                          <i className="ri-error-warning-line text-danger fs-4"></i>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="col-6 col-md-3">
-                  <div className="card">
-                    <div className="card-body">
-                      <div className="d-flex justify-content-between align-items-start">
-                        <div>
-                          <p className="text-muted small mb-1">Niskie stany</p>
-                          <h4 className="mb-0 text-warning">{stats.lowCount}</h4>
-                        </div>
-                        <div className="bg-warning-subtle rounded p-2">
-                          <i className="ri-alert-line text-warning fs-4"></i>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Wykresy i podsumowania */}
-              <div className="row g-3">
-                <div className="col-12 col-xl-8">
-                  <div className="card">
-                    <div className="card-header">
-                      <h6 className="mb-0">Rozkład wartości magazynu</h6>
-                    </div>
-                    <div className="card-body">
-                      <div className="bg-light rounded" style={{ height: '300px' }}>
-                        {/* Tu będzie wykres */}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="col-12 col-xl-4">
-                  <div className="card">
-                    <div className="card-header">
-                      <h6 className="mb-0">Podział ABC</h6>
-                    </div>
-                    <div className="card-body">
-                      <div className="mb-3">
-                        <div className="d-flex justify-content-between align-items-center mb-2">
-                          <span>Klasa A</span>
-                          <span className="badge bg-success">{stats.byAbcClass.A} pozycji</span>
-                        </div>
-                        <div className="progress" style={{ height: '10px' }}>
-                          <div className="progress-bar bg-success" style={{ width: '60%' }}></div>
-                        </div>
-                      </div>
-
-                      <div className="mb-3">
-                        <div className="d-flex justify-content-between align-items-center mb-2">
-                          <span>Klasa B</span>
-                          <span className="badge bg-warning">{stats.byAbcClass.B} pozycji</span>
-                        </div>
-                        <div className="progress" style={{ height: '10px' }}>
-                          <div className="progress-bar bg-warning" style={{ width: '30%' }}></div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="d-flex justify-content-between align-items-center mb-2">
-                          <span>Klasa C</span>
-                          <span className="badge bg-danger">{stats.byAbcClass.C} pozycji</span>
-                        </div>
-                        <div className="progress" style={{ height: '10px' }}>
-                          <div className="progress-bar bg-danger" style={{ width: '10%' }}></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-
-          {activeTab === 'materials' && (
-            <>
-              {/* Filtry i wyszukiwanie */}
-              <div className="card mb-3">
-                <div className="card-body">
-                  {/* Pasek wyszukiwania i filtry */}
-                  <div className="row g-3 mb-3">
-                    <div className="col-12 col-md-4">
-                      <div className="input-group">
-                        <span className="input-group-text">
-                          <i className="ri-search-line"></i>
-                        </span>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Szukaj po kodzie, nazwie lub dostawcy..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-6 col-md-2">
-                      <select
-                        className="form-select"
-                        value={selectedSupplier}
-                        onChange={(e) => setSelectedSupplier(e.target.value)}
-                      >
-                        <option value="">Wszyscy dostawcy</option>
-                        {suppliers.map(supplier => (
-                          <option key={supplier} value={supplier}>{supplier}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="col-6 col-md-2">
-                      <select
-                        className="form-select"
-                        value={selectedStatus}
-                        onChange={(e) => setSelectedStatus(e.target.value as typeof selectedStatus)}
-                      >
-                        <option value="all">Wszystkie stany</option>
-                        <option value="critical">Krytyczne</option>
-                        <option value="low">Niskie</option>
-                        <option value="normal">W normie</option>
-                        <option value="excess">Nadmiar</option>
-                      </select>
-                    </div>
-
-                    <div className="col-6 col-md-2">
-                      <select
-                        className="form-select"
-                        value={selectedAbcClass}
-                        onChange={(e) => setSelectedAbcClass(e.target.value as typeof selectedAbcClass)}
-                      >
-                        <option value="all">Wszystkie klasy</option>
-                        <option value="A">Klasa A</option>
-                        <option value="B">Klasa B</option>
-                        <option value="C">Klasa C</option>
-                      </select>
-                    </div>
-
-                    <div className="col-6 col-md-2">
-                      <div className="btn-group w-100">
-                        <button
-                          className={`btn ${viewMode === 'grid' ? 'btn-primary' : 'btn-outline-primary'}`}
-                          onClick={() => setViewMode('grid')}
-                          title="Widok kafelkowy"
-                        >
-                          <i className="ri-grid-line"></i>
-                        </button>
-                        <button
-                          className={`btn ${viewMode === 'list' ? 'btn-primary' : 'btn-outline-primary'}`}
-                          onClick={() => setViewMode('list')}
-                          title="Widok listy"
-                        >
-                          <i className="ri-list-check"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Tagi filtrujące */}
-                  <TagFilter
-                    materials={materials}
-                    activeTags={activeTags}
-                    onTagToggle={handleTagToggle}
-                    onClearAll={() => setActiveTags([])}
-                  />
-                </div>
-              </div>
-
-              {/* Informacja o wynikach */}
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <p className="text-muted mb-0">
-                  Znaleziono <strong>{sortedMaterials.length}</strong> z {materials.length} materiałów
-                </p>
-
-                {viewMode === 'list' && (
-                  <div className="d-flex gap-2">
-                    <small className="text-muted">Sortuj po:</small>
-                    <div className="btn-group btn-group-sm">
-                      <button
-                        className={`btn ${sortField === 'name' ? 'btn-primary' : 'btn-outline-secondary'}`}
-                        onClick={() => handleSort('name')}
-                      >
-                        Nazwa {sortField === 'name' && (
-                          <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-s-line ms-1`}></i>
-                        )}
-                      </button>
-                      <button
-                        className={`btn ${sortField === 'stock' ? 'btn-primary' : 'btn-outline-secondary'}`}
-                        onClick={() => handleSort('stock')}
-                      >
-                        Stan {sortField === 'stock' && (
-                          <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-s-line ms-1`}></i>
-                        )}
-                      </button>
-                      <button
-                        className={`btn ${sortField === 'value' ? 'btn-primary' : 'btn-outline-secondary'}`}
-                        onClick={() => handleSort('value')}
-                      >
-                        Wartość {sortField === 'value' && (
-                          <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-s-line ms-1`}></i>
-                        )}
-                      </button>
-                    </div>
-                  </div>
+                {stats.lowCount > 0 && (
+                  <Tag color="warning"><i className="ri-alert-line" style={{ marginRight: 4 }}></i>{stats.lowCount} niskie</Tag>
                 )}
-              </div>
+              </Space>
+            </div>
 
-              {/* Lista/Siatka materiałów */}
-              {viewMode === 'grid' ? (
-                <div className="row g-3">
-                  {sortedMaterials.map(material => (
-                    <div key={material.id} className="col-12 col-md-6 col-lg-4 col-xl-3">
+            {/* Główna lista materiałów */}
+            <div className="materials-content">
+              {viewMode === 'table' ? (
+                /* Widok tabeli */
+                <Card>
+                  {(() => {
+                    const columns: Column<MaterialData & { valuePln: number }>[] = [
+                      {
+                        key: 'select', header: '', width: 36, render: (m) => (
+                          <Checkbox aria-label={`Zaznacz ${m.name}`} checked={selectedIds.includes(m.id)} onChange={() => toggleSelect(m.id)} />
+                        )
+                      },
+                      {
+                        key: 'code',
+                        header: 'KOD',
+                        sortable: true,
+                        render: (m) => <code style={{ fontWeight: 600 }}>{m.code}</code>
+                      },
+                      {
+                        key: 'name',
+                        header: 'NAZWA MATERIAŁU',
+                        sortable: true,
+                        render: (m) => (
+                          <div>
+                            <div style={{ fontWeight: 500 }}>{m.name}</div>
+                            <div style={{ color: 'var(--text-secondary)', fontSize: '12px' }}><i className="ri-map-pin-line" style={{ marginRight: 4 }}></i>{m.location || 'Brak lokalizacji'}</div>
+                          </div>
+                        )
+                      },
+                      {
+                        key: 'category',
+                        header: 'KATEGORIA',
+                        sortable: true,
+                        render: (m) => {
+                          const categoryPath = Array.isArray(m.category) ? m.category.join(' / ') : (m.category || 'Brak kategorii')
+                          return (
+                            <div>
+                              <Tag color="blue" style={{ fontSize: 11 }}>
+                                {categoryPath}
+                              </Tag>
+                            </div>
+                          )
+                        },
+                        sorter: (a, b) => {
+                          const aCategory = Array.isArray(a.category) ? a.category.join(' ') : (a.category || '')
+                          const bCategory = Array.isArray(b.category) ? b.category.join(' ') : (b.category || '')
+                          return aCategory.localeCompare(bCategory, 'pl', { sensitivity: 'base' })
+                        }
+                      },
+                      { key: 'stock', header: 'DOSTĘPNE', render: (m) => <div style={{ fontWeight: 600 }}>{m.stock} {m.unit}</div> },
+                      {
+                        key: 'status', header: 'STATUS', render: (m) => {
+                          const ratio = m.stock / m.minStock
+                          const color = ratio < 0.5 ? 'error' : ratio < 1 ? 'warning' : 'success'
+                          const label = ratio < 0.5 ? 'Krytyczny' : ratio < 1 ? 'Niski' : 'OK'
+                          return <Tag color={color as any}>{label}</Tag>
+                        }
+                      },
+                      { key: 'supplier', header: 'DOSTAWCA' },
+                      { key: 'valuePln', header: 'WARTOŚĆ', render: (m) => <span style={{ fontWeight: 500 }}>{(m.stock * m.price).toLocaleString('pl-PL', { style: 'currency', currency: 'PLN', maximumFractionDigits: 0 })}</span> },
+                      {
+                        key: 'actions', header: 'AKCJE', render: (m) => {
+                          const ratio = m.stock / m.minStock
+                          return ratio < 1 ? (
+                            <Button danger size="small" aria-label={`Szybkie zamówienie: ${m.name}`} onClick={(e) => { e.stopPropagation(); handleQuickOrder(m) }}>
+                              <i className="ri-shopping-cart-2-line"></i>
+                            </Button>
+                          ) : null
+                        }
+                      },
+                    ]
+                    return (
+                      <EntityTable<MaterialData & { valuePln: number }>
+                        rows={filteredMaterials as any}
+                        columns={columns as any}
+                        rowKey={(m) => (m as MaterialData).id}
+                        onRowClick={(m) => handleMaterialSelect(m as unknown as MaterialData)}
+                        defaultSortKey="category"
+                        defaultSortDirection="asc"
+                      />
+                    )
+                  })()}
+                </Card>
+              ) : (
+                /* Widok kart */
+                <Row gutter={[16, 16]}>
+                  {filteredMaterials.map(material => (
+                    <Col xs={24} sm={12} md={8} lg={6} xl={4} key={material.id}>
                       <MaterialCard
                         material={material}
-                        onSelect={handleMaterialSelect}
+                        selected={selectedIds.includes(material.id)}
+                        onSelect={(m) => {
+                          handleMaterialSelect(m)
+                          toggleSelect(m.id)
+                        }}
                         onQuickOrder={handleQuickOrder}
+                        onAddToProject={(m) => {
+                          // TODO: Implementuj dodawanie do projektu
+                          console.warn('TODO: Dodaj do projektu:', m.name)
+                        }}
                       />
-                    </div>
+                    </Col>
                   ))}
-                </div>
-              ) : (
-                <div className="card">
-                  <div className="table-responsive">
-                    <table className="table table-hover align-middle mb-0">
-                      <thead>
-                        <tr>
-                          <th>Kod</th>
-                          <th>Nazwa</th>
-                          <th>Kategoria</th>
-                          <th>Stan</th>
-                          <th>Status</th>
-                          <th>Dostawca</th>
-                          <th>Wartość</th>
-                          <th>Akcje</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {sortedMaterials.map(material => {
-                          const stockRatio = material.stock / material.minStock
-                          const stockPercentage = Math.min(100, Math.round(stockRatio * 100))
-
-                          return (
-                            <tr
-                              key={material.id}
-                              className="cursor-pointer"
-                              onClick={() => handleMaterialSelect(material)}
-                            >
-                              <td>
-                                <code>{material.code}</code>
-                              </td>
-                              <td>
-                                <div>
-                                  <div className="fw-medium">{material.name}</div>
-                                  <small className="text-muted">
-                                    <i className="ri-map-pin-line me-1"></i>
-                                    {material.location || 'Brak lokalizacji'}
-                                  </small>
-                                </div>
-                              </td>
-                              <td>
-                                <small>{material.category.join(' > ')}</small>
-                              </td>
-                              <td>
-                                <div>
-                                  <div className="small mb-1">
-                                    {material.stock} / {material.minStock} {material.unit}
-                                  </div>
-                                  <div className="progress" style={{ height: '6px' }}>
-                                    <div
-                                      className={`progress-bar ${stockRatio < 0.5 ? 'bg-danger' :
-                                        stockRatio < 1 ? 'bg-warning' :
-                                          'bg-success'
-                                        }`}
-                                      style={{ width: `${stockPercentage}%` }}
-                                    ></div>
-                                  </div>
-                                </div>
-                              </td>
-                              <td>
-                                <span className={`badge ${stockRatio < 0.5 ? 'bg-danger' :
-                                  stockRatio < 1 ? 'bg-warning' :
-                                    'bg-success'
-                                  }`}>
-                                  {stockRatio < 0.5 ? 'Krytyczny' :
-                                    stockRatio < 1 ? 'Niski' :
-                                      'OK'}
-                                </span>
-                              </td>
-                              <td>{material.supplier}</td>
-                              <td className="fw-medium">
-                                {(material.stock * material.price).toLocaleString('pl-PL', {
-                                  style: 'currency',
-                                  currency: 'PLN',
-                                  maximumFractionDigits: 0
-                                })}
-                              </td>
-                              <td>
-                                {stockRatio < 1 && (
-                                  <button
-                                    className="btn btn-sm btn-danger"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      handleQuickOrder(material)
-                                    }}
-                                  >
-                                    <i className="ri-shopping-cart-2-line"></i>
-                                  </button>
-                                )}
-                              </td>
-                            </tr>
-                          )
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                </Row>
               )}
-            </>
-          )}
 
-          {activeTab === 'critical' && (
-            <CriticalStockPanel
-              materials={materials}
-              onMaterialSelect={handleMaterialSelect}
-              onQuickOrder={handleQuickOrder}
-            />
-          )}
+              {/* Brak wyników */}
+              {filteredMaterials.length === 0 && materials.length > 0 && (
+                <Card style={{ marginTop: 12 }}>
+                  <Empty description="Brak materiałów w wybranych kategoriach" />
+                </Card>
+              )}
+              {materials.length === 0 && (
+                <Card style={{ marginTop: 12 }}>
+                  <Empty description="Brak materiałów" />
+                </Card>
+              )}
+            </div>
+          </div>
+        </Col>
+      </Row>
 
-          {activeTab === 'movement' && (
-            <div className="card">
-              <div className="card-header">
-                <h6 className="mb-0">Historia ruchów magazynowych</h6>
+      {/* Operation Form */}
+      <OperationForm
+        type={operationType}
+        isOpen={operationFormOpen}
+        onSubmit={handleOperationSubmit}
+        onCancel={() => setOperationFormOpen(false)}
+      />
+
+      {/* Modal z zaawansowanymi filtrami */}
+      <Modal
+        title="Filtry zaawansowane"
+        open={advancedFiltersVisible}
+        onCancel={() => setAdvancedFiltersVisible(false)}
+        footer={[
+          <Button key="clear" onClick={() => {
+            setSelectedSupplier('')
+            setSelectedAbcClass('')
+            setSelectedStatus('')
+          }}>
+            Wyczyść filtry
+          </Button>,
+          <Button key="close" type="primary" onClick={() => setAdvancedFiltersVisible(false)}>
+            Zastosuj
+          </Button>
+        ]}
+        width={500}
+      >
+        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+          <div>
+            <div style={{ fontWeight: 600, marginBottom: '8px' }}>Dostawca:</div>
+            <Select
+              placeholder="Wybierz dostawcę"
+              value={selectedSupplier}
+              onChange={setSelectedSupplier}
+              style={{ width: '100%', marginTop: 8 }}
+              allowClear
+            >
+              {Array.from(new Set(materials.map(m => m.supplier))).map(supplier => (
+                <Select.Option key={supplier} value={supplier}>
+                  {supplier}
+                </Select.Option>
+              ))}
+            </Select>
+          </div>
+
+          <div>
+            <div style={{ fontWeight: 600, marginBottom: '8px' }}>Klasa ABC:</div>
+            <Select
+              placeholder="Wybierz klasę ABC"
+              value={selectedAbcClass}
+              onChange={setSelectedAbcClass}
+              style={{ width: '100%', marginTop: 8 }}
+              allowClear
+            >
+              <Select.Option value="A">Klasa A (Krytyczne)</Select.Option>
+              <Select.Option value="B">Klasa B (Ważne)</Select.Option>
+              <Select.Option value="C">Klasa C (Standardowe)</Select.Option>
+            </Select>
+          </div>
+
+          <div>
+            <div style={{ fontWeight: 600, marginBottom: '8px' }}>Status zapasu:</div>
+            <Select
+              placeholder="Wybierz status"
+              value={selectedStatus}
+              onChange={setSelectedStatus}
+              style={{ width: '100%', marginTop: 8 }}
+              allowClear
+            >
+              <Select.Option value="critical">
+                <Tag color="#ff4d4f">Krytyczny (&lt; 50% min)</Tag>
+              </Select.Option>
+              <Select.Option value="low">
+                <Tag color="#faad14">Niski stan (&lt; min)</Tag>
+              </Select.Option>
+              <Select.Option value="normal">
+                <Tag color="#52c41a">OK</Tag>
+              </Select.Option>
+              <Select.Option value="excess">
+                <Tag color="#1890ff">Nadmiar (&gt; max)</Tag>
+              </Select.Option>
+            </Select>
+          </div>
+
+          {/* Podsumowanie aktywnych filtrów */}
+          {(selectedSupplier || selectedAbcClass || selectedStatus) && (
+            <div style={{ marginTop: 16, padding: 12, background: '#f5f5f5', borderRadius: 6 }}>
+              <div style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
+                Aktywne filtry:
               </div>
-              <div className="card-body">
-                <p className="text-muted">Funkcjonalność w przygotowaniu...</p>
+              <div style={{ marginTop: 4 }}>
+                {selectedSupplier && (
+                  <Tag closable onClose={() => setSelectedSupplier('')} style={{ marginBottom: 4 }}>
+                    Dostawca: {selectedSupplier}
+                  </Tag>
+                )}
+                {selectedAbcClass && (
+                  <Tag closable onClose={() => setSelectedAbcClass('')} style={{ marginBottom: 4 }}>
+                    Klasa: {selectedAbcClass}
+                  </Tag>
+                )}
+                {selectedStatus && (
+                  <Tag closable onClose={() => setSelectedStatus('')} style={{ marginBottom: 4 }}>
+                    Status: {selectedStatus}
+                  </Tag>
+                )}
               </div>
             </div>
           )}
-        </div>
-      </div>
-
-      {/* Panel szczegółów */}
-      <MaterialDetailsPanel
-        material={selectedMaterial}
-        isOpen={detailsPanelOpen}
-        onClose={() => setDetailsPanelOpen(false)}
-        onOrder={handleQuickOrder}
-      />
+        </Space>
+      </Modal>
     </div>
   )
 }

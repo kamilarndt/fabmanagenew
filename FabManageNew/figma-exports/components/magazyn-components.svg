@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="900" viewBox="0 0 1200 900"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+      .component-box { fill: #f8f9fa; stroke: #dee2e6; stroke-width: 2; rx: 8; }
+      .component-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; fill: #495057; font-weight: 500; }
+      .category-header { font-family: 'Segoe UI', Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #212529; }
+      .description { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; fill: #6c757d; }
+      .props-box { fill: #f3e5f5; stroke: #9c27b0; stroke-width: 1; rx: 4; }
+      .props-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; fill: #7b1fa2; }
+      .arrow { stroke: #6c757d; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .main-component { fill: #e8f5e8; stroke: #4caf50; stroke-width: 3; rx: 8; }
+      .filter-component { fill: #fff3e0; stroke: #ff9800; stroke-width: 2; rx: 8; }
+        </style>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#6c757d" />
+        </marker>
+    </defs>
+
+    <!-- Title -->
+    <text x="600" y="40" text-anchor="middle" class="category-header">Magazyn (Inventory) Management Components</text>
+
+    <!-- MaterialCard -->
+    <rect x="50" y="80" width="200" height="120" class="component-box"/>
+    <text x="150" y="105" text-anchor="middle" class="component-text">MaterialCard</text>
+    <text x="60" y="125" class="description">Card display for material items</text>
+
+    <rect x="60" y="140" width="180" height="50" class="props-box"/>
+    <text x="70" y="155" class="props-text">Props: material, onSelect, onQuickOrder, onAddToProject</text>
+    <text x="70" y="170" class="props-text">Features: Material info, Stock status, Quick actions</text>
+    <text x="70" y="185" class="props-text">Dependencies: MaterialData type, Card components</text>
+
+    <!-- MaterialCardV3 -->
+    <rect x="300" y="80" width="200" height="120" class="component-box"/>
+    <text x="400" y="105" text-anchor="middle" class="component-text">MaterialCardV3</text>
+    <text x="310" y="125" class="description">Enhanced material card with v3 features</text>
+
+    <rect x="310" y="140" width="180" height="50" class="props-box"/>
+    <text x="320" y="155" class="props-text">Props: material, onSelect, onQuickOrder, onAddToProject</text>
+    <text x="320" y="170" class="props-text">Features: Enhanced UI, Better performance, New features</text>
+    <text x="320" y="185" class="props-text">Dependencies: MaterialItem type, Ant Design components</text>
+
+    <!-- MaterialDetailDrawer -->
+    <rect x="550" y="80" width="200" height="120" class="main-component"/>
+    <text x="650" y="105" text-anchor="middle" class="component-text">MaterialDetailDrawer</text>
+    <text x="560" y="125" class="description">Sliding drawer for material details</text>
+
+    <rect x="560" y="140" width="180" height="50" class="props-box"/>
+    <text x="570" y="155" class="props-text">Props: open, material, onClose, onSaved</text>
+    <text x="570" y="170" class="props-text">Features: Detailed view, Edit form, Save functionality</text>
+    <text x="570" y="185" class="props-text">Dependencies: Drawer, Form, MaterialItem type</text>
+
+    <!-- MaterialDetailsPanel -->
+    <rect x="800" y="80" width="200" height="120" class="component-box"/>
+    <text x="900" y="105" text-anchor="middle" class="component-text">MaterialDetailsPanel</text>
+    <text x="810" y="125" class="description">Panel for material details and actions</text>
+
+    <rect x="810" y="140" width="180" height="50" class="props-box"/>
+    <text x="820" y="155" class="props-text">Props: material, isOpen, onClose, onEdit, onOrder</text>
+    <text x="820" y="170" class="props-text">Features: Material info, Edit/Order actions</text>
+    <text x="820" y="185" class="props-text">Dependencies: Panel, MaterialData type</text>
+
+    <!-- CategorySidebar -->
+    <rect x="50" y="250" width="200" height="120" class="filter-component"/>
+    <text x="150" y="275" text-anchor="middle" class="component-text">CategorySidebar</text>
+    <text x="60" y="295" class="description">Category tree for material filtering</text>
+
+    <rect x="60" y="310" width="180" height="50" class="props-box"/>
+    <text x="70" y="325" class="props-text">Props: materials, selectedCategories, onCategoryChange</text>
+    <text x="70" y="340" class="props-text">Features: Tree view, Category filtering, Search</text>
+    <text x="70" y="355" class="props-text">Dependencies: Tree, Input, rhinoCategories</text>
+
+    <!-- FilterPanelV3 -->
+    <rect x="300" y="250" width="200" height="120" class="filter-component"/>
+    <text x="400" y="275" text-anchor="middle" class="component-text">FilterPanelV3</text>
+    <text x="310" y="295" class="description">Advanced filtering panel v3</text>
+
+    <rect x="310" y="310" width="180" height="50" class="props-box"/>
+    <text x="320" y="325" class="props-text">Props: filters, onFiltersChange, onClearFilters</text>
+    <text x="320" y="340" class="props-text">Features: Multiple filters, Active filter display</text>
+    <text x="320" y="355" class="props-text">Dependencies: Collapse, Select, Button, useMaterialsQuery</text>
+
+    <!-- SimpleMaterialsGrid -->
+    <rect x="550" y="250" width="200" height="120" class="component-box"/>
+    <text x="650" y="275" text-anchor="middle" class="component-text">SimpleMaterialsGrid</text>
+    <text x="560" y="295" class="description">Simple grid display for materials</text>
+
+    <rect x="560" y="310" width="180" height="50" class="props-box"/>
+    <text x="570" y="325" class="props-text">Props: materials, loading, onMaterialSelect</text>
+    <text x="570" y="340" class="props-text">Features: Grid layout, Loading state, Selection</text>
+    <text x="570" y="355" class="props-text">Dependencies: Grid, MaterialItem type</text>
+
+    <!-- TagFilter -->
+    <rect x="800" y="250" width="200" height="120" class="filter-component"/>
+    <text x="900" y="275" text-anchor="middle" class="component-text">TagFilter</text>
+    <text x="810" y="295" class="description">Tag-based filtering system</text>
+
+    <rect x="810" y="310" width="180" height="50" class="props-box"/>
+    <text x="820" y="325" class="props-text">Props: materials, activeTags, onTagToggle</text>
+    <text x="820" y="340" class="props-text">Features: Tag generation, Toggle filtering</text>
+    <text x="820" y="355" class="props-text">Dependencies: Tag component, MaterialData type</text>
+
+    <!-- OperationForm -->
+    <rect x="50" y="420" width="200" height="120" class="component-box"/>
+    <text x="150" y="445" text-anchor="middle" class="component-text">OperationForm</text>
+    <text x="60" y="465" class="description">Form for inventory operations</text>
+
+    <rect x="60" y="480" width="180" height="50" class="props-box"/>
+    <text x="70" y="495" class="props-text">Props: type, materials, onSubmit, onCancel</text>
+    <text x="70" y="510" class="props-text">Features: Receive, Issue, Transfer, Adjust operations</text>
+    <text x="70" y="525" class="props-text">Dependencies: Form, Input, Select, MaterialData type</text>
+
+    <!-- MaterialsView -->
+    <rect x="300" y="420" width="200" height="120" class="main-component"/>
+    <text x="400" y="445" text-anchor="middle" class="component-text">MaterialsView</text>
+    <text x="310" y="465" class="description">Main materials management view</text>
+
+    <rect x="310" y="480" width="180" height="50" class="props-box"/>
+    <text x="320" y="495" class="props-text">Props: tiles (optional)</text>
+    <text x="320" y="510" class="props-text">Features: Material summary, Export functionality</text>
+    <text x="320" y="525" class="props-text">Dependencies: Table, Button, MaterialSummary type</text>
+
+    <!-- MaterialAssignmentModal -->
+    <rect x="550" y="420" width="200" height="120" class="component-box"/>
+    <text x="650" y="445" text-anchor="middle" class="component-text">MaterialAssignmentModal</text>
+    <text x="560" y="465" class="description">Modal for assigning materials to objects</text>
+
+    <rect x="560" y="480" width="180" height="50" class="props-box"/>
+    <text x="570" y="495" class="props-text">Props: open, onClose, onSuccess, selectedObjectIds</text>
+    <text x="570" y="510" class="props-text">Features: 3D object selection, Material assignment</text>
+    <text x="570" y="525" class="props-text">Dependencies: Modal, Form, 3D viewer integration</text>
+
+    <!-- Component Relationships -->
+    <line x1="250" y1="140" x2="300" y2="140" class="arrow"/>
+    <line x1="500" y1="140" x2="550" y2="140" class="arrow"/>
+    <line x1="750" y1="140" x2="800" y2="140" class="arrow"/>
+
+    <line x1="150" y1="200" x2="150" y2="250" class="arrow"/>
+    <line x1="400" y1="200" x2="400" y2="250" class="arrow"/>
+    <line x1="650" y1="200" x2="650" y2="250" class="arrow"/>
+    <line x1="900" y1="200" x2="900" y2="250" class="arrow"/>
+
+    <line x1="150" y1="370" x2="150" y2="420" class="arrow"/>
+    <line x1="400" y1="370" x2="400" y2="420" class="arrow"/>
+    <line x1="650" y1="370" x2="650" y2="420" class="arrow"/>
+
+    <!-- Usage Flow -->
+    <rect x="50" y="580" width="1100" height="150" class="component-box"/>
+    <text x="600" y="605" text-anchor="middle" class="component-text">Inventory Management Workflow</text>
+
+    <text x="60" y="630" class="description">1. CategorySidebar: Browse materials by category with tree navigation</text>
+    <text x="60" y="650" class="description">2. FilterPanelV3: Apply advanced filters (status, supplier, price, thickness)</text>
+    <text x="60" y="670" class="description">3. TagFilter: Use tag-based filtering for quick material selection</text>
+    <text x="60" y="690" class="description">4. MaterialCard/MaterialCardV3: Display materials in card format with actions</text>
+    <text x="60" y="710" class="description">5. MaterialDetailDrawer: View detailed material information and edit</text>
+    <text x="60" y="730" class="description">6. OperationForm: Perform inventory operations (receive, issue, transfer, adjust)</text>
+    <text x="60" y="750" class="description">7. MaterialsView: Overview of all materials with export capabilities</text>
+    <text x="60" y="770" class="description">8. MaterialAssignmentModal: Assign materials to 3D objects in projects</text>
+
+    <!-- Key Features -->
+    <rect x="50" y="760" width="1100" height="120" class="component-box"/>
+    <text x="600" y="785" text-anchor="middle" class="component-text">Key Features</text>
+
+    <text x="60" y="810" class="description">• Multi-level filtering system with categories, tags, and advanced filters</text>
+    <text x="60" y="830" class="description">• Real-time inventory tracking with stock status indicators</text>
+    <text x="60" y="850" class="description">• Integration with 3D models for material assignment and visualization</text>
+    <text x="60" y="870" class="description">• Comprehensive inventory operations (receive, issue, transfer, adjust)</text>
+
+</svg>

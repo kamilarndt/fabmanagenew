@@ -1,0 +1,243 @@
+erDiagram
+  PROJECT {
+    uuid id PK
+    string numer
+    string nazwa
+    enum typ "Koncepcyjny|Produkcyjny"
+    string lokalizacja
+    enum status "Zapytanie|Przetarg|Wycena|Wykonawczy|W_Realizacji|Zakonczony"
+    datetime data_utworzenia
+    datetime data_rozpoczecia
+    datetime deadline
+    float postep
+    text opis
+    string miniatura
+    string link_model_3d
+    uuid klient_id FK
+    uuid manager_id FK
+    uuid projekt_koncepcyjny_id FK
+    datetime created_at
+    datetime updated_at
+  }
+
+  CLIENT {
+    uuid id PK
+    string nazwa
+    json dane_kontaktowe
+    text opis
+    text wskazowki_komunikacyjne
+    datetime created_at
+    datetime updated_at
+  }
+
+  USER {
+    uuid id PK
+    string imie_nazwisko
+    string email
+    enum rola "Projektant|Manager|OperatorCNC|Magazynier|Produkcja|Admin"
+    json uprawnienia
+    datetime created_at
+    datetime updated_at
+  }
+
+  TILE {
+    uuid id PK
+    uuid projekt_id FK
+    string nazwa
+    enum sposob_wykonania "CNC|Slusarnia|Lakiernia|Podwykonawca|Produkcja"
+    enum status "Nowy|Do_zaprojektowania|W_trakcie|Do_weryfikacji|W_produkcji|Kontrola_jakosci|Ukonczone"
+    int priorytet
+    datetime deadline
+    uuid podwykonawca_id FK
+    uuid machine_id FK
+    string numer_zamowienia
+    datetime planowana_data_dostawy
+    text opis
+    datetime created_at
+    datetime updated_at
+  }
+
+  TILE_PART {
+    uuid id PK
+    uuid tile_id FK
+    string nazwa
+    enum typ "Stal|Drewno|Tapicerka|Inne"
+    text opis
+    decimal ilosc
+    string jednostka
+    datetime created_at
+  }
+
+  MATERIAL {
+    uuid id PK
+    string nazwa
+    string jednostka_miary
+    enum typ "Material"
+    text opis
+    decimal cena_jednostkowa
+    string dostawca
+    datetime created_at
+    datetime updated_at
+  }
+
+  PRODUCT {
+    uuid id PK
+    string nazwa
+    string jednostka_miary
+    enum typ "Produkt"
+    text opis
+    decimal cena_jednostkowa
+    datetime created_at
+    datetime updated_at
+  }
+
+  TILE_MATERIAL {
+    uuid id PK
+    uuid tile_id FK
+    uuid material_id FK
+    decimal ilosc
+    string jednostka
+    decimal koszt_calkowity
+  }
+
+  TILE_PRODUCT {
+    uuid id PK
+    uuid tile_id FK
+    uuid product_id FK
+    decimal ilosc
+    string jednostka
+    decimal koszt_calkowity
+  }
+
+  CUSTOM_ORDER {
+    uuid id PK
+    string nazwa_produktu
+    uuid projekt_id FK
+    uuid tile_id FK
+    string link
+    decimal ilosc
+    decimal cena_jednostkowa
+    decimal cena_calkowita
+    enum status_zamowienia "Do_zamowienia|Zamowione|W_transporcie|Odebrane"
+    enum status_platnosci "Do_oplacenia|Oplacone|Przy_odbiorze"
+    datetime data_zamowienia
+    datetime data_dostawy
+    datetime created_at
+    datetime updated_at
+  }
+
+  SUBCONTRACTOR {
+    uuid id PK
+    string nazwa
+    string kategoria_uslug
+    json dane_kontaktowe
+    text opis
+    text notatki
+    decimal ocena
+    datetime created_at
+    datetime updated_at
+  }
+
+  QUESTION {
+    uuid id PK
+    uuid tile_id FK
+    uuid autor_id FK
+    text tresc
+    text odpowiedz
+    enum status "Otwarte|Zamkniete"
+    datetime data_dodania
+    datetime data_odpowiedzi
+  }
+
+  FILE_ASSET {
+    uuid id PK
+    enum dla "Projekt|Kafelek"
+    uuid encja_id FK
+    string nazwa
+    string url
+    string wersja
+    uuid dodany_przez FK
+    datetime data_dodania
+    decimal rozmiar
+    string typ_pliku
+  }
+
+  ACTIVITY_LOG {
+    uuid id PK
+    enum typ "Projekt|Kafelek|Zamowienie|Magazyn"
+    uuid encja_id FK
+    string akcja
+    uuid autor_id FK
+    json dane_przed
+    json dane_po
+    datetime data
+  }
+
+  MACHINE {
+    uuid id PK
+    string nazwa
+    text opis
+    enum status "Dostepna|Zajeta|Serwis"
+    datetime ostatni_serwis
+    datetime created_at
+    datetime updated_at
+  }
+
+  TILE_DEPENDENCY {
+    uuid id PK
+    uuid tile_id FK
+    uuid depends_on_tile_id FK
+    enum typ "Blokuje|Wymaga|Wspolzalezy"
+    text opis
+    datetime created_at
+  }
+
+  NOTIFICATION {
+    uuid id PK
+    uuid user_id FK
+    string tytul
+    text tresc
+    enum typ "Info|Ostrzezenie|Błąd|Sukces"
+    boolean przeczytana
+    datetime data_utworzenia
+    datetime data_przeczytania
+  }
+
+  PROJECT_TEAM {
+    uuid id PK
+    uuid projekt_id FK
+    uuid user_id FK
+    enum rola "Manager|Projektant|Observer"
+    datetime dodany
+  }
+
+  %% Relacje
+  CLIENT ||--o{ PROJECT : "posiada"
+  USER ||--o{ PROJECT : "zarzadza"
+  PROJECT ||--o{ TILE : "zawiera"
+  TILE ||--o{ TILE_PART : "sklada_sie_z"
+  TILE ||--o{ TILE_DEPENDENCY : "ma_zaleznosci"
+
+  TILE ||--o{ TILE_MATERIAL : "zuzywa"
+  MATERIAL ||--o{ TILE_MATERIAL : "przypisany"
+  TILE ||--o{ TILE_PRODUCT : "generuje"
+  PRODUCT ||--o{ TILE_PRODUCT : "przypisany"
+
+  PROJECT ||--o{ CUSTOM_ORDER : "ma"
+  TILE ||--o{ CUSTOM_ORDER : "wymaga"
+  SUBCONTRACTOR ||--o{ TILE : "realizuje"
+  MACHINE ||--o{ TILE : "kolejkuje"
+
+  TILE ||--o{ QUESTION : "posiada"
+  USER ||--o{ QUESTION : "tworzy"
+
+  PROJECT ||--o{ FILE_ASSET : "pliki"
+  TILE ||--o{ FILE_ASSET : "pliki"
+
+  PROJECT ||--o{ ACTIVITY_LOG : "logowany"
+  TILE ||--o{ ACTIVITY_LOG : "logowany"
+  USER ||--o{ ACTIVITY_LOG : "wykonuje"
+
+  USER ||--o{ NOTIFICATION : "otrzymuje"
+  PROJECT ||--o{ PROJECT_TEAM : "zespol"
+  USER ||--o{ PROJECT_TEAM : "czlonek"

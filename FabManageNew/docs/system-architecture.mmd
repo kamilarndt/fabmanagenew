@@ -1,0 +1,143 @@
+graph TD
+  %% Layout
+  subgraph LAYOUT["Layout (Topbar + Sidebar)"]
+    TOPBAR["Topbar: Logo • Przełącznik projektów • Powiadomienia • Profil"]
+    SIDEBAR["Sidebar: Moduły • Szybkie linki • Uprawnienia"]
+  end
+
+  %% Dashboard
+  subgraph DASH["Dashboard (start)"]
+    D1["Widżety: Moje zadania / Moje kafelki"]
+    D2["Ostatnie aktywności / logi"]
+    D3["Powiadomienia / Pytania otwarte"]
+    D4["Skróty: Projekty • Kafelki • Zamówienia"]
+  end
+
+  %% Projekty
+  subgraph PROJ["Moduł Projekty"]
+    P_LIST["Lista projektów (filtry)"]
+    P_VIEW["Szczegóły projektu"]
+    subgraph P_TABS["Zakładki projektu"]
+      P_KAF["Kafelki (lista)"]
+      P_TEAM["Zespół / widoczność"]
+      P_FILES["Pliki / repozytorium"]
+      P_3D["Model 3D / link"]
+      P_CLIENT["Klient (podgląd)"]
+      P_LOG["Historia / aktywności"]
+      P_BOM["BOM (generowany)"]
+    end
+  end
+
+  %% Klienci
+  subgraph CLI["Moduł Klienci"]
+    C_LIST["Lista klientów"]
+    C_VIEW["Profil klienta: dane • wskazówki • historia"]
+  end
+
+  %% Dział Projektowy
+  subgraph DESIGN["Dział Projektowy"]
+    DP_KAN["Kanban: Do zaprojektowania → W trakcie → Do weryfikacji → Ukończone"]
+    DP_TIM["Timeline (planowanie)"]
+    DP_PULL["Pula nieprzypisanych (tryb Pull)"]
+    DP_QA["Weryfikacja / akceptacja dokumentacji"]
+  end
+
+  %% CNC
+  subgraph CNC["Moduł CNC"]
+    CNC_POOL["Pula zadań (nieprzypisane)"]
+    subgraph CNC_MACH["Maszyny (M1..Mn)"]
+      M1["Maszyna 1: Kanban"]
+      M2["Maszyna 2: Kanban"]
+      Mx["Maszyna n: Kanban"]
+    end
+    CNC_QC["Kontrola jakości (CNC)"]
+  end
+
+  %% Podwykonawcy
+  subgraph SUB["Moduł Podwykonawcy"]
+    S_CAT["Katalog podwykonawców (kategorie)"]
+    S_VIEW["Profil podwykonawcy"]
+    S_KAN["Kanban: Do zamówienia → Zamówione → Produkcja → Transport → Dostarczone"]
+  end
+
+  %% Produkcja
+  subgraph PROD["Moduł Produkcja"]
+    PR_KAN["Kanban: Do złożenia → W trakcie → Kontrola jakości → Ukończone"]
+    PR_DEP["Zależności / blokady (np. czeka na zamówienie)"]
+  end
+
+  %% Magazyn
+  subgraph WH["Moduł Magazyn"]
+    WH_LIST["Materiały i Produkty (baza)"]
+    WH_AUTO["Autocomplete / standaryzacja nazewnictwa"]
+    WH_BOM["BOM projektu (auto)"]
+    WH_ORD["Zamówienia niestandardowe (sync z Kafelkami)"]
+  end
+
+  %% Użytkownicy i powiadomienia
+  subgraph USER["Użytkownicy / Uprawnienia"]
+    U_LIST["Lista użytkowników / role"]
+    U_PERM["Uprawnienia i widoczność modułów"]
+  end
+
+  subgraph NOTIF["Powiadomienia i pytania"]
+    N_CENTER["Centrum powiadomień"]
+    N_QA["Pytania w kafelkach (otwarte/zamknięte)"]
+  end
+
+  %% Kafelek - atom
+  subgraph TILE["Kafelek (atom)"]
+    T_META["Meta: nazwa • status • priorytet • deadline"]
+    T_WAY["Sposób wykonania: CNC / Ślusarnia / Lakiernia / Podwykonawca / Produkcja"]
+    T_MATS["Materiały / Produkty (z magazynu)"]
+    T_FILES["Pliki produkcyjne"]
+    T_DEP["Zależności między kafelkami"]
+    T_SPLIT["Podział na części (opcjonalnie)"]
+    T_Q["Pytania / komentarze"]
+    T_FLOW["Przepływ: Projekt → Dział proj. → CNC/Podwyk./Produkcja"]
+  end
+
+  %% Nawigacja
+  SIDEBAR --> DASH
+  SIDEBAR --> PROJ
+  SIDEBAR --> CLI
+  SIDEBAR --> DESIGN
+  SIDEBAR --> CNC
+  SIDEBAR --> SUB
+  SIDEBAR --> PROD
+  SIDEBAR --> WH
+  SIDEBAR --> USER
+  SIDEBAR --> NOTIF
+
+  P_LIST --> P_VIEW
+  P_VIEW --> P_TABS
+  P_KAF --> TILE
+  P_FILES --> T_FILES
+  P_BOM --> WH_BOM
+
+  DESIGN --> DP_KAN
+  DESIGN --> DP_TIM
+  DESIGN --> DP_PULL
+  DP_KAN --> DP_QA
+  DP_QA -.akceptacja.-> CNC_POOL
+  DP_QA -.akceptacja.-> SUB
+  DP_QA -.akceptacja.-> PROD
+
+  CNC_POOL --> M1
+  CNC_POOL --> M2
+  CNC_POOL --> Mx
+  M1 --> CNC_QC
+  M2 --> CNC_QC
+  Mx --> CNC_QC
+
+  SUB --> S_KAN
+  PROD --> PR_KAN
+  PR_KAN --> PR_DEP
+
+  WH_LIST --> WH_AUTO
+  TILE --> T_MATS
+  TILE --> T_FILES
+  TILE --> T_Q
+  TILE --> T_FLOW
+  NOTIF --> N_CENTER
+  NOTIF --> N_QA

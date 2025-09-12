@@ -1,10 +1,24 @@
+import { useMemo, useState } from 'react'
 import { useTilesStore } from '../stores/tilesStore'
+import { PageHeader } from '../components/Ui/PageHeader'
+import { Toolbar } from '../components/Ui/Toolbar'
+import { EntityTable } from '../components/Ui/EntityTable'
+import type { Column } from '../components/Ui/EntityTable'
+import { Row, Col, Card, Select, Button, Space, Typography, Progress, Tag, Tabs, Empty } from 'antd'
+import { KanbanBoardGeneric } from '../components/Ui/KanbanBoardGeneric'
+import type { Tile } from '../types/tiles.types'
 
 export default function Produkcja() {
-    const { tiles } = useTilesStore()
+    const { tiles, updateTile } = useTilesStore()
 
-    // Filter tiles ready for assembly
-    const assemblyTiles = tiles.filter(tile => tile.status === 'Gotowy do montażu')
+    const [activeTab, setActiveTab] = useState<'overview' | 'queue' | 'kanban' | 'quality' | 'maintenance'>('overview')
+    const [lineFilter, setLineFilter] = useState<'Wszystkie' | string>('Wszystkie')
+    const [statusFilter, setStatusFilter] = useState<'Wszystkie' | 'Gotowy do montażu' | 'W TRAKCIE CIĘCIA' | 'WYCIĘTE' | 'W KOLEJCE'>('Wszystkie')
+
+    const assemblyTiles = useMemo(() => tiles.filter(tile =>
+        (statusFilter === 'Wszystkie' ? true : tile.status === statusFilter)
+        && (lineFilter === 'Wszystkie' ? true : tile.project === lineFilter)
+    ), [tiles, lineFilter, statusFilter])
 
     const orders = [
         { id: 'O-101', project: 'Linia A', name: 'Panel recepcji', progress: 75 },
@@ -12,149 +26,171 @@ export default function Produkcja() {
         { id: 'O-103', project: 'Linia C', name: 'Płyta tylna', progress: 50 },
         { id: 'O-104', project: 'Linia D', name: 'Zestaw montażowy', progress: 10 }
     ]
-    // Live counters (mock)
-    // const counters = [
-    //     { label: 'Bieżąca wydajność', value: '87%', trend: '+2%' },
-    //     { label: 'Czas cyklu', value: '3.2 min', trend: '-0.1' },
-    //     { label: 'Przestoje dziś', value: '38 min', trend: '2 zdarzenia' },
-    //     { label: 'Jakość (FPY)', value: '96.4%', trend: '+0.3%' },
-    // ] as const
+
+    const kanbanColumns = useMemo(() => [
+        { id: 'W KOLEJCE', title: 'W KOLEJCE', color: '#ff9800' },
+        { id: 'W TRAKCIE CIĘCIA', title: 'W TRAKCIE CIĘCIA', color: '#2196f3' },
+        { id: 'WYCIĘTE', title: 'WYCIĘTE', color: '#4caf50' },
+        { id: 'Gotowy do montażu', title: 'Gotowy do montażu', color: '#4caf50' }
+    ], [])
+
+    const queueColumns: Column<any>[] = useMemo(() => [
+        { key: 'id', header: 'ID', width: 80 },
+        { key: 'name', header: 'Nazwa', render: (tile) => <div style={{ fontWeight: 600 }}>{tile.name}</div> },
+        { key: 'project', header: 'Projekt' },
+        {
+            key: 'cost',
+            header: 'Koszt',
+            render: (tile) => `${(tile.laborCost || 0) + (tile.bom || []).reduce((sum: number, item: any) => sum + (item.quantity * (item.unitCost || 0)), 0)} PLN`
+        },
+        {
+            key: 'status',
+            header: 'Status',
+            render: (tile) => <Tag color="success">{tile.status}</Tag>
+        }
+    ], [])
+
     return (
         <div>
-            <h4 className="mb-3">Produkcja</h4>
+            <PageHeader
+                title="Produkcja"
+                subtitle="Monitoring produkcji, kolejka montażowa i kontrola jakości"
+            />
+
+            <Toolbar
+                left={
+                    <Space>
+                        <Select size="middle" style={{ minWidth: 160 }} value={lineFilter} onChange={v => setLineFilter(v)} options={[{ value: 'Wszystkie', label: 'Wszystkie' }, ...['Linia A', 'Linia B', 'Linia C', 'Linia D'].map(l => ({ value: l, label: l }))]} />
+                        <Select size="middle" style={{ minWidth: 200 }} value={statusFilter} onChange={v => setStatusFilter(v as any)} options={['Wszystkie', 'W KOLEJCE', 'W TRAKCIE CIĘCIA', 'WYCIĘTE', 'Gotowy do montażu'].map(s => ({ value: s, label: s }))} />
+                    </Space>
+                }
+                right={
+                    <Space>
+                        <Button size="small">
+                            <i className="ri-download-line" style={{ marginRight: 6 }}></i>Eksport
+                        </Button>
+                    </Space>
+                }
+            />
 
             {/* KPI rows */}
-            <div className="row g-3 mb-3">
+            <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
                 {[
                     { label: 'Plan vs Actual', value: '84%', extra: 'on track' },
                     { label: 'OLE', value: '76%', extra: '▲ 2%' },
                     { label: 'Scrap rate', value: '3.2%', extra: 'vs 4% target' },
                     { label: 'Labor productivity', value: '52 pcs/h', extra: 'good' },
-                ].map((k, i) => (
-                    <div className="col-6 col-lg-3" key={i}><div className="card h-100"><div className="card-body text-center"><div className="h4">{k.value}</div><div className="text-muted small">{k.label}</div><div className="text-success small">{k.extra}</div></div></div></div>
+                ].map((k) => (
+                    <Col xs={12} lg={6} key={k.label}><Card><div style={{ textAlign: 'center' }}><div style={{ fontSize: 20 }}>{k.value}</div><Typography.Text type="secondary" style={{ display: 'block' }}>{k.label}</Typography.Text><Typography.Text style={{ color: 'var(--success-strong)' }}>{k.extra}</Typography.Text></div></Card></Col>
                 ))}
-            </div>
-            <div className="row g-3 mb-3">
+            </Row>
+            <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
                 {[
                     { label: 'Downtime today', value: '38 min' },
                     { label: 'MTTR', value: '12 min' },
                     { label: 'Energy efficiency', value: '1.9 kWh/pc' },
                     { label: 'Safety record', value: '27 dni' },
-                ].map((k, i) => (
-                    <div className="col-6 col-lg-3" key={i}><div className="card h-100"><div className="card-body text-center"><div className="h4">{k.value}</div><div className="text-muted small">{k.label}</div></div></div></div>
+                ].map((k) => (
+                    <Col xs={12} lg={6} key={k.label}><Card><div style={{ textAlign: 'center' }}><div style={{ fontSize: 20 }}>{k.value}</div><Typography.Text type="secondary">{k.label}</Typography.Text></div></Card></Col>
                 ))}
-            </div>
+            </Row>
 
-            {/* Plan vs Actual progress */}
-            <div className="card mb-3">
-                <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                        <div className="fw-semibold">Plan vs Actual</div>
-                        <span className="text-muted small">84%</span>
-                    </div>
-                    <div className="progress" style={{ height: 8 }}>
-                        <div className="progress-bar" style={{ width: '84%' }}></div>
-                    </div>
-                </div>
-            </div>
+            {/* Tabs */}
+            <Card style={{ marginBottom: 12 }}>
+                <Tabs
+                    activeKey={activeTab}
+                    onChange={(k) => setActiveTab(k as typeof activeTab)}
+                    items={[
+                        { key: 'overview', label: <span><i className="ri-dashboard-line" style={{ marginRight: 6 }}></i>Przegląd</span> },
+                        { key: 'queue', label: <span><i className="ri-list-check" style={{ marginRight: 6 }}></i>Kolejka</span> },
+                        { key: 'kanban', label: <span><i className="ri-layout-grid-line" style={{ marginRight: 6 }}></i>Kanban</span> },
+                        { key: 'quality', label: <span><i className="ri-shield-check-line" style={{ marginRight: 6 }}></i>Jakość</span> },
+                        { key: 'maintenance', label: <span><i className="ri-tools-line" style={{ marginRight: 6 }}></i>Utrzymanie ruchu</span> },
+                    ]}
+                />
+            </Card>
 
-            {/* Assembly Queue */}
-            <div className="card mb-3">
-                <div className="card-header d-flex justify-content-between align-items-center">
-                    <h6 className="mb-0">Kolejka montażowa ({assemblyTiles.length})</h6>
-                    <span className="badge bg-primary">Automatycznie z CNC</span>
-                </div>
-                <div className="card-body">
+            {activeTab === 'overview' && (
+                <Card style={{ marginBottom: 12 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <div style={{ fontWeight: 600 }}>Plan vs Actual</div>
+                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>84%</Typography.Text>
+                    </div>
+                    <Progress percent={84} showInfo={false} strokeColor={'var(--primary-main)'} />
+                </Card>
+            )}
+
+            {activeTab === 'queue' && (
+                <Card style={{ marginBottom: 12 }} title={<span style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}><span>Kolejka montażowa ({assemblyTiles.length})</span><Tag color="processing">Automatycznie z CNC</Tag></span>}>
                     {assemblyTiles.length > 0 ? (
-                        <div className="table-responsive">
-                            <table className="table table-sm align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nazwa</th>
-                                        <th>Projekt</th>
-                                        <th>Technologia</th>
-                                        <th>Koszt</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {assemblyTiles.map(tile => (
-                                        <tr key={tile.id}>
-                                            <td>{tile.id}</td>
-                                            <td>{tile.name}</td>
-                                            <td>{tile.project}</td>
-                                            <td>{tile.technology}</td>
-                                            <td>{(tile.laborCost || 0) + (tile.bom || []).reduce((sum, item) => sum + (item.quantity * (item.unitCost || 0)), 0)} PLN</td>
-                                            <td>
-                                                <span className="badge bg-success">Gotowy do montażu</span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                        <EntityTable
+                            rows={assemblyTiles}
+                            columns={queueColumns}
+                            rowKey={(tile) => tile.id}
+                        />
                     ) : (
-                        <div className="text-center py-4">
-                            <i className="ri-inbox-line text-muted" style={{ fontSize: '2rem' }}></i>
-                            <p className="text-muted mt-2">Brak elementów gotowych do montażu</p>
-                            <small className="text-muted">Elementy automatycznie pojawią się po zakończeniu cięcia CNC</small>
-                        </div>
+                        <Empty description={
+                            <div>
+                                <div>Brak elementów w kolejce</div>
+                                <Typography.Text type="secondary" style={{ fontSize: 12 }}>Elementy automatycznie pojawią się po zakończeniu cięcia CNC</Typography.Text>
+                            </div>
+                        } />
                     )}
-                </div>
-            </div>
+                </Card>
+            )}
 
-            {/* Schedule + Live + Quality */}
-            <div className="row g-3">
-                <div className="col-12 col-xl-6">
-                    <div className="card h-100">
-                        <div className="card-header fw-semibold">Harmonogram (Shift)</div>
-                        <div className="card-body">
-                            <div className="bg-light rounded w-100 mb-3" style={{ height: 12 }}></div>
-                            <div className="table-responsive">
-                                <table className="table table-sm align-middle">
-                                    <thead><tr><th>Linia</th><th colSpan={6}>Godziny</th></tr></thead>
-                                    <tbody>
-                                        {['Linia A', 'Linia B', 'Linia C', 'Linia D'].map((l, i) => (
-                                            <tr key={l}><td>{l}</td><td colSpan={6}><div className="bg-light rounded" style={{ height: 28, position: 'relative' }}><div className="bg-primary" style={{ position: 'absolute', left: `${i * 15}%`, width: '20%', height: '100%' }}></div></div></td></tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+            {activeTab === 'kanban' && (
+                <Card style={{ marginBottom: 12 }} title="Kanban">
+                    <KanbanBoardGeneric
+                        tiles={tiles}
+                        columns={kanbanColumns as any}
+                        getColumnId={(t: Tile) => t.status}
+                        onTileUpdate={(id, patch) => updateTile(id, patch)}
+                        onTileClick={() => { }}
+                        tileCosts={tiles.map(() => 0)}
+                    />
+                </Card>
+            )}
+
+            {activeTab === 'quality' && (
+                <Row gutter={[12, 12]}>
+                    <Col xs={24} xl={18}>
+                        <Card title={<span style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}><span>Live feed</span><Typography.Text type="secondary" style={{ fontSize: 12 }}>odświeżanie co 5s</Typography.Text></span>}>
+                            <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+                                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                    {Array.from({ length: 16 }).map((_, i) => (
+                                        <li key={`activity-${i}`} style={{ padding: '4px 0', borderBottom: '1px solid var(--border-medium)' }}>{i % 2 ? 'Start' : 'Complete'} • {orders[i % orders.length].name} • 08:{(10 + i) % 60}</li>
+                                    ))}
+                                </ul>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-12 col-xl-3">
-                    <div className="card h-100">
-                        <div className="card-header fw-semibold d-flex justify-content-between align-items-center">
-                            <span>Live feed</span>
-                            <span className="text-muted small">odświeżanie co 5s</span>
-                        </div>
-                        <div className="card-body" style={{ maxHeight: 280, overflowY: 'auto' }}>
-                            <ul className="list-unstyled mb-0">
+                        </Card>
+                    </Col>
+                    <Col xs={24} xl={6}>
+                        <Card title={<span style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}><span>Quality panel</span><Button size="small" icon={<i className="ri-refresh-line"></i> as any} /></span>}>
+                            <Row gutter={[8, 8]}>
                                 {Array.from({ length: 12 }).map((_, i) => (
-                                    <li key={i} className="py-1 border-bottom">{i % 2 ? 'Start' : 'Complete'} • {orders[i % orders.length].name} • 08:{(10 + i) % 60}</li>
+                                    <Col span={8} key={`test-${i}`}><Tag color={i % 5 === 0 ? 'error' : 'success'} style={{ display: 'block', textAlign: 'center' }}>{i % 5 === 0 ? 'FAIL' : 'PASS'}</Tag></Col>
                                 ))}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-12 col-xl-3">
-                    <div className="card h-100">
-                        <div className="card-header fw-semibold d-flex justify-content-between align-items-center">
-                            <span>Quality panel</span>
-                            <button className="btn btn-sm btn-outline-secondary"><i className="ri-refresh-line"></i></button>
-                        </div>
-                        <div className="card-body">
-                            <div className="row g-2">
-                                {Array.from({ length: 10 }).map((_, i) => (
-                                    <div className="col-4" key={i}><span className={`badge w-100 ${i % 5 === 0 ? 'bg-danger' : 'bg-success'}`}>{i % 5 === 0 ? 'FAIL' : 'PASS'}</span></div>
+                            </Row>
+                        </Card>
+                    </Col>
+                </Row>
+            )}
+
+            {activeTab === 'maintenance' && (
+                <Card title={<span style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}><span>Utrzymanie ruchu</span><Button size="small"><i className="ri-add-line" style={{ marginRight: 6 }}></i>Nowe zgłoszenie</Button></span>}>
+                    <div className="table-responsive">
+                        <table className="table table-sm align-middle">
+                            <thead><tr><th>Maszyna</th><th>Priorytet</th><th>Status</th><th>Zgłoszono</th><th>Akcja</th></tr></thead>
+                            <tbody>
+                                {['CNC-01', 'CNC-02', 'MONTAŻ-01'].map((m, i) => (
+                                    <tr key={m}><td>{m}</td><td><Tag color={i === 0 ? 'error' : 'warning'}>{i === 0 ? 'Wysoki' : 'Średni'}</Tag></td><td>{i === 2 ? 'Zamknięte' : 'Otwarte'}</td><td>2025-09-1{i + 1}</td><td><Button size="small">Szczegóły</Button></td></tr>
                                 ))}
-                            </div>
-                        </div>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-            </div>
+                </Card>
+            )}
         </div>
     )
 }

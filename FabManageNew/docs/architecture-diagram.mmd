@@ -1,0 +1,168 @@
+graph TB
+    %% ================================================
+    %% FABRYKA MANAGE - ARCHITEKTURA APLIKACJI
+    %% ================================================
+    
+    subgraph "🏗️ APLIKACJA GŁÓWNA"
+        APP["App.tsx<br/>React Router<br/>DnD Provider<br/>Lazy Loading<br/>Suspense"]
+        
+        MAIN["main.tsx<br/>StrictMode<br/>ConfigProvider Antd<br/>ErrorBoundary<br/>BrowserRouter<br/>Sentry Init"]
+        
+        LAYOUT["BootstrapLayout.tsx<br/>Layout Header/Sider/Content<br/>Navigation Menu<br/>Responsive Breakpoints<br/>Theme Variables"]
+    end
+    
+    subgraph "📄 STRONY (PAGES)"
+        DASHBOARD["Dashboard.tsx<br/>Statystyki projektów<br/>Ostatnie aktywności<br/>Przegląd zasobów<br/>Wykresy wydajności"]
+        
+        PROJECTS["Projects.tsx<br/>Lista projektów<br/>Filtry i wyszukiwanie<br/>Karty projektów<br/>Akcje masowe"]
+        
+        PROJEKT["Projekt.tsx<br/>Szczegóły projektu<br/>Moduły projektu<br/>Zespół projektu<br/>Postęp realizacji"]
+        
+        CALENDAR["CalendarPage.tsx<br/>Kalendarz główny<br/>Wydarzenia<br/>Zasoby<br/>Widoki (miesiąc/tydzień/dzień)"]
+        
+        KALPROJECTS["CalendarProjects.tsx<br/>Projekty w kalendarzu<br/>Harmonogram<br/>Deadline tracking<br/>Kamienie milowe"]
+        
+        KALDESIGNERS["CalendarDesigners.tsx<br/>Projektanci<br/>Obciążenie pracą<br/>Dostępność<br/>Przypisania"]
+        
+        KALTEAMS["CalendarTeams.tsx<br/>Ekipy robocze<br/>Harmonogram pracy<br/>Konflikty zasobów<br/>Planowanie"]
+        
+        PROJEKTOWANIE["Projektowanie.tsx<br/>Designer Dashboard<br/>Kafelki do projektowania<br/>Pliki DXF/CAD<br/>Status akceptacji"]
+        
+        CNC["CNC.tsx<br/>Kolejka produkcji<br/>Status maszyn<br/>Programy CNC<br/>Monitoring czasu"]
+        
+        PRODUKCJA["Produkcja.tsx<br/>Kafelki w produkcji<br/>Kanban board<br/>QR kody<br/>Raportowanie"]
+        
+        MAGAZYN["MagazynNew.tsx<br/>Inwentarz materiałów<br/>Kategorie i filtry<br/>Stany krytyczne<br/>Lokalizacje magazynowe"]
+        
+        KLIENCI["Klienci.tsx<br/>Lista klientów<br/>Karty kontaktowe<br/>Historia współpracy<br/>Segmentacja"]
+        
+        KLIENT["ClientDetails.tsx<br/>Szczegóły klienta<br/>Osoby kontaktowe<br/>Projekty klienta<br/>Dokumenty"]
+        
+        TILES["Tiles.tsx<br/>Zarządzanie kafelkami<br/>BOM (Bill of Materials)<br/>Workflow statusów<br/>Przypisania ekip"]
+        
+        DEMANDS["Demands.tsx<br/>Zapotrzebowania<br/>Zamówienia materiałów<br/>Śledzenie dostaw<br/>Zatwierdzenia"]
+    end
+    
+    subgraph "🔄 STORES (ZUSTAND)"
+        PROJSTORE["projectsStore.ts<br/><br/>STATE:<br/>• projects: Project[]<br/>• projectsById: Record<br/>• isLoading: boolean<br/>• _clientProjectsCache: Map<br/><br/>ACTIONS:<br/>• initialize()<br/>• add/update/remove()<br/>• getProjectsByClient()<br/>• updateProjectColors()<br/><br/>SELEKTORY (40+):<br/>• getProjectStats()<br/>• getOverdueProjects()<br/>• getHighPriorityProjects()"]
+        
+        CALSTORE["calendarStore.ts<br/><br/>STATE:<br/>• events: CalendarEvent[]<br/>• resources: CalendarResource[]<br/><br/>ACTIONS:<br/>• createEvent()<br/>• updateEvent()<br/>• deleteEvent()<br/><br/>SELEKTORY:<br/>• getEventsByProject()<br/>• getEventsByDesigner()<br/>• getResourcesByType()"]
+        
+        MATSTORE["materialsStore.ts<br/><br/>STATE:<br/>• materials: MaterialData[]<br/>• purchaseRequests[]<br/>• supplierQuotes[]<br/>• stockReservations[]<br/>• deliveryTracking[]<br/><br/>ACTIONS:<br/>• updateMaterialStock()<br/>• syncFromBackend()<br/>• add/update/remove<br/>Purchase/Quote/Reservation"]
+        
+        TILESTORE["tilesStore.ts<br/><br/>STATE:<br/>• tiles: Tile[]<br/>• tilesById: Record<br/>• isLoading: boolean<br/><br/>ACTIONS:<br/>• initialize()<br/>• setStatus()<br/>• updateTile()<br/>• pushAcceptedTilesToQueue()"]
+        
+        CLIENTSTORE["clientDataStore.ts<br/><br/>STATE:<br/>• clients: ProcessedClient[]<br/>• projects: ProcessedProject[]<br/>• selectedClient<br/>• loading: boolean<br/><br/>ACTIONS:<br/>• loadData()<br/>• getClientById()<br/>• selectClient()"]
+        
+        USERSTORE["usersStore.ts<br/><br/>STATE:<br/>• users: User[]<br/>• teams: Team[]<br/><br/>USER ACTIONS:<br/>• add/update/deleteUser()<br/>• getUsersByRole()<br/><br/>TEAM ACTIONS:<br/>• add/update/deleteTeam()<br/>• addMemberToTeam()<br/>• getTeamMembers()"]
+        
+        OTHERSTORES["Inne Stores:<br/>• accommodationStore.ts<br/>• activityStore.ts<br/>• conceptStore.ts<br/>• estimateStore.ts<br/>• logisticsStore.ts"]
+    end
+    
+    subgraph "🧩 KOMPONENTY GŁÓWNE"
+        PROJECTCOMP["Project Components<br/>• ProjectElements.tsx<br/>• ProjectHeader.tsx<br/>• ProjectMaterials.tsx<br/>• ProjectOverview.tsx<br/>• ProjectTabs.tsx"]
+        
+        CALENDARCOMP["Calendar Components<br/>• CalendarShell.tsx<br/>• EventFormModal.tsx"]
+        
+        MAGAZYNCOMP["Magazyn Components<br/>• CategoryTree.tsx<br/>• CriticalStockPanel.tsx<br/>• MaterialCard.tsx<br/>• MaterialDetailsPanel.tsx<br/>• OperationForm.tsx<br/>• WarehouseDashboard.tsx"]
+        
+        KANBANCOMP["Kanban Components<br/>• KanbanBoard.tsx<br/>• KanbanCard.tsx<br/>• KanbanColumn.tsx"]
+        
+        GROUPCOMP["Groups Components<br/>• CreateGroupModal.tsx<br/>• GroupCard.tsx<br/>• GroupView.tsx"]
+        
+        UICOMP["UI Components<br/>• AsyncStates.tsx<br/>• EntityTable.tsx<br/>• FileManager.tsx<br/>• SlideOver.tsx<br/>• StatusBadge.tsx<br/>• Toolbar.tsx"]
+        
+        MODALS["Modals & Sheets<br/>• EditProjectModal.tsx<br/>• AddMemberModal.tsx<br/>• TileEditSheet.tsx<br/>• DxfFullscreenModal.tsx<br/>• DxfPreview.tsx"]
+    end
+    
+    subgraph "📊 TYPY I DANE"
+        PROJTYPE["projects.types.ts<br/>• ProjectModule<br/>• GroupFile<br/>• ProjectGroup<br/>• Project"]
+        
+        TILETYPE["tiles.types.ts<br/>• BomItem<br/>• Tile"]
+        
+        CLIENTTYPE["clientData.types.ts<br/>• ClientData<br/>• ContactPerson<br/>• ProcessedClient<br/>• ProcessedProject"]
+        
+        MAGAZYNTYPE["magazyn.types.ts<br/>• Material<br/>• MaterialProperties<br/>• MaterialCategory<br/>• MaterialMovement<br/>• WarehouseLocation<br/>• UserPreferences"]
+        
+        CALTYPE["calendar.types.ts<br/>• CalendarResource<br/>• CalendarEvent"]
+        
+        MOCKDATA["mockDatabase.ts<br/>• mockClients[]<br/>• mockProjects[]<br/>• mockTiles[]"]
+    end
+    
+    subgraph "🔧 USŁUGI I UTILITIES"
+        STATUSUTILS["statusUtils.ts<br/>• getStatusColor()<br/>• getStatusBadgeClass()<br/>• getStatusIcon()<br/>• canTransitionTo()<br/>• getStatusPriority()<br/>• getStatusDisplayData()"]
+        
+        SERVICES["Services<br/>• projects.ts<br/>• tiles.ts<br/>• materials.ts"]
+        
+        LIBUTILS["Lib Utils<br/>• notifications.ts<br/>• calendarUtils.ts<br/>• clientUtils.ts<br/>• logger.ts<br/>• sentry.ts<br/>• supabase.ts"]
+        
+        API["API Layer<br/>• materials.ts<br/>• backend integration"]
+    end
+    
+    %% Connections
+    MAIN --> APP
+    APP --> LAYOUT
+    LAYOUT --> DASHBOARD
+    LAYOUT --> PROJECTS
+    LAYOUT --> PROJEKT
+    LAYOUT --> CALENDAR
+    LAYOUT --> KALPROJECTS
+    LAYOUT --> KALDESIGNERS
+    LAYOUT --> KALTEAMS
+    LAYOUT --> PROJEKTOWANIE
+    LAYOUT --> CNC
+    LAYOUT --> PRODUKCJA
+    LAYOUT --> MAGAZYN
+    LAYOUT --> KLIENCI
+    LAYOUT --> KLIENT
+    LAYOUT --> TILES
+    LAYOUT --> DEMANDS
+    
+    PROJECTS --> PROJSTORE
+    PROJEKT --> PROJSTORE
+    CALENDAR --> CALSTORE
+    KALPROJECTS --> CALSTORE
+    KALDESIGNERS --> CALSTORE
+    KALTEAMS --> CALSTORE
+    MAGAZYN --> MATSTORE
+    TILES --> TILESTORE
+    KLIENCI --> CLIENTSTORE
+    KLIENT --> CLIENTSTORE
+    KALDESIGNERS --> USERSTORE
+    KALTEAMS --> USERSTORE
+    
+    PROJEKT --> PROJECTCOMP
+    CALENDAR --> CALENDARCOMP
+    MAGAZYN --> MAGAZYNCOMP
+    PRODUKCJA --> KANBANCOMP
+    KLIENCI --> GROUPCOMP
+    DASHBOARD --> UICOMP
+    PROJECTS --> MODALS
+    
+    PROJSTORE --> PROJTYPE
+    TILESTORE --> TILETYPE
+    CLIENTSTORE --> CLIENTTYPE
+    MATSTORE --> MAGAZYNTYPE
+    CALSTORE --> CALTYPE
+    PROJSTORE --> MOCKDATA
+    
+    PROJSTORE --> STATUSUTILS
+    TILESTORE --> STATUSUTILS
+    PROJSTORE --> SERVICES
+    MATSTORE --> API
+    CALSTORE --> LIBUTILS
+    
+    classDef pageClass fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef storeClass fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef componentClass fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef typeClass fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef utilClass fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    classDef appClass fill:#f1f8e9,stroke:#33691e,stroke-width:3px
+    
+    class APP,MAIN,LAYOUT appClass
+    class DASHBOARD,PROJECTS,PROJEKT,CALENDAR,KALPROJECTS,KALDESIGNERS,KALTEAMS,PROJEKTOWANIE,CNC,PRODUKCJA,MAGAZYN,KLIENCI,KLIENT,TILES,DEMANDS pageClass
+    class PROJSTORE,CALSTORE,MATSTORE,TILESTORE,CLIENTSTORE,USERSTORE,OTHERSTORES storeClass
+    class PROJECTCOMP,CALENDARCOMP,MAGAZYNCOMP,KANBANCOMP,GROUPCOMP,UICOMP,MODALS componentClass
+    class PROJTYPE,TILETYPE,CLIENTTYPE,MAGAZYNTYPE,CALTYPE,MOCKDATA typeClass
+    class STATUSUTILS,SERVICES,LIBUTILS,API utilClass
+
