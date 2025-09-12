@@ -1,0 +1,33 @@
+{
+  "name": "FabManage-Clean",
+  "description": "Clean workspace for FabManage production management system",
+  "version": "1.0.0",
+  "type": "react-typescript",
+  "features": [
+    "typescript",
+    "react",
+    "vite",
+    "antd",
+    "zustand",
+    "tanstack-query",
+    "supabase",
+    "docker",
+    "playwright",
+    "vitest"
+  ],
+  "ai": {
+    "contextFiles": [
+      "src/App.tsx",
+      "src/main.tsx",
+      "package.json",
+      "vite.config.ts",
+      "tsconfig.app.json"
+    ],
+    "excludePatterns": [
+      "node_modules/**",
+      "dist/**",
+      ".git/**",
+      "test-results/**"
+    ]
+  }
+}

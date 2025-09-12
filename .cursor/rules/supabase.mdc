@@ -1,0 +1,25 @@
+---
+description: Supabase integration rules for FabManage-Clean
+globs:
+  - \src/services/**/*.ts\
+  - \src/lib/**/*.ts\
+alwaysApply: true
+---
+
+# Supabase Integration
+
+- Wrap Supabase in a service layer; never call directly from components.
+- Always check { data, error } and throw typed errors.
+- Enable Row Level Security; enforce user ownership in queries.
+- Use real-time subscriptions with proper cleanup.
+
+`	s
+export class ProjectService {
+  constructor(private readonly sb = createSupabaseClient()) {}
+  async create(project: Omit<Project, \id\>): Promise<Project> {
+    const { data, error } = await this.sb.from(\projects\).insert(project).select().single();
+    if (error) throw new Error(DB: );
+    return data;
+  }
+}
+`

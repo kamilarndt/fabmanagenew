@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-typescript-next",
+    "ms-playwright.playwright",
+    "antfu.iconify",
+    "antfu.goto-alias",
+    "ms-vscode.vscode-json"
+  ]
+}

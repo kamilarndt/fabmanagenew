@@ -1,0 +1,85 @@
+File,Description,Content_Preview
+.cursor/rules/typescript.mdc,---,"---
+description: TypeScript excellence rules for FabManage
+globs:
+  - ""**/*.ts""
+  - ""**/*.tsx""
+alwaysApply: true
+---
+
+# TypeScript Rules for FabManage
+
+## Core Principles
+- Use TypeScript strict mode ..."
+.cursor/rules/react.mdc,---,"---
+description: React component standards for FabManage
+globs:
+  - ""src/components/**/*.tsx""
+  - ""src/pages/**/*.tsx""
+alwaysApply: true
+---
+
+# React Component Rules for FabManage
+
+## Component Struct..."
+.cursor/rules/zustand.mdc,---,"---
+description: Zustand state management patterns for FabManage
+globs:
+  - ""src/stores/**/*.ts""
+alwaysApply: true
+---
+
+# Zustand Store Rules for FabManage
+
+## Store Structure
+```typescript
+interface ..."
+.cursor/rules/bootstrap.mdc,---,"---
+description: Bootstrap 5 and UI patterns for FabManage
+globs:
+  - ""src/components/**/*.tsx""
+  - ""src/pages/**/*.tsx""
+  - ""**/*.css""
+alwaysApply: true
+---
+
+# Bootstrap 5 & UI Rules for FabManage
+
+#..."
+.cursor/rules/supabase.mdc,---,"---
+description: Supabase integration patterns for FabManage
+globs:
+  - ""src/services/**/*.ts""
+  - ""src/lib/**/*.ts""
+alwaysApply: true
+---
+
+# Supabase Integration Rules for FabManage
+
+## Service Layer..."
+.cursor/rules/fabmanage-business.mdc,---,"---
+description: FabManage business logic and domain rules
+globs:
+  - ""src/**/*.ts""
+  - ""src/**/*.tsx""
+alwaysApply: true
+---
+
+# FabManage Business Logic Rules
+
+## Project Lifecycle
+- Projects can only..."
+.cursor/instructions.md,# FabManage - Instrukcje Projektu dla Cursor AI,"# FabManage - Instrukcje Projektu dla Cursor AI
+
+## Przegląd Systemu
+
+FabManage to zaawansowany system zarządzania produkcją dla fabryki dekoracji i scenografii. System implementuje modułowy workflow ..."
+.cursor/project-overview.mdc,---,"---
+description: Complete FabManage project overview for AI context
+alwaysApply: true
+---
+
+# FabManage - Production Management System
+
+## Project Overview
+FabManage is a comprehensive production manag..."

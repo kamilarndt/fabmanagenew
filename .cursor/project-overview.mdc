@@ -1,0 +1,37 @@
+---
+description: Complete FabManage project overview for AI context
+alwaysApply: true
+---
+
+# FabManage-Clean - Production Management System
+
+## Architecture
+- Frontend: React 18 + TypeScript + Vite + Ant Design
+- State: Zustand (slice pattern) + TanStack Query
+- Backend: Supabase (Auth, DB, Storage)
+- Routing: React Router v7
+- Styling: CSS Modules + Ant Design
+- Testing: Vitest + Playwright
+- Deploy: Docker + Nginx
+
+## Key Patterns
+- All modals are right-side Drawers
+- Unified tile edit experience
+- TypeScript strict mode; interface for props, type for data
+- RORO functions; Zod validation; React.memo
+
+## Domains
+- Projects & Modules (sequential workflow)
+- Tiles (BOM, technical files, CNC integration)
+- CNC (machines, queue, utilization)
+- Materials (inventory, purchasing, consolidation)
+
+## File Layout
+src/
+- components/
+- pages/
+- stores/
+- services/
+- hooks/
+- types/
+- lib/

@@ -1,0 +1,27 @@
+---
+description: Ant Design UI patterns (named bootstrap.mdc for compatibility)
+globs:
+  - \src/components/**/*.tsx\
+  - \src/pages/**/*.tsx\
+  - \**/*.css\
+alwaysApply: true
+---
+
+# UI Rules (Ant Design)
+
+- Use Ant Design components; customize with ConfigProvider theme tokens.
+- Layout: Grid (Row/Col) and Layout for dashboards; Space for spacing.
+- Forms: Form + Input components with validation; submit via onFinish.
+- Feedback: message/notification for success/error; Spin for loading.
+- Drawers: placement=\right\, maskClosable=false for critical edits.
+- Tables: pagination, rowKey, responsive columns; virtualize long lists when needed.
+
+`	sx
+<ConfigProvider theme={{ token: { borderRadius: 6 } }}>
+  <Layout>
+    <Layout.Content style={{ padding: 16 }}>
+      <Card title=\KPI\><Statistic value={95} suffix=\%\ /></Card>
+    </Layout.Content>
+  </Layout>
+</ConfigProvider>
+`

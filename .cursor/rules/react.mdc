@@ -1,0 +1,27 @@
+---
+description: React component standards for FabManage-Clean
+globs:
+  - \src/components/**/*.tsx\
+  - \src/pages/**/*.tsx\
+alwaysApply: true
+---
+
+# React Component Rules
+
+- Functional components with interfaces; use the function keyword.
+- Named exports only; one component per file preferred.
+- Memoize expensive components with React.memo.
+- useCallback for handlers passed as props; useMemo for heavy computations.
+- Avoid inline functions in JSX; keep JSX shallow.
+- Loading states for all async operations.
+- All modals are Ant Design Drawer with placement=\right\.
+- Follow unified tile edit experience across pages.
+
+`	sx
+interface DrawerFormProps { title: string; open: boolean; onClose: () => void }
+export function DrawerForm({ title, open, onClose }: DrawerFormProps) {
+  return (
+    <Drawer title={title} open={open} onClose={onClose} placement=\right\ destroyOnClose />
+  );
+}
+`

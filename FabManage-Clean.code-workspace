@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.mdc": "markdown"
+		},
+		"emmet.includeLanguages": {
+			"typescript": "html",
+			"typescriptreact": "html"
+		},
+		"typescript.preferences.includePackageJsonAutoImports": "auto"
+	}
+}

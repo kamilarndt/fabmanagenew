@@ -1,0 +1,49 @@
+# FabManage - Cursor AI Rules
+
+## Projekt
+- React 18 + TypeScript + Vite + Ant Design + Zustand + TanStack Query + Supabase
+- System zarządzania produkcją z integracją CAD/Speckle
+- PWA z pełną konteneryzacją Docker
+
+## Architektura
+- Komponenty: funkcjonalne z React.memo dla wydajności
+- Stan: Zustand z podziałem na slice'y
+- API: TanStack Query z cache'owaniem
+- UI: Ant Design z custom theme
+- Routing: React Router v7
+
+## Konwencje Kodu
+- TypeScript strict mode
+- Named exports dla komponentów
+- Interface dla props, type dla danych
+- RORO pattern dla funkcji
+- Zod dla walidacji
+
+## UX/UI
+- Wszystkie modale jako side-drawer z prawej strony
+- Unified tile edit experience
+- Consistent spacing i typography
+- Loading states dla wszystkich async operacji
+
+## Performance
+- Code splitting per route
+- Lazy loading dla heavy components (CAD, DXF)
+- Virtualization dla długich list
+- Image optimization (WebP)
+
+## Bezpieczeństwo
+- RLS policies w Supabase
+- Input validation z Zod
+- Sanitization HTML z DOMPurify
+- Environment variables tylko w .env
+
+## Testy
+- Unit: Vitest + Testing Library
+- E2E: Playwright
+- Smoke tests dla critical paths
+
+## Docker
+- Multi-stage builds
+- Nginx dla static assets
+- Health checks
+- Volume mounts dla development

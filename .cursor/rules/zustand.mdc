@@ -1,0 +1,32 @@
+---
+description: Zustand slice pattern for FabManage-Clean
+globs:
+  - \src/stores/**/*.ts\
+alwaysApply: true
+---
+
+# Zustand Store Rules
+
+- Use slice pattern with clear domain boundaries (projects, tiles, cnc, materials).
+- Persist critical UX state; avoid persisting server cache.
+- Use immer for complex updates; keep actions small and focused.
+- Async actions must set isLoading and error; prefer TanStack Query for server data.
+
+`	s
+import { create } from \zustand\;
+import { devtools, persist } from \zustand/middleware\;
+
+interface TilesState {
+  tiles: Tile[];
+  isLoading: boolean;
+  error: string | null;
+  setTiles: (tiles: Tile[]) => void;
+}
+
+export const useTilesStore = create<TilesState>()(persist(devtools((set) => ({
+  tiles: [],
+  isLoading: false,
+  error: null,
+  setTiles: (tiles) => set({ tiles }),
+}), { name: \TilesStore\ }))); 
+`

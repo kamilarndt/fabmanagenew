@@ -1,0 +1,24 @@
+/* ========================================
+   FABMANAGE - DARK MODE TECH DESIGN SYSTEM
+   ========================================
+   
+   Import nowego Design System dla index.html
+   ======================================== */
+
+@import './styles/design-system.css';
+@import './styles/components.css';
+
+/* ========================================
+   SPECYFICZNE STYLE DLA INDEX.HTML
+   ======================================== */
+
+#root {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    text-align: initial;
+}
+
+/* ========================================
+   KONIEC INDEX.CSS
+   ======================================== */

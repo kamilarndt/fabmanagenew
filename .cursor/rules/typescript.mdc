@@ -1,0 +1,35 @@
+---
+description: TypeScript excellence rules for FabManage-Clean
+globs:
+  - \ **/*.ts\
+  - \**/*.tsx\
+alwaysApply: true
+---
+
+# TypeScript Rules for FabManage-Clean
+
+- Enable strict mode; never use any or unknown.
+- Prefer interface for component props and public shapes; use type for data and unions.
+- Export named components/functions; avoid default exports.
+- Explicit return types for exported functions and custom hooks.
+- Avoid type assertions; use type guards and Zod schemas.
+- Keep side effects out of modules; prefer pure functions.
+- Model business entities with rich types (modules, tiles, CNC, materials).
+
+`	s
+interface ProjectModule {
+  id: string;
+  name: \pricing\ | \concept\ | \technical_design\ | \production\ | \materials\ | \logistics\;
+  isEnabled: boolean;
+  completedAt?: string; // ISO
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  modules: ProjectModule[];
+  status: \draft\ | \active\ | \completed\;
+  createdAt: string;
+  updatedAt: string;
+}
+`
