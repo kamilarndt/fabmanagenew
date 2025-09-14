@@ -1,16 +1,18 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import App from './App.tsx'
-import { ConfigProvider, App as AntdApp, theme } from 'antd'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { darkTechTheme } from './styles/ant-design-theme'
-import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary'
-import { initSentry } from './lib/sentry'
-import './index.css'
-import 'react-big-calendar/lib/css/react-big-calendar.css'
-import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
-import 'antd/dist/reset.css'
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { App as AntdApp } from "antd";
+import "antd/dist/reset.css";
+import { StrictMode } from "react";
+import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App.tsx";
+import { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary";
+import { ThemeProvider } from "./components/providers/ThemeProvider";
+import { AppWithSkipLinks } from "./components/ui/SkipLink";
+import "./i18n";
+import "./index.css";
+import { initSentry } from "./lib/sentry";
 
 // Konfiguracja React Query
 const queryClient = new QueryClient({
@@ -21,36 +23,38 @@ const queryClient = new QueryClient({
       staleTime: 30000, // 30 sekund
     },
   },
-})
+});
 
 // Dev-only: ensure no stale service workers interfere with module loading
-if (import.meta.env.DEV && 'serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(registrations => {
-    for (const registration of registrations) {
-      registration.unregister().catch(() => { })
-    }
-  }).catch(() => { })
+if (import.meta.env.DEV && "serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .getRegistrations()
+    .then((registrations) => {
+      for (const registration of registrations) {
+        registration.unregister().catch(() => {});
+      }
+    })
+    .catch(() => {});
 }
 
-initSentry()
+initSentry();
 // Initialize Dark Mode Tech theme
-document.documentElement.setAttribute('data-theme', 'dark-tech')
+// initial attribute will be managed by ThemeProvider
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ConfigProvider theme={{
-        ...darkTechTheme,
-        algorithm: theme.darkAlgorithm
-      }}>
+      <ThemeProvider>
         <AntdApp>
           <BrowserRouter>
             <ErrorBoundary>
-              <App />
+              <AppWithSkipLinks>
+                <App />
+              </AppWithSkipLinks>
             </ErrorBoundary>
           </BrowserRouter>
         </AntdApp>
-      </ConfigProvider>
+      </ThemeProvider>
     </QueryClientProvider>
-  </StrictMode>,
-)
+  </StrictMode>
+);

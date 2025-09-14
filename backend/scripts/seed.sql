@@ -40,3 +40,4 @@ INSERT INTO packing_lists (id, project_id, item_name, quantity, unit, status) VA
  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1','22222222-2222-2222-2222-222222222222','Lada recepcyjna – elementy',10,'szt','packed');
 
 
+

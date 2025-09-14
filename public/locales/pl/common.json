@@ -1,0 +1,35 @@
+{
+  "actions": {
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "add": "Dodaj",
+    "search": "Szukaj",
+    "export": "Eksportuj",
+    "import": "Importuj",
+    "refresh": "Odśwież"
+  },
+  "status": {
+    "loading": "Ładowanie...",
+    "error": "Wystąpił błąd",
+    "success": "Operacja zakończona pomyślnie",
+    "noData": "Brak danych"
+  },
+  "fields": {
+    "name": "Nazwa",
+    "description": "Opis",
+    "date": "Data",
+    "status": "Status",
+    "priority": "Priorytet",
+    "quantity": "Ilość",
+    "price": "Cena"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "projects": "Projekty",
+    "materials": "Materiały",
+    "production": "Produkcja",
+    "clients": "Klienci"
+  }
+}

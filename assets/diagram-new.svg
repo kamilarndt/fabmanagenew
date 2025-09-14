@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="2000" height="1500" viewBox="0 0 2000 1500" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+            .title { fill: #1A73E8; font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 600; }
+            .section-title { fill: #1A73E8; font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 600; }
+            .process-box { fill: #f8f9fa; stroke: #1A73E8; stroke-width: 2; rx: 8; }
+            .process-text { fill: #495057; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; }
+            .arrow { stroke: #1A73E8; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+            .data-box { fill: #e8f0fe; stroke: #1A73E8; stroke-width: 1; rx: 4; }
+            .data-text { fill: #6c757d; font-family: 'Inter', sans-serif; font-size: 12px; }
+        </style>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#1A73E8" />
+        </marker>
+    </defs>
+
+    <!-- Title -->
+    <text x="1000" y="40" text-anchor="middle" class="title">FabManage - Przepływ Procesów</text>
+
+    <!-- CLIENT Section -->
+    <rect x="50" y="80" width="200" height="120" class="process-box" />
+    <text x="150" y="100" text-anchor="middle" class="section-title">CLIENT</text>
+    <text x="60" y="120" class="data-text">• Nazwa firmy</text>
+    <text x="60" y="140" class="data-text">• NIP, REGON</text>
+    <text x="60" y="160" class="data-text">• Kontakt</text>
+    <text x="60" y="180" class="data-text">• Status, Segment</text>
+
+    <!-- PROJECT Section -->
+    <rect x="300" y="80" width="200" height="120" class="process-box" />
+    <text x="400" y="100" text-anchor="middle" class="section-title">PROJECT</text>
+    <text x="310" y="120" class="data-text">• Numer, Nazwa</text>
+    <text x="310" y="140" class="data-text">• Typ, Status</text>
+    <text x="310" y="160" class="data-text">• Budget, Deadline</text>
+    <text x="310" y="180" class="data-text">• Moduły</text>
+
+    <!-- TILES Section -->
+    <rect x="550" y="80" width="200" height="120" class="process-box" />
+    <text x="650" y="100" text-anchor="middle" class="section-title">TILES</text>
+    <text x="560" y="120" class="data-text">• Nazwa, Status</text>
+    <text x="560" y="140" class="data-text">• Priorytet, Termin</text>
+    <text x="560" y="160" class="data-text">• Projektant</text>
+    <text x="560" y="180" class="data-text">• Geometria</text>
+
+    <!-- BOM Section -->
+    <rect x="800" y="80" width="200" height="120" class="process-box" />
+    <text x="900" y="100" text-anchor="middle" class="section-title">BOM</text>
+    <text x="810" y="120" class="data-text">• Materiały</text>
+    <text x="810" y="140" class="data-text">• Ilości</text>
+    <text x="810" y="160" class="data-text">• Dostawcy</text>
+    <text x="810" y="180" class="data-text">• Koszty</text>
+
+    <!-- INVENTORY Section -->
+    <rect x="1050" y="80" width="200" height="120" class="process-box" />
+    <text x="1150" y="100" text-anchor="middle" class="section-title">INVENTORY</text>
+    <text x="1060" y="120" class="data-text">• Stan magazynowy</text>
+    <text x="1060" y="140" class="data-text">• Lokalizacja</text>
+    <text x="1060" y="160" class="data-text">• ABC Class</text>
+    <text x="1060" y="180" class="data-text">• Ceny</text>
+
+    <!-- MATERIAL ORDERING Section -->
+    <rect x="1300" y="80" width="200" height="120" class="process-box" />
+    <text x="1400" y="100" text-anchor="middle" class="section-title">MATERIAL ORDERING</text>
+    <text x="1310" y="120" class="data-text">• Zamówienia</text>
+    <text x="1310" y="140" class="data-text">• Dostawcy</text>
+    <text x="1310" y="160" class="data-text">• Terminy</text>
+    <text x="1310" y="180" class="data-text">• Status</text>
+
+    <!-- CNC PRODUCTION Section -->
+    <rect x="50" y="250" width="200" height="120" class="process-box" />
+    <text x="150" y="270" text-anchor="middle" class="section-title">CNC PRODUCTION</text>
+    <text x="60" y="290" class="data-text">• Maszyny CNC</text>
+    <text x="60" y="310" class="data-text">• Kolejka zadań</text>
+    <text x="60" y="330" class="data-text">• Priorytety</text>
+    <text x="60" y="350" class="data-text">• Status</text>
+
+    <!-- ASSEMBLY Section -->
+    <rect x="300" y="250" width="200" height="120" class="process-box" />
+    <text x="400" y="270" text-anchor="middle" class="section-title">ASSEMBLY</text>
+    <text x="310" y="290" class="data-text">• Montaż</text>
+    <text x="310" y="310" class="data-text">• Kontrola jakości</text>
+    <text x="310" y="330" class="data-text">• Pakowanie</text>
+    <text x="310" y="350" class="data-text">• Status</text>
+
+    <!-- TRANSPORT Section -->
+    <rect x="550" y="250" width="200" height="120" class="process-box" />
+    <text x="650" y="270" text-anchor="middle" class="section-title">TRANSPORT</text>
+    <text x="560" y="290" class="data-text">• Logistyka</text>
+    <text x="560" y="310" class="data-text">• Trasy</text>
+    <text x="560" y="330" class="data-text">• Dostawa</text>
+    <text x="560" y="350" class="data-text">• Status</text>
+
+    <!-- CALENDAR Section -->
+    <rect x="800" y="250" width="200" height="120" class="process-box" />
+    <text x="900" y="270" text-anchor="middle" class="section-title">CALENDAR</text>
+    <text x="810" y="290" class="data-text">• Harmonogram</text>
+    <text x="810" y="310" class="data-text">• Zadania</text>
+    <text x="810" y="330" class="data-text">• Spotkania</text>
+    <text x="810" y="350" class="data-text">• Deadline'y</text>
+
+    <!-- DASHBOARD Section -->
+    <rect x="1050" y="250" width="200" height="120" class="process-box" />
+    <text x="1150" y="270" text-anchor="middle" class="section-title">DASHBOARD</text>
+    <text x="1060" y="290" class="data-text">• KPI</text>
+    <text x="1060" y="310" class="data-text">• Statystyki</text>
+    <text x="1060" y="330" class="data-text">• Raporty</text>
+    <text x="1060" y="350" class="data-text">• Monitoring</text>
+
+    <!-- REALTIME UPDATES Section -->
+    <rect x="1300" y="250" width="200" height="120" class="process-box" />
+    <text x="1400" y="270" text-anchor="middle" class="section-title">REALTIME UPDATES</text>
+    <text x="1310" y="290" class="data-text">• WebSocket</text>
+    <text x="1310" y="310" class="data-text">• Notifications</text>
+    <text x="1310" y="330" class="data-text">• Sync</text>
+    <text x="1310" y="350" class="data-text">• Status</text>
+
+    <!-- Arrows -->
+    <!-- CLIENT to PROJECT -->
+    <line x1="250" y1="140" x2="300" y2="140" class="arrow" />
+    <text x="275" y="135" text-anchor="middle" class="data-text">1:N</text>
+
+    <!-- PROJECT to TILES -->
+    <line x1="500" y1="140" x2="550" y2="140" class="arrow" />
+    <text x="525" y="135" text-anchor="middle" class="data-text">1:N</text>
+
+    <!-- TILES to BOM -->
+    <line x1="750" y1="140" x2="800" y2="140" class="arrow" />
+    <text x="775" y="135" text-anchor="middle" class="data-text">1:N</text>
+
+    <!-- BOM to INVENTORY -->
+    <line x1="1000" y1="140" x2="1050" y2="140" class="arrow" />
+    <text x="1025" y="135" text-anchor="middle" class="data-text">M:N</text>
+
+    <!-- INVENTORY to MATERIAL ORDERING -->
+    <line x1="1250" y1="140" x2="1300" y2="140" class="arrow" />
+    <text x="1275" y="135" text-anchor="middle" class="data-text">1:N</text>
+
+    <!-- TILES to CNC PRODUCTION -->
+    <line x1="650" y1="200" x2="150" y2="250" class="arrow" />
+    <text x="400" y="220" text-anchor="middle" class="data-text">1:N</text>
+
+    <!-- CNC PRODUCTION to ASSEMBLY -->
+    <line x1="250" y1="310" x2="300" y2="310" class="arrow" />
+    <text x="275" y="305" text-anchor="middle" class="data-text">1:N</text>
+
+    <!-- ASSEMBLY to TRANSPORT -->
+    <line x1="500" y1="310" x2="550" y2="310" class="arrow" />
+    <text x="525" y="305" text-anchor="middle" class="data-text">1:N</text>
+
+    <!-- TILES to CALENDAR -->
+    <line x1="650" y1="200" x2="900" y2="250" class="arrow" />
+    <text x="775" y="220" text-anchor="middle" class="data-text">1:N</text>
+
+    <!-- CALENDAR to DASHBOARD -->
+    <line x1="1000" y1="310" x2="1050" y2="310" class="arrow" />
+    <text x="1025" y="305" text-anchor="middle" class="data-text">1:N</text>
+
+    <!-- DASHBOARD to REALTIME UPDATES -->
+    <line x1="1250" y1="310" x2="1300" y2="310" class="arrow" />
+    <text x="1275" y="305" text-anchor="middle" class="data-text">1:N</text>
+
+    <!-- React Modules Section -->
+    <rect x="50" y="420" width="1450" height="200" class="process-box" />
+    <text x="775" y="440" text-anchor="middle" class="section-title">REACT MODULES</text>
+    
+    <!-- Projects Module -->
+    <rect x="70" y="460" width="150" height="80" class="data-box" />
+    <text x="145" y="480" text-anchor="middle" class="data-text">Projects</text>
+    <text x="80" y="500" class="data-text">• Lista projektów</text>
+    <text x="80" y="520" class="data-text">• Szczegóły</text>
+    <text x="80" y="540" class="data-text">• Edycja</text>
+
+    <!-- Tiles Module -->
+    <rect x="240" y="460" width="150" height="80" class="data-box" />
+    <text x="315" y="480" text-anchor="middle" class="data-text">Tiles</text>
+    <text x="250" y="500" class="data-text">• Lista kafelków</text>
+    <text x="250" y="520" class="data-text">• Status</text>
+    <text x="250" y="540" class="data-text">• Priorytety</text>
+
+    <!-- Materials Module -->
+    <rect x="410" y="460" width="150" height="80" class="data-box" />
+    <text x="485" y="480" text-anchor="middle" class="data-text">Materials</text>
+    <text x="420" y="500" class="data-text">• Magazyn</text>
+    <text x="420" y="520" class="data-text">• BOM</text>
+    <text x="420" y="540" class="data-text">• Zamówienia</text>
+
+    <!-- CNC Module -->
+    <rect x="580" y="460" width="150" height="80" class="data-box" />
+    <text x="655" y="480" text-anchor="middle" class="data-text">CNC</text>
+    <text x="590" y="500" class="data-text">• Maszyny</text>
+    <text x="590" y="520" class="data-text">• Kolejka</text>
+    <text x="590" y="540" class="data-text">• Produkcja</text>
+
+    <!-- Production Module -->
+    <rect x="750" y="460" width="150" height="80" class="data-box" />
+    <text x="825" y="480" text-anchor="middle" class="data-text">Production</text>
+    <text x="760" y="500" class="data-text">• Montaż</text>
+    <text x="760" y="520" class="data-text">• Kontrola</text>
+    <text x="760" y="540" class="data-text">• Pakowanie</text>
+
+    <!-- Logistics Module -->
+    <rect x="920" y="460" width="150" height="80" class="data-box" />
+    <text x="995" y="480" text-anchor="middle" class="data-text">Logistics</text>
+    <text x="930" y="500" class="data-text">• Trasy</text>
+    <text x="930" y="520" class="data-text">• Dostawy</text>
+    <text x="930" y="540" class="data-text">• Status</text>
+
+    <!-- Calendar Module -->
+    <rect x="1090" y="460" width="150" height="80" class="data-box" />
+    <text x="1165" y="480" text-anchor="middle" class="data-text">Calendar</text>
+    <text x="1100" y="500" class="data-text">• Harmonogram</text>
+    <text x="1100" y="520" class="data-text">• Zadania</text>
+    <text x="1100" y="540" class="data-text">• Spotkania</text>
+
+    <!-- Dashboard Module -->
+    <rect x="1260" y="460" width="150" height="80" class="data-box" />
+    <text x="1335" y="480" text-anchor="middle" class="data-text">Dashboard</text>
+    <text x="1270" y="500" class="data-text">• KPI</text>
+    <text x="1270" y="520" class="data-text">• Raporty</text>
+    <text x="1270" y="540" class="data-text">• Monitoring</text>
+
+    <!-- Data Flow Section -->
+    <rect x="50" y="660" width="1450" height="200" class="process-box" />
+    <text x="775" y="680" text-anchor="middle" class="section-title">DATA FLOW</text>
+    
+    <!-- Frontend -->
+    <rect x="70" y="700" width="200" height="80" class="data-box" />
+    <text x="170" y="720" text-anchor="middle" class="data-text">Frontend (React)</text>
+    <text x="80" y="740" class="data-text">• Zustand Stores</text>
+    <text x="80" y="760" class="data-text">• TanStack Query</text>
+    <text x="80" y="780" class="data-text">• Ant Design UI</text>
+
+    <!-- API -->
+    <rect x="300" y="700" width="200" height="80" class="data-box" />
+    <text x="400" y="720" text-anchor="middle" class="data-text">API (Express.js)</text>
+    <text x="310" y="740" class="data-text">• REST Endpoints</text>
+    <text x="310" y="760" class="data-text">• Authentication</text>
+    <text x="310" y="780" class="data-text">• Validation</text>
+
+    <!-- Database -->
+    <rect x="530" y="700" width="200" height="80" class="data-box" />
+    <text x="630" y="720" text-anchor="middle" class="data-text">Database (PostgreSQL)</text>
+    <text x="540" y="740" class="data-text">• Tables</text>
+    <text x="540" y="760" class="data-text">• Relations</text>
+    <text x="540" y="780" class="data-text">• Indexes</text>
+
+    <!-- Speckle -->
+    <rect x="760" y="700" width="200" height="80" class="data-box" />
+    <text x="860" y="720" text-anchor="middle" class="data-text">Speckle</text>
+    <text x="770" y="740" class="data-text">• 3D Models</text>
+    <text x="770" y="760" class="data-text">• Geometry</text>
+    <text x="770" y="780" class="data-text">• Sync</text>
+
+    <!-- Docker -->
+    <rect x="990" y="700" width="200" height="80" class="data-box" />
+    <text x="1090" y="720" text-anchor="middle" class="data-text">Docker</text>
+    <text x="1000" y="740" class="data-text">• Containers</text>
+    <text x="1000" y="760" class="data-text">• Services</text>
+    <text x="1000" y="780" class="data-text">• Networking</text>
+
+    <!-- PWA -->
+    <rect x="1220" y="700" width="200" height="80" class="data-box" />
+    <text x="1320" y="720" text-anchor="middle" class="data-text">PWA</text>
+    <text x="1230" y="740" class="data-text">• Service Worker</text>
+    <text x="1230" y="760" class="data-text">• Offline</text>
+    <text x="1230" y="780" class="data-text">• Notifications</text>
+
+    <!-- Arrows between data flow -->
+    <line x1="270" y1="740" x2="300" y2="740" class="arrow" />
+    <line x1="500" y1="740" x2="530" y2="740" class="arrow" />
+    <line x1="730" y1="740" x2="760" y2="740" class="arrow" />
+    <line x1="960" y1="740" x2="990" y2="740" class="arrow" />
+    <line x1="1190" y1="740" x2="1220" y2="740" class="arrow" />
+
+    <!-- Technology Stack Section -->
+    <rect x="50" y="900" width="1450" height="200" class="process-box" />
+    <text x="775" y="920" text-anchor="middle" class="section-title">TECHNOLOGY STACK</text>
+    
+    <!-- Frontend Tech -->
+    <rect x="70" y="940" width="300" height="120" class="data-box" />
+    <text x="220" y="960" text-anchor="middle" class="data-text">Frontend</text>
+    <text x="80" y="980" class="data-text">• React 18 + TypeScript</text>
+    <text x="80" y="1000" class="data-text">• Vite + Ant Design</text>
+    <text x="80" y="1020" class="data-text">• Zustand + TanStack Query</text>
+    <text x="80" y="1040" class="data-text">• React Router v7</text>
+
+    <!-- Backend Tech -->
+    <rect x="390" y="940" width="300" height="120" class="data-box" />
+    <text x="540" y="960" text-anchor="middle" class="data-text">Backend</text>
+    <text x="400" y="980" class="data-text">• Express.js + Node.js</text>
+    <text x="400" y="1000" class="data-text">• PostgreSQL + pg</text>
+    <text x="400" y="1020" class="data-text">• CORS + dotenv</text>
+    <text x="400" y="1040" class="data-text">• TypeScript</text>
+
+    <!-- Database Tech -->
+    <rect x="710" y="940" width="300" height="120" class="data-box" />
+    <text x="860" y="960" text-anchor="middle" class="data-text">Database</text>
+    <text x="720" y="980" class="data-text">• PostgreSQL 15</text>
+    <text x="720" y="1000" class="data-text">• Docker Compose</text>
+    <text x="720" y="1020" class="data-text">• Schema + Seed</text>
+    <text x="720" y="1040" class="data-text">• Relations + Indexes</text>
+
+    <!-- Integration Tech -->
+    <rect x="1030" y="940" width="300" height="120" class="data-box" />
+    <text x="1180" y="960" text-anchor="middle" class="data-text">Integration</text>
+    <text x="1040" y="980" class="data-text">• Speckle 3D</text>
+    <text x="1040" y="1000" class="data-text">• DXF Export</text>
+    <text x="1040" y="1020" class="data-text">• WebSocket</text>
+    <text x="1040" y="1040" class="data-text">• PWA</text>
+
+    <!-- Performance Section -->
+    <rect x="50" y="1140" width="1450" height="200" class="process-box" />
+    <text x="775" y="1160" text-anchor="middle" class="section-title">PERFORMANCE & QUALITY</text>
+    
+    <!-- Performance -->
+    <rect x="70" y="1180" width="300" height="120" class="data-box" />
+    <text x="220" y="1200" text-anchor="middle" class="data-text">Performance</text>
+    <text x="80" y="1220" class="data-text">• Code Splitting</text>
+    <text x="80" y="1240" class="data-text">• Lazy Loading</text>
+    <text x="80" y="1260" class="data-text">• Virtualization</text>
+    <text x="80" y="1280" class="data-text">• Image Optimization</text>
+
+    <!-- Quality -->
+    <rect x="390" y="1180" width="300" height="120" class="data-box" />
+    <text x="540" y="1200" text-anchor="middle" class="data-text">Quality</text>
+    <text x="400" y="1220" class="data-text">• TypeScript Strict</text>
+    <text x="400" y="1240" class="data-text">• ESLint + Prettier</text>
+    <text x="400" y="1260" class="data-text">• Zod Validation</text>
+    <text x="400" y="1280" class="data-text">• DOMPurify</text>
+
+    <!-- Testing -->
+    <rect x="710" y="1180" width="300" height="120" class="data-box" />
+    <text x="860" y="1200" text-anchor="middle" class="data-text">Testing</text>
+    <text x="720" y="1220" class="data-text">• Vitest + Testing Library</text>
+    <text x="720" y="1240" class="data-text">• Playwright E2E</text>
+    <text x="720" y="1260" class="data-text">• Smoke Tests</text>
+    <text x="720" y="1280" class="data-text">• Coverage</text>
+
+    <!-- Security -->
+    <rect x="1030" y="1180" width="300" height="120" class="data-box" />
+    <text x="1180" y="1200" text-anchor="middle" class="data-text">Security</text>
+    <text x="1040" y="1220" class="data-text">• RLS Policies</text>
+    <text x="1040" y="1240" class="data-text">• Input Validation</text>
+    <text x="1040" y="1260" class="data-text">• HTML Sanitization</text>
+    <text x="1040" y="1280" class="data-text">• Environment Variables</text>
+
+    <!-- Footer -->
+    <text x="1000" y="1400" text-anchor="middle" class="data-text">FabManage - System zarządzania produkcją z integracją CAD/Speckle</text>
+    <text x="1000" y="1420" text-anchor="middle" class="data-text">React 18 + TypeScript + Vite + Ant Design + Zustand + TanStack Query + Supabase</text>
+    <text x="1000" y="1440" text-anchor="middle" class="data-text">PWA z pełną konteneryzacją Docker</text>
+</svg>

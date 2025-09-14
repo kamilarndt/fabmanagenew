@@ -1,0 +1,39 @@
+:root {
+  --spacing-0: 0px;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-12: 48px;
+
+  --color-brand-primary: #1677ff;
+  --color-brand-primary-hover: #0958d9;
+
+  --color-status-planning: #1677ff;
+  --color-status-design: #722ed1;
+  --color-status-approved: #52c41a;
+  --color-status-cutting: #fa8c16;
+  --color-status-assembly: #13c2c2;
+  --color-status-ready: #52c41a;
+  --color-status-shipped: #8c8c8c;
+
+  --font-family-sans: "Inter", system-ui, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-base: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+  --color-brand-primary: #4096ff;
+  --color-background: #141414;
+  --color-surface: #262626;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a6a6a6;
+}

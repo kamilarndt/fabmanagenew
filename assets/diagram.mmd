@@ -1,0 +1,136 @@
+graph TD
+    %% CLIENTS & PROJECTS LAYER
+    Client[👤 CLIENT] --> Project[📋 PROJECT]
+    Project --> Pricing[💰 PRICING]
+    Project --> Concept[💡 CONCEPT] 
+    Project --> TechnicalDesign[📐 TECHNICAL DESIGN]
+    
+    %% TILES LAYER (Core Business Logic)
+    TechnicalDesign --> Tiles[🧩 TILES]
+    Tiles --> TileDesign[🎨 TILE DESIGN]
+    Tiles --> TileApproval[✅ TILE APPROVAL]
+    
+    %% MATERIALS LAYER
+    Tiles --> BOM[📊 BOM - Bill of Materials]
+    BOM --> MaterialReservation[🔒 MATERIAL RESERVATION]
+    BOM --> Inventory[📦 INVENTORY]
+    Inventory --> MaterialOrdering[🛒 MATERIAL ORDERING]
+    MaterialOrdering --> Suppliers[🏭 SUPPLIERS]
+    
+    %% CNC & PRODUCTION LAYER  
+    TileApproval --> DXFUpload[📁 DXF UPLOAD]
+    DXFUpload --> CNCEstimation[⏱️ CNC ESTIMATION]
+    CNCEstimation --> CNCQueue[🔄 CNC QUEUE]
+    CNCQueue --> CNCProduction[⚙️ CNC PRODUCTION]
+    
+    %% PRIORITY SYSTEM
+    Client --> ClientPriority[⭐ CLIENT PRIORITY]
+    Project --> ProjectDeadline[📅 PROJECT DEADLINE]
+    ClientPriority --> CNCQueue
+    ProjectDeadline --> CNCQueue
+    
+    %% ASSEMBLY & LOGISTICS
+    CNCProduction --> Assembly[🔧 ASSEMBLY]
+    MaterialReservation --> Assembly
+    Assembly --> QualityControl[✅ QUALITY CONTROL]
+    QualityControl --> PackingList[📋 PACKING LIST]
+    PackingList --> Transport[🚛 TRANSPORT]
+    Transport --> Installation[🏗️ INSTALLATION]
+    
+    %% SUBCONTRACTORS INTEGRATION
+    Assembly --> SubcontractorTasks[🤝 SUBCONTRACTOR TASKS]
+    Installation --> SubcontractorTasks
+    SubcontractorTasks --> Subcontractors[👷 SUBCONTRACTORS]
+    
+    %% CALENDAR & SCHEDULING
+    Project --> Calendar[📅 CALENDAR]
+    CNCQueue --> Calendar
+    Transport --> Calendar
+    Installation --> Calendar
+    
+    %% DASHBOARD & MONITORING
+    Project --> Dashboard[📊 DASHBOARD]
+    Tiles --> Dashboard  
+    Inventory --> Dashboard
+    CNCQueue --> Dashboard
+    
+    %% REALTIME UPDATES
+    Tiles --> RealtimeUpdates[🔄 REALTIME UPDATES]
+    Inventory --> RealtimeUpdates
+    CNCQueue --> RealtimeUpdates
+    Transport --> RealtimeUpdates
+    
+    %% BUSINESS INTELLIGENCE
+    Dashboard --> ProjectProfitability[💹 PROJECT PROFITABILITY]
+    Dashboard --> ResourceUtilization[📈 RESOURCE UTILIZATION] 
+    Dashboard --> InventoryAlerts[🚨 INVENTORY ALERTS]
+    
+    %% STATUS FLOW FOR TILES (Most Important!)
+    Tiles --> StatusPlanning[📋 Planning]
+    StatusPlanning --> StatusDesign[🎨 Design]  
+    StatusDesign --> StatusApproved[✅ Approved]
+    StatusApproved --> StatusCutting[✂️ Cutting]
+    StatusCutting --> StatusAssembly[🔧 Assembly]
+    StatusAssembly --> StatusReady[✅ Ready]
+    StatusReady --> StatusShipped[📦 Shipped]
+    
+    %% DATA LAYER
+    subgraph "💾 SUPABASE DATABASE"
+        ProjectsTable[(Projects Table)]
+        TilesTable[(Tiles Table)]
+        MaterialsTable[(Materials Table)]
+        InventoryTable[(Inventory Table)]
+        CNCQueueTable[(CNC Queue Table)]
+        LogisticsTable[(Logistics Table)]
+        ClientsTable[(Clients Table)]
+    end
+    
+    %% RLS SECURITY
+    subgraph "🔐 ROW LEVEL SECURITY"
+        UserAuth[👤 User Authentication]
+        ProjectMembership[📋 Project Membership]
+        RolePermissions[🔑 Role Permissions]
+    end
+    
+    %% FRONTEND MODULES
+    subgraph "⚛️ REACT MODULES"
+        ProjectsModule[📋 Projects Module]
+        TilesModule[🧩 Tiles Module] 
+        MaterialsModule[📦 Materials Module]
+        CNCModule[⚙️ CNC Module]
+        LogisticsModule[🚛 Logistics Module]
+        DashboardModule[📊 Dashboard Module]
+    end
+    
+    %% UI COMPONENTS
+    subgraph "🎨 UI COMPONENTS"
+        KanbanBoard[📋 Kanban Board]
+        GanttChart[📅 Gantt Chart] 
+        EntityTable[📊 Entity Table]
+        StatusBadges[🏷️ Status Badges]
+    end
+    
+    %% REAL-TIME FEATURES
+    subgraph "🔄 REALTIME FEATURES"
+        TileStatusUpdates[🧩 Tile Status Changes]
+        InventoryChanges[📦 Inventory Changes] 
+        CNCQueueUpdates[⚙️ CNC Queue Updates]
+        LogisticsTracking[🚛 Logistics Tracking]
+    end
+    
+    %% STYLING
+    classDef clientLayer fill:#e1f5fe
+    classDef projectLayer fill:#f3e5f5
+    classDef tilesLayer fill:#e8f5e8
+    classDef materialLayer fill:#fff3e0
+    classDef cncLayer fill:#fce4ec
+    classDef logisticsLayer fill:#f1f8e9
+    classDef systemLayer fill:#f5f5f5
+    
+    class Client,ClientPriority clientLayer
+    class Project,Pricing,Concept,TechnicalDesign,ProjectDeadline projectLayer
+    class Tiles,TileDesign,TileApproval,StatusPlanning,StatusDesign,StatusApproved,StatusCutting,StatusAssembly,StatusReady,StatusShipped tilesLayer
+    class BOM,MaterialReservation,Inventory,MaterialOrdering,Suppliers materialLayer
+    class DXFUpload,CNCEstimation,CNCQueue,CNCProduction cncLayer
+    class Assembly,PackingList,Transport,Installation logisticsLayer
+    class Dashboard,Calendar,RealtimeUpdates systemLayer

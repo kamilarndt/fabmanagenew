@@ -1,0 +1,95 @@
+graph TD
+    subgraph "Strony (src/pages)"
+        P1[SingleProjectPage.tsx]
+        P2[ProjectsPage.tsx]
+        P3[WarehousePage.tsx]
+    end
+
+    subgraph "Moduły Biznesowe (src/modules)"
+        
+        subgraph "projects (src/modules/projects)"
+            MV1[views/ProjectsList.tsx]
+            MV2[views/ProjectOverview.tsx]
+            
+            O1[components/ProjectCard.tsx]
+            O2[components/ProjectHeader.tsx]
+            O3[components/ProjectTabs.tsx]
+        end
+
+        subgraph "materials (src/modules/materials)"
+            MV3[views/WarehouseView.tsx]
+            
+            O4[components/MaterialCard.tsx]
+            O5[components/CategorySidebar.tsx]
+        end
+
+    end
+
+    subgraph "Biblioteka Komponentów (src/components)"
+        
+        subgraph "shared (Molekuły, src/components/shared)"
+            M1[PageHeader.tsx]
+            M2[SearchInput.tsx]
+            M3[StatCard.tsx]
+            M4[EntityTable.tsx]
+            M5[SlideOver.tsx]
+        end
+        
+        subgraph "layouts (src/components/layouts)"
+            L1[PageLayout.tsx]
+            L2[BrandedSidebar.tsx]
+            L3[ResizableLayout.tsx]
+        end
+
+        subgraph "ui (Atomy, src/components/ui)"
+            A1[AppButton.tsx]
+            A2[AppInput.tsx]
+            A3[Typography.tsx]
+            A4[Icon.tsx]
+            A5[StatusBadge.tsx]
+            A6[AppDivider.tsx]
+        end
+    end
+
+    %% --- Połączenia (Zależności) ---
+
+    %% Strony składają się z Layoutów i Widoków Modułów
+    P1 --> L1 & L2
+    P1 --> O2 & O3
+
+    P2 --> L1 & L2
+    P2 --> MV1
+
+    P3 --> L2 & L3
+
+    %% Layouty wykorzystują inne layouty lub są samodzielne
+    L3 --> O5
+    L3 --> MV3
+
+    %% Widoki Modułów składają się z Organizmów
+    MV1 --> M1
+    MV1 --> O1
+
+    %% Organizmy składają się z Molekuł i Atomów
+    O1 --> A3 & A5
+    O2 --> M3 & A1
+    O3 --> MV2
+    O4 --> A3 & A1
+    
+    %% Molekuły składają się z Atomów
+    M1 --> A3 & A1
+    M2 --> A2 & A4
+    M3 --> A4 & A3
+    
+    classDef page fill:#e6f7ff,stroke:#91d5ff,stroke-width:2px;
+    classDef module fill:#f6ffed,stroke:#b7eb8f,stroke-width:2px;
+    classDef organism fill:#fffbe6,stroke:#ffe58f,stroke-width:2px;
+    classDef shared fill:#e6fffb,stroke:#87e8de,stroke-width:2px;
+    classDef atom fill:#f0f0f0,stroke:#d9d9d9,stroke-width:2px;
+
+    class P1,P2,P3 page;
+    class MV1,MV2,MV3 module;
+    class O1,O2,O3,O4,O5 organism;
+    class M1,M2,M3,M4,M5,L1,L2,L3 shared;
+    class A1,A2,A3,A4,A5,A6 atom;
+

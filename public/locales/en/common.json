@@ -1,0 +1,37 @@
+{
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "export": "Export",
+    "import": "Import",
+    "refresh": "Refresh",
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode"
+  },
+  "status": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Operation completed successfully",
+    "noData": "No data"
+  },
+  "fields": {
+    "name": "Name",
+    "description": "Description",
+    "date": "Date",
+    "status": "Status",
+    "priority": "Priority",
+    "quantity": "Quantity",
+    "price": "Price"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "materials": "Materials",
+    "production": "Production",
+    "clients": "Clients"
+  }
+}

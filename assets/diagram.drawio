@@ -1,0 +1,415 @@
+<mxfile host="65bd71144e">
+    <diagram id="FabManageDB" name="FabManage DB">
+        <mxGraphModel dx="5500" dy="3452" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2970" pageHeight="2100" background="#ffffff" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="g_clients" value="clients" style="swimlane;horizontal=1;rounded=1;strokeColor=#1A73E8;fillColor=#e8f0fe;collapsible=0;startSize=28;childLayout=stackLayout;" parent="1" vertex="1">
+                    <mxGeometry x="440" y="-460" width="420" height="240" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_clients_1111" value="clients: 1111..1111" style="group;rounded=1;strokeColor=#1A73E8;" vertex="1" parent="g_clients">
+                    <mxGeometry y="28" width="390" height="212" as="geometry"/>
+                </mxCell>
+                <mxCell id="clients_1111_id" value="id=1111..1111" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_clients_1111">
+                    <mxGeometry x="10" y="10" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="clients_1111_name" value="name=ACME Sp. z o.o." style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_clients_1111">
+                    <mxGeometry x="10" y="46" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="clients_1111_email" value="email=contact@acme.pl" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_clients_1111">
+                    <mxGeometry x="10" y="82" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="clients_1111_phone" value="phone=+48 111 111 111" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_clients_1111">
+                    <mxGeometry x="10" y="118" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="clients_1111_created_at" value="created_at=now()" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_clients_1111">
+                    <mxGeometry x="10" y="154" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="g_projects" value="projects" style="swimlane;horizontal=1;rounded=1;strokeColor=#1A73E8;fillColor=#e8f0fe;collapsible=0;startSize=28;childLayout=stackLayout;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="-140" width="420" height="280" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_projects_2222" value="projects: 2222..2222" style="group;rounded=1;strokeColor=#1A73E8;" vertex="1" parent="g_projects">
+                    <mxGeometry y="28" width="390" height="252" as="geometry"/>
+                </mxCell>
+                <mxCell id="projects_2222_id" value="id=2222..2222" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_projects_2222">
+                    <mxGeometry x="10" y="32" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="projects_2222_client_id" value="client_id=1111..1111" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_projects_2222">
+                    <mxGeometry x="10" y="64" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="projects_2222_name" value="name=Stoisko Targi 2025" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_projects_2222">
+                    <mxGeometry x="10" y="100" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="projects_2222_status" value="status=active" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_projects_2222">
+                    <mxGeometry x="10" y="136" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="projects_2222_deadline" value="deadline=2025-12-15" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_projects_2222">
+                    <mxGeometry x="10" y="172" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="projects_2222_created_at" value="created_at=now()" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_projects_2222">
+                    <mxGeometry x="10" y="208" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="g_tiles" value="tiles" style="swimlane;horizontal=1;rounded=1;strokeColor=#1A73E8;fillColor=#e8f0fe;collapsible=0;startSize=28;childLayout=stackLayout;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="-390" width="780" height="340" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_tiles_4441" value="tiles: 4441..4441" style="group;rounded=1;strokeColor=#1A73E8;" vertex="1" parent="g_tiles">
+                    <mxGeometry y="28" width="390" height="312" as="geometry"/>
+                </mxCell>
+                <mxCell id="tiles_4441_id" value="id=4441..4441" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tiles_4441">
+                    <mxGeometry x="10" y="10" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="tiles_4441_project_id" value="project_id=2222..2222" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tiles_4441">
+                    <mxGeometry x="10" y="46" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="tiles_4441_name" value="name=Lada recepcyjna" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tiles_4441">
+                    <mxGeometry x="10" y="82" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="tiles_4441_status" value="status=designing" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tiles_4441">
+                    <mxGeometry x="10" y="118" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="tiles_4441_priority" value="priority=10" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tiles_4441">
+                    <mxGeometry x="10" y="154" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="tiles_4441_created_at" value="created_at=now()" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tiles_4441">
+                    <mxGeometry x="10" y="190" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_tiles_4442" value="tiles: 4442..4442" style="group;rounded=1;strokeColor=#1A73E8;" vertex="1" parent="g_tiles">
+                    <mxGeometry x="390" y="28" width="390" height="312" as="geometry"/>
+                </mxCell>
+                <mxCell id="tiles_4442_id" value="id=4442..4442" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tiles_4442">
+                    <mxGeometry x="10" y="10" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="tiles_4442_project_id" value="project_id=2222..2222" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tiles_4442">
+                    <mxGeometry x="10" y="46" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="tiles_4442_name" value="name=Panel ścienny A" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tiles_4442">
+                    <mxGeometry x="10" y="82" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="tiles_4442_status" value="status=approved" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tiles_4442">
+                    <mxGeometry x="10" y="118" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="tiles_4442_priority" value="priority=20" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tiles_4442">
+                    <mxGeometry x="10" y="154" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="tiles_4442_created_at" value="created_at=now()" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tiles_4442">
+                    <mxGeometry x="10" y="190" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="Z48WxC-ysLT3DYem_QHd-1" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;elbow=vertical;curved=1;" edge="1" parent="g_tiles">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="g_materials" value="materials" style="swimlane;horizontal=1;rounded=1;strokeColor=#1A73E8;fillColor=#e8f0fe;collapsible=0;startSize=28;childLayout=stackLayout;" parent="1" vertex="1">
+                    <mxGeometry x="2190" y="-310" width="780" height="340" as="geometry"/>
+                </mxCell>
+                <mxCell id="Z48WxC-ysLT3DYem_QHd-3" style="edgeStyle=none;html=1;" edge="1" parent="g_materials" target="g_materials">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_materials_3331" value="materials: 3331..3331" style="group;rounded=1;strokeColor=#1A73E8;" vertex="1" parent="g_materials">
+                    <mxGeometry y="28" width="390" height="312" as="geometry"/>
+                </mxCell>
+                <mxCell id="materials_3331_id" value="id=3331..3331" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_materials_3331">
+                    <mxGeometry x="10" y="10" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="materials_3331_code" value="code=PLY/PLYWOOD/18" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_materials_3331">
+                    <mxGeometry x="10" y="46" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="materials_3331_name" value="name=Sklejka 18mm" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_materials_3331">
+                    <mxGeometry x="10" y="82" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="materials_3331_unit" value="unit=szt" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_materials_3331">
+                    <mxGeometry x="10" y="118" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_materials_3332" value="materials: 3332..3332" style="group;rounded=1;strokeColor=#1A73E8;" vertex="1" parent="g_materials">
+                    <mxGeometry x="390" y="28" width="390" height="312" as="geometry"/>
+                </mxCell>
+                <mxCell id="materials_3332_id" value="id=3332..3332" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_materials_3332">
+                    <mxGeometry x="10" y="18" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="materials_3332_code" value="code=MDF/16" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_materials_3332">
+                    <mxGeometry x="10" y="46" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="materials_3332_name" value="name=MDF 16mm" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_materials_3332">
+                    <mxGeometry x="10" y="82" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="materials_3332_unit" value="unit=szt" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_materials_3332">
+                    <mxGeometry x="10" y="118" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="materials_3332_unit_cost" value="unit_cost=90.00" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_materials_3332">
+                    <mxGeometry x="10" y="154" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="materials_3332_stock" value="stock=150" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_materials_3332">
+                    <mxGeometry x="10" y="190" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="materials_3332_location" value="location=Magazyn B" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_materials_3332">
+                    <mxGeometry x="10" y="226" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="Z48WxC-ysLT3DYem_QHd-2" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;strokeColor=default;curved=1;" edge="1" parent="1" source="g_tile_materials">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1469.999999999999" y="470" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="1478" y="50"/>
+                            <mxPoint x="1780" y="50"/>
+                            <mxPoint x="1780" y="425"/>
+                            <mxPoint x="1471" y="425"/>
+                            <mxPoint x="1471" y="470"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="g_tile_materials" value="tile_materials" style="swimlane;horizontal=1;rounded=1;strokeColor=#1A73E8;fillColor=#e8f0fe;collapsible=0;startSize=28;childLayout=stackLayout;" parent="1" vertex="1">
+                    <mxGeometry x="600" y="60" width="1170" height="320" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_tm_1" value="tile_materials: tm1" style="group;rounded=1;strokeColor=#1A73E8;" parent="g_tile_materials" vertex="1">
+                    <mxGeometry y="28" width="390" height="292" as="geometry"/>
+                </mxCell>
+                <mxCell id="tm1_tile_id" value="tile_id=4441..4441" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tm_1">
+                    <mxGeometry x="10" y="10" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="tm1_material_id" value="material_id=3331..3331" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tm_1">
+                    <mxGeometry x="10" y="46" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="tm1_quantity" value="quantity=8.000" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tm_1">
+                    <mxGeometry x="10" y="82" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_tm_2" value="tile_materials: tm2" style="group;rounded=1;strokeColor=#1A73E8;" parent="g_tile_materials" vertex="1">
+                    <mxGeometry x="390" y="28" width="390" height="292" as="geometry"/>
+                </mxCell>
+                <mxCell id="tm2_tile_id" value="tile_id=4441..4441" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tm_2">
+                    <mxGeometry x="10" y="10" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="tm2_material_id" value="material_id=3332..3332" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tm_2">
+                    <mxGeometry x="10" y="46" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="tm2_quantity" value="quantity=4.000" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tm_2">
+                    <mxGeometry x="10" y="82" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_tm_3" value="tile_materials: tm3" style="group;rounded=1;strokeColor=#1A73E8;" parent="g_tile_materials" vertex="1">
+                    <mxGeometry x="780" y="28" width="390" height="292" as="geometry"/>
+                </mxCell>
+                <mxCell id="tm3_tile_id" value="tile_id=4442..4442" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tm_3">
+                    <mxGeometry x="10" y="10" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="tm3_material_id" value="material_id=3331..3331" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tm_3">
+                    <mxGeometry x="10" y="46" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="tm3_quantity" value="quantity=6.000" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_tm_3">
+                    <mxGeometry x="10" y="82" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_projects_client_fk" value="FK projects.client_id -&gt; clients.id" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=default;labelBackgroundColor=#ffffff;curved=1;" edge="1" parent="1" source="projects_2222_client_id" target="clients_1111_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_tiles_proj_fk1" value="FK tiles.project_id -&gt; projects.id" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=default;labelBackgroundColor=#ffffff;curved=1;" edge="1" parent="1" source="tiles_4441_project_id" target="projects_2222_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_tiles_proj_fk2" value="FK tiles.project_id -&gt; projects.id" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=default;labelBackgroundColor=#ffffff;curved=1;" edge="1" parent="1" source="tiles_4442_project_id" target="projects_2222_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_tm_tile_fk1" value="FK tile_materials.tile_id -&gt; tiles.id" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=default;labelBackgroundColor=#ffffff;curved=1;" edge="1" parent="1" source="tm1_tile_id" target="tiles_4441_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_tm_mat_fk1" value="FK tile_materials.material_id -&gt; materials.id" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=default;labelBackgroundColor=#ffffff;curved=1;" edge="1" parent="1" source="tm1_material_id" target="materials_3331_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_tm_tile_fk2" value="FK tile_materials.tile_id -&gt; tiles.id" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=default;labelBackgroundColor=#ffffff;curved=1;" edge="1" parent="1" source="tm2_tile_id" target="tiles_4441_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_tm_mat_fk2" value="FK tile_materials.material_id -&gt; materials.id" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=default;labelBackgroundColor=#ffffff;curved=1;" edge="1" parent="1" source="tm2_material_id" target="materials_3332_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_tm_tile_fk3" value="FK tile_materials.tile_id -&gt; tiles.id" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=default;labelBackgroundColor=#ffffff;curved=1;" edge="1" parent="1" source="tm3_tile_id" target="tiles_4442_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_tm_mat_fk3" value="FK tile_materials.material_id -&gt; materials.id" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=default;labelBackgroundColor=#ffffff;curved=1;" edge="1" parent="1" source="tm3_material_id" target="materials_3331_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="g_schedule_tasks" value="schedule_tasks" style="swimlane;horizontal=1;rounded=1;strokeColor=#1A73E8;fillColor=#e8f0fe;collapsible=0;startSize=28;childLayout=stackLayout;" vertex="1" parent="1">
+                    <mxGeometry x="-810" y="890" width="780" height="320" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_sched_551" value="schedule_tasks: 5551..5551" style="group;rounded=1;strokeColor=#1A73E8;" vertex="1" parent="g_schedule_tasks">
+                    <mxGeometry y="28" width="390" height="292" as="geometry"/>
+                </mxCell>
+                <mxCell id="sched_551_id" value="id=5551..5551" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_sched_551">
+                    <mxGeometry x="10" y="10" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="sched_551_project_id" value="project_id=2222..2222" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_sched_551">
+                    <mxGeometry x="10" y="46" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="sched_551_name" value="name=Kickoff" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_sched_551">
+                    <mxGeometry x="10" y="82" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="sched_551_start_at" value="start_at=2025-09-15" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_sched_551">
+                    <mxGeometry x="10" y="118" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="sched_551_end_at" value="end_at=2025-09-15" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_sched_551">
+                    <mxGeometry x="10" y="154" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_sched_552" value="schedule_tasks: 5552..5552" style="group;rounded=1;strokeColor=#1A73E8;" vertex="1" parent="g_schedule_tasks">
+                    <mxGeometry x="390" y="28" width="390" height="292" as="geometry"/>
+                </mxCell>
+                <mxCell id="sched_552_id" value="id=5552..5552" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_sched_552">
+                    <mxGeometry x="10" y="10" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="sched_552_project_id" value="project_id=2222..2222" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_sched_552">
+                    <mxGeometry x="10" y="46" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="sched_552_name" value="name=Montaż" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_sched_552">
+                    <mxGeometry x="10" y="82" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="sched_552_start_at" value="start_at=2025-12-10" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_sched_552">
+                    <mxGeometry x="10" y="118" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="sched_552_end_at" value="end_at=2025-12-14" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_sched_552">
+                    <mxGeometry x="10" y="154" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_sched2_proj_fk" value="FK schedule_tasks.project_id -&gt; projects.id" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=default;labelBackgroundColor=#ffffff;curved=1;" edge="1" parent="1" source="sched_552_project_id" target="projects_2222_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="g_design_tasks" value="design_tasks" style="swimlane;horizontal=1;rounded=1;strokeColor=#1A73E8;fillColor=#e8f0fe;collapsible=0;startSize=28;childLayout=stackLayout;" vertex="1" parent="1">
+                    <mxGeometry x="1730" y="-830" width="780" height="360" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_design_661" value="design_tasks: 6661..6661" style="group;rounded=1;strokeColor=#1A73E8;" vertex="1" parent="g_design_tasks">
+                    <mxGeometry y="28" width="390" height="332" as="geometry"/>
+                </mxCell>
+                <mxCell id="design_661_id" value="id=6661..6661" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_design_661">
+                    <mxGeometry x="10" y="10" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="design_661_tile_id" value="tile_id=4441..4441" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_design_661">
+                    <mxGeometry x="10" y="46" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="design_661_name" value="name=Model 3D Lada" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_design_661">
+                    <mxGeometry x="10" y="82" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="design_661_status" value="status=in_progress" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_design_661">
+                    <mxGeometry x="10" y="118" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="design_661_assignee" value="assignee=Anna" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_design_661">
+                    <mxGeometry x="10" y="154" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="design_661_planned_hours" value="planned_hours=12" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_design_661">
+                    <mxGeometry x="10" y="190" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_design_662" value="design_tasks: 6662..6662" style="group;rounded=1;strokeColor=#1A73E8;" vertex="1" parent="g_design_tasks">
+                    <mxGeometry x="390" y="28" width="390" height="332" as="geometry"/>
+                </mxCell>
+                <mxCell id="design_662_id" value="id=6662..6662" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_design_662">
+                    <mxGeometry x="10" y="10" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="design_662_tile_id" value="tile_id=4442..4442" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_design_662">
+                    <mxGeometry x="10" y="46" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="design_662_name" value="name=Rysunki Panel A" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_design_662">
+                    <mxGeometry x="10" y="82" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="design_662_status" value="status=planned" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_design_662">
+                    <mxGeometry x="10" y="118" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="design_662_assignee" value="assignee=Marek" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_design_662">
+                    <mxGeometry x="10" y="154" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="design_662_planned_hours" value="planned_hours=8" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_design_662">
+                    <mxGeometry x="10" y="190" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_design1_tile_fk" value="FK design_tasks.tile_id -&gt; tiles.id" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=default;labelBackgroundColor=#ffffff;curved=1;" edge="1" parent="1" source="design_661_tile_id" target="tiles_4441_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_design2_tile_fk" value="FK design_tasks.tile_id -&gt; tiles.id" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=default;labelBackgroundColor=#ffffff;curved=1;" edge="1" parent="1" source="design_662_tile_id" target="tiles_4442_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="g_cnc_tasks" value="cnc_tasks" style="swimlane;horizontal=1;rounded=1;strokeColor=#1A73E8;fillColor=#e8f0fe;collapsible=0;startSize=28;childLayout=stackLayout;" vertex="1" parent="1">
+                    <mxGeometry x="1960" y="730" width="420" height="320" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_cnc_771" value="cnc_tasks: 7771..7771" style="group;rounded=1;strokeColor=#1A73E8;" vertex="1" parent="g_cnc_tasks">
+                    <mxGeometry y="28" width="390" height="292" as="geometry"/>
+                </mxCell>
+                <mxCell id="cnc_771_id" value="id=7771..7771" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_cnc_771">
+                    <mxGeometry x="10" y="10" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="cnc_771_tile_id" value="tile_id=4442..4442" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_cnc_771">
+                    <mxGeometry x="10" y="46" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="cnc_771_machine" value="machine=EVO-1" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_cnc_771">
+                    <mxGeometry x="10" y="82" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="cnc_771_estimated_minutes" value="estimated_minutes=90" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_cnc_771">
+                    <mxGeometry x="10" y="118" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="cnc_771_status" value="status=queued" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_cnc_771">
+                    <mxGeometry x="10" y="154" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_cnc_tile_fk" value="FK cnc_tasks.tile_id -&gt; tiles.id" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=default;labelBackgroundColor=#ffffff;curved=1;" edge="1" parent="1" source="cnc_771_tile_id" target="tiles_4442_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="g_production_tasks" value="production_tasks" style="swimlane;horizontal=1;rounded=1;strokeColor=#1A73E8;fillColor=#e8f0fe;collapsible=0;startSize=28;childLayout=stackLayout;" vertex="1" parent="1">
+                    <mxGeometry x="930" y="760" width="420" height="320" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_prod_881" value="production_tasks: 8881..8881" style="group;rounded=1;strokeColor=#1A73E8;" vertex="1" parent="g_production_tasks">
+                    <mxGeometry y="28" width="390" height="292" as="geometry"/>
+                </mxCell>
+                <mxCell id="prod_881_id" value="id=8881..8881" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_prod_881">
+                    <mxGeometry x="10" y="10" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="prod_881_tile_id" value="tile_id=4441..4441" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_prod_881">
+                    <mxGeometry x="10" y="46" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="prod_881_station" value="station=Lakiernia" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_prod_881">
+                    <mxGeometry x="10" y="82" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="prod_881_status" value="status=planned" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_prod_881">
+                    <mxGeometry x="10" y="118" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_prod_tile_fk" value="FK production_tasks.tile_id -&gt; tiles.id" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=default;labelBackgroundColor=#ffffff;curved=1;" edge="1" parent="1" source="prod_881_tile_id" target="tiles_4441_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="g_logistics_routes" value="logistics_routes" style="swimlane;horizontal=1;rounded=1;strokeColor=#1A73E8;fillColor=#e8f0fe;collapsible=0;startSize=28;childLayout=stackLayout;" vertex="1" parent="1">
+                    <mxGeometry x="330" y="530" width="420" height="360" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_log_991" value="logistics_routes: 9991..9991" style="group;rounded=1;strokeColor=#1A73E8;" vertex="1" parent="g_logistics_routes">
+                    <mxGeometry y="28" width="390" height="332" as="geometry"/>
+                </mxCell>
+                <mxCell id="log_991_id" value="id=9991..9991" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_log_991">
+                    <mxGeometry x="10" y="10" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="log_991_project_id" value="project_id=2222..2222" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_log_991">
+                    <mxGeometry x="10" y="46" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="log_991_from_location" value="from_location=Magazyn A" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_log_991">
+                    <mxGeometry x="10" y="82" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="log_991_to_location" value="to_location=MT Polska, Warszawa" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_log_991">
+                    <mxGeometry x="10" y="118" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="log_991_planned_date" value="planned_date=2025-12-12" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_log_991">
+                    <mxGeometry x="10" y="154" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="log_991_status" value="status=planned" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_log_991">
+                    <mxGeometry x="10" y="190" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_log_proj_fk" value="FK logistics_routes.project_id -&gt; projects.id" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=default;labelBackgroundColor=#ffffff;curved=1;" edge="1" parent="1" source="log_991_project_id" target="projects_2222_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="g_packing_lists" value="packing_lists" style="swimlane;horizontal=1;rounded=1;strokeColor=#1A73E8;fillColor=#e8f0fe;collapsible=0;startSize=28;childLayout=stackLayout;" vertex="1" parent="1">
+                    <mxGeometry x="-990" y="460" width="420" height="320" as="geometry"/>
+                </mxCell>
+                <mxCell id="rec_pack_a1" value="packing_lists: aaaa..aaa1" style="group;rounded=1;strokeColor=#1A73E8;" vertex="1" parent="g_packing_lists">
+                    <mxGeometry y="28" width="390" height="292" as="geometry"/>
+                </mxCell>
+                <mxCell id="pack_a1_id" value="id=aaaa..aaa1" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_pack_a1">
+                    <mxGeometry x="10" y="10" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="pack_a1_project_id" value="project_id=2222..2222" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_pack_a1">
+                    <mxGeometry x="10" y="46" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="pack_a1_item_name" value="item_name=Lada recepcyjna – elementy" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_pack_a1">
+                    <mxGeometry x="10" y="82" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="pack_a1_quantity" value="quantity=10.000" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_pack_a1">
+                    <mxGeometry x="10" y="118" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="pack_a1_unit" value="unit=szt" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1A73E8;fillColor=#fff;" vertex="1" parent="rec_pack_a1">
+                    <mxGeometry x="10" y="154" width="370" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_pack_proj_fk" value="FK packing_lists.project_id -&gt; projects.id" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=default;labelBackgroundColor=#ffffff;curved=1;" edge="1" parent="1" source="pack_a1_project_id" target="projects_2222_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
