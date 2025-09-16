@@ -3,23 +3,24 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import EditProjectModal from "../components/EditProjectModal";
 import TileEditDrawer from "../components/Tiles/tile-edit-drawer";
 import { showToast } from "../lib/notifications";
+import EditProjectModal from "../modules/projects/components/EditProjectModal";
 import { useProjectsStore } from "../stores/projectsStore";
 import { useTilesStore, type Tile } from "../stores/tilesStore";
 import type { Project } from "../types/projects.types";
-// import { buildGanttTasks } from '../lib/gantt' // Unused for now
 
 // New modular components
 import CreateGroupModal from "../components/Groups/CreateGroupModal";
 import AddMemberModal from "../components/Modals/AddMemberModal";
 import SelectSpeckleModelModal from "../components/Modals/SelectSpeckleModelModal";
-import ProjectElements from "../components/Project/ProjectElements";
-import ProjectHeader from "../components/Project/ProjectHeader";
-import ProjectMaterials from "../components/Project/ProjectMaterials";
-import ProjectOverview from "../components/Project/ProjectOverview";
-import ProjectTabs, { type TabId } from "../components/Project/ProjectTabs";
+import ProjectElements from "../modules/projects/components/ProjectElements";
+import ProjectHeader from "../modules/projects/components/ProjectHeader";
+import ProjectMaterials from "../modules/projects/components/ProjectMaterials";
+import ProjectOverview from "../modules/projects/components/ProjectOverview";
+import ProjectTabs, {
+  type TabId,
+} from "../modules/projects/components/ProjectTabs";
 
 // Hooks
 import { useProjectData } from "../hooks/useProjectData";
@@ -321,7 +322,14 @@ export default function Projekt() {
       <div>
         {/* Project Header */}
         <ProjectHeader
-          project={project}
+          project={{
+            ...project,
+            priority: "medium",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            status: project.status === "done" ? "completed" : project.status,
+            modules: [],
+          }}
           teamMembers={teamMembers}
           onEditProject={() => setShowEditProject(true)}
           onAddMember={() => setShowAddMember(true)}
@@ -331,7 +339,14 @@ export default function Projekt() {
         <ProjectTabs
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          project={project}
+          project={{
+            ...project,
+            priority: "medium",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            status: project.status === "done" ? "completed" : project.status,
+            modules: [],
+          }}
         />
 
         {/* Tab Content */}
@@ -352,7 +367,15 @@ export default function Projekt() {
           </Card>
           {activeTab === "overview" && (
             <ProjectOverview
-              project={project}
+              project={{
+                ...project,
+                priority: "medium",
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                status:
+                  project.status === "done" ? "completed" : project.status,
+                modules: [],
+              }}
               comments={comments}
               documents={documents}
               teamMembers={teamMembers}
@@ -362,7 +385,15 @@ export default function Projekt() {
 
           {activeTab === "elementy" && (
             <ProjectElements
-              project={project}
+              project={{
+                ...project,
+                priority: "medium",
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                status:
+                  project.status === "done" ? "completed" : project.status,
+                modules: [],
+              }}
               projectTiles={projectTiles}
               tileCosts={tileCosts}
               onTileUpdate={handleTileUpdate}
@@ -393,7 +424,7 @@ export default function Projekt() {
 
           {activeTab === "wycena" && (
             <Suspense fallback={<ModuleLoading />}>
-              <EstimateModule projectId={project.id} />
+              <EstimateModule project={project} />
             </Suspense>
           )}
 
@@ -455,9 +486,11 @@ export default function Projekt() {
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                     {/* Zbiorczy model z elementów projektu (jeśli kafelki mają linki) */}
                     <LazySpeckleViewer
-                      initialStreamUrl={projectTiles
-                        .map((t) => t.link_model_3d!)
-                        .filter(Boolean)}
+                      initialStreamUrl={
+                        projectTiles
+                          .map((t) => t.link_model_3d!)
+                          .filter(Boolean)[0] || ""
+                      }
                       height={500}
                       loadingText="Ładowanie modeli 3D elementów..."
                     />
@@ -468,7 +501,7 @@ export default function Projekt() {
           )}
           <SelectSpeckleModelModal
             open={showSelectModel}
-            onClose={() => setShowSelectModel(false)}
+            onCancel={() => setShowSelectModel(false)}
             onSelect={async (url) => {
               try {
                 const { useProjectsStore } = await import(
@@ -486,8 +519,8 @@ export default function Projekt() {
 
           {activeTab === "harmonogram" && (
             <ProjectGanttChart
-              projectId={project.id}
-              tiles={tiles.filter((t) => t.project === project.id)}
+              project={project}
+              tasks={tiles.filter((t) => t.project === project.id)}
             />
           )}
         </div>
@@ -502,14 +535,18 @@ export default function Projekt() {
         />
 
         <AddMemberModal
-          isOpen={showAddMember}
+          open={showAddMember}
+          onCancel={() => setShowAddMember(false)}
+          onOk={() => setShowAddMember(false)}
           onClose={() => setShowAddMember(false)}
           currentMemberIds={teamMembers.map((m) => m.id)}
           onAddMembers={handleAddMembers}
         />
 
         <CreateGroupModal
-          isOpen={showCreateGroup}
+          open={showCreateGroup}
+          onCancel={() => setShowCreateGroup(false)}
+          onOk={() => setShowCreateGroup(false)}
           onClose={() => setShowCreateGroup(false)}
           onCreateGroup={handleCreateGroup}
         />

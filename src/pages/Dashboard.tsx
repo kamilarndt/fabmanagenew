@@ -1,7 +1,9 @@
-import { Button, Card, Col, List, Progress, Row, Statistic, Tag } from "antd";
+import { Button, List, Progress, Statistic, Tag } from "antd";
 import { useMemo } from "react";
 import { PageHeader } from "../components/shared/PageHeader";
+import { AppCard, AppCol, AppRow } from "../components/ui";
 import { Toolbar } from "../components/ui/Toolbar";
+import { Body } from "../components/ui/Typography";
 import { useProjectsStore } from "../stores/projectsStore";
 // import { useTilesStore } from '../stores/tilesStore' // Unused for now
 import { useTasksStore } from "../stores/tasksStore";
@@ -97,7 +99,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div>
+    <div data-component="DashboardPage" data-variant="main" data-state="active">
       <PageHeader
         title="Dashboard"
         subtitle="Przegląd głównych wskaźników i aktywności"
@@ -105,49 +107,48 @@ export default function Dashboard() {
 
       <Toolbar
         right={
-          <div className="text-muted small">
-            <i className="ri-time-line me-1"></i>
+          <Body color="muted" style={{ fontSize: 12 }}>
             Ostatnia aktualizacja: {new Date().toLocaleString("pl-PL")}
-          </div>
+          </Body>
         }
       />
 
-      <Row gutter={[24, 24]} style={{ marginBottom: 16 }}>
-        <Col xs={24} md={8}>
-          <Card bordered>
+      <AppRow gutter={[24, 24]} style={{ marginBottom: 16 }}>
+        <AppCol xs={24} md={8}>
+          <AppCard bordered>
             <Statistic
               title="Aktywne Projekty"
               value={activeProjects}
               valueStyle={{ color: "var(--primary-main)" }}
               prefix={<i className="ri-briefcase-line" />}
             />
-          </Card>
-        </Col>
-        <Col xs={24} md={8}>
-          <Card bordered>
+          </AppCard>
+        </AppCol>
+        <AppCol xs={24} md={8}>
+          <AppCard bordered>
             <Statistic
               title="Zadania po Terminie"
               value={overdueTasks}
               valueStyle={{ color: "var(--accent-warning)" }}
               prefix={<i className="ri-time-line" />}
             />
-          </Card>
-        </Col>
-        <Col xs={24} md={8}>
-          <Card bordered>
+          </AppCard>
+        </AppCol>
+        <AppCol xs={24} md={8}>
+          <AppCard bordered>
             <Statistic
               title="Nowe Zapytania"
               value={newInquiries}
               valueStyle={{ color: "var(--primary-main)" }}
               prefix={<i className="ri-question-line" />}
             />
-          </Card>
-        </Col>
-      </Row>
+          </AppCard>
+        </AppCol>
+      </AppRow>
 
-      <Row gutter={[24, 24]}>
-        <Col xs={24} lg={12}>
-          <Card
+      <AppRow gutter={[24, 24]}>
+        <AppCol xs={24} lg={12}>
+          <AppCard
             title="Moje Zadania"
             extra={
               <Button size="small" type="primary">
@@ -216,10 +217,10 @@ export default function Dashboard() {
                 </List.Item>
               )}
             />
-          </Card>
-        </Col>
-        <Col xs={24} lg={12}>
-          <Card title="Oś Czasu Projektów" bordered>
+          </AppCard>
+        </AppCol>
+        <AppCol xs={24} lg={12}>
+          <AppCard title="Oś Czasu Projektów" bordered>
             <List
               dataSource={projectTimeline}
               renderItem={(p) => (
@@ -271,10 +272,10 @@ export default function Dashboard() {
                 </List.Item>
               )}
             />
-          </Card>
-        </Col>
-        <Col xs={24}>
-          <Card title="Ostatnia Aktywność" bordered>
+          </AppCard>
+        </AppCol>
+        <AppCol xs={24}>
+          <AppCard title="Ostatnia Aktywność" bordered>
             <List
               dataSource={recentActivity}
               renderItem={(a) => (
@@ -300,9 +301,9 @@ export default function Dashboard() {
                 </List.Item>
               )}
             />
-          </Card>
-        </Col>
-      </Row>
+          </AppCard>
+        </AppCol>
+      </AppRow>
     </div>
   );
 }

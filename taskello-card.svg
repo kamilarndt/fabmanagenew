@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="320" height="320" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Główny gradient pomarańczowo-czerwony z rozmyciem -->
+    <radialGradient id="mainGradient" cx="0.6" cy="0.4" r="1.2">
+      <stop offset="0%" stop-color="#ff8c42"/>
+      <stop offset="25%" stop-color="#ff6b35"/>
+      <stop offset="50%" stop-color="#e63946"/>
+      <stop offset="75%" stop-color="#c1121f"/>
+      <stop offset="100%" stop-color="#800f2f"/>
+    </radialGradient>
+    
+    <!-- Efekt rozmycia/blasku -->
+    <filter id="blur">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+    
+    <!-- Cień karty -->
+    <filter id="cardShadow">
+      <feDropShadow dx="0" dy="12" stdDeviation="24" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+    
+    <!-- Białe światło -->
+    <radialGradient id="whiteGlow" cx="0.7" cy="0.3" r="0.5">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.9)"/>
+      <stop offset="40%" stop-color="rgba(255,255,255,0.4)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient>
+  </defs>
+  
+  <!-- Tło beżowe -->
+  <rect width="320" height="320" fill="#f0ede5"/>
+  
+  <!-- Cień karty -->
+  <path d="M 76 44 L 180 44 L 200 64 L 244 64 Q 284 64 284 84 L 284 252 Q 284 284 252 284 L 76 284 Q 44 284 44 252 L 44 76 Q 44 44 76 44 Z" fill="#000" opacity="0.3" filter="url(#cardShadow)"/>
+  
+  <!-- Główna karta - kształt folderu -->
+  <path d="M 72 40 L 180 40 L 200 60 L 240 60 Q 280 60 280 80 L 280 248 Q 280 280 248 280 L 72 280 Q 40 280 40 248 L 40 72 Q 40 40 72 40 Z" fill="#1a1a1a"/>
+  
+  <!-- Ramka zewnętrzna -->
+  <path d="M 72 40 L 180 40 L 200 60 L 240 60 Q 280 60 280 80 L 280 248 Q 280 280 248 280 L 72 280 Q 40 280 40 248 L 40 72 Q 40 40 72 40 Z" fill="none" stroke="#000" stroke-width="3"/>
+  
+  <!-- Górna sekcja z gradientem - wcięcie folderu -->
+  <path d="M 72 40 L 180 40 L 200 60 L 240 60 Q 280 60 280 80 L 280 150 L 40 150 L 40 72 Q 40 40 72 40 Z" fill="url(#mainGradient)"/>
+  
+  <!-- Ramka górnej sekcji -->
+  <path d="M 72 40 L 180 40 L 200 60 L 240 60 Q 280 60 280 80 L 280 150 L 40 150 L 40 72 Q 40 40 72 40 Z" fill="none" stroke="#000" stroke-width="2"/>
+  
+  <!-- Dodatkowe warstwy gradientu dla głębi -->
+  <ellipse cx="200" cy="80" rx="60" ry="30" fill="url(#whiteGlow)" opacity="0.3"/>
+  <ellipse cx="220" cy="100" rx="40" ry="20" fill="rgba(255,255,255,0.6)" filter="url(#blur)" opacity="0.4"/>
+  
+  <!-- Dolna ciemna sekcja -->
+  <rect x="40" y="150" width="240" height="130" fill="#1f1f1f"/>
+  <rect x="40" y="248" width="240" height="32" rx="0" ry="0" fill="#1f1f1f"/>
+  <rect x="40" y="248" width="240" height="32" rx="32" ry="32" fill="#1f1f1f"/>
+  
+  <!-- Tekst w górnej sekcji - białe napisy -->
+  <text x="260" y="95" text-anchor="end" fill="white" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="600">Taskello App</text>
+  <text x="260" y="115" text-anchor="end" fill="white" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="600">Card Design</text>
+  
+  <!-- Tekst w dolnej sekcji -->
+  <text x="60" y="190" fill="white" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="600">Daily memo</text>
+  <text x="60" y="210" fill="#888888" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="400">Notes &amp; Journaling</text>
+  
+  <!-- Duża liczba "05" -->
+  <text x="60" y="255" fill="white" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="42" font-weight="300">05</text>
+  <text x="125" y="255" fill="#888888" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="400">Doc</text>
+  
+  <!-- Liczba notatek -->
+  <text x="260" y="255" text-anchor="end" fill="white" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="500">1270 Notes</text>
+</svg>

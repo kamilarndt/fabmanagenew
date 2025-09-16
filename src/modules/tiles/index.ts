@@ -1,5 +1,5 @@
 // Components
-export { TileCard } from "./components/TileCard";
+export { default as TileCard } from "./components/TileCard";
 export { TileKanban } from "./components/TileKanban";
 export { TileStats } from "./components/TileStats";
 

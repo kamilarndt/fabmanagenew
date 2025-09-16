@@ -1,14 +1,24 @@
 import type { FormProps } from "antd";
-import { Form } from "antd";
+import {
+  Form as AntForm,
+  Checkbox,
+  ConfigProvider,
+  Input,
+  InputNumber,
+  Select,
+} from "antd";
 import React from "react";
 import { z } from "zod";
+import { FormValidation, ValidationRules } from "../../lib/validation";
 
 interface AppFormProps<T extends Record<string, unknown>>
-  extends Omit<FormProps, "onFinish"> {
+  extends Omit<FormProps, "onFinish" | "variant"> {
   schema?: z.ZodSchema<T>;
   onSubmit?: (values: T) => void | Promise<void>;
   children: React.ReactNode;
   loading?: boolean;
+  variant?: "default" | "compact" | "inline";
+  layout?: "horizontal" | "vertical" | "inline";
 }
 
 export function AppForm<T extends Record<string, unknown>>({
@@ -16,35 +26,92 @@ export function AppForm<T extends Record<string, unknown>>({
   onSubmit,
   children,
   loading = false,
+  variant = "default",
+  layout = "vertical",
+  className,
+  style,
   ...formProps
 }: AppFormProps<T>) {
-  const [form] = Form.useForm();
+  const { variant: _, ...restFormProps } = formProps as any;
+  const [form] = AntForm.useForm();
 
   const handleFinish = async (values: T) => {
     try {
-      const validated = schema ? schema.parse(values) : values;
-      await onSubmit?.(validated);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const fieldErrors = error.errors.map((err) => ({
-          name: err.path as any,
-          errors: [err.message],
-        }));
-        form.setFields(fieldErrors);
+      if (schema) {
+        const validation = FormValidation.validateForm(schema, values);
+        if (validation.success) {
+          await onSubmit?.(validation.data);
+        } else {
+          const fieldErrors = FormValidation.zodToAntdErrors(validation.errors);
+          form.setFields(fieldErrors);
+        }
+      } else {
+        await onSubmit?.(values);
       }
+    } catch (error) {
+      console.error("Form submission error:", error);
+    }
+  };
+
+  const formStyles: React.CSSProperties = {
+    fontFamily: "var(--font-family)",
+    ...style,
+  };
+
+  const getVariantStyles = (): React.CSSProperties => {
+    switch (variant) {
+      case "compact":
+        return {
+          fontSize: 14,
+        };
+      case "inline":
+        return {
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+        };
+      default:
+        return {};
     }
   };
 
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={handleFinish}
-      disabled={loading}
-      {...formProps}
+    <ConfigProvider
+      theme={{
+        components: {
+          Form: {
+            fontFamily: "var(--font-family)",
+            colorText: "var(--text-primary)",
+            colorTextHeading: "var(--text-primary)",
+            colorTextLabel: "var(--text-primary)",
+            colorTextDescription: "var(--text-secondary)",
+            colorError: "var(--accent-error)",
+            colorWarning: "var(--accent-warning)",
+            colorSuccess: "var(--accent-success)",
+            colorPrimary: "var(--primary-main)",
+          },
+        },
+      }}
     >
-      {children}
-    </Form>
+      <AntForm
+        form={form}
+        layout={layout}
+        onFinish={handleFinish}
+        disabled={loading}
+        className={className}
+        style={{
+          ...formStyles,
+          ...getVariantStyles(),
+        }}
+        data-component="AppForm"
+        data-variant={variant}
+        data-layout={layout}
+        data-state={loading ? "loading" : "default"}
+        {...restFormProps}
+      >
+        {children}
+      </AntForm>
+    </ConfigProvider>
   );
 }
 
@@ -55,6 +122,8 @@ interface AppFormFieldProps {
   help?: string;
   tooltip?: string;
   children: React.ReactNode;
+  dependencies?: (string | number)[][];
+  rules?: any[];
 }
 
 export function AppFormField({
@@ -64,21 +133,332 @@ export function AppFormField({
   help,
   tooltip,
   children,
+  dependencies,
+  rules,
 }: AppFormFieldProps) {
+  const defaultRules = required
+    ? [{ required: true, message: `${label || "Pole"} jest wymagane` }]
+    : [];
+
   return (
-    <Form.Item
+    <AntForm.Item
       name={name as any}
       label={label}
       required={required}
       help={help}
       tooltip={tooltip}
-      rules={
-        required
-          ? [{ required: true, message: `${label || "Pole"} jest wymagane` }]
-          : []
-      }
+      dependencies={dependencies}
+      rules={rules || defaultRules}
     >
       {children}
-    </Form.Item>
+    </AntForm.Item>
   );
 }
+
+// Specialized form variants
+export function AppFormCompact<T extends Record<string, unknown>>(
+  props: AppFormProps<T>
+) {
+  return <AppForm variant="compact" {...props} />;
+}
+
+export function AppFormInline<T extends Record<string, unknown>>(
+  props: AppFormProps<T>
+) {
+  return <AppForm variant="inline" layout="inline" {...props} />;
+}
+
+export function AppFormHorizontal<T extends Record<string, unknown>>(
+  props: AppFormProps<T>
+) {
+  return <AppForm layout="horizontal" {...props} />;
+}
+
+// Enhanced form field with automatic validation rules
+interface AppFormFieldEnhancedProps extends AppFormFieldProps {
+  schema?: z.ZodSchema<any>;
+  autoRules?: boolean;
+}
+
+export function AppFormFieldEnhanced({
+  name,
+  label,
+  required,
+  help,
+  tooltip,
+  children,
+  dependencies,
+  rules,
+  schema,
+  autoRules = false,
+}: AppFormFieldEnhancedProps) {
+  const defaultRules = required
+    ? [ValidationRules.required(label || "Pole")]
+    : [];
+
+  const autoGeneratedRules =
+    autoRules && schema
+      ? FormValidation.createRules(name as string, schema)
+      : [];
+
+  const finalRules = rules || [...defaultRules, ...autoGeneratedRules];
+
+  return (
+    <AntForm.Item
+      name={name as any}
+      label={label}
+      required={required}
+      help={help}
+      tooltip={tooltip}
+      dependencies={dependencies}
+      rules={finalRules}
+    >
+      {children}
+    </AntForm.Item>
+  );
+}
+
+// Specialized form components for common use cases
+interface AppFormDrawerProps<T extends Record<string, unknown>>
+  extends AppFormProps<T> {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  width?: number;
+  loading?: boolean;
+  onSave?: (values: T) => void | Promise<void>;
+  onCancel?: () => void;
+  saveText?: string;
+  cancelText?: string;
+}
+
+export function AppFormDrawer<T extends Record<string, unknown>>({
+  open,
+  onClose,
+  title,
+  width = 600,
+  loading = false,
+  onSave,
+  onCancel,
+  saveText = "Zapisz",
+  cancelText = "Anuluj",
+  children,
+  ...formProps
+}: AppFormDrawerProps<T>) {
+  const { variant: _, ...restFormProps } = formProps as any;
+  const [form] = AntForm.useForm();
+
+  const handleSave = async () => {
+    try {
+      const values = await form.validateFields();
+      await onSave?.(values);
+      onClose();
+    } catch (error) {
+      console.error("Form validation error:", error);
+    }
+  };
+
+  const handleCancel = () => {
+    form.resetFields();
+    onCancel?.();
+    onClose();
+  };
+
+  return (
+    <AntForm
+      form={form}
+      layout="vertical"
+      disabled={loading}
+      {...restFormProps}
+    >
+      <div style={{ padding: 24 }}>
+        <h3 style={{ marginBottom: 24 }}>{title}</h3>
+        {children}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 8,
+            marginTop: 24,
+            paddingTop: 16,
+            borderTop: "1px solid #f0f0f0",
+          }}
+        >
+          <button
+            onClick={handleCancel}
+            disabled={loading}
+            style={{
+              padding: "8px 16px",
+              border: "1px solid #d9d9d9",
+              borderRadius: "6px",
+              background: "white",
+              cursor: "pointer",
+            }}
+          >
+            {cancelText}
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={loading}
+            style={{
+              padding: "8px 16px",
+              border: "none",
+              borderRadius: "6px",
+              background: "#1890ff",
+              color: "white",
+              cursor: "pointer",
+            }}
+          >
+            {loading ? "Zapisywanie..." : saveText}
+          </button>
+        </div>
+      </div>
+    </AntForm>
+  );
+}
+
+// Form with automatic field generation from schema
+interface AppFormAutoProps<T extends Record<string, unknown>>
+  extends Omit<AppFormProps<T>, "children"> {
+  fields: Array<{
+    name: keyof T;
+    label: string;
+    type:
+      | "text"
+      | "textarea"
+      | "number"
+      | "email"
+      | "url"
+      | "date"
+      | "select"
+      | "checkbox";
+    required?: boolean;
+    placeholder?: string;
+    options?: Array<{ label: string; value: any }>;
+    rows?: number;
+  }>;
+}
+
+export function AppFormAuto<T extends Record<string, unknown>>({
+  fields,
+  ...formProps
+}: AppFormAutoProps<T>) {
+  const renderField = (field: any) => {
+    const { name, type, placeholder, options, rows, ...fieldProps } = field;
+
+    switch (type) {
+      case "textarea":
+        return (
+          <AntForm.Item key={name as string} name={name as any} {...fieldProps}>
+            <Input.TextArea placeholder={placeholder} rows={rows || 3} />
+          </AntForm.Item>
+        );
+      case "number":
+        return (
+          <AntForm.Item key={name as string} name={name as any} {...fieldProps}>
+            <InputNumber placeholder={placeholder} style={{ width: "100%" }} />
+          </AntForm.Item>
+        );
+      case "select":
+        return (
+          <AntForm.Item key={name as string} name={name as any} {...fieldProps}>
+            <Select placeholder={placeholder}>
+              {options?.map((option: any) => (
+                <Select.Option key={option.value} value={option.value}>
+                  {option.label}
+                </Select.Option>
+              ))}
+            </Select>
+          </AntForm.Item>
+        );
+      case "checkbox":
+        return (
+          <AntForm.Item
+            key={name as string}
+            name={name as any}
+            valuePropName="checked"
+            {...fieldProps}
+          >
+            <Checkbox>{field.label}</Checkbox>
+          </AntForm.Item>
+        );
+      default:
+        return (
+          <AntForm.Item key={name as string} name={name as any} {...fieldProps}>
+            <Input placeholder={placeholder} type={type} />
+          </AntForm.Item>
+        );
+    }
+  };
+
+  return <AppForm {...formProps}>{fields.map(renderField)}</AppForm>;
+}
+
+// Form with search and filter capabilities
+interface AppFormSearchProps {
+  onSearch?: (values: any) => void;
+  onReset?: () => void;
+  searchText?: string;
+  resetText?: string;
+  showReset?: boolean;
+  children: React.ReactNode;
+}
+
+export function AppFormSearch({
+  onSearch,
+  onReset,
+  searchText = "Szukaj",
+  resetText = "Resetuj",
+  showReset = true,
+  children,
+}: AppFormSearchProps) {
+  const [form] = AntForm.useForm();
+
+  const handleSearch = (values: any) => {
+    onSearch?.(values);
+  };
+
+  const handleReset = () => {
+    form.resetFields();
+    onReset?.();
+  };
+
+  return (
+    <AppForm layout="inline" onSubmit={handleSearch}>
+      {children}
+      <AntForm.Item>
+        <button
+          type="submit"
+          style={{
+            padding: "8px 16px",
+            border: "none",
+            borderRadius: "6px",
+            background: "#1890ff",
+            color: "white",
+            cursor: "pointer",
+            marginRight: 8,
+          }}
+        >
+          {searchText}
+        </button>
+        {showReset && (
+          <button
+            type="button"
+            onClick={handleReset}
+            style={{
+              padding: "8px 16px",
+              border: "1px solid #d9d9d9",
+              borderRadius: "6px",
+              background: "white",
+              cursor: "pointer",
+            }}
+          >
+            {resetText}
+          </button>
+        )}
+      </AntForm.Item>
+    </AppForm>
+  );
+}
+
+export default AppForm;

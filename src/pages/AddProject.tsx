@@ -1,170 +1,271 @@
-import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useProjectsStore, type ProjectModule, type Project } from '../stores/projectsStore'
-import { useClientDataStore } from '../stores/clientDataStore'
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { PageLayout } from "../components/layouts/PageLayout";
+import { PageHeader } from "../components/shared/PageHeader";
+import {
+  AppButton,
+  AppCard,
+  AppCol,
+  AppFormField,
+  AppInput,
+  AppRow,
+  AppSelect,
+  AppSpace,
+  AppTag,
+  AppTextArea,
+} from "../components/ui";
+import { Body } from "../components/ui/Typography";
+import { useClientDataStore } from "../stores/clientDataStore";
+import {
+  useProjectsStore,
+  type Project,
+  type ProjectModule,
+} from "../stores/projectsStore";
 
 export default function AddProject() {
-    const navigate = useNavigate()
-    const { add } = useProjectsStore()
-    const { clients } = useClientDataStore()
+  const navigate = useNavigate();
+  const { add } = useProjectsStore();
+  const { clients } = useClientDataStore();
 
-    const [name, setName] = useState('')
-    const [description, setDescription] = useState('')
-    const [deadline, setDeadline] = useState('')
-    const [clientId, setClientId] = useState('')
-    const [budget, setBudget] = useState<number | ''>('')
-    const [manager, setManager] = useState('')
-    const [status, setStatus] = useState<'Active' | 'On Hold' | 'Done'>('Active')
-    const [modules, setModules] = useState<ProjectModule[]>([])
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const [clientId, setClientId] = useState("");
+  const [budget, setBudget] = useState<number | "">("");
+  const [manager, setManager] = useState("");
+  const [status, setStatus] = useState<"Active" | "On Hold" | "Done">("Active");
+  const [modules, setModules] = useState<ProjectModule[]>([]);
 
-    // Pobierz nazwę klienta na podstawie ID
-    const selectedClient = useMemo(() =>
-        clients.find((c: any) => c.id === clientId), [clients, clientId]
-    )
+  // Pobierz nazwę klienta na podstawie ID
+  const selectedClient = useMemo(
+    () => clients.find((c: any) => c.id === clientId),
+    [clients, clientId]
+  );
 
-    const isValid = useMemo(() => name.trim() && clientId && deadline.trim(), [name, clientId, deadline])
+  const isValid = useMemo(
+    () => name.trim() && clientId && deadline.trim(),
+    [name, clientId, deadline]
+  );
 
-    const toggleModule = (m: ProjectModule) => {
-        setModules(prev => prev.includes(m) ? prev.filter(x => x !== m) : [...prev, m])
-    }
+  const toggleModule = (m: ProjectModule) => {
+    setModules((prev) =>
+      prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]
+    );
+  };
 
-    const handleSubmit = async () => {
-        if (!isValid || !selectedClient) return
+  const handleSubmit = async () => {
+    if (!isValid || !selectedClient) return;
 
-        await add({
-            numer: `P-${new Date().getFullYear()}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${String(new Date().getDate()).padStart(2, '0')}`,
-            name: name.trim(),
-            typ: 'Inne',
-            lokalizacja: 'Warszawa',
-            clientId: clientId,
-            client: selectedClient.companyName,
-            status: status as Project['status'],
-            data_utworzenia: new Date().toISOString().slice(0, 10),
-            deadline: deadline,
-            postep: 0,
-            budget: budget || undefined,
-            manager: manager || undefined,
-            description: description || undefined,
-            modules: modules.length ? modules : undefined,
-            clientColor: selectedClient.cardColor
-        })
-        navigate('/projekty')
-    }
+    await add({
+      numer: `P-${new Date().getFullYear()}/${String(
+        new Date().getMonth() + 1
+      ).padStart(2, "0")}/${String(new Date().getDate()).padStart(2, "0")}`,
+      name: name.trim(),
+      typ: "Inne",
+      lokalizacja: "Warszawa",
+      clientId: clientId,
+      client: selectedClient.companyName,
+      status: status as Project["status"],
+      data_utworzenia: new Date().toISOString().slice(0, 10),
+      deadline: deadline,
+      postep: 0,
+      budget: budget || undefined,
+      manager: manager || undefined,
+      description: description || undefined,
+      modules: modules.length ? modules : undefined,
+      clientColor: selectedClient.cardColor,
+    });
+    navigate("/projekty");
+  };
 
-    return (
-        <div className="container-fluid py-3">
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <nav aria-label="breadcrumb">
-                    <ol className="breadcrumb mb-0">
-                        <li className="breadcrumb-item"><a href="/">Dashboard</a></li>
-                        <li className="breadcrumb-item"><a href="/projekty">Projekty</a></li>
-                        <li className="breadcrumb-item active" aria-current="page">Dodaj projekt</li>
-                    </ol>
-                </nav>
-                <div className="d-flex gap-2">
-                    <button className="btn btn-outline-secondary" onClick={() => navigate(-1)}>Anuluj</button>
-                    <button className="btn btn-primary" onClick={handleSubmit} disabled={!isValid}>Zapisz</button>
-                </div>
+  return (
+    <PageLayout>
+      <PageHeader
+        title="Dodaj Nowy Projekt"
+        subtitle="Utwórz nowy projekt w systemie"
+        backButton={{
+          onClick: () => navigate("/projects"),
+          label: "Wstecz do projektów",
+        }}
+        actions={
+          <AppSpace>
+            <AppButton onClick={() => navigate(-1)}>Anuluj</AppButton>
+            <AppButton
+              type="primary"
+              onClick={handleSubmit}
+              disabled={!isValid}
+            >
+              Zapisz
+            </AppButton>
+          </AppSpace>
+        }
+      />
+
+      <AppRow gutter={[24, 24]}>
+        <AppCol xs={24} xl={18}>
+          <AppCard title="Informacje ogólne" style={{ marginBottom: 24 }}>
+            <AppSpace
+              direction="vertical"
+              size="large"
+              style={{ width: "100%" }}
+            >
+              <AppFormField name="name" label="Nazwa projektu" required>
+                <AppInput
+                  placeholder="Wpisz nazwę projektu"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </AppFormField>
+
+              <AppFormField name="description" label="Opis">
+                <AppTextArea
+                  rows={4}
+                  placeholder="Krótki opis"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </AppFormField>
+
+              <AppRow gutter={[16, 16]}>
+                <AppCol xs={24} sm={12}>
+                  <AppFormField name="deadline" label="Termin" required>
+                    <AppInput
+                      type="date"
+                      value={deadline}
+                      onChange={(e) => setDeadline(e.target.value)}
+                    />
+                  </AppFormField>
+                </AppCol>
+                <AppCol xs={24} sm={12}>
+                  <AppFormField name="clientId" label="Klient" required>
+                    <AppSelect
+                      value={clientId}
+                      onChange={setClientId}
+                      placeholder="Wybierz klienta"
+                      options={[
+                        { value: "", label: "Wybierz klienta" },
+                        ...clients.map((client: any) => ({
+                          value: client.id,
+                          label: client.companyName,
+                        })),
+                      ]}
+                    />
+                  </AppFormField>
+                </AppCol>
+                <AppCol xs={24} sm={12}>
+                  <AppFormField name="budget" label="Budżet (PLN)">
+                    <AppInput
+                      type="number"
+                      min={0}
+                      value={budget}
+                      onChange={(e) =>
+                        setBudget(
+                          e.target.value === "" ? "" : Number(e.target.value)
+                        )
+                      }
+                    />
+                  </AppFormField>
+                </AppCol>
+                <AppCol xs={24} sm={12}>
+                  <AppFormField name="manager" label="Kierownik projektu">
+                    <AppInput
+                      placeholder="Imię i nazwisko"
+                      value={manager}
+                      onChange={(e) => setManager(e.target.value)}
+                    />
+                  </AppFormField>
+                </AppCol>
+              </AppRow>
+            </AppSpace>
+          </AppCard>
+
+          <AppCard title="Zasoby">
+            <Body color="muted">
+              Dodawanie plików i załączników będzie dostępne w kolejnej
+              iteracji.
+            </Body>
+          </AppCard>
+        </AppCol>
+
+        <AppCol xs={24} xl={6}>
+          <AppCard
+            title={
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <span>Status</span>
+                <AppTag color="blue">{status}</AppTag>
+              </div>
+            }
+            style={{ marginBottom: 24 }}
+          >
+            <AppFormField name="status" label="Status projektu">
+              <AppSelect
+                value={status}
+                onChange={setStatus}
+                options={[
+                  { value: "Active", label: "Active" },
+                  { value: "On Hold", label: "On Hold" },
+                  { value: "Done", label: "Done" },
+                ]}
+              />
+            </AppFormField>
+          </AppCard>
+
+          <AppCard title="Moduły" style={{ marginBottom: 24 }}>
+            <AppSpace
+              direction="vertical"
+              size="small"
+              style={{ width: "100%" }}
+            >
+              {(
+                [
+                  "wycena",
+                  "koncepcja",
+                  "projektowanie_techniczne",
+                  "produkcja",
+                  "materialy",
+                  "logistyka_montaz",
+                ] as ProjectModule[]
+              ).map((m) => (
+                <label
+                  key={m}
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={modules.includes(m)}
+                    onChange={() => toggleModule(m)}
+                  />
+                  <Body>{m.replace("_", " ")}</Body>
+                </label>
+              ))}
+            </AppSpace>
+          </AppCard>
+
+          <AppCard title="Obraz">
+            <div
+              style={{
+                height: 160,
+                border: "1px solid var(--border-main)",
+                borderRadius: 6,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "var(--bg-secondary)",
+              }}
+            >
+              <Body color="muted" style={{ textAlign: "center", fontSize: 12 }}>
+                Drag & drop / kliknij aby dodać (placeholder)
+              </Body>
             </div>
-
-            <h4 className="mb-3">Dodaj projekt</h4>
-
-            <div className="row g-3">
-                <div className="col-12 col-xl-9">
-                    <div className="card mb-3">
-                        <div className="card-header fw-semibold">Informacje ogólne</div>
-                        <div className="card-body">
-                            <div className="mb-3">
-                                <label className="form-label">Nazwa projektu</label>
-                                <input className="form-control" placeholder="Wpisz nazwę projektu" value={name} onChange={e => setName(e.currentTarget.value)} />
-                            </div>
-                            <div className="mb-3">
-                                <label className="form-label">Opis</label>
-                                <textarea className="form-control" rows={4} placeholder="Krótki opis" value={description} onChange={e => setDescription(e.currentTarget.value)} />
-                            </div>
-                            <div className="row g-3">
-                                <div className="col-sm-6">
-                                    <label className="form-label">Termin</label>
-                                    <input type="date" className="form-control" value={deadline} onChange={e => setDeadline(e.currentTarget.value)} />
-                                </div>
-                                <div className="col-sm-6">
-                                    <label className="form-label">Klient</label>
-                                    <select
-                                        className="form-select"
-                                        value={clientId}
-                                        onChange={e => setClientId(e.target.value)}
-                                        required
-                                    >
-                                        <option value="">Wybierz klienta</option>
-                                        {clients.map((client: any) => (
-                                            <option key={client.id} value={client.id}>
-                                                {client.companyName}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="col-sm-6">
-                                    <label className="form-label">Budżet (PLN)</label>
-                                    <input type="number" min={0} className="form-control" value={budget} onChange={e => setBudget(e.currentTarget.value === '' ? '' : Number(e.currentTarget.value))} />
-                                </div>
-                                <div className="col-sm-6">
-                                    <label className="form-label">Kierownik projektu</label>
-                                    <input className="form-control" placeholder="Imię i nazwisko" value={manager} onChange={e => setManager(e.currentTarget.value)} />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="card">
-                        <div className="card-header fw-semibold">Zasoby</div>
-                        <div className="card-body">
-                            <div className="text-muted">Dodawanie plików i załączników będzie dostępne w kolejnej iteracji.</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="col-12 col-xl-3">
-                    <div className="card mb-3">
-                        <div className="card-header fw-semibold d-flex justify-content-between align-items-center">
-                            <span>Status</span>
-                            <span className="badge bg-light text-dark">{status}</span>
-                        </div>
-                        <div className="card-body">
-                            <label className="form-label">Status projektu</label>
-                            <select className="form-select" value={status} onChange={e => setStatus(e.currentTarget.value as typeof status)}>
-                                <option value="Active">Active</option>
-                                <option value="On Hold">On Hold</option>
-                                <option value="Done">Done</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className="card mb-3">
-                        <div className="card-header fw-semibold">Moduły</div>
-                        <div className="card-body">
-                            {(['wycena', 'koncepcja', 'projektowanie_techniczne', 'produkcja', 'materialy', 'logistyka_montaz'] as ProjectModule[]).map(m => (
-                                <div className="form-check mb-1" key={m}>
-                                    <input className="form-check-input" type="checkbox" id={`m-${m}`} checked={modules.includes(m)} onChange={() => toggleModule(m)} />
-                                    <label className="form-check-label" htmlFor={`m-${m}`}>{m.replace('_', ' ')}</label>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="card">
-                        <div className="card-header fw-semibold">Obraz</div>
-                        <div className="card-body">
-                            <div className="border rounded d-flex align-items-center justify-content-center bg-light" style={{ height: 160 }}>
-                                <div className="text-muted small text-center">
-                                    Drag & drop / kliknij aby dodać (placeholder)
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
+          </AppCard>
+        </AppCol>
+      </AppRow>
+    </PageLayout>
+  );
 }
-
-

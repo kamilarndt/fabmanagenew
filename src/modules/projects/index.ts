@@ -1,5 +1,5 @@
 // Components
-export { ProjectCard } from "./components/ProjectCard";
+export { default as ProjectCard } from "./components/ProjectCard";
 export { ProjectList } from "./components/ProjectList";
 export { ProjectStats } from "./components/ProjectStats";
 

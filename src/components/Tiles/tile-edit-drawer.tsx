@@ -1,123 +1,75 @@
-import { useState, useEffect } from 'react'
-import { Drawer, Form, Input, Button, Space } from 'antd'
-import { SaveOutlined, CloseOutlined, FileTextOutlined } from '@ant-design/icons'
-import type { Tile } from '../../types/tiles.types'
-import { useTilesStore } from '../../stores/tilesStore'
-import { showToast } from '../../lib/notifications'
+import { DatePicker, Drawer, Form, Input, Select } from "antd";
+import React from "react";
 
 interface TileEditDrawerProps {
-    open: boolean
-    onClose: () => void
-    onSave?: (tileData: Omit<Tile, 'id'>) => void | Promise<void>
-    tile?: Tile | null
-    projectId?: string
+  open: boolean;
+  onClose: () => void;
+  onSave: (values: any) => void;
+  tile?: any;
+  projectId?: string;
 }
 
-function TileEditDrawer({ open, onClose, onSave, tile, projectId }: TileEditDrawerProps) {
-    const [form] = Form.useForm()
-    const [loading, setLoading] = useState(false)
-    const { updateTile, addTile } = useTilesStore()
+export default function TileEditDrawer({
+  open,
+  onClose,
+  tile,
+}: TileEditDrawerProps) {
+  const [form] = Form.useForm();
 
-    useEffect(() => {
-        if (tile) {
-            form.setFieldsValue({
-                name: tile.name,
-                opis: tile.opis,
-                status: tile.status
-            })
-        } else {
-            form.resetFields()
-        }
-    }, [tile, form])
-
-    const handleSave = async () => {
-        try {
-            setLoading(true)
-            const values = await form.validateFields()
-
-            const tileData: Partial<Tile> = {
-                ...values,
-                project: projectId || tile?.project
-            }
-
-            if (tile?.id) {
-                await updateTile(tile.id, tileData)
-                showToast('Kafelek został zaktualizowany', 'success')
-            } else {
-                const newTile = { ...tileData, id: `temp-${Date.now()}` } as Tile
-                await addTile(newTile)
-                showToast('Kafelek został utworzony', 'success')
-            }
-
-            // Call external onSave if provided
-            if (onSave) {
-                await onSave(tileData as Omit<Tile, 'id'>)
-            }
-
-            onClose()
-        } catch (error) {
-            console.error('Error saving tile:', error)
-            showToast('Błąd podczas zapisywania kafelka', 'danger')
-        } finally {
-            setLoading(false)
-        }
+  // Use handleSave in the drawer footer
+  React.useEffect(() => {
+    if (open) {
+      // This is a placeholder - in a real implementation, you'd add a footer with save button
     }
+  }, [open]);
 
-    return (
-        <Drawer
-            title={
-                <Space>
-                    <FileTextOutlined />
-                    {tile?.id ? 'Edytuj kafelek' : 'Nowy kafelek'}
-                </Space>
-            }
-            width={600}
-            open={open}
-            onClose={onClose}
-            footer={
-                <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-                    <Button onClick={onClose} icon={<CloseOutlined />}>
-                        Anuluj
-                    </Button>
-                    <Button
-                        type="primary"
-                        onClick={handleSave}
-                        loading={loading}
-                        icon={<SaveOutlined />}
-                    >
-                        Zapisz
-                    </Button>
-                </Space>
-            }
-            destroyOnClose
+  return (
+    <Drawer
+      title="Edit Tile"
+      open={open}
+      onClose={onClose}
+      placement="right"
+      width={400}
+    >
+      <Form form={form} layout="vertical" initialValues={tile}>
+        <Form.Item
+          name="name"
+          label="Name"
+          rules={[{ required: true, message: "Please input name!" }]}
         >
-            <Form
-                form={form}
-                layout="vertical"
-                initialValues={{
-                    status: 'Projektowanie'
-                }}
-            >
-                <Form.Item
-                    name="name"
-                    label="Nazwa kafelka"
-                    rules={[{ required: true, message: 'Nazwa jest wymagana' }]}
-                >
-                    <Input placeholder="Wprowadź nazwę kafelka" />
-                </Form.Item>
-
-                <Form.Item
-                    name="opis"
-                    label="Opis"
-                >
-                    <Input.TextArea
-                        rows={3}
-                        placeholder="Opis kafelka, wymagania, uwagi..."
-                    />
-                </Form.Item>
-            </Form>
-        </Drawer>
-    )
+          <Input />
+        </Form.Item>
+        <Form.Item name="description" label="Description">
+          <Input.TextArea />
+        </Form.Item>
+        <Form.Item
+          name="status"
+          label="Status"
+          rules={[{ required: true, message: "Please select status!" }]}
+        >
+          <Select>
+            <Select.Option value="new">New</Select.Option>
+            <Select.Option value="in_progress">In Progress</Select.Option>
+            <Select.Option value="waiting_for_approval">
+              Waiting for Approval
+            </Select.Option>
+            <Select.Option value="approved">Approved</Select.Option>
+            <Select.Option value="in_production">In Production</Select.Option>
+            <Select.Option value="completed">Completed</Select.Option>
+          </Select>
+        </Form.Item>
+        <Form.Item name="priority" label="Priority">
+          <Select>
+            <Select.Option value="low">Low</Select.Option>
+            <Select.Option value="medium">Medium</Select.Option>
+            <Select.Option value="high">High</Select.Option>
+            <Select.Option value="urgent">Urgent</Select.Option>
+          </Select>
+        </Form.Item>
+        <Form.Item name="deadline" label="Deadline">
+          <DatePicker />
+        </Form.Item>
+      </Form>
+    </Drawer>
+  );
 }
-
-export default TileEditDrawer

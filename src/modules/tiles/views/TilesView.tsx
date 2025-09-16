@@ -4,11 +4,13 @@ import { TileKanban } from "../components/TileKanban";
 import { TileStats } from "../components/TileStats";
 import { useTilesQuery } from "../hooks/useTilesQuery";
 
+import type { Tile } from "../types/tiles.types";
+
 interface TilesViewProps {
-  onViewTile?: (tile: any) => void;
-  onEditTile?: (tile: any) => void;
+  onViewTile?: (tile: Tile) => void;
+  onEditTile?: (tile: Tile) => void;
   onAddTile?: () => void;
-  onStatusChange?: (tile: any, status: string) => void;
+  onStatusChange?: (tile: Tile, status: string) => void;
 }
 
 export function TilesView({

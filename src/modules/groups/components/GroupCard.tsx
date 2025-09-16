@@ -4,7 +4,14 @@ import {
   TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Avatar, Button, Card, Space, Tag, Typography } from "antd";
+import {
+  AppButton,
+  AppCard,
+  AppSpace,
+  AppTag
+} from "../../../components/ui";
+import { Avatar, Typography } from "antd";
+
 import { FadeIn } from "../../../components/ui/FadeIn";
 import type { Group } from "../types";
 
@@ -59,33 +66,33 @@ export function GroupCard({
 
   return (
     <FadeIn>
-      <Card
+      <AppCard
         hoverable
         actions={[
-          <Button
+          <AppButton
             key="view"
             type="text"
             icon={<EyeOutlined />}
             onClick={handleView}
           >
             View
-          </Button>,
-          <Button
+          </AppButton>,
+          <AppButton
             key="edit"
             type="text"
             icon={<EditOutlined />}
             onClick={handleEdit}
           >
             Edit
-          </Button>,
-          <Button
+          </AppButton>,
+          <AppButton
             key="members"
             type="text"
             icon={<TeamOutlined />}
             onClick={handleManageMembers}
           >
             Members
-          </Button>,
+          </AppButton>,
         ]}
         style={{ height: "100%" }}
       >
@@ -101,9 +108,9 @@ export function GroupCard({
             <Title level={4} style={{ margin: 0, flex: 1 }}>
               {group.name}
             </Title>
-            <Tag color={getTypeColor(group.type)}>
+            <AppTag color={getTypeColor(group.type)}>
               {group.type.toUpperCase()}
-            </Tag>
+            </AppTag>
           </div>
 
           {group.description && (
@@ -114,15 +121,15 @@ export function GroupCard({
         </div>
 
         <div style={{ marginBottom: 16 }}>
-          <Space wrap>
-            <Tag color={group.isActive ? "green" : "red"}>
+          <AppSpace wrap>
+            <AppTag color={group.isActive ? "green" : "red"}>
               {group.isActive ? "ACTIVE" : "INACTIVE"}
-            </Tag>
-            <Tag icon={<TeamOutlined />} color="blue">
+            </AppTag>
+            <AppTag icon={<TeamOutlined />} color="blue">
               {group.members.length} members
-            </Tag>
-            <Tag color="purple">{group.projects.length} projects</Tag>
-          </Space>
+            </AppTag>
+            <AppTag color="purple">{group.projects.length} projects</AppTag>
+          </AppSpace>
         </div>
 
         <div style={{ marginBottom: 16 }}>
@@ -147,15 +154,15 @@ export function GroupCard({
           <Text strong style={{ marginBottom: 8, display: "block" }}>
             Admins:
           </Text>
-          <Space wrap>
+          <AppSpace wrap>
             {group.members
               .filter((member) => member.role === "admin")
               .map((member) => (
-                <Tag key={member.id} color={getRoleColor(member.role)}>
+                <AppTag key={member.id} color={getRoleColor(member.role)}>
                   <UserOutlined /> {member.name}
-                </Tag>
+                </AppTag>
               ))}
-          </Space>
+          </AppSpace>
         </div>
 
         <div
@@ -172,7 +179,7 @@ export function GroupCard({
             Updated: {new Date(group.updatedAt).toLocaleDateString()}
           </Text>
         </div>
-      </Card>
+      </AppCard>
     </FadeIn>
   );
 }

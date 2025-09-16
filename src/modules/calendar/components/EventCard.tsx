@@ -1,9 +1,10 @@
-import { ClockCircleOutlined, UserOutlined } from "@ant-design/icons";
-import { Badge, Button, Card, Space, Tag, Typography } from "antd";
-import { FadeIn } from "../../../components/ui/FadeIn";
+import { ClockCircleOutlined } from "@ant-design/icons";
+import { Badge, Typography } from "antd";
+import type { BaseEntity } from "../../../components/shared/BaseCard";
+import { BaseCard } from "../../../components/shared/BaseCard";
 import type { CalendarEvent } from "../types";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -13,26 +14,23 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, onView, onEdit, onDelete }: EventCardProps) {
-  const handleView = () => onView?.(event);
-  const handleEdit = () => onEdit?.(event);
-  const handleDelete = () => onDelete?.(event);
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "project":
-        return "blue";
-      case "meeting":
-        return "green";
-      case "deadline":
-        return "red";
-      case "production":
-        return "orange";
-      case "maintenance":
-        return "purple";
-      default:
-        return "default";
-    }
-  };
+  // Helper function for future use
+  // const getTypeColor = (type: string) => {
+  //   switch (type) {
+  //     case "project":
+  //       return "blue";
+  //     case "meeting":
+  //       return "green";
+  //     case "deadline":
+  //       return "red";
+  //     case "production":
+  //       return "orange";
+  //     case "maintenance":
+  //       return "purple";
+  //     default:
+  //       return "default";
+  //   }
+  // };
 
   const getPriorityColor = (priority?: string) => {
     switch (priority) {
@@ -67,104 +65,65 @@ export function EventCard({ event, onView, onEdit, onDelete }: EventCardProps) {
   const isOverdue =
     new Date(event.end) < new Date() && event.status !== "completed";
 
-  return (
-    <FadeIn>
-      <Card
-        hoverable
-        actions={[
-          <Button key="view" type="text" onClick={handleView}>
-            View
-          </Button>,
-          <Button key="edit" type="text" onClick={handleEdit}>
-            Edit
-          </Button>,
-          <Button key="delete" type="text" danger onClick={handleDelete}>
-            Delete
-          </Button>,
-        ]}
-        style={{ height: "100%" }}
+  // Convert CalendarEvent to BaseEntity format
+  const baseEntity: BaseEntity = {
+    id: event.id,
+    name: event.title,
+    description: event.description,
+    status: event.status || "scheduled",
+    priority: event.priority,
+    assignedTo: event.assignedTo,
+    projectId: event.projectId,
+    createdAt: event.createdAt,
+    updatedAt: event.updatedAt,
+  };
+
+  const customFields = (
+    <div style={{ marginBottom: 16 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginBottom: 8,
+        }}
       >
-        <div style={{ marginBottom: 16 }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              marginBottom: 8,
-            }}
-          >
-            <Title level={4} style={{ margin: 0, flex: 1 }}>
-              {event.title}
-            </Title>
-            <Tag color={getTypeColor(event.type)}>
-              {event.type.toUpperCase()}
-            </Tag>
-          </div>
-
-          {event.description && (
-            <Text type="secondary" style={{ fontSize: "14px" }}>
-              {event.description}
-            </Text>
-          )}
+        <ClockCircleOutlined style={{ marginRight: 8 }} />
+        <Text strong>
+          {new Date(event.start).toLocaleDateString()} -{" "}
+          {new Date(event.end).toLocaleDateString()}
+        </Text>
+      </div>
+      {event.allDay && <Text type="secondary">All day event</Text>}
+      {isOverdue && (
+        <div style={{ marginTop: 8 }}>
+          <Badge status="error" text="Overdue" />
         </div>
+      )}
+    </div>
+  );
 
-        <div style={{ marginBottom: 16 }}>
-          <Space wrap>
-            <Tag color={getPriorityColor(event.priority)}>
-              {event.priority?.toUpperCase() || "NORMAL"}
-            </Tag>
-            {event.status && (
-              <Tag color={getStatusColor(event.status)}>
-                {event.status.replace("_", " ").toUpperCase()}
-              </Tag>
-            )}
-            {event.assignedTo && (
-              <Tag icon={<UserOutlined />} color="purple">
-                {event.assignedTo}
-              </Tag>
-            )}
-            {event.location && <Tag color="cyan">{event.location}</Tag>}
-          </Space>
-        </div>
+  // Create adapters to convert BaseEntity back to CalendarEvent
+  const handleView = (_entity: BaseEntity) => {
+    onView?.(event);
+  };
 
-        <div style={{ marginBottom: 16 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: 8,
-            }}
-          >
-            <ClockCircleOutlined style={{ marginRight: 8 }} />
-            <Text strong>
-              {new Date(event.start).toLocaleDateString()} -{" "}
-              {new Date(event.end).toLocaleDateString()}
-            </Text>
-          </div>
-          {event.allDay && <Text type="secondary">All day event</Text>}
-        </div>
+  const handleEdit = (_entity: BaseEntity) => {
+    onEdit?.(event);
+  };
 
-        {isOverdue && (
-          <div style={{ marginBottom: 16 }}>
-            <Badge status="error" text="Overdue" />
-          </div>
-        )}
+  const handleDelete = (_entity: BaseEntity) => {
+    onDelete?.(event);
+  };
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Text type="secondary">
-            Created: {new Date(event.createdAt).toLocaleDateString()}
-          </Text>
-          {event.projectId && (
-            <Text type="secondary">Project: {event.projectId}</Text>
-          )}
-        </div>
-      </Card>
-    </FadeIn>
+  return (
+    <BaseCard
+      entity={baseEntity}
+      onView={handleView}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
+      statusColorMap={getStatusColor}
+      priorityColorMap={getPriorityColor}
+      customFields={customFields}
+    />
   );
 }

@@ -1,15 +1,14 @@
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { Input, Select, Typography, message } from "antd";
 import {
-  Button,
-  Card,
-  Col,
-  Input,
-  Row,
-  Select,
-  Space,
-  Typography,
-  message,
-} from "antd";
+  AppButton,
+  AppCard,
+  AppCol,
+  AppRow,
+  AppSelect,
+  AppSpace,
+} from "../components/ui";
+
 import { useEffect, useMemo, useState } from "react";
 import TileCard from "../components/Tiles/TileCard";
 import TileEditDrawer from "../components/Tiles/tile-edit-drawer";
@@ -23,7 +22,9 @@ const { Search } = Input;
 const { Title } = Typography;
 
 export default function TilesPage() {
+  console.warn("🔧 TilesPage: Component rendering...");
   const { tiles, initialize, addTile, updateTile, refresh } = useTilesStore();
+  console.warn("🔧 TilesPage: Tiles from store:", tiles.length);
   const { projects } = useProjectsStore();
   const { roles } = useAuthStore();
   const canManage = roles.includes("manager");
@@ -36,6 +37,7 @@ export default function TilesPage() {
   const [projectFilter, setProjectFilter] = useState<string>("All");
 
   useEffect(() => {
+    console.warn("🔧 TilesPage: useEffect triggered, calling initialize()");
     initialize();
   }, [initialize]);
 
@@ -89,25 +91,25 @@ export default function TilesPage() {
   };
 
   return (
-    <div className="container-fluid py-3">
+    <div data-component="TilesPage" data-variant="grid" data-state="active">
       <PageHeader
         title="Elementy (Kafelki)"
         subtitle="Wizualny inwentarz wszystkich komponentów projektu"
       />
 
       {/* Filtry i wyszukiwanie */}
-      <Card style={{ marginBottom: 16 }}>
-        <Row gutter={16} align="middle">
-          <Col xs={24} sm={12} md={8}>
+      <AppCard style={{ marginBottom: 16 }}>
+        <AppRow gutter={16} align="middle">
+          <AppCol xs={24} sm={12} md={8}>
             <Search
               placeholder="Szukaj kafelków..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               prefix={<SearchOutlined />}
             />
-          </Col>
-          <Col xs={24} sm={6} md={4}>
-            <Select
+          </AppCol>
+          <AppCol xs={24} sm={6} md={4}>
+            <AppSelect
               value={statusFilter}
               onChange={setStatusFilter}
               style={{ width: "100%" }}
@@ -132,10 +134,10 @@ export default function TilesPage() {
                 Gotowy do montażu
               </Select.Option>
               <Select.Option value="Zakończony">Zakończony</Select.Option>
-            </Select>
-          </Col>
-          <Col xs={24} sm={6} md={4}>
-            <Select
+            </AppSelect>
+          </AppCol>
+          <AppCol xs={24} sm={6} md={4}>
+            <AppSelect
               value={projectFilter}
               onChange={setProjectFilter}
               style={{ width: "100%" }}
@@ -147,38 +149,38 @@ export default function TilesPage() {
                   {project.name}
                 </Select.Option>
               ))}
-            </Select>
-          </Col>
-          <Col xs={24} sm={12} md={8}>
-            <Space>
-              <Button
+            </AppSelect>
+          </AppCol>
+          <AppCol xs={24} sm={12} md={8}>
+            <AppSpace>
+              <AppButton
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={handleAddNew}
                 disabled={!canDesign}
               >
                 Dodaj Nowy Kafelek
-              </Button>
-              <Button onClick={refresh}>Odśwież</Button>
-            </Space>
-          </Col>
-        </Row>
-      </Card>
+              </AppButton>
+              <AppButton onClick={refresh}>Odśwież</AppButton>
+            </AppSpace>
+          </AppCol>
+        </AppRow>
+      </AppCard>
 
       {/* Statystyki */}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col xs={24} sm={6}>
-          <Card size="small">
+      <AppRow gutter={16} style={{ marginBottom: 16 }}>
+        <AppCol xs={24} sm={6}>
+          <AppCard size="small">
             <div style={{ textAlign: "center" }}>
               <Title level={3} style={{ margin: 0, color: "#1890ff" }}>
                 {filteredTiles.length}
               </Title>
               <div>Wszystkich kafelków</div>
             </div>
-          </Card>
-        </Col>
-        <Col xs={24} sm={6}>
-          <Card size="small">
+          </AppCard>
+        </AppCol>
+        <AppCol xs={24} sm={6}>
+          <AppCard size="small">
             <div style={{ textAlign: "center" }}>
               <Title level={3} style={{ margin: 0, color: "#52c41a" }}>
                 {
@@ -189,10 +191,10 @@ export default function TilesPage() {
               </Title>
               <div>Zakończonych</div>
             </div>
-          </Card>
-        </Col>
-        <Col xs={24} sm={6}>
-          <Card size="small">
+          </AppCard>
+        </AppCol>
+        <AppCol xs={24} sm={6}>
+          <AppCard size="small">
             <div style={{ textAlign: "center" }}>
               <Title level={3} style={{ margin: 0, color: "#faad14" }}>
                 {
@@ -205,10 +207,10 @@ export default function TilesPage() {
               </Title>
               <div>W projektowaniu</div>
             </div>
-          </Card>
-        </Col>
-        <Col xs={24} sm={6}>
-          <Card size="small">
+          </AppCard>
+        </AppCol>
+        <AppCol xs={24} sm={6}>
+          <AppCard size="small">
             <div style={{ textAlign: "center" }}>
               <Title level={3} style={{ margin: 0, color: "#f5222d" }}>
                 {
@@ -218,34 +220,38 @@ export default function TilesPage() {
               </Title>
               <div>Wymagają poprawek</div>
             </div>
-          </Card>
-        </Col>
-      </Row>
+          </AppCard>
+        </AppCol>
+      </AppRow>
 
       {/* Kafelki */}
-      <Row gutter={[16, 16]}>
+      <AppRow gutter={[16, 16]}>
         {filteredTiles.map((tile) => (
-          <Col key={tile.id} xs={24} sm={12} lg={8} xl={6}>
+          <AppCol key={tile.id} xs={24} sm={12} lg={8} xl={6}>
             <TileCard
               tile={tile}
               onEdit={handleEdit}
               onView={handleView}
               onAssign={handleAssign}
             />
-          </Col>
+          </AppCol>
         ))}
-      </Row>
+      </AppRow>
 
       {filteredTiles.length === 0 && (
-        <Card style={{ textAlign: "center", padding: 40 }}>
+        <AppCard style={{ textAlign: "center", padding: 40 }}>
           <Title level={4} type="secondary">
             Brak kafelków
           </Title>
           <p>Nie znaleziono kafelków spełniających kryteria wyszukiwania.</p>
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleAddNew}>
+          <AppButton
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleAddNew}
+          >
             Dodaj pierwszy kafelek
-          </Button>
-        </Card>
+          </AppButton>
+        </AppCard>
       )}
 
       {/* Modal edycji */}

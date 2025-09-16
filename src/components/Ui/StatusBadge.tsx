@@ -38,6 +38,10 @@ export function StatusBadge({
       }}
       title={showTooltip ? description : undefined}
       className={className}
+      data-component="StatusBadge"
+      data-variant={status}
+      data-size={size}
+      data-state={showIcon ? "with-icon" : "text-only"}
     >
       {showIcon && <i className={`${icon} me-1`} />}
       {status}

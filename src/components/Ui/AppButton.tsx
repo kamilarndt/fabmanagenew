@@ -57,6 +57,12 @@ export function AppButton({
         size={size}
         danger={variant === "danger"}
         style={buttonStyles}
+        data-component="AppButton"
+        data-variant={variant}
+        data-size={size}
+        data-state={
+          props.loading ? "loading" : props.disabled ? "disabled" : "default"
+        }
         {...props}
       >
         {children}

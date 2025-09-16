@@ -1,282 +1,305 @@
-import { Card, ConfigProvider } from "antd";
 import React from "react";
+import { AppCard } from "../ui/AppCard";
 import { Icon } from "../ui/Icon";
-import { Body, Caption, H3, H4 } from "../ui/Typography";
+import { Caption, H3 } from "../ui/Typography";
 
 interface StatCardProps {
   title: string;
   value: string | number;
+  subtitle?: string;
   icon?: React.ReactNode;
-  iconName?: string;
-  iconColor?: string;
-  suffix?: string;
-  prefix?: string;
-  description?: string;
   trend?: {
     value: number;
-    isPositive?: boolean;
+    direction: "up" | "down" | "neutral";
     label?: string;
   };
+  color?: "primary" | "success" | "warning" | "danger" | "info";
   size?: "small" | "medium" | "large";
-  variant?: "default" | "outlined" | "filled";
   loading?: boolean;
+  onClick?: () => void;
   className?: string;
   style?: React.CSSProperties;
-  onClick?: () => void;
 }
 
 export function StatCard({
   title,
   value,
+  subtitle,
   icon,
-  iconName,
-  iconColor = "var(--primary-main)",
-  suffix,
-  prefix,
-  description,
   trend,
+  color = "primary",
   size = "medium",
-  variant = "default",
   loading = false,
+  onClick,
   className,
   style,
-  onClick,
 }: StatCardProps) {
+  const getColorStyles = () => {
+    const colorMap = {
+      primary: {
+        icon: "var(--primary-main)",
+        value: "var(--text-primary)",
+        trend: "var(--primary-main)",
+      },
+      success: {
+        icon: "#52c41a",
+        value: "var(--text-primary)",
+        trend: "#52c41a",
+      },
+      warning: {
+        icon: "#faad14",
+        value: "var(--text-primary)",
+        trend: "#faad14",
+      },
+      danger: {
+        icon: "#ff4d4f",
+        value: "var(--text-primary)",
+        trend: "#ff4d4f",
+      },
+      info: {
+        icon: "#1890ff",
+        value: "var(--text-primary)",
+        trend: "#1890ff",
+      },
+    };
+
+    return colorMap[color];
+  };
+
   const getSizeStyles = () => {
-    switch (size) {
-      case "small":
-        return {
-          padding: 16,
-          iconSize: 20,
-          valueSize: "lg" as const,
-          titleSize: "sm" as const,
-        };
-      case "large":
-        return {
-          padding: 32,
-          iconSize: 32,
-          valueSize: "xl" as const,
-          titleSize: "base" as const,
-        };
+    const sizeMap = {
+      small: {
+        padding: "16px",
+        iconSize: 20,
+        titleSize: "sm" as const,
+        valueSize: "lg" as const,
+      },
+      medium: {
+        padding: "20px",
+        iconSize: 24,
+        titleSize: "base" as const,
+        valueSize: "xl" as const,
+      },
+      large: {
+        padding: "24px",
+        iconSize: 28,
+        titleSize: "lg" as const,
+        valueSize: "xl" as const,
+      },
+    };
+
+    return sizeMap[size];
+  };
+
+  const colorStyles = getColorStyles();
+  const sizeStyles = getSizeStyles();
+
+  const getTrendIcon = () => {
+    if (!trend) return null;
+
+    switch (trend.direction) {
+      case "up":
+        return (
+          <Icon name="ArrowUpOutlined" size={12} color={colorStyles.trend} />
+        );
+      case "down":
+        return (
+          <Icon name="ArrowDownOutlined" size={12} color={colorStyles.trend} />
+        );
+      case "neutral":
+        return (
+          <Icon name="MinusOutlined" size={12} color="var(--text-muted)" />
+        );
       default:
-        return {
-          padding: 24,
-          iconSize: 24,
-          valueSize: "xl" as const,
-          titleSize: "base" as const,
-        };
+        return null;
     }
-  };
-
-  const getVariantStyles = (): React.CSSProperties => {
-    switch (variant) {
-      case "outlined":
-        return {
-          border: "2px solid var(--border-main)",
-          backgroundColor: "transparent",
-        };
-      case "filled":
-        return {
-          backgroundColor: "var(--bg-secondary)",
-          border: "1px solid var(--border-light)",
-        };
-      default:
-        return {};
-    }
-  };
-
-  const { padding, iconSize, titleSize } = getSizeStyles();
-
-  const cardStyles: React.CSSProperties = {
-    height: "100%",
-    cursor: onClick ? "pointer" : "default",
-    transition: "all 0.2s ease",
-    ...getVariantStyles(),
-    ...style,
-  };
-
-  const iconElement =
-    icon ||
-    (iconName && (
-      <Icon name={iconName as any} size={iconSize} color={iconColor} />
-    ));
-
-  const formatValue = () => {
-    const formattedValue =
-      typeof value === "number" ? value.toLocaleString() : value;
-
-    return `${prefix || ""}${formattedValue}${suffix || ""}`;
   };
 
   const getTrendColor = () => {
     if (!trend) return "var(--text-muted)";
-    return trend.isPositive ? "#52c41a" : "#ff4d4f";
+
+    switch (trend.direction) {
+      case "up":
+        return "#52c41a";
+      case "down":
+        return "#ff4d4f";
+      case "neutral":
+        return "var(--text-muted)";
+      default:
+        return "var(--text-muted)";
+    }
   };
 
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Card: {
-            borderRadius: 8,
-            fontFamily: "var(--font-family)",
+    <AppCard
+      variant="outlined"
+      className={className}
+      style={{
+        padding: sizeStyles.padding,
+        cursor: onClick ? "pointer" : "default",
+        transition: "all 0.2s ease",
+        ...(onClick && {
+          "&:hover": {
+            transform: "translateY(-2px)",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
           },
-        },
+        }),
+        ...style,
       }}
+      onClick={onClick}
+      data-component="StatCard"
+      data-color={color}
+      data-size={size}
+      data-loading={loading}
     >
-      <Card
-        hoverable={!!onClick}
-        loading={loading}
-        className={className}
-        style={cardStyles}
-        bodyStyle={{ padding }}
-        onClick={onClick}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          marginBottom: subtitle ? 8 : 0,
+        }}
       >
-        <div style={{ height: "100%" }}>
-          {/* Header with icon and title */}
-          <div
+        <div style={{ flex: 1 }}>
+          <Caption
+            color="muted"
             style={{
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              marginBottom: size === "small" ? 8 : 12,
+              margin: 0,
+              marginBottom: 4,
+              fontSize:
+                sizeStyles.titleSize === "sm"
+                  ? 12
+                  : sizeStyles.titleSize === "lg"
+                  ? 16
+                  : 14,
             }}
           >
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <Body
-                size={titleSize}
-                color="secondary"
-                weight="medium"
-                style={{
-                  margin: 0,
-                  marginBottom: 4,
-                  display: "block",
-                }}
-              >
-                {title}
-              </Body>
-            </div>
-
-            {iconElement && (
-              <div
-                style={{
-                  flexShrink: 0,
-                  marginLeft: 12,
-                  opacity: 0.8,
-                }}
-              >
-                {iconElement}
-              </div>
-            )}
-          </div>
-
-          {/* Value */}
-          <div style={{ marginBottom: description || trend ? 8 : 0 }}>
-            {size === "small" ? (
-              <H4 style={{ margin: 0, color: "var(--text-primary)" }}>
-                {formatValue()}
-              </H4>
-            ) : (
-              <H3 style={{ margin: 0, color: "var(--text-primary)" }}>
-                {formatValue()}
-              </H3>
-            )}
-          </div>
-
-          {/* Description */}
-          {description && (
+            {title}
+          </Caption>
+          <H3
+            style={{
+              margin: 0,
+              fontSize: sizeStyles.valueSize === "lg" ? 18 : 20,
+              fontWeight: "var(--font-semibold)",
+              color: colorStyles.value,
+            }}
+          >
+            {loading ? "..." : value}
+          </H3>
+          {subtitle && (
             <Caption
+              color="muted"
               style={{
                 margin: 0,
-                marginBottom: trend ? 8 : 0,
-                display: "block",
+                marginTop: 4,
+                fontSize: 12,
               }}
             >
-              {description}
+              {subtitle}
             </Caption>
           )}
-
-          {/* Trend */}
-          {trend && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
-                marginTop: "auto",
-              }}
-            >
-              <Icon
-                name={
-                  trend.isPositive ? "ArrowUpOutlined" : "ArrowDownOutlined"
-                }
-                size={12}
-                color={getTrendColor()}
-              />
-              <Caption
-                style={{
-                  margin: 0,
-                  color: getTrendColor(),
-                  fontWeight: "var(--font-medium)",
-                }}
-              >
-                {Math.abs(trend.value)}%{trend.label && ` ${trend.label}`}
-              </Caption>
-            </div>
-          )}
         </div>
-      </Card>
-    </ConfigProvider>
+
+        {icon && (
+          <div
+            style={{
+              color: colorStyles.icon,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: sizeStyles.iconSize + 8,
+              height: sizeStyles.iconSize + 8,
+            }}
+          >
+            {icon}
+          </div>
+        )}
+      </div>
+
+      {trend && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+            marginTop: 8,
+          }}
+        >
+          {getTrendIcon()}
+          <Caption
+            style={{
+              margin: 0,
+              color: getTrendColor(),
+              fontSize: 12,
+              fontWeight: 500,
+            }}
+          >
+            {trend.value > 0 ? "+" : ""}
+            {trend.value}%{trend.label && ` ${trend.label}`}
+          </Caption>
+        </div>
+      )}
+    </AppCard>
   );
 }
 
-// Specialized variants
-export function KPICard({
+interface MetricCardProps {
+  title: string;
+  value: string | number;
+  unit?: string;
+  icon?: React.ReactNode;
+  color?: "primary" | "success" | "warning" | "danger" | "info";
+  size?: "small" | "medium" | "large";
+}
+
+export function MetricCard({
   title,
   value,
-  target,
-  ...props
-}: Omit<StatCardProps, "description" | "trend"> & {
-  target?: number;
-}) {
-  const percentage = target ? Math.round((Number(value) / target) * 100) : 0;
-  const isOnTarget = percentage >= 100;
-
+  unit,
+  icon,
+  color = "primary",
+  size = "medium",
+}: MetricCardProps) {
   return (
     <StatCard
       title={title}
-      value={value}
-      description={target ? `Cel: ${target}` : undefined}
-      trend={
-        target
-          ? {
-              value: percentage - 100,
-              isPositive: isOnTarget,
-              label: isOnTarget ? "powyżej celu" : "do celu",
-            }
-          : undefined
-      }
-      {...props}
+      value={unit ? `${value} ${unit}` : value}
+      icon={icon}
+      color={color}
+      size={size}
     />
   );
 }
 
-export function SimpleStatCard({
+interface ProgressCardProps {
+  title: string;
+  value: number;
+  max?: number;
+  unit?: string;
+  icon?: React.ReactNode;
+  color?: "primary" | "success" | "warning" | "danger" | "info";
+  showPercentage?: boolean;
+}
+
+export function ProgressCard({
   title,
   value,
+  max = 100,
+  unit = "%",
   icon,
-}: {
-  title: string;
-  value: string | number;
-  icon?: string;
-}) {
+  color = "primary",
+  showPercentage = true,
+}: ProgressCardProps) {
+  const percentage = Math.round((value / max) * 100);
+
   return (
     <StatCard
       title={title}
-      value={value}
-      iconName={icon}
-      size="small"
-      variant="filled"
+      value={showPercentage ? `${percentage}${unit}` : value}
+      icon={icon}
+      color={color}
+      size="medium"
+      subtitle={`${value} z ${max}`}
     />
   );
 }

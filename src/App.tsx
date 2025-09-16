@@ -32,6 +32,8 @@ const CalendarTeams = lazy(() => import("./pages/CalendarTeams"));
 const Subcontractors = lazy(() => import("./pages/Subcontractors"));
 const Settings = lazy(() => import("./pages/Settings"));
 
+// Special export pages removed
+
 // Pages with Figma layout (prototypes)
 const Klienci = lazy(() => import("./pages/Klienci"));
 const Klient = lazy(() => import("./pages/ClientDetails"));
@@ -89,6 +91,7 @@ function App() {
                 <Route path="lista" element={<Magazyn />} />
               </Route>
               <Route path="kafelki" element={<Tiles />} />
+              <Route path="tiles" element={<Tiles />} />
               <Route path="designer" element={<DesignerDashboard />} />
               <Route path="calendar" element={<CalendarPage />} />
               <Route path="calendar/projects" element={<CalendarProjects />} />
@@ -101,6 +104,8 @@ function App() {
               <Route path="demands" element={<Demands />} />
               <Route path="settings" element={<Settings />} />
             </Route>
+
+            {/* Special routes removed */}
 
             {/* Clients under main layout for consistent navigation */}
             <Route path="/klienci" element={<BrandedLayout />}>

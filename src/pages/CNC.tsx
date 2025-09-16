@@ -79,7 +79,7 @@ export default function CNC() {
   }, [tiles]);
 
   return (
-    <div>
+    <div data-component="CNCPage" data-variant="monitoring" data-state="active">
       <PageHeader
         title="CNC - Monitoring i kolejka"
         subtitle="Zarządzanie produkcją CNC i monitoring maszyn"

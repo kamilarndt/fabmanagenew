@@ -1,0 +1,8 @@
+{
+  "name": "Płyta OSB 12mm",
+  "code": "OSB-12",
+  "unit": "m2",
+  "unit_cost": 32.0,
+  "stock": 15,
+  "location": "Magazyn główny"
+}
