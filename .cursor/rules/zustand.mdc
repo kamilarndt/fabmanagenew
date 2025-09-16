@@ -1,8 +1,6 @@
 ---
 description: Zustand slice pattern for FabManage-Clean
-globs:
-  - \src/stores/**/*.ts\
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Zustand Store Rules
@@ -12,21 +10,272 @@ alwaysApply: true
 - Use immer for complex updates; keep actions small and focused.
 - Async actions must set isLoading and error; prefer TanStack Query for server data.
 
-`	s
-import { create } from \zustand\;
-import { devtools, persist } from \zustand/middleware\;
+## Basic Store Pattern
+
+```tsx
+import { create } from "zustand";
+import { devtools, persist } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 
 interface TilesState {
   tiles: Tile[];
   isLoading: boolean;
   error: string | null;
-  setTiles: (tiles: Tile[]) => void;
+  selectedTileId: string | null;
+  filters: TileFilters;
 }
 
-export const useTilesStore = create<TilesState>()(persist(devtools((set) => ({
-  tiles: [],
-  isLoading: false,
-  error: null,
-  setTiles: (tiles) => set({ tiles }),
-}), { name: \TilesStore\ }))); 
-`
+interface TilesActions {
+  setTiles: (tiles: Tile[]) => void;
+  addTile: (tile: Tile) => void;
+  updateTile: (id: string, updates: Partial<Tile>) => void;
+  deleteTile: (id: string) => void;
+  setSelectedTile: (id: string | null) => void;
+  setFilters: (filters: Partial<TileFilters>) => void;
+  clearError: () => void;
+}
+
+export const useTilesStore = create<TilesState & TilesActions>()(
+  persist(
+    devtools(
+      immer((set, get) => ({
+        // State
+        tiles: [],
+        isLoading: false,
+        error: null,
+        selectedTileId: null,
+        filters: {},
+
+        // Actions
+        setTiles: (tiles) => set({ tiles }),
+
+        addTile: (tile) =>
+          set((state) => {
+            state.tiles.push(tile);
+          }),
+
+        updateTile: (id, updates) =>
+          set((state) => {
+            const index = state.tiles.findIndex((tile) => tile.id === id);
+            if (index !== -1) {
+              Object.assign(state.tiles[index], updates);
+            }
+          }),
+
+        deleteTile: (id) =>
+          set((state) => {
+            state.tiles = state.tiles.filter((tile) => tile.id !== id);
+            if (state.selectedTileId === id) {
+              state.selectedTileId = null;
+            }
+          }),
+
+        setSelectedTile: (id) => set({ selectedTileId: id }),
+
+        setFilters: (filters) =>
+          set((state) => {
+            state.filters = { ...state.filters, ...filters };
+          }),
+
+        clearError: () => set({ error: null }),
+      })),
+      { name: "TilesStore" }
+    ),
+    {
+      name: "tiles-storage",
+      partialize: (state) => ({
+        selectedTileId: state.selectedTileId,
+        filters: state.filters,
+      }),
+    }
+  )
+);
+```
+
+## Complex Store with Async Actions
+
+```tsx
+interface ProjectsState {
+  projects: Project[];
+  currentProject: Project | null;
+  isLoading: boolean;
+  error: string | null;
+}
+
+interface ProjectsActions {
+  setProjects: (projects: Project[]) => void;
+  setCurrentProject: (project: Project | null) => void;
+  createProject: (project: Omit<Project, "id">) => Promise<void>;
+  updateProject: (id: string, updates: Partial<Project>) => Promise<void>;
+  deleteProject: (id: string) => Promise<void>;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+}
+
+export const useProjectsStore = create<ProjectsState & ProjectsActions>()(
+  devtools(
+    immer((set, get) => ({
+      // State
+      projects: [],
+      currentProject: null,
+      isLoading: false,
+      error: null,
+
+      // Actions
+      setProjects: (projects) => set({ projects }),
+
+      setCurrentProject: (project) => set({ currentProject: project }),
+
+      createProject: async (projectData) => {
+        set({ isLoading: true, error: null });
+        try {
+          const newProject = await projectService.create(projectData);
+          set((state) => {
+            state.projects.push(newProject);
+            state.currentProject = newProject;
+          });
+        } catch (error) {
+          set({ error: error.message });
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      updateProject: async (id, updates) => {
+        set({ isLoading: true, error: null });
+        try {
+          const updatedProject = await projectService.update(id, updates);
+          set((state) => {
+            const index = state.projects.findIndex((p) => p.id === id);
+            if (index !== -1) {
+              state.projects[index] = updatedProject;
+            }
+            if (state.currentProject?.id === id) {
+              state.currentProject = updatedProject;
+            }
+          });
+        } catch (error) {
+          set({ error: error.message });
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      deleteProject: async (id) => {
+        set({ isLoading: true, error: null });
+        try {
+          await projectService.delete(id);
+          set((state) => {
+            state.projects = state.projects.filter((p) => p.id !== id);
+            if (state.currentProject?.id === id) {
+              state.currentProject = null;
+            }
+          });
+        } catch (error) {
+          set({ error: error.message });
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      setLoading: (loading) => set({ isLoading: loading }),
+      setError: (error) => set({ error }),
+    })),
+    { name: "ProjectsStore" }
+  )
+);
+```
+
+## UI State Store
+
+```tsx
+interface UIState {
+  sidebarOpen: boolean;
+  theme: "light" | "dark";
+  drawerOpen: boolean;
+  drawerContent: React.ReactNode | null;
+  notifications: Notification[];
+}
+
+interface UIActions {
+  toggleSidebar: () => void;
+  setTheme: (theme: "light" | "dark") => void;
+  openDrawer: (content: React.ReactNode) => void;
+  closeDrawer: () => void;
+  addNotification: (notification: Omit<Notification, "id">) => void;
+  removeNotification: (id: string) => void;
+}
+
+export const useUIStore = create<UIState & UIActions>()(
+  persist(
+    devtools(
+      immer((set) => ({
+        // State
+        sidebarOpen: true,
+        theme: "light",
+        drawerOpen: false,
+        drawerContent: null,
+        notifications: [],
+
+        // Actions
+        toggleSidebar: () =>
+          set((state) => {
+            state.sidebarOpen = !state.sidebarOpen;
+          }),
+
+        setTheme: (theme) => set({ theme }),
+
+        openDrawer: (content) =>
+          set({
+            drawerOpen: true,
+            drawerContent: content,
+          }),
+
+        closeDrawer: () =>
+          set({
+            drawerOpen: false,
+            drawerContent: null,
+          }),
+
+        addNotification: (notification) =>
+          set((state) => {
+            state.notifications.push({
+              ...notification,
+              id: crypto.randomUUID(),
+            });
+          }),
+
+        removeNotification: (id) =>
+          set((state) => {
+            state.notifications = state.notifications.filter(
+              (n) => n.id !== id
+            );
+          }),
+      })),
+      { name: "UIStore" }
+    ),
+    {
+      name: "ui-storage",
+      partialize: (state) => ({
+        sidebarOpen: state.sidebarOpen,
+        theme: state.theme,
+      }),
+    }
+  )
+);
+```
+
+## Store Composition
+
+```tsx
+// Root store combining all slices
+export const useAppStore = create<{
+  projects: ReturnType<typeof useProjectsStore>;
+  tiles: ReturnType<typeof useTilesStore>;
+  ui: ReturnType<typeof useUIStore>;
+}>()((...args) => ({
+  projects: useProjectsStore(...args),
+  tiles: useTilesStore(...args),
+  ui: useUIStore(...args),
+}));
+```

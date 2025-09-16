@@ -1,0 +1,38 @@
+---
+description: Enforce Strangler Fig import policy for UI migration
+alwaysApply: false
+---
+
+# Strangler Fig Import Policy
+
+- New UI code under `src/new-ui/**` must NOT import `antd` or `@ant-design/icons` directly.
+- Legacy compatibility with Ant Design is allowed ONLY via adapters under `src/bridge-ui/antd-wrappers/**`.
+- Bridge adapters can import from `antd`, map API to new components, and expose compatible props.
+- All other code must import from `@/new-ui/*` or from bridge adapters.
+
+Allowed import examples
+
+` tsx
+// OK in new-ui
+import { Button } from '@/new-ui/atoms/Button'
+
+// OK in legacy areas via bridge
+import { LegacyDrawer } from '@/bridge-ui/antd-wrappers/LegacyDrawer'
+`
+
+Forbidden import examples
+
+`tsx
+// NOT allowed in new-ui
+import { Drawer } from 'antd'
+import { PlusOutlined } from '@ant-design/icons'`
+
+Rationale
+
+- Keeps new UI isolated from Ant Design to enable clean cut-over.
+- Ensures all legacy usage flows through a single replaceable layer.
+
+Notes
+
+- ESLint also enforces this rule for `src/new-ui/**`.
+- During migration, routes may coexist; adhere to this policy to prevent regressions.

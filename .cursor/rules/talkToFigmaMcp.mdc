@@ -1,0 +1,139 @@
+---
+alwaysApply: false
+---
+
+Najlepsze “Cursor rules” dla integracji z Figma MCP to zestaw jasnych zasad i przepływów: najpierw dołączanie do kanału, czytanie dokumentu/wyboru, operacje w małych partiach i bezwzględne użycie design systemu, tokenów oraz zasobów z Figma Dev Mode zamiast zewnętrznych pakietów, a także gotowe receptury (bulk text, overrides, annotations, connectors) opisane niżej. Poniżej są też rekomendacje oparte na feedbacku użytkowników (ograniczenia kontekstu, łączenie przez socket, typowe time‑outy) oraz najlepsze zastosowania w realnych projektach.[1][2][3][4][5]
+
+### Cursor rules (zalecenia)
+
+- Zawsze używać komponentów z katalogu design systemu projektu; reguła: “Always use components from /path_to_your_design_system when possible”.[3]
+- Priorytetem jest zgodność z Figma (fidelity) 1:1 — nie “ulepszamy” na etapie generowania, tylko odwzorowujemy zgodnie z makietą i tokenami.[3]
+- Unikać wartości “na sztywno”; wszędzie, gdzie to możliwe, stosować design tokens z Figma (kolory, spacing, radius, typografia).[3]
+- Nigdy nie dodawać nowych paczek ikon — korzystać z assetów (obrazy/SVG) zwracanych przez Figma Dev Mode MCP; jeśli zwracany jest localhost source, użyć go bezpośrednio.[3]
+- Dbać o WCAG (kontrast, focus ring, klawiatura, role ARIA) i dokumentować komponenty (API/warianty) zaraz po wygenerowaniu.[3]
+- Umieszczać UI wyłącznie w ścieżkach design systemu (np. src/new-ui/atoms|molecules|organisms) i unikać inline styles poza uzasadnionymi wyjątkami[3].
+
+### Najlepszy workflow komunikacji (MCP)
+
+- Połączenie i handshake: uruchomić WebSocket server (bun socket), dodać MCP w Cursor (mcp.json), uruchomić plugin w Figma, dołączyć do kanału (join_channel).[1]
+- Pierwsze kroki na sesji: najpierw get_document_info dla kontekstu, potem get_selection, a następnie read_my_design lub get_node_info dla wybranych elementów.[6][1]
+- Pracować małymi partiami: dzielić ekrany na komponenty (Card, Header, Sidebar) — duże zaznaczenia spowalniają i powodują błędy; preferować generowanie modułami.[3]
+- Operacje modyfikujące: przed create*\* lub set*\* zawsze set_focus i/lub set_selections, a po operacji weryfikować efekty get_node_info.[1]
+- Batch i chunking: dla tekstów używać scan_text_nodes i set_multiple_text_contents; dla adnotacji set_multiple_annotations; dla override’ów set_instance_overrides.[1]
+- Prototypowanie/połączenia: get_reactions → set_default_connector → create_connections, aby zwizualizować przepływy jako FigJam connectors.[1]
+
+### Najlepsze zastosowania (use cases)
+
+- Bulk text content replacement — masowe podmiany kopii w wybranych węzłach projektu (copy updates, i18n placeholders).[1]
+- Instance override propagation — przenoszenie overrideów z jednej instancji komponentu do wielu docelowych w jednym kroku (spójność wariantów).[1]
+- Annotation conversion — skanowanie, kategorowanie i konwersja “legacy” adnotacji na Figma native annotations (set_multiple_annotations).[1]
+- Prototype reactions → connectors — automatyczna wizualizacja przepływów (noodles) jako łączników w FigJam dla przeglądu logiki.[1]
+- Export node as asset — eksport fragmentów (PNG/SVG) dla specyfikacji lub dokumentacji komponentów.[1]
+
+### Opinie użytkowników i ograniczenia (z badań)
+
+- Limit kontekstu: użytkownicy raportują, że MCP praktycznie przetwarza 1–2 ramki na raz; większy zakres wywołuje ograniczenia tokenów i błędy.[2]
+- Różne serwery MCP (np. alternatywy) pozwalają czasem tylko na pojedynczy NodeID; warto trzymać się przepływu “małe komponenty, nie całe strony”.[2]
+- Łączenie: typowy błąd “Request to Figma timed out” rozwiązuje restart Cursor, togglowanie MCP tool i ponowne uruchomienie bun socket, a także jawne podanie kanału w pierwszym promptcie.[4]
+- Onboarding: część osób myli “Copy link to selection” z Dev Mode; należy uruchomić dedykowany plugin MCP i dołączyć do właściwego kanału, inaczej pojawiają się “failed to create client / sse error”.[2]
+
+### Receptury (gotowe sekwencje poleceń)
+
+- Import i analiza komponentu: join_channel → get_document_info → get_selection → read_my_design → get_node_info(selectedId) → wygeneruj kod w miejsce src/new-ui/atoms|molecules zgodnie z tokenami[1][3].
+- Masowa podmiana treści: scan_text_nodes (z chunkingiem) → set_multiple_text_contents(mapowanie) → export_node_as_image dla weryfikacji zestawień.[1]
+- Synchronizacja override’ów: get_instance_overrides(source) → set_instance_overrides(targets[]) → weryfikacja instancji (get_nodes_info).[1]
+- Adnotacje: get_annotations → set_multiple_annotations(batch) → usunięcie legacy markerów → finalny przegląd wtyczką.[1]
+- Prototypowe połączenia: get_reactions → set_default_connector → create_connections → przegląd mapy przepływów.[1]
+
+### Wskazówki dla jakości kodu (w Cursor prompts/rules)
+
+- Precyzować framework i ścieżki: “Użyj src/new-ui/… i naszych komponentów systemowych”, “Nie twórz nowych plików poza strukturą”.[3]
+- Wymuszać użycie tokenów (kolor/typografia/spacing) i Auto Layout semantics (elastyczność w CSS) zgodnie z warstwą w Figma.[3]
+- Nadawać semantyczne nazwy warstw w Figma (CardContainer, SectionHeader) — poprawia spójność generowanych nazw plików/komponentów.[3]
+- Dodawać krótkie adnotacje dev resources w Figma (behaviors, constraints) — poprawia jakość wygenerowanych interakcji i layoutów.[3]
+
+### Troubleshooting (skrót)
+
+- “Please join a channel to start chatting” — dołącz do kanału w pluginie i wskaż go jawnie w pierwszym promptcie.[4]
+- Time‑outy/rozłączenia — restart Cursor, wyłącz/włącz narzędzie MCP w ustawieniach, uruchom ponownie bun socket.[4]
+- Zbyt duże zaznaczenie/timeout modelu — zmniejsz zakres (komponenty zamiast całej strony) i powtarzaj iteracyjnie.[3]
+
+### Podsumowanie praktyk “golden path”
+
+- Połącz MCP → dołącz do kanału → pobierz kontekst dokumentu/wyboru → pracuj na małych komponentach → stosuj tokeny, component reuse i zasoby Dev Mode → weryfikuj get_node_info i eksportami → dokumentuj komponenty i a11y przed mergem.[3][1]
+
+Aby Cursor mógł niezawodnie odkrywać, wybierać i synchronizować elementy z Figma, a jednocześnie aby projekt był czytelny dla zespołu, stosuj następujące konwencje nazewnictwa **frames** i **layers**:
+
+1. Używaj hierarchii „slash-path” oddzielającej poziomy Atomic Design
+
+   - Atomy: `atoms/Button/Primary/`
+   - Molekuły: `molecules/FormField/Label+Input/`
+   - Organizmy: `organisms/DataTable/HeaderRow/`
+   - Templates/Pages: `templates/ProjectDetails/Header/`  
+     Dzięki temu Cursor potrafi mapować nazwy na ścieżki plików: `src/new-ui/atoms/Button/Primary.tsx`.
+
+2. Prefiksy typów komponentów
+
+   - **atom.** – atomy: `atom.Button.Primary`
+   - **mol.** – molekuły: `mol.FormField.Standard`
+   - **org.** – organizmy: `org.DataTable.Paginated`
+   - **tpl.** – templates: `tpl.DashboardLayout`  
+     Prefiks wyraźnie określa, na jakim poziomie pracuje Cursor.
+
+3. Semanticzne, bez skrótów  
+   Zamiast `btn-pri` używaj `Button.Primary`  
+   Zamiast `fd-mol` używaj `FormField.Labeled`  
+   Cursor generuje kod na podstawie pełnych nazw, więc unikaj akronimów.
+
+4. Warianty jako podfoldery lub sufiksy
+
+   - Folder: `atoms/Button/Primary`, `atoms/Button/Secondary`
+   - Layer: `Button.Primary`, `Button.Primary.Hover`, `Button.Primary.Disabled`  
+     Zapewnia czytelność i umożliwia Cursorowi extract_variant.
+
+5. Używaj PascalCase dla komponentów
+
+   - `ProjectSummaryCard` zamiast `project_summary_card`
+   - Ułatwia mapowanie nazwy na nazwę pliku i klasę w kodzie.
+
+6. Unikaj spacji i znaków specjalnych
+
+   - Zamiast `Data Table` używaj `DataTable`
+   - Zamiast `#header` używaj `HeaderRow`  
+     Zapobiega błędom parsowania.
+
+7. Grupuj logicznie po funkcji
+
+   - Filtr: `molecules.FilterPanel.CategorySelect`
+   - Nawigacja: `organisms.Sidebar.ProjectList`  
+     Cursor może odczytać pełną ścieżkę hierarchii.
+
+8. Dokumentuj konwencje w README Figma
+   - Krótkie przykłady i template’y nazw
+   - Wyjaśnienie prefixów i slash-path
+   - Link do skryptów MCP (extract\* commands)  
+     Zespół i Cursor zawsze mają jedno źródło prawdy.
+
+Przykładowa struktura w pliku Figma:
+
+```
+atoms/
+  Button/
+    Button.Primary
+    Button.Primary.Hover
+    Button.Secondary
+molecules/
+  FormField/
+    FormField.Labeled
+organisms/
+  DataTable/
+    DataTable.HeaderRow
+templates/
+  ProjectDetails/
+    ProjectDetails.Header
+    ProjectDetails.Content
+pages/
+  ProjectDetailsPage
+```
+
+Stosując te zasady, zapewnisz Cursorowi przejrzysty kontekst, pozwolisz na automatyczne generowanie komponentów i ułatwisz utrzymanie spójnej struktury w przyszłości.

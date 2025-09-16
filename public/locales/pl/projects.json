@@ -1,0 +1,17 @@
+{
+  "title": "Projekty",
+  "addProject": "Dodaj projekt",
+  "editProject": "Edytuj projekt",
+  "deleteProject": "Usuń projekt",
+  "projectName": "Nazwa projektu",
+  "client": "Klient",
+  "status": "Status",
+  "startDate": "Data rozpoczęcia",
+  "endDate": "Data zakończenia",
+  "budget": "Budżet",
+  "progress": "Postęp",
+  "active": "Aktywny",
+  "completed": "Zakończony",
+  "onHold": "Wstrzymany",
+  "cancelled": "Anulowany"
+}

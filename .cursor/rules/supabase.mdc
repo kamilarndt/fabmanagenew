@@ -1,9 +1,6 @@
 ---
 description: Supabase integration rules for FabManage-Clean
-globs:
-  - \src/services/**/*.ts\
-  - \src/lib/**/*.ts\
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Supabase Integration

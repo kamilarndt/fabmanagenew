@@ -1,0 +1,111 @@
+---
+description: Design tokens and Figma integration rules for FabManage-Clean
+alwaysApply: false
+---
+
+# Design Tokens Rules
+
+- Always use design tokens from `src/new-ui/tokens/` instead of hardcoded values
+- Generate tokens from Figma using MCP integration
+- Use semantic naming for better maintainability
+- Support both light and dark themes
+- Validate tokens with TypeScript types
+
+## Token Usage
+
+```tsx
+// ✅ Good - using design tokens
+import { designTokens } from '@/new-ui/tokens/design-tokens'
+
+const styles = {
+  backgroundColor: designTokens.colors.background.primary,
+  color: designTokens.colors.foreground.primary,
+  padding: designTokens.spacing.lg,
+  borderRadius: designTokens.radius.md,
+}
+
+// ✅ Good - using Tailwind with tokens
+<div className="tw-bg-background-primary tw-text-foreground-primary tw-p-lg tw-rounded-md">
+```
+
+## Token Structure
+
+```tsx
+// Design tokens should follow this structure
+export const designTokens = {
+  colors: {
+    foreground: { primary, secondary, muted, accent, destructive, success, warning, disabled },
+    background: { primary, secondary, muted, accent, destructive, success, disabled, card, popover, input },
+    border: { primary, destructive, success, default, warning },
+    chart: { chart-1, chart-2, chart-3, chart-4, chart-5 },
+    icon: { primary, secondary, destructive, success, warning, disabled, default, muted, accent }
+  },
+  spacing: { none, xxs, xs, sm, md, lg, xl, xxl, '3xl', '4xl' },
+  padding: { none, xxs, xs, sm, md, lg, xl, xxl, '3xl', '4xl' },
+  radius: { none, xs, sm, md, lg, xl, xxl, full },
+  semantic: { primary, secondary, destructive, success, warning, muted, accent, card, popover, input, border }
+}
+```
+
+## Figma Integration
+
+```bash
+# Generate tokens from Figma
+npm run tokens:process
+
+# Validate token consistency
+npm run tokens:validate
+
+# Sync tokens with Tailwind
+npm run tokens:sync
+```
+
+## TypeScript Integration
+
+```tsx
+// ✅ Good - typed token usage
+import type {
+  ColorToken,
+  SpacingToken,
+  RadiusToken,
+} from "@/new-ui/tokens/design-tokens";
+
+interface ComponentProps {
+  backgroundColor?: ColorToken;
+  padding?: SpacingToken;
+  borderRadius?: RadiusToken;
+}
+
+// ✅ Good - using semantic colors
+import { semanticColors } from "@/new-ui/tokens/design-tokens";
+
+const primaryColor = semanticColors.primary;
+```
+
+## Theme Support
+
+```tsx
+// ✅ Good - theme-aware token usage
+const useTheme = () => {
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  const tokens = theme === "light" ? designTokens.light : designTokens.dark;
+
+  return { theme, tokens, setTheme };
+};
+```
+
+## Validation
+
+- All tokens must have TypeScript types
+- Colors must have proper contrast ratios
+- Spacing must follow 8px grid system
+- Radius values must be consistent
+- Semantic tokens must map to design tokens
+
+## Migration
+
+- Replace hardcoded values with tokens gradually
+- Use find/replace for common patterns
+- Validate visual consistency after changes
+- Update tests to use token values

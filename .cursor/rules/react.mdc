@@ -1,9 +1,6 @@
 ---
 description: React component standards for FabManage-Clean
-globs:
-  - \src/components/**/*.tsx\
-  - \src/pages/**/*.tsx\
-alwaysApply: true
+alwaysApply: false
 ---
 
 # React Component Rules
@@ -14,14 +11,135 @@ alwaysApply: true
 - useCallback for handlers passed as props; useMemo for heavy computations.
 - Avoid inline functions in JSX; keep JSX shallow.
 - Loading states for all async operations.
-- All modals are Ant Design Drawer with placement=\right\.
+- All modals are right-side Drawers (Ant Design or Shadcn/UI).
 - Follow unified tile edit experience across pages.
 
-`	sx
-interface DrawerFormProps { title: string; open: boolean; onClose: () => void }
-export function DrawerForm({ title, open, onClose }: DrawerFormProps) {
+## New UI Components (src/new-ui/)
+
+```tsx
+// ✅ Good - New UI component structure
+interface ButtonProps {
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
+  size?: "default" | "sm" | "lg" | "icon";
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+}
+
+export function Button({
+  variant = "default",
+  size = "default",
+  children,
+  ...props
+}: ButtonProps) {
   return (
-    <Drawer title={title} open={open} onClose={onClose} placement=\right\ destroyOnClose />
+    <button className={cn(buttonVariants({ variant, size }))} {...props}>
+      {children}
+    </button>
   );
 }
-`
+```
+
+## Legacy Components (src/components/)
+
+```tsx
+// ✅ Good - Legacy Ant Design component
+interface DrawerFormProps {
+  title: string;
+  open: boolean;
+  onClose: () => void;
+}
+
+export function DrawerForm({ title, open, onClose }: DrawerFormProps) {
+  return (
+    <Drawer
+      title={title}
+      open={open}
+      onClose={onClose}
+      placement="right"
+      destroyOnClose
+    />
+  );
+}
+```
+
+## Bridge Components (src/bridge-ui/)
+
+```tsx
+// ✅ Good - Bridge component for migration
+interface LegacyDrawerProps {
+  title: string;
+  open: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}
+
+export function LegacyDrawer({
+  title,
+  open,
+  onClose,
+  children,
+}: LegacyDrawerProps) {
+  // Use new UI when available, fallback to Ant Design
+  if (useNewUI()) {
+    return (
+      <NewDrawer title={title} open={open} onClose={onClose}>
+        {children}
+      </NewDrawer>
+    );
+  }
+
+  return (
+    <Drawer title={title} open={open} onClose={onClose} placement="right">
+      {children}
+    </Drawer>
+  );
+}
+```
+
+## Performance Patterns
+
+```tsx
+// ✅ Good - Memoized component with proper dependencies
+export const ExpensiveComponent = React.memo(({ data, onUpdate }: Props) => {
+  const processedData = useMemo(() => {
+    return data.map((item) => ({ ...item, processed: true }));
+  }, [data]);
+
+  const handleUpdate = useCallback(
+    (id: string) => {
+      onUpdate(id);
+    },
+    [onUpdate]
+  );
+
+  return <div>{/* render */}</div>;
+});
+```
+
+## Error Boundaries
+
+```tsx
+// ✅ Good - Error boundary for robust error handling
+export function ErrorBoundary({ children }: { children: React.ReactNode }) {
+  return (
+    <ErrorBoundaryProvider
+      fallback={({ error, resetError }) => (
+        <div className="tw-p-lg tw-text-center">
+          <h2 className="tw-text-destructive">Something went wrong</h2>
+          <p className="tw-text-muted-foreground">{error.message}</p>
+          <Button onClick={resetError}>Try again</Button>
+        </div>
+      )}
+    >
+      {children}
+    </ErrorBoundaryProvider>
+  );
+}
+```

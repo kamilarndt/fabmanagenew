@@ -1,0 +1,19 @@
+{
+  "title": "Materiały",
+  "catalog": "Katalog",
+  "inventory": "Magazyn",
+  "orders": "Zamówienia",
+  "addMaterial": "Dodaj materiał",
+  "editMaterial": "Edytuj materiał",
+  "deleteMaterial": "Usuń materiał",
+  "stock": "Stan magazynowy",
+  "price": "Cena",
+  "supplier": "Dostawca",
+  "category": "Kategoria",
+  "unit": "Jednostka",
+  "minStock": "Min. stan",
+  "maxStock": "Max. stan",
+  "lowStock": "Niski stan",
+  "outOfStock": "Brak w magazynie",
+  "inStock": "W magazynie"
+}

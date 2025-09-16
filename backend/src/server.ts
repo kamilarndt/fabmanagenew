@@ -98,6 +98,64 @@ app.get("/api/tiles", async (_req, res) => {
   }
 });
 
+// Materials
+app.get("/api/materials", async (_req, res) => {
+  try {
+    const { rows } = await pool.query("SELECT * FROM materials ORDER BY name");
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
+app.get("/api/materials/catalog", async (_req, res) => {
+  try {
+    const { rows } = await pool.query("SELECT * FROM materials ORDER BY name");
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
+app.get("/api/materials/inventory", async (_req, res) => {
+  try {
+    const { rows } = await pool.query(
+      "SELECT * FROM materials WHERE stock > 0 ORDER BY name"
+    );
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
+app.get("/api/materials/orders", async (_req, res) => {
+  try {
+    const { rows } = await pool.query(
+      "SELECT * FROM materials WHERE stock = 0 ORDER BY name"
+    );
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
+app.get("/api/materials/stats", async (_req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT 
+         COUNT(*) as total,
+         COUNT(CASE WHEN stock > 0 THEN 1 END) as in_stock,
+         COUNT(CASE WHEN stock = 0 THEN 1 END) as out_of_stock,
+         COUNT(CASE WHEN stock < 5 THEN 1 END) as low_stock,
+         SUM(stock * unit_cost) as total_value
+       FROM materials`
+    );
+    res.json(rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
 // Materials BOM for project
 app.get("/api/materials/bom", async (req, res) => {
   const projectId = req.query.projectId as string;

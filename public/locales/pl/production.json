@@ -1,0 +1,13 @@
+{
+  "title": "Produkcja",
+  "tasks": "Zadania",
+  "schedule": "Harmonogram",
+  "machines": "Maszyny",
+  "operators": "Operatorzy",
+  "quality": "Jakość",
+  "efficiency": "Wydajność",
+  "startTask": "Rozpocznij zadanie",
+  "completeTask": "Zakończ zadanie",
+  "pauseTask": "Wstrzymaj zadanie",
+  "resumeTask": "Wznów zadanie"
+}

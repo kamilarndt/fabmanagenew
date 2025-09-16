@@ -6,32 +6,57 @@ alwaysApply: true
 # FabManage-Clean - Production Management System
 
 ## Architecture
-- Frontend: React 18 + TypeScript + Vite + Ant Design
+
+- Frontend: React 19 + TypeScript + Vite + PWA
+- UI System: Strangler Fig (Ant Design → Shadcn/UI + Radix)
 - State: Zustand (slice pattern) + TanStack Query
-- Backend: Supabase (Auth, DB, Storage)
+- Backend: Supabase (Auth, DB, Storage, Edge Functions)
 - Routing: React Router v7
-- Styling: CSS Modules + Ant Design
-- Testing: Vitest + Playwright
+- Styling: Tailwind CSS + Design Tokens + CSS Modules
+- Testing: Vitest + Playwright + Storybook
 - Deploy: Docker + Nginx
+- Design: Figma MCP Integration
 
 ## Key Patterns
+
 - All modals are right-side Drawers
 - Unified tile edit experience
 - TypeScript strict mode; interface for props, type for data
 - RORO functions; Zod validation; React.memo
+- Strangler Fig migration pattern
+- Design tokens from Figma
 
 ## Domains
+
 - Projects & Modules (sequential workflow)
 - Tiles (BOM, technical files, CNC integration)
 - CNC (machines, queue, utilization)
 - Materials (inventory, purchasing, consolidation)
 
 ## File Layout
+
 src/
-- components/
-- pages/
-- stores/
-- services/
-- hooks/
-- types/
-- lib/
+
+- components/ # Legacy Ant Design components
+- new-ui/ # New Shadcn/UI + Radix system
+  - atoms/ # Basic UI components
+  - molecules/ # Composite components
+  - organisms/ # Complex components
+  - templates/ # Page layouts
+  - tokens/ # Design tokens from Figma
+- bridge-ui/ # Strangler Fig adapters
+- pages/ # Route components
+- stores/ # Zustand stores
+- services/ # API services
+- hooks/ # Custom React hooks
+- types/ # TypeScript definitions
+- lib/ # Utility functions
+
+## Design System
+
+- Atomic design methodology
+- Figma design tokens integration
+- Dark/light theme support
+- WCAG 2.1 AA accessibility
+- 8px grid spacing system
+- Semantic color tokens

@@ -6,11 +6,13 @@ import { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary";
 import { PageLoading } from "./components/ui/LoadingSpinner";
 import { useInitializeRealData } from "./hooks/useInitializeRealData";
 import useOfflineDetection from "./hooks/useOfflineDetection";
+import { features } from "./lib/config";
 import { connectionMonitor } from "./lib/connectionMonitor";
 import { useProjectsStore } from "./stores/projectsStore";
 
 // Layouts
 import BrandedLayout from "./layouts/BrandedLayout";
+import NewUILayout from "./layouts/NewUILayout";
 
 // Pages with Bootstrap layout
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -35,6 +37,19 @@ const Settings = lazy(() => import("./pages/Settings"));
 // Pages with Figma layout (prototypes)
 const Klienci = lazy(() => import("./pages/Klienci"));
 const Klient = lazy(() => import("./pages/ClientDetails"));
+
+// New UI Pages (v2)
+const DashboardV2 = lazy(() => import("./pages/v2/DashboardV2"));
+const ProjectsV2 = lazy(() => import("./pages/v2/ProjectsV2"));
+const MaterialsV2 = lazy(() => import("./pages/v2/MaterialsV2"));
+const TilesV2 = lazy(() => import("./pages/v2/TilesV2"));
+const SettingsV2 = lazy(() => import("./pages/v2/SettingsV2"));
+
+// Modern UI Pages
+const ModernDashboard = lazy(() => import("./new-ui/pages/ModernDashboard"));
+
+// Migration Dashboard
+const MigrationDashboard = lazy(() => import("./pages/MigrationDashboard"));
 
 import "./App.css";
 
@@ -100,6 +115,7 @@ function App() {
               <Route path="subcontractors" element={<Subcontractors />} />
               <Route path="demands" element={<Demands />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="migration" element={<MigrationDashboard />} />
             </Route>
 
             {/* Clients under main layout for consistent navigation */}
@@ -108,6 +124,36 @@ function App() {
               <Route path=":id" element={<Klient />} />
             </Route>
             {/* Removed KlienciFigma route (file missing) */}
+
+            {/* New UI Routes (v2) - Feature Flagged */}
+            {features.newUI && (
+              <Route path="/v2" element={<NewUILayout />}>
+                {features.newUIDashboard && (
+                  <Route index element={<DashboardV2 />} />
+                )}
+                {features.newUIDashboard && (
+                  <Route path="dashboard" element={<DashboardV2 />} />
+                )}
+                {features.newUIProjects && (
+                  <Route path="projects" element={<ProjectsV2 />} />
+                )}
+                {features.newUIProjects && (
+                  <Route path="projects/:projectId" element={<ProjectsV2 />} />
+                )}
+                {features.newUIMaterials && (
+                  <Route path="materials" element={<MaterialsV2 />} />
+                )}
+                {features.newUITiles && (
+                  <Route path="tiles" element={<TilesV2 />} />
+                )}
+                {features.newUISettings && (
+                  <Route path="settings" element={<SettingsV2 />} />
+                )}
+              </Route>
+            )}
+
+            {/* Modern UI Routes - Latest Design */}
+            <Route path="/modern" element={<ModernDashboard />} />
           </Routes>
         </Suspense>
       </DndProvider>

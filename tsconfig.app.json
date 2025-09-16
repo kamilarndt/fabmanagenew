@@ -6,6 +6,10 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -14,6 +18,13 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    "types": [
+      "vite/client",
+      "vitest/globals",
+      "react",
+      "react-dom",
+      "@testing-library/jest-dom"
+    ],
 
     /* Linting */
     "strict": true,
@@ -24,5 +35,10 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["src"],
-  "exclude": ["src/components/Ui/**"]
+  "exclude": [
+    "src/components/Ui/**",
+    "**/*.test.*",
+    "**/*.stories.*",
+    "**/*.enhanced.*"
+  ]
 }

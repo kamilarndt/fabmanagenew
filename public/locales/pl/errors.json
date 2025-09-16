@@ -1,0 +1,12 @@
+{
+  "title": "Błędy",
+  "networkError": "Błąd sieci",
+  "serverError": "Błąd serwera",
+  "notFound": "Nie znaleziono",
+  "unauthorized": "Brak autoryzacji",
+  "forbidden": "Brak uprawnień",
+  "validationError": "Błąd walidacji",
+  "unknownError": "Nieznany błąd",
+  "tryAgain": "Spróbuj ponownie",
+  "contactSupport": "Skontaktuj się z pomocą techniczną"
+}

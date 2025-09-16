@@ -1,6 +1,6 @@
 import type { Preview } from "@storybook/react";
-import { ConfigProvider } from "antd";
 import "../src/index.css";
+import "../src/styles/design-system.css";
 
 const preview: Preview = {
   parameters: {
@@ -28,18 +28,9 @@ const preview: Preview = {
   },
   decorators: [
     (Story) => (
-      <ConfigProvider
-        theme={{
-          token: {
-            borderRadius: 6,
-            fontFamily: "Inter, system-ui, sans-serif",
-          },
-        }}
-      >
-        <div style={{ padding: "1rem" }}>
-          <Story />
-        </div>
-      </ConfigProvider>
+      <div style={{ padding: "1rem" }}>
+        <Story />
+      </div>
     ),
   ],
 };

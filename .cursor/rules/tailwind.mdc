@@ -1,0 +1,100 @@
+---
+description: Tailwind CSS best practices for FabManage-Clean
+alwaysApply: false
+---
+
+# Tailwind CSS Rules
+
+- Use design tokens from `src/new-ui/tokens/` instead of hardcoded values
+- Prefer semantic color classes over arbitrary values
+- Use `tw-` prefix for all Tailwind classes to avoid conflicts
+- Group related classes logically (layout, spacing, colors, etc.)
+- Use `cn()` utility for conditional classes
+
+## Design Token Usage
+
+```tsx
+// ✅ Good - using design tokens
+<div className="tw-bg-background-primary tw-text-foreground-primary tw-p-lg tw-rounded-md">
+
+// ❌ Bad - hardcoded values
+<div className="tw-bg-white tw-text-black tw-p-4 tw-rounded-lg">
+```
+
+## Class Organization
+
+```tsx
+// ✅ Good - logical grouping
+<button className={cn(
+  // Layout
+  "tw-flex tw-items-center tw-justify-center",
+  // Spacing
+  "tw-px-lg tw-py-md tw-gap-sm",
+  // Colors
+  "tw-bg-primary tw-text-primary-foreground",
+  // States
+  "hover:tw-bg-primary/90 focus:tw-ring-2 focus:tw-ring-primary",
+  // Typography
+  "tw-text-sm tw-font-medium",
+  // Borders
+  "tw-border tw-border-border tw-rounded-md",
+  // Transitions
+  "tw-transition-colors",
+  // Conditional
+  disabled && "tw-opacity-50 tw-cursor-not-allowed"
+)}>
+```
+
+## Responsive Design
+
+```tsx
+// ✅ Good - mobile-first approach
+<div className="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-lg">
+
+// ❌ Bad - desktop-first
+<div className="tw-grid tw-grid-cols-3 lg:tw-grid-cols-2 sm:tw-grid-cols-1">
+```
+
+## Component Variants
+
+```tsx
+// ✅ Good - using cva for variants
+const buttonVariants = cva(
+  "tw-inline-flex tw-items-center tw-justify-center tw-rounded-md tw-text-sm tw-font-medium tw-transition-colors",
+  {
+    variants: {
+      variant: {
+        default:
+          "tw-bg-primary tw-text-primary-foreground hover:tw-bg-primary/90",
+        destructive:
+          "tw-bg-destructive tw-text-destructive-foreground hover:tw-bg-destructive/90",
+        outline:
+          "tw-border tw-border-input tw-bg-background hover:tw-bg-accent",
+      },
+      size: {
+        default: "tw-h-10 tw-px-4 tw-py-2",
+        sm: "tw-h-9 tw-rounded-md tw-px-3",
+        lg: "tw-h-11 tw-rounded-md tw-px-8",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+);
+```
+
+## Performance
+
+- Use `@apply` sparingly, prefer utility classes
+- Purge unused styles in production
+- Use `tw-` prefix to avoid conflicts with other CSS
+- Group related utilities with `@layer` when needed
+
+## Accessibility
+
+- Always include focus states
+- Use semantic color tokens for better contrast
+- Ensure proper color contrast ratios
+- Use `sr-only` for screen reader only content

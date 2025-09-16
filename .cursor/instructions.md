@@ -1,34 +1,56 @@
-# FabManage AI Context
+# FabManage AI Instructions
 
-## Architecture Overview
-- **Frontend**: React 18 + TypeScript + Vite
-- **UI Library**: Ant Design with custom theme
-- **State Management**: Zustand with slice pattern
-- **Data Fetching**: TanStack Query (React Query)
-- **Backend**: Supabase (Auth, Database, Storage, Edge Functions)
-- **Styling**: CSS Modules + Ant Design
-- **Testing**: Vitest + Playwright
-- **Deployment**: Docker + Nginx
+## Development Guidelines
 
-## Key Patterns
-- All modals are side-drawers from the right
-- Unified tile edit experience across all pages
+### Code Quality
+
+- Follow TypeScript strict mode - no `any` or `unknown`
+- Use interfaces for component props, types for data
+- Named exports only, avoid default exports
+- React.memo for performance optimization
 - RORO pattern for functions
-- Zod for validation
-- React.memo for performance
 
-## File Structure
-- `/src/components` - Reusable UI components
-- `/src/pages` - Route components
-- `/src/stores` - Zustand stores
-- `/src/services` - API services
-- `/src/hooks` - Custom React hooks
-- `/src/types` - TypeScript type definitions
-- `/src/lib` - Utility functions
+### UI Development
 
-## Important Files
-- `src/App.tsx` - Main app component
-- `src/main.tsx` - App entry point
-- `vite.config.ts` - Build configuration
-- `package.json` - Dependencies and scripts
+- **New Components**: Use `src/new-ui/` with Shadcn/UI + Radix
+- **Legacy Components**: Keep in `src/components/` (Ant Design)
+- **Migration**: Use Strangler Fig pattern via `src/bridge-ui/`
+- **Design Tokens**: Always use `src/new-ui/tokens/` from Figma
+- **Styling**: Tailwind CSS with design tokens, avoid inline styles
 
+### Component Patterns
+
+- All modals are right-side Drawers
+- Unified tile edit experience across pages
+- Loading states for all async operations
+- Error boundaries for robust error handling
+- Accessibility compliance (WCAG 2.1 AA)
+
+### State Management
+
+- Zustand with slice pattern for client state
+- TanStack Query for server state
+- Persist critical UX state only
+- Use immer for complex state updates
+
+### Testing Strategy
+
+- Unit tests with Vitest + Testing Library
+- E2E tests with Playwright
+- Component stories with Storybook
+- Test critical user journeys
+
+### Performance
+
+- Code splitting per route
+- Lazy loading for heavy components
+- Virtualization for long lists
+- Image optimization (WebP)
+- Bundle analysis with rollup-plugin-visualizer
+
+### Security
+
+- RLS policies in Supabase
+- Input validation with Zod
+- HTML sanitization with DOMPurify
+- Environment variables in .env only

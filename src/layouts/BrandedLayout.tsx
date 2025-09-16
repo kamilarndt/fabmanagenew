@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import ConnectionStatusIndicator from "../components/ConnectionStatusIndicator";
 import ContextualHeader from "../components/Layout/ContextualHeader";
+import { NewUINavigation } from "../components/NewUINavigation";
 import { BrandedSidebar } from "../components/layouts/BrandedSidebar";
 import { FadeIn } from "../components/ui/FadeIn";
 import { SearchProvider } from "../contexts/SearchContext";
@@ -66,6 +67,9 @@ export default function BrandedLayout() {
                 <Outlet />
               </div>
             </FadeIn>
+
+            {/* New UI Navigation */}
+            <NewUINavigation />
           </Content>
         </Layout>
       </Layout>

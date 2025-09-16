@@ -1,33 +1,62 @@
 {
   "name": "FabManage-Clean",
-  "description": "Clean workspace for FabManage production management system",
-  "version": "1.0.0",
-  "type": "react-typescript",
+  "description": "Production management system with Strangler Fig UI migration",
+  "version": "2.0.0",
+  "type": "react-typescript-pwa",
   "features": [
     "typescript",
-    "react",
+    "react-19",
     "vite",
-    "antd",
+    "pwa",
+    "tailwindcss",
+    "shadcn-ui",
+    "radix-ui",
+    "antd-legacy",
     "zustand",
     "tanstack-query",
     "supabase",
     "docker",
     "playwright",
-    "vitest"
+    "vitest",
+    "storybook",
+    "figma-mcp",
+    "design-tokens"
   ],
+  "architecture": {
+    "pattern": "strangler-fig",
+    "uiMigration": "antd-to-shadcn",
+    "designSystem": "atomic-design",
+    "stateManagement": "zustand-slices",
+    "dataFetching": "tanstack-query",
+    "styling": "tailwind-design-tokens"
+  },
   "ai": {
     "contextFiles": [
       "src/App.tsx",
       "src/main.tsx",
       "package.json",
       "vite.config.ts",
-      "tsconfig.app.json"
+      "tailwind.config.js",
+      "tsconfig.app.json",
+      "src/new-ui/tokens/design-tokens.ts",
+      "src/new-ui/tokens/tailwind-tokens.ts"
     ],
     "excludePatterns": [
       "node_modules/**",
       "dist/**",
       ".git/**",
-      "test-results/**"
+      "test-results/**",
+      "storybook-static/**",
+      "coverage/**"
+    ],
+    "rules": [
+      "strangler-imports",
+      "react",
+      "typescript",
+      "zustand",
+      "supabase",
+      "tailwind",
+      "design-tokens"
     ]
   }
 }
