@@ -56,4 +56,12 @@ export function SectionDivider({
   );
 }
 
+export function VerticalSplitLayout({ children, ...props }: any) {
+  return (
+    <div style={{ display: "flex", height: "100%" }} {...props}>
+      {children}
+    </div>
+  );
+}
+
 export default AppDivider;

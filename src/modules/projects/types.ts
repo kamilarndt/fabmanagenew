@@ -27,13 +27,6 @@ export interface Project {
   progress?: number; // 0-100
 }
 
-export interface ProjectTileMaterial {
-  id: string;
-  name: string;
-  quantity: number;
-  unit: string;
-}
-
 export interface ProjectTile {
   id: string;
   name: string;
@@ -47,7 +40,7 @@ export interface ProjectTile {
   projectId: string;
   createdAt: string;
   updatedAt: string;
-  materials?: ProjectTileMaterial[];
+  material?: string;
   quantity?: number;
   dimensions?: {
     width: number;

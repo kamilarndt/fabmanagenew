@@ -1,5 +1,4 @@
 import cors from "cors";
-import crypto from "crypto";
 import "dotenv/config";
 import express from "express";
 import { Pool } from "pg";
@@ -63,9 +62,8 @@ app.get("/api/clients", async (_req, res) => {
 });
 
 app.post("/api/clients", async (req, res) => {
-  const { name, email, phone } = req.body ?? {};
+  const { id, name, email, phone } = req.body ?? {};
   try {
-    const id = crypto.randomUUID();
     await pool.query(
       "INSERT INTO clients (id, name, email, phone) VALUES ($1,$2,$3,$4)",
       [id, name, email, phone]
@@ -88,100 +86,11 @@ app.get("/api/projects", async (_req, res) => {
   }
 });
 
-app.post("/api/projects", async (req, res) => {
-  const { client_id, name, status, deadline } = req.body ?? {};
-  try {
-    const id = crypto.randomUUID();
-    await pool.query(
-      "INSERT INTO projects (id, client_id, name, status, deadline) VALUES ($1,$2,$3,$4,$5)",
-      [id, client_id, name, status || "active", deadline]
-    );
-    res
-      .status(201)
-      .json({ id, client_id, name, status: status || "active", deadline });
-  } catch (e) {
-    res.status(500).json({ error: (e as Error).message });
-  }
-});
-
 // Tiles
 app.get("/api/tiles", async (_req, res) => {
   try {
     const { rows } = await pool.query(
       "SELECT * FROM tiles ORDER BY created_at DESC"
-    );
-    res.json(rows);
-  } catch (e) {
-    res.status(500).json({ error: (e as Error).message });
-  }
-});
-
-app.post("/api/tiles", async (req, res) => {
-  const { project_id, name, status, priority } = req.body ?? {};
-  try {
-    const id = crypto.randomUUID();
-    await pool.query(
-      "INSERT INTO tiles (id, project_id, name, status, priority) VALUES ($1,$2,$3,$4,$5)",
-      [id, project_id, name, status || "designing", priority || 0]
-    );
-    res.status(201).json({
-      id,
-      project_id,
-      name,
-      status: status || "designing",
-      priority: priority || 0,
-    });
-  } catch (e) {
-    res.status(500).json({ error: (e as Error).message });
-  }
-});
-
-// Materials
-app.get("/api/materials", async (_req, res) => {
-  try {
-    const { rows } = await pool.query("SELECT * FROM materials ORDER BY name");
-    res.json(rows);
-  } catch (e) {
-    res.status(500).json({ error: (e as Error).message });
-  }
-});
-
-app.post("/api/materials", async (req, res) => {
-  const { code, name, unit, unit_cost, stock, location } = req.body ?? {};
-  try {
-    const id = crypto.randomUUID();
-    await pool.query(
-      "INSERT INTO materials (id, code, name, unit, unit_cost, stock, location) VALUES ($1,$2,$3,$4,$5,$6,$7)",
-      [
-        id,
-        code || `MAT-${Date.now()}`,
-        name,
-        unit || "szt",
-        unit_cost || 0,
-        stock || 0,
-        location || "Magazyn główny",
-      ]
-    );
-    res.status(201).json({
-      id,
-      code: code || `MAT-${Date.now()}`,
-      name,
-      unit: unit || "szt",
-      unit_cost: unit_cost || 0,
-      stock: stock || 0,
-      location: location || "Magazyn główny",
-    });
-  } catch (e) {
-    res.status(500).json({ error: (e as Error).message });
-  }
-});
-
-// Tile materials endpoint
-app.get("/api/tile-materials", async (req, res) => {
-  try {
-    const { rows } = await pool.query(
-      `SELECT tm.tile_id, tm.material_id, tm.quantity
-       FROM tile_materials tm`
     );
     res.json(rows);
   } catch (e) {

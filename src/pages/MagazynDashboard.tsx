@@ -9,11 +9,10 @@ import {
   Statistic,
   Tag,
 } from "antd";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../components/shared/PageHeader";
 import { Toolbar } from "../components/ui/Toolbar";
-import { Body } from "../components/ui/Typography";
 import { useMaterialsStore } from "../stores/materialsStore";
 
 interface StatusBuckets {
@@ -26,14 +25,6 @@ interface StatusBuckets {
 export default function MagazynDashboard() {
   const navigate = useNavigate();
   const materials = useMaterialsStore((s) => s.materials);
-  const syncFromBackend = useMaterialsStore((s) => s.syncFromBackend);
-
-  // Initialize materials data
-  useEffect(() => {
-    if (materials.length === 0) {
-      syncFromBackend();
-    }
-  }, [materials.length, syncFromBackend]);
 
   const { totalItems, totalValue, alerts, buckets } = useMemo(() => {
     let value = 0;
@@ -97,11 +88,7 @@ export default function MagazynDashboard() {
   };
 
   return (
-    <div
-      data-component="MagazynPage"
-      data-variant="dashboard"
-      data-state="active"
-    >
+    <div>
       <PageHeader title="Magazyn" subtitle="Przegląd zapasów i alertów" />
 
       <Toolbar
@@ -119,9 +106,9 @@ export default function MagazynDashboard() {
           </Space>
         }
         right={
-          <Body color="muted" style={{ fontSize: 12 }}>
+          <span className="text-muted small">
             Ostatnia aktualizacja: {new Date().toLocaleString("pl-PL")}
-          </Body>
+          </span>
         }
       />
 

@@ -1,15 +1,15 @@
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { Input, Select, Tabs, Typography } from "antd";
 import {
-  AppButton,
-  AppCard,
-  AppCol,
-  AppRow,
-  AppSelect,
-  AppSpace,
-  AppTabs,
-} from "../components/ui";
-
+  Button,
+  Card,
+  Col,
+  Input,
+  Row,
+  Select,
+  Space,
+  Tabs,
+  Typography,
+} from "antd";
 import { useEffect, useState } from "react";
 import OrdersKanban from "../components/Subcontractors/OrdersKanban";
 import SubcontractorCard from "../components/Subcontractors/SubcontractorCard";
@@ -47,28 +47,28 @@ export default function SubcontractorsPage() {
   };
 
   return (
-    <div>
+    <div className="container-fluid py-3">
       <PageHeader
         title="Podwykonawcy"
         subtitle="Zarządzanie współpracą z zewnętrznymi firmami"
       />
 
-      <AppTabs activeKey={activeTab} onChange={setActiveTab}>
+      <Tabs activeKey={activeTab} onChange={setActiveTab}>
         {/* Katalog Podwykonawców */}
         <TabPane tab="Katalog" key="catalog">
           {/* Filtry i wyszukiwanie */}
-          <AppCard style={{ marginBottom: 16 }}>
-            <AppRow gutter={16} align="middle">
-              <AppCol xs={24} sm={8}>
+          <Card style={{ marginBottom: 16 }}>
+            <Row gutter={16} align="middle">
+              <Col xs={24} sm={8}>
                 <Search
                   placeholder="Szukaj podwykonawców..."
                   value={filters.search}
                   onChange={(e) => setFilters({ search: e.target.value })}
                   prefix={<SearchOutlined />}
                 />
-              </AppCol>
-              <AppCol xs={24} sm={4}>
-                <AppSelect
+              </Col>
+              <Col xs={24} sm={4}>
+                <Select
                   value={filters.category}
                   onChange={(value) => setFilters({ category: value })}
                   style={{ width: "100%" }}
@@ -83,10 +83,10 @@ export default function SubcontractorsPage() {
                   <Select.Option value="Szklarz">Szklarz</Select.Option>
                   <Select.Option value="Drukarnia">Drukarnia</Select.Option>
                   <Select.Option value="Inne">Inne</Select.Option>
-                </AppSelect>
-              </AppCol>
-              <AppCol xs={24} sm={4}>
-                <AppSelect
+                </Select>
+              </Col>
+              <Col xs={24} sm={4}>
+                <Select
                   value={filters.status}
                   onChange={(value) => setFilters({ status: value })}
                   style={{ width: "100%" }}
@@ -96,10 +96,10 @@ export default function SubcontractorsPage() {
                   <Select.Option value="Aktywny">Aktywny</Select.Option>
                   <Select.Option value="Nieaktywny">Nieaktywny</Select.Option>
                   <Select.Option value="Zawieszony">Zawieszony</Select.Option>
-                </AppSelect>
-              </AppCol>
-              <AppCol xs={24} sm={4}>
-                <AppSelect
+                </Select>
+              </Col>
+              <Col xs={24} sm={4}>
+                <Select
                   value={sortBy}
                   onChange={setSortBy}
                   style={{ width: "100%" }}
@@ -111,36 +111,36 @@ export default function SubcontractorsPage() {
                   <Select.Option value="lastOrder">
                     Ostatnie zlecenie
                   </Select.Option>
-                </AppSelect>
-              </AppCol>
-              <AppCol xs={24} sm={4}>
-                <AppSpace>
-                  <AppButton
+                </Select>
+              </Col>
+              <Col xs={24} sm={4}>
+                <Space>
+                  <Button
                     type="primary"
                     icon={<PlusOutlined />}
                     onClick={() => setActiveTab("add")}
                   >
                     Dodaj Podwykonawcę
-                  </AppButton>
-                </AppSpace>
-              </AppCol>
-            </AppRow>
-          </AppCard>
+                  </Button>
+                </Space>
+              </Col>
+            </Row>
+          </Card>
 
           {/* Statystyki */}
-          <AppRow gutter={16} style={{ marginBottom: 16 }}>
-            <AppCol xs={24} sm={6}>
-              <AppCard size="small">
+          <Row gutter={16} style={{ marginBottom: 16 }}>
+            <Col xs={24} sm={6}>
+              <Card size="small">
                 <div style={{ textAlign: "center" }}>
                   <Title level={3} style={{ margin: 0, color: "#1890ff" }}>
                     {filteredSubcontractors.length}
                   </Title>
                   <div>Wszystkich podwykonawców</div>
                 </div>
-              </AppCard>
-            </AppCol>
-            <AppCol xs={24} sm={6}>
-              <AppCard size="small">
+              </Card>
+            </Col>
+            <Col xs={24} sm={6}>
+              <Card size="small">
                 <div style={{ textAlign: "center" }}>
                   <Title level={3} style={{ margin: 0, color: "#52c41a" }}>
                     {
@@ -151,10 +151,10 @@ export default function SubcontractorsPage() {
                   </Title>
                   <div>Aktywnych</div>
                 </div>
-              </AppCard>
-            </AppCol>
-            <AppCol xs={24} sm={6}>
-              <AppCard size="small">
+              </Card>
+            </Col>
+            <Col xs={24} sm={6}>
+              <Card size="small">
                 <div style={{ textAlign: "center" }}>
                   <Title level={3} style={{ margin: 0, color: "#faad14" }}>
                     {filteredSubcontractors.reduce(
@@ -164,10 +164,10 @@ export default function SubcontractorsPage() {
                   </Title>
                   <div>Aktualnych zleceń</div>
                 </div>
-              </AppCard>
-            </AppCol>
-            <AppCol xs={24} sm={6}>
-              <AppCard size="small">
+              </Card>
+            </Col>
+            <Col xs={24} sm={6}>
+              <Card size="small">
                 <div style={{ textAlign: "center" }}>
                   <Title level={3} style={{ margin: 0, color: "#722ed1" }}>
                     {filteredSubcontractors.length > 0
@@ -181,24 +181,24 @@ export default function SubcontractorsPage() {
                   </Title>
                   <div>Średnia ocena</div>
                 </div>
-              </AppCard>
-            </AppCol>
-          </AppRow>
+              </Card>
+            </Col>
+          </Row>
 
           {/* Karty podwykonawców */}
-          <AppRow gutter={[16, 16]}>
+          <Row gutter={[16, 16]}>
             {filteredSubcontractors.map((subcontractor) => (
-              <AppCol key={subcontractor.id} xs={24} sm={12} lg={8} xl={6}>
+              <Col key={subcontractor.id} xs={24} sm={12} lg={8} xl={6}>
                 <SubcontractorCard
                   subcontractor={subcontractor}
                   onClick={() => handleSubcontractorSelect(subcontractor)}
                 />
-              </AppCol>
+              </Col>
             ))}
-          </AppRow>
+          </Row>
 
           {filteredSubcontractors.length === 0 && (
-            <AppCard style={{ textAlign: "center", padding: 40 }}>
+            <Card style={{ textAlign: "center", padding: 40 }}>
               <Title level={4} type="secondary">
                 Brak podwykonawców
               </Title>
@@ -206,14 +206,14 @@ export default function SubcontractorsPage() {
                 Nie znaleziono podwykonawców spełniających kryteria
                 wyszukiwania.
               </p>
-              <AppButton
+              <Button
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={() => setActiveTab("add")}
               >
                 Dodaj pierwszego podwykonawcę
-              </AppButton>
-            </AppCard>
+              </Button>
+            </Card>
           )}
         </TabPane>
 
@@ -230,7 +230,7 @@ export default function SubcontractorsPage() {
         <TabPane tab="Kanban Zleceń" key="kanban">
           <OrdersKanban />
         </TabPane>
-      </AppTabs>
+      </Tabs>
     </div>
   );
 }

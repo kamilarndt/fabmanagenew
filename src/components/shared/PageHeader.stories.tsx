@@ -11,7 +11,7 @@ const meta: Meta<typeof PageHeader> = {
   argTypes: {
     title: { control: "text" },
     subtitle: { control: "text" },
-    showBackButton: { control: "boolean" },
+    backButton: { control: "object" },
   },
 };
 
@@ -29,8 +29,10 @@ export const WithBackButton: Story = {
   args: {
     title: "Project Details",
     subtitle: "Manage project settings and team members",
-    showBackButton: true,
-    onBack: () => console.log("Back clicked"),
+    backButton: {
+      onClick: () => console.log("Back clicked"),
+      label: "Back",
+    },
   },
 };
 

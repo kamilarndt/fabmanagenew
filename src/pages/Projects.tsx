@@ -1,36 +1,30 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ProjectCard from "../components/Project/ProjectCard";
 import { PageHeader } from "../components/shared/PageHeader";
 import { StatusBadge } from "../components/ui/StatusBadge";
-import { Body, H3 } from "../components/ui/Typography";
 import { showToast } from "../lib/notifications";
-import ProjectCard from "../modules/projects/components/ProjectCard";
 import { useProjectsStore } from "../stores/projectsStore";
 import { useTilesStore } from "../stores/tilesStore";
 // zod removed after AntD Form migration
 import {
+  Button,
+  Card,
+  Col,
   DatePicker,
   Dropdown,
   Form,
   Input,
   Modal,
   Pagination,
+  Row,
   Segmented,
   Select,
   Space,
   Table,
   Tag,
 } from "antd";
-import {
-  AppButton,
-  AppCard,
-  AppCol,
-  AppForm,
-  AppFormField,
-  AppRow,
-  AppSpace,
-} from "../components/ui";
-import EditProjectModal from "../modules/projects/components/EditProjectModal";
+import EditProjectModal from "../components/EditProjectModal";
 import { createClient } from "../services/clients";
 import type {
   Project,
@@ -46,16 +40,10 @@ export default function Projects() {
   const add = useProjectsStore((s) => s.add);
   const remove = useProjectsStore((s) => s.remove);
   const initialize = useProjectsStore((s) => s.initialize);
-  const clearCache = useProjectsStore((s) => s.clearCache);
   const isLoading = useProjectsStore((s) => s.isLoading);
   const isInitialized = useProjectsStore((s) => s.isInitialized);
   const tiles = useTilesStore((s) => s.tiles);
   const setTileStatus = useTilesStore((s) => s.setStatus);
-
-  // Initialize projects store on component mount
-  useEffect(() => {
-    initialize();
-  }, [initialize]);
 
   // Debug logging removed for performance
 
@@ -376,33 +364,33 @@ export default function Projects() {
         title="Projekty"
         subtitle="Zarządzaj wszystkimi projektami w firmie"
         actions={
-          <AppSpace>
+          <div className="d-flex gap-2">
             {selectedProjects.length > 0 && (
-              <AppSpace>
-                <AppButton onClick={() => handleBulkAction("delete")}>
+              <div className="d-flex gap-2">
+                <Button onClick={() => handleBulkAction("delete")}>
                   Usuń ({selectedProjects.length})
-                </AppButton>
-                <AppButton onClick={() => handleBulkAction("export")}>
+                </Button>
+                <Button onClick={() => handleBulkAction("export")}>
                   Export
-                </AppButton>
-                <AppButton onClick={() => handleBulkAction("archive")}>
+                </Button>
+                <Button onClick={() => handleBulkAction("archive")}>
                   Archiwizuj
-                </AppButton>
-              </AppSpace>
+                </Button>
+              </div>
             )}
-            <AppButton variant="primary" onClick={() => setCreateOpen(true)}>
+            <Button type="primary" onClick={() => setCreateOpen(true)}>
               Nowy Projekt
-            </AppButton>
-          </AppSpace>
+            </Button>
+          </div>
         }
       />
 
       {/* Filters – pure Ant Design */}
-      <AppCard style={{ marginBottom: 12 }}>
-        <AppForm layout="vertical">
-          <AppRow gutter={[12, 12]}>
-            <AppCol xs={24} md={6}>
-              <AppFormField name="status" label="Status projektu">
+      <Card style={{ marginBottom: 12 }}>
+        <Form layout="vertical">
+          <Row gutter={[12, 12]}>
+            <Col xs={24} md={6}>
+              <Form.Item label="Status projektu">
                 <Select
                   size="middle"
                   value={status}
@@ -450,9 +438,9 @@ export default function Projects() {
                     },
                   ]}
                 />
-              </AppFormField>
-            </AppCol>
-            <AppCol xs={24} md={6}>
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={6}>
               <Form.Item label="Klient">
                 <Select
                   size="middle"
@@ -466,8 +454,8 @@ export default function Projects() {
                   optionFilterProp="label"
                 />
               </Form.Item>
-            </AppCol>
-            <AppCol xs={24} md={8}>
+            </Col>
+            <Col xs={24} md={8}>
               <Form.Item label="Wyszukiwanie">
                 <Input.Search
                   allowClear
@@ -476,8 +464,8 @@ export default function Projects() {
                   onChange={(e) => setQuery(e.target.value)}
                 />
               </Form.Item>
-            </AppCol>
-            <AppCol xs={24} md={4}>
+            </Col>
+            <Col xs={24} md={4}>
               <Form.Item label="Widok">
                 <Segmented
                   block
@@ -489,47 +477,35 @@ export default function Projects() {
                   ]}
                 />
               </Form.Item>
-            </AppCol>
-          </AppRow>
-          <AppRow justify="space-between" align="middle">
-            <AppCol>
+            </Col>
+          </Row>
+          <Row justify="space-between" align="middle">
+            <Col>
               <Space>
-                <AppButton
+                <Button
                   type="primary"
                   onClick={() => initialize()}
                   loading={isLoading}
                 >
                   🔄 Reload API ({projects.length})
-                </AppButton>
-                <AppButton
-                  type="default"
-                  onClick={() => {
-                    clearCache();
-                    setTimeout(() => initialize(), 100);
-                  }}
-                  loading={isLoading}
-                >
-                  🧹 Clear Cache & Reload
-                </AppButton>
+                </Button>
                 <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
                   {isInitialized ? "✅ Zainicjalizowano" : "⏳ Ładowanie..."} |{" "}
                   {projects.length} projektów
                 </span>
-                <AppButton
+                <Button
                   onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
                 >
                   {showAdvancedFilters ? "Ukryj filtry" : "Filtry zaawansowane"}
-                </AppButton>
+                </Button>
                 {(status !== "All" ||
                   client !== "All" ||
                   query ||
                   managerFilter !== "All" ||
                   dateFilter !== "All") && (
-                  <AppButton onClick={clearAllFilters}>
-                    Wyczyść filtry
-                  </AppButton>
+                  <Button onClick={clearAllFilters}>Wyczyść filtry</Button>
                 )}
-                <AppButton
+                <Button
                   onClick={() => {
                     const csv = [
                       "id,name,client,status,deadline",
@@ -549,14 +525,14 @@ export default function Projects() {
                   }}
                 >
                   Export CSV
-                </AppButton>
+                </Button>
               </Space>
-            </AppCol>
-          </AppRow>
+            </Col>
+          </Row>
 
           {showAdvancedFilters && (
-            <AppRow gutter={[12, 12]} style={{ marginTop: 12 }}>
-              <AppCol xs={24} md={6}>
+            <Row gutter={[12, 12]} style={{ marginTop: 12 }}>
+              <Col xs={24} md={6}>
                 <Form.Item label="Kierownik projektu">
                   <Select
                     value={managerFilter}
@@ -567,8 +543,8 @@ export default function Projects() {
                     ]}
                   />
                 </Form.Item>
-              </AppCol>
-              <AppCol xs={24} md={6}>
+              </Col>
+              <Col xs={24} md={6}>
                 <Form.Item label="Termin">
                   <Select
                     value={dateFilter}
@@ -581,8 +557,8 @@ export default function Projects() {
                     ]}
                   />
                 </Form.Item>
-              </AppCol>
-              <AppCol xs={24} md={6}>
+              </Col>
+              <Col xs={24} md={6}>
                 <Form.Item label="Budżet (PLN)">
                   <Space.Compact block>
                     <Input
@@ -609,75 +585,51 @@ export default function Projects() {
                     />
                   </Space.Compact>
                 </Form.Item>
-              </AppCol>
-            </AppRow>
+              </Col>
+            </Row>
           )}
-        </AppForm>
-      </AppCard>
+        </Form>
+      </Card>
 
       {/* KPI Row */}
-      <AppRow
+      <Row
         gutter={[12, 12]}
         style={{ marginBottom: 12 }}
         data-component="KPIRow"
       >
-        <AppCol xs={12} lg={6}>
-          <AppCard>
-            <div style={{ textAlign: "center" }}>
-              <H3 style={{ margin: 0, marginBottom: 4 }}>{metrics.total}</H3>
-              <Body color="muted" style={{ fontSize: 12 }}>
-                Wszystkich projektów
-              </Body>
+        <Col xs={12} lg={6}>
+          <Card>
+            <div className="text-center">
+              <div className="h4 mb-1">{metrics.total}</div>
+              <div className="text-muted small">Wszystkich projektów</div>
             </div>
-          </AppCard>
-        </AppCol>
-        <AppCol xs={12} lg={6}>
-          <AppCard>
-            <div style={{ textAlign: "center" }}>
-              <H3
-                style={{
-                  margin: 0,
-                  marginBottom: 4,
-                  color: "var(--accent-warning)",
-                }}
-              >
-                {metrics.overdue}
-              </H3>
-              <Body color="muted" style={{ fontSize: 12 }}>
-                Opóźnionych
-              </Body>
+          </Card>
+        </Col>
+        <Col xs={12} lg={6}>
+          <Card>
+            <div className="text-center">
+              <div className="h4 mb-1 text-warning">{metrics.overdue}</div>
+              <div className="text-muted small">Opóźnionych</div>
             </div>
-          </AppCard>
-        </AppCol>
-        <AppCol xs={12} lg={6}>
-          <AppCard>
-            <div style={{ textAlign: "center" }}>
-              <H3 style={{ margin: 0, marginBottom: 4 }}>{metrics.avgDays}</H3>
-              <Body color="muted" style={{ fontSize: 12 }}>
-                Śr. dni do deadline
-              </Body>
+          </Card>
+        </Col>
+        <Col xs={12} lg={6}>
+          <Card>
+            <div className="text-center">
+              <div className="h4 mb-1">{metrics.avgDays}</div>
+              <div className="text-muted small">Śr. dni do deadline</div>
             </div>
-          </AppCard>
-        </AppCol>
-        <AppCol xs={12} lg={6}>
-          <AppCard>
-            <div style={{ textAlign: "center" }}>
-              <H3
-                style={{
-                  margin: 0,
-                  marginBottom: 4,
-                  color: "var(--accent-success)",
-                }}
-              >
-                {metrics.onTimePct}%
-              </H3>
-              <Body color="muted" style={{ fontSize: 12 }}>
-                Na czas
-              </Body>
+          </Card>
+        </Col>
+        <Col xs={12} lg={6}>
+          <Card>
+            <div className="text-center">
+              <div className="h4 mb-1 text-success">{metrics.onTimePct}%</div>
+              <div className="text-muted small">Na czas</div>
             </div>
-          </AppCard>
-        </AppCol>
-      </AppRow>
+          </Card>
+        </Col>
+      </Row>
 
       {/* Results Info */}
       <Space
@@ -687,16 +639,14 @@ export default function Projects() {
           justifyContent: "space-between",
         }}
       >
-        <Body color="muted" style={{ fontSize: 12 }}>
+        <span className="text-muted small">
           Pokazano {paginatedProjects.length} z {sortedAndFiltered.length}{" "}
           projektów{" "}
           {selectedProjects.length > 0 &&
             ` • ${selectedProjects.length} zaznaczonych`}
-        </Body>
+        </span>
         <Space>
-          <Body color="muted" style={{ fontSize: 12 }}>
-            Sortuj:
-          </Body>
+          <span className="text-muted small">Sortuj:</span>
           <Select<string>
             size="small"
             value={sortBy}
@@ -709,39 +659,39 @@ export default function Projects() {
               { value: "status", label: "Status" },
             ]}
           />
-          <AppButton
+          <Button
             size="small"
             onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
           >
             {" "}
             {sortOrder === "asc" ? "Rosnąco" : "Malejąco"}{" "}
-          </AppButton>
+          </Button>
         </Space>
       </Space>
 
       {/* Empty state */}
       {sortedAndFiltered.length === 0 && (
-        <AppCard style={{ marginBottom: 12 }}>
-          <div style={{ textAlign: "center" }}>
-            <H3 style={{ margin: 0, marginBottom: 4 }}>Brak wyników</H3>
-            <Body color="muted" style={{ marginBottom: 12 }}>
+        <Card style={{ marginBottom: 12 }}>
+          <div className="text-center">
+            <h5 className="mb-1">Brak wyników</h5>
+            <p className="text-muted mb-3">
               Dostosuj filtry lub utwórz nowy projekt.
-            </Body>
-            <AppButton
+            </p>
+            <Button
               type="primary"
               onClick={() => navigate("/projekty/nowy")}
               aria-label="Utwórz nowy projekt"
             >
-              Nowy projekt
-            </AppButton>
+              <i className="ri-add-line me-1"></i>Nowy projekt
+            </Button>
           </div>
-        </AppCard>
+        </Card>
       )}
 
       {view === "Lista" ? (
         <>
           {/* Projects Table */}
-          <AppCard data-component="ProjectsTableCard">
+          <Card data-component="ProjectsTableCard">
             <Table
               rowKey={(p: Project) => p.id}
               dataSource={paginatedProjects}
@@ -764,6 +714,7 @@ export default function Projects() {
                   render: (_: unknown, p: Project) => (
                     <input
                       type="checkbox"
+                      className="form-check-input"
                       checked={selectedProjects.includes(p.id)}
                       onChange={(e) => {
                         e.stopPropagation();
@@ -777,15 +728,13 @@ export default function Projects() {
                   dataIndex: "name",
                   render: (_: unknown, p: Project) => (
                     <div>
-                      <Body style={{ fontWeight: 500 }}>{p.name}</Body>
-                      <Body color="muted" style={{ fontSize: 12 }}>
-                        {p.id}
-                      </Body>
-                      <Body color="muted" style={{ fontSize: 12 }}>
+                      <div className="fw-medium">{p.name}</div>
+                      <div className="text-muted small">{p.id}</div>
+                      <div className="text-muted small">
                         {p.modules?.length || 0} modułów •{" "}
                         {tiles.filter((t) => t.project === p.id).length}{" "}
                         elementów
-                      </Body>
+                      </div>
                     </div>
                   ),
                 },
@@ -815,7 +764,7 @@ export default function Projects() {
                 },
               ]}
             />
-          </AppCard>
+          </Card>
 
           {/* Pagination */}
           {totalPages > 1 && (
@@ -833,32 +782,15 @@ export default function Projects() {
       ) : view === "Kafelki" ? (
         <>
           {/* Project Cards */}
-          <AppRow gutter={[16, 16]} data-component="ProjectCards">
+          <Row gutter={[16, 16]} data-component="ProjectCards">
             {paginatedProjects.map((project) => {
               const projectWithStats =
                 projectsWithStats.find((p) => p.id === project.id) || project;
 
               return (
-                <AppCol key={project.id} xs={24} sm={12} lg={8} xl={6}>
+                <Col key={project.id} xs={24} sm={12} lg={8} xl={6}>
                   <ProjectCard
-                    project={{
-                      ...projectWithStats,
-                      stats: {
-                        totalTiles: 0,
-                        completedTiles: 0,
-                        progress: 0,
-                        budgetUsed: 0,
-                        budgetRemaining: projectWithStats.budget || 0,
-                      },
-                      priority: "medium",
-                      createdAt: new Date().toISOString(),
-                      updatedAt: new Date().toISOString(),
-                      status:
-                        projectWithStats.status === "done"
-                          ? "completed"
-                          : projectWithStats.status,
-                      modules: [],
-                    }}
+                    project={projectWithStats}
                     onEdit={(project) => setEditId(project.id)}
                     onDelete={(project) => {
                       if (confirm(`Usunąć projekt "${project.name}"?`)) {
@@ -867,26 +799,21 @@ export default function Projects() {
                       }
                     }}
                   />
-                </AppCol>
+                </Col>
               );
             })}
-          </AppRow>
+          </Row>
 
           {/* Pagination for Tiles */}
           {totalPages > 1 && (
             <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginTop: 16,
-              }}
+              className="d-flex justify-content-between align-items-center mt-4"
               data-component="TilesPaginationBar"
             >
-              <Body color="muted" style={{ fontSize: 12 }}>
+              <div className="text-muted small">
                 Strona {currentPage} z {totalPages} • {paginatedProjects.length}{" "}
                 z {sortedAndFiltered.length} projektów
-              </Body>
+              </div>
               <nav>
                 <ul className="pagination pagination-sm mb-0">
                   <li
@@ -940,11 +867,11 @@ export default function Projects() {
         </>
       ) : (
         /* Kanban View */
-        <AppRow gutter={[12, 12]} data-component="KanbanBoard">
+        <Row gutter={[12, 12]} data-component="KanbanBoard">
           {(["W realizacji", "Wstrzymany", "Zakończony"] as const).map(
             (colStatus) => (
-              <AppCol key={colStatus} xs={24} md={8}>
-                <AppCard
+              <Col key={colStatus} xs={24} md={8}>
+                <Card
                   data-component="KanbanColumn"
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={(e) => {
@@ -968,12 +895,12 @@ export default function Projects() {
                     }
                   }}
                 >
-                  <Body style={{ fontWeight: 600, marginBottom: 8 }}>
+                  <div className="fw-semibold" style={{ marginBottom: 8 }}>
                     {colStatus}
                     <Tag style={{ marginLeft: 8 }}>
                       {filtered.filter((p) => p.status === colStatus).length}
                     </Tag>
-                  </Body>
+                  </div>
                   <div
                     style={{ minHeight: 300 }}
                     data-component="KanbanColumnBody"
@@ -981,7 +908,7 @@ export default function Projects() {
                     {filtered
                       .filter((p) => p.status === colStatus)
                       .map((p) => (
-                        <AppCard
+                        <Card
                           key={p.id}
                           data-component="KanbanCard"
                           draggable
@@ -996,12 +923,12 @@ export default function Projects() {
                             }}
                           >
                             <div>
-                              <Body style={{ fontWeight: 500 }}>{p.name}</Body>
-                              <Body color="muted" style={{ fontSize: 12 }}>
+                              <div className="fw-medium">{p.name}</div>
+                              <div className="text-muted small">
                                 {p.id} • {p.client}
-                              </Body>
+                              </div>
                             </div>
-                            <AppButton
+                            <Button
                               size="small"
                               onClick={() => {
                                 console.warn("🔗 Navigating to project:", {
@@ -1014,7 +941,7 @@ export default function Projects() {
                               aria-label={`Otwórz projekt ${p.name}`}
                             >
                               Otwórz
-                            </AppButton>
+                            </Button>
                           </Space>
                           <Space
                             style={{
@@ -1039,17 +966,17 @@ export default function Projects() {
                                 })),
                               }}
                             >
-                              <AppButton size="small">Status</AppButton>
+                              <Button size="small">Status</Button>
                             </Dropdown>
                           </Space>
-                        </AppCard>
+                        </Card>
                       ))}
                   </div>
-                </AppCard>
-              </AppCol>
+                </Card>
+              </Col>
             )
           )}
-        </AppRow>
+        </Row>
       )}
       {/* Context menu */}
       {ctxMenu.open && ctxMenu.id && (
@@ -1083,7 +1010,7 @@ export default function Projects() {
           </button>
           <div className="dropdown-divider" />
           <button
-            style={{ color: "var(--accent-error)" }}
+            className="dropdown-item text-danger"
             onClick={() => {
               const p = projects.find((pr) => pr.id === ctxMenu.id);
               if (p && confirm(`Usunąć projekt "${p.name}"?`)) {
@@ -1112,17 +1039,9 @@ export default function Projects() {
         onOk={async () => {
           // Ensure client exists; if no clientId but client name provided, create backend client
           let clientId = createForm.clientId;
-          if ((!clientId || clientId === "C-NEW") && createForm.client.trim()) {
+          if (!clientId && createForm.client.trim()) {
             try {
               const c = await createClient({ name: createForm.client.trim() });
-              clientId = c.id;
-            } catch {
-              clientId = `c-${Date.now()}`;
-            }
-          } else if (!clientId || clientId === "C-NEW") {
-            // If no client name provided, generate a default client
-            try {
-              const c = await createClient({ name: `Klient ${Date.now()}` });
               clientId = c.id;
             } catch {
               clientId = `c-${Date.now()}`;
@@ -1149,7 +1068,7 @@ export default function Projects() {
         okText="Zapisz"
         cancelText="Anuluj"
       >
-        <AppForm layout="vertical">
+        <Form layout="vertical">
           <Form.Item label="Nazwa" required>
             <Input
               value={createForm.name}
@@ -1158,8 +1077,8 @@ export default function Projects() {
               }
             />
           </Form.Item>
-          <AppRow gutter={[12, 12]}>
-            <AppCol xs={24} md={12}>
+          <Row gutter={[12, 12]}>
+            <Col xs={24} md={12}>
               <Form.Item label="Nazwa klienta">
                 <Input
                   value={createForm.client}
@@ -1169,8 +1088,8 @@ export default function Projects() {
                   }
                 />
               </Form.Item>
-            </AppCol>
-            <AppCol xs={24} md={12}>
+            </Col>
+            <Col xs={24} md={12}>
               <Form.Item label="ID klienta (opcjonalnie)">
                 <Input
                   value={createForm.clientId}
@@ -1180,8 +1099,8 @@ export default function Projects() {
                   }
                 />
               </Form.Item>
-            </AppCol>
-            <AppCol xs={24} md={12}>
+            </Col>
+            <Col xs={24} md={12}>
               <Form.Item label="Deadline">
                 <DatePicker
                   style={{ width: "100%" }}
@@ -1193,8 +1112,8 @@ export default function Projects() {
                   }
                 />
               </Form.Item>
-            </AppCol>
-            <AppCol xs={24} md={12}>
+            </Col>
+            <Col xs={24} md={12}>
               <Form.Item label="Moduły projektu">
                 <Select
                   mode="multiple"
@@ -1224,8 +1143,8 @@ export default function Projects() {
                   placeholder="Wybierz moduły (np. Model 3D)"
                 />
               </Form.Item>
-            </AppCol>
-            <AppCol xs={24} md={12}>
+            </Col>
+            <Col xs={24} md={12}>
               <Form.Item label="Status">
                 <Select
                   value={createForm.status}
@@ -1241,9 +1160,9 @@ export default function Projects() {
                   ]}
                 />
               </Form.Item>
-            </AppCol>
-          </AppRow>
-        </AppForm>
+            </Col>
+          </Row>
+        </Form>
       </Modal>
     </div>
   );

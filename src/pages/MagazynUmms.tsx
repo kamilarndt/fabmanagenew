@@ -10,20 +10,20 @@ import {
   ShoppingCartOutlined,
   WarningOutlined,
 } from "@ant-design/icons";
-import { Input, Select, Statistic, Tabs } from "antd";
 import {
-  AppButton,
-  AppCard,
-  AppCol,
-  AppEmpty,
-  AppRow,
-  AppSegmented,
-  AppSelect,
-  AppSpace,
-  AppTabs,
-  AppTag,
-} from "../components/ui";
-
+  Button,
+  Card,
+  Col,
+  Empty,
+  Input,
+  Row,
+  Segmented,
+  Select,
+  Space,
+  Statistic,
+  Tabs,
+  Tag,
+} from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { PageHeader } from "../components/shared/PageHeader";
 import { Toolbar } from "../components/ui/Toolbar";
@@ -199,25 +199,25 @@ export default function MagazynUmms() {
         title="Magazyn UMMS"
         subtitle={`${stats.warehouseItems} materiałów na stanie • ${stats.ordersCount} zamówień`}
         actions={
-          <AppSpace>
-            <AppButton icon={<ReloadOutlined />} onClick={handleSync}>
+          <Space>
+            <Button icon={<ReloadOutlined />} onClick={handleSync}>
               Synchronizuj
-            </AppButton>
-            <AppButton
+            </Button>
+            <Button
               type="primary"
               icon={<PlusOutlined />}
               onClick={handleAddMaterial}
             >
               Dodaj materiał
-            </AppButton>
-          </AppSpace>
+            </Button>
+          </Space>
         }
       />
 
       {/* Toolbar */}
       <Toolbar
         left={
-          <AppSpace>
+          <Space>
             <Search
               placeholder="Szukaj materiałów..."
               value={searchQuery}
@@ -225,7 +225,7 @@ export default function MagazynUmms() {
               style={{ width: 300 }}
               allowClear
             />
-            <AppSelect
+            <Select
               value={selectedCategory}
               onChange={setSelectedCategory}
               style={{ width: 200 }}
@@ -240,34 +240,34 @@ export default function MagazynUmms() {
                 Profile metalowe
               </Select.Option>
               <Select.Option value="TEXTILES">Tkaniny</Select.Option>
-            </AppSelect>
-            <AppButton
+            </Select>
+            <Button
               icon={<FilterOutlined />}
               onClick={() => setShowFilters(!showFilters)}
               type={showFilters ? "primary" : "default"}
             >
               Filtry
-            </AppButton>
-          </AppSpace>
+            </Button>
+          </Space>
         }
         right={
-          <AppSpace>
-            <AppSegmented
+          <Space>
+            <Segmented
               value={viewMode}
-              onChange={(value) => setViewMode(value as "table" | "cards")}
+              onChange={setViewMode}
               options={[
                 { label: "Karty", value: "cards" },
                 { label: "Tabela", value: "table" },
               ]}
             />
-          </AppSpace>
+          </Space>
         }
       />
 
       {/* Stats Cards */}
-      <AppRow gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <AppCol xs={24} sm={12} md={6}>
-          <AppCard size="small">
+      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+        <Col xs={24} sm={12} md={6}>
+          <Card size="small">
             <Statistic
               title="Wartość magazynu"
               value={stats.totalValue}
@@ -275,42 +275,42 @@ export default function MagazynUmms() {
               suffix="PLN"
               valueStyle={{ color: "#1677ff" }}
             />
-          </AppCard>
-        </AppCol>
-        <AppCol xs={24} sm={12} md={6}>
-          <AppCard size="small">
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card size="small">
             <Statistic
               title="Materiały na stanie"
               value={stats.warehouseItems}
               valueStyle={{ color: "#52c41a" }}
             />
-          </AppCard>
-        </AppCol>
-        <AppCol xs={24} sm={12} md={6}>
-          <AppCard size="small">
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card size="small">
             <Statistic
               title="Niski stan"
               value={stats.lowCount + stats.criticalCount}
               valueStyle={{ color: "#faad14" }}
               prefix={<WarningOutlined />}
             />
-          </AppCard>
-        </AppCol>
-        <AppCol xs={24} sm={12} md={6}>
-          <AppCard size="small">
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card size="small">
             <Statistic
               title="Zamówienia"
               value={orderCounts.TO_ORDER + orderCounts.ORDERED}
               valueStyle={{ color: "#722ed1" }}
               prefix={<ShoppingCartOutlined />}
             />
-          </AppCard>
-        </AppCol>
-      </AppRow>
+          </Card>
+        </Col>
+      </Row>
 
       {/* Main Content Tabs */}
-      <AppCard>
-        <AppTabs
+      <Card>
+        <Tabs
           activeKey={activeTab}
           onChange={(key) => setActiveTab(key as "warehouse" | "orders")}
           type="card"
@@ -320,16 +320,16 @@ export default function MagazynUmms() {
             key="warehouse"
           >
             {filteredMaterials.length === 0 ? (
-              <AppEmpty description="Brak materiałów spełniających kryteria" />
+              <Empty description="Brak materiałów spełniających kryteria" />
             ) : (
-              <AppRow gutter={[16, 16]}>
+              <Row gutter={[16, 16]}>
                 {filteredMaterials.map((material) => {
                   const inventory = getMaterialInventory(material.id);
                   const stockStatus = getStockStatus(material.id);
 
                   return (
-                    <AppCol xs={24} sm={12} md={8} lg={6} key={material.id}>
-                      <AppCard
+                    <Col xs={24} sm={12} md={8} lg={6} key={material.id}>
+                      <Card
                         size="small"
                         title={
                           <div style={{ fontSize: "14px", fontWeight: 500 }}>
@@ -337,13 +337,13 @@ export default function MagazynUmms() {
                           </div>
                         }
                         extra={
-                          <AppTag color={getStockStatusColor(stockStatus)}>
+                          <Tag color={getStockStatusColor(stockStatus)}>
                             {inventory?.availableQuantity || 0}{" "}
                             {inventory?.unit || "szt"}
-                          </AppTag>
+                          </Tag>
                         }
                         actions={[
-                          <AppButton
+                          <Button
                             key="order"
                             size="small"
                             type="link"
@@ -351,7 +351,7 @@ export default function MagazynUmms() {
                             onClick={() => handleQuickOrder(material.id)}
                           >
                             Zamów
-                          </AppButton>,
+                          </Button>,
                         ]}
                       >
                         <div style={{ marginBottom: 8 }}>
@@ -380,7 +380,7 @@ export default function MagazynUmms() {
                             {material.costData.currency}
                           </div>
                           {inventory && (
-                            <AppTag
+                            <Tag
                               color={
                                 inventory.abcClass === "A"
                                   ? "red"
@@ -390,25 +390,25 @@ export default function MagazynUmms() {
                               }
                             >
                               {inventory.abcClass}
-                            </AppTag>
+                            </Tag>
                           )}
                         </div>
-                      </AppCard>
-                    </AppCol>
+                      </Card>
+                    </Col>
                   );
                 })}
-              </AppRow>
+              </Row>
             )}
           </TabPane>
 
           <TabPane tab={`Zamówienia (${filteredOrders.length})`} key="orders">
             {filteredOrders.length === 0 ? (
-              <AppEmpty description="Brak zamówień" />
+              <Empty description="Brak zamówień" />
             ) : (
-              <AppRow gutter={[16, 16]}>
+              <Row gutter={[16, 16]}>
                 {filteredOrders.map((order) => (
-                  <AppCol xs={24} sm={12} md={8} lg={6} key={order.id}>
-                    <AppCard
+                  <Col xs={24} sm={12} md={8} lg={6} key={order.id}>
+                    <Card
                       size="small"
                       title={
                         <div style={{ fontSize: "14px", fontWeight: 500 }}>
@@ -460,7 +460,7 @@ export default function MagazynUmms() {
                         <div style={{ fontSize: "14px", fontWeight: 500 }}>
                           {order.estimatedCost?.toFixed(2) || "0.00"} PLN
                         </div>
-                        <AppTag
+                        <Tag
                           color={
                             order.priority === "high"
                               ? "red"
@@ -470,7 +470,7 @@ export default function MagazynUmms() {
                           }
                         >
                           {order.priority}
-                        </AppTag>
+                        </Tag>
                       </div>
 
                       {order.notes && (
@@ -485,14 +485,14 @@ export default function MagazynUmms() {
                           {order.notes}
                         </div>
                       )}
-                    </AppCard>
-                  </AppCol>
+                    </Card>
+                  </Col>
                 ))}
-              </AppRow>
+              </Row>
             )}
           </TabPane>
-        </AppTabs>
-      </AppCard>
+        </Tabs>
+      </Card>
     </div>
   );
 }

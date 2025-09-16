@@ -1,192 +1,206 @@
 import { ConfigProvider, Input } from "antd";
-import React, { useCallback, useState } from "react";
-import { AppInput } from "../ui/AppInput";
+import React, { useCallback, useEffect, useState } from "react";
 import { Icon } from "../ui/Icon";
 
 const { Search } = Input;
 
 interface SearchInputProps {
+  value?: string;
+  defaultValue?: string;
   placeholder?: string;
   onSearch?: (value: string) => void;
   onChange?: (value: string) => void;
-  debounceMs?: number;
+  onClear?: () => void;
   loading?: boolean;
   disabled?: boolean;
   size?: "small" | "middle" | "large";
-  variant?: "default" | "outline" | "filled";
+  allowClear?: boolean;
+  debounceMs?: number;
+  variant?: "outlined" | "filled" | "borderless";
+  showSearchButton?: boolean;
+  searchButtonText?: string;
   className?: string;
   style?: React.CSSProperties;
-  allowClear?: boolean;
-  enterButton?: boolean | React.ReactNode;
 }
 
 export function SearchInput({
+  value,
+  defaultValue,
   placeholder = "Szukaj...",
   onSearch,
   onChange,
-  debounceMs = 300,
+  onClear,
   loading = false,
   disabled = false,
   size = "middle",
-  variant = "default",
+  allowClear = true,
+  debounceMs = 300,
+  variant = "outlined",
+  showSearchButton = true,
+  searchButtonText = "Szukaj",
   className,
   style,
-  allowClear = true,
-  enterButton = false,
 }: SearchInputProps) {
-  const [searchValue, setSearchValue] = useState("");
-  const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(
-    null
+  const [internalValue, setInternalValue] = useState(
+    value || defaultValue || ""
   );
+  const [debouncedValue, setDebouncedValue] = useState(internalValue);
+
+  // Debounce effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(internalValue);
+    }, debounceMs);
+
+    return () => clearTimeout(timer);
+  }, [internalValue, debounceMs]);
+
+  // Call onChange when debounced value changes
+  useEffect(() => {
+    if (onChange && debouncedValue !== (value || defaultValue || "")) {
+      onChange(debouncedValue);
+    }
+  }, [debouncedValue, onChange, value, defaultValue]);
+
+  // Update internal value when external value changes
+  useEffect(() => {
+    if (value !== undefined) {
+      setInternalValue(value);
+    }
+  }, [value]);
 
   const handleSearch = useCallback(
-    (value: string) => {
+    (searchValue: string) => {
       if (onSearch) {
-        onSearch(value);
+        onSearch(searchValue);
       }
     },
     [onSearch]
   );
 
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setSearchValue(value);
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setInternalValue(e.target.value);
+  }, []);
 
-      if (onChange) {
-        onChange(value);
-      }
+  const handleClear = useCallback(() => {
+    setInternalValue("");
+    if (onClear) {
+      onClear();
+    }
+  }, [onClear]);
 
-      // Debounce search
-      if (debounceMs > 0 && onSearch) {
-        if (debounceTimer) {
-          clearTimeout(debounceTimer);
-        }
+  const getVariantStyles = (): React.CSSProperties => {
+    switch (variant) {
+      case "filled":
+        return {
+          backgroundColor: "var(--bg-secondary)",
+          border: "none",
+        };
+      case "borderless":
+        return {
+          border: "none",
+          boxShadow: "none",
+        };
+      default:
+        return {};
+    }
+  };
 
-        const timer = setTimeout(() => {
-          onSearch(value);
-        }, debounceMs);
-
-        setDebounceTimer(timer);
-      }
-    },
-    [onChange, onSearch, debounceMs, debounceTimer]
-  );
-
-  const searchInputStyles: React.CSSProperties = {
+  const inputStyles: React.CSSProperties = {
     fontFamily: "var(--font-family)",
-    borderRadius: 6,
+    ...getVariantStyles(),
     ...style,
   };
 
-  if (enterButton) {
-    return (
-      <ConfigProvider
-        theme={{
-          components: {
-            Input: {
-              borderRadius: 6,
-              fontFamily: "var(--font-family)",
-              colorText: "var(--text-primary)",
-              colorTextPlaceholder: "var(--text-muted)",
-              colorBgContainer:
-                variant === "filled" ? "var(--bg-input)" : "var(--bg-primary)",
-              colorBorder: "var(--border-main)",
-              colorPrimaryHover: "var(--primary-light)",
-              colorPrimary: "var(--primary-main)",
-            },
-          },
-        }}
-      >
-        <Search
-          placeholder={placeholder}
-          onSearch={handleSearch}
-          onChange={handleChange}
-          loading={loading}
-          disabled={disabled}
-          size={size}
-          allowClear={allowClear}
-          enterButton={enterButton}
-          className={className}
-          style={searchInputStyles}
-          data-component="SearchInput"
-          data-variant={variant}
-          data-size={size}
-        />
-      </ConfigProvider>
-    );
-  }
-
   return (
-    <div className={className} style={style}>
-      <AppInput
+    <ConfigProvider
+      theme={{
+        components: {
+          Input: {
+            borderRadius: 6,
+            fontFamily: "var(--font-family)",
+          },
+        },
+      }}
+    >
+      <Search
+        value={internalValue}
         placeholder={placeholder}
-        value={searchValue}
-        onChange={handleChange}
-        variant={variant}
-        inputSize={size}
-        disabled={disabled}
         allowClear={allowClear}
+        enterButton={showSearchButton ? searchButtonText : false}
+        size={size}
+        loading={loading}
+        disabled={disabled}
+        onSearch={handleSearch}
+        onChange={handleChange}
+        onClear={handleClear}
+        className={className}
+        style={inputStyles}
         prefix={
           <Icon name="SearchOutlined" size={14} color="var(--text-muted)" />
         }
-        style={searchInputStyles}
-        data-component="SearchInput"
-        data-variant={variant}
-        data-size={size}
       />
+    </ConfigProvider>
+  );
+}
+
+// Simplified variant for quick usage
+interface QuickSearchProps {
+  onSearch: (value: string) => void;
+  placeholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export function QuickSearch({
+  onSearch,
+  placeholder = "Szukaj...",
+  className,
+  style,
+}: QuickSearchProps) {
+  return (
+    <SearchInput
+      onSearch={onSearch}
+      placeholder={placeholder}
+      showSearchButton={false}
+      allowClear
+      size="middle"
+      className={className}
+      style={style}
+    />
+  );
+}
+
+// Search with filters
+interface SearchWithFiltersProps extends SearchInputProps {
+  filters?: React.ReactNode;
+  filtersPosition?: "left" | "right";
+}
+
+export function SearchWithFilters({
+  filters,
+  filtersPosition = "right",
+  ...searchProps
+}: SearchWithFiltersProps) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: 12,
+        alignItems: "center",
+        flexWrap: "wrap",
+      }}
+    >
+      {filtersPosition === "left" && filters && (
+        <div style={{ display: "flex", gap: 8 }}>{filters}</div>
+      )}
+
+      <SearchInput {...searchProps} style={{ flex: 1, ...searchProps.style }} />
+
+      {filtersPosition === "right" && filters && (
+        <div style={{ display: "flex", gap: 8 }}>{filters}</div>
+      )}
     </div>
-  );
-}
-
-interface QuickSearchInputProps {
-  placeholder?: string;
-  onSearch?: (value: string) => void;
-  debounceMs?: number;
-  size?: "small" | "middle" | "large";
-}
-
-export function QuickSearchInput({
-  placeholder = "Szybkie wyszukiwanie...",
-  onSearch,
-  debounceMs = 200,
-  size = "middle",
-}: QuickSearchInputProps) {
-  return (
-    <SearchInput
-      placeholder={placeholder}
-      onSearch={onSearch}
-      debounceMs={debounceMs}
-      size={size}
-      variant="outline"
-      enterButton={<Icon name="SearchOutlined" size={14} />}
-    />
-  );
-}
-
-interface FilterSearchInputProps {
-  placeholder?: string;
-  onSearch?: (value: string) => void;
-  onClear?: () => void;
-  size?: "small" | "middle" | "large";
-}
-
-export function FilterSearchInput({
-  placeholder = "Filtruj...",
-  onSearch,
-  onClear,
-  size = "small",
-}: FilterSearchInputProps) {
-  return (
-    <SearchInput
-      placeholder={placeholder}
-      onSearch={onSearch}
-      onChange={onClear ? (value) => value === "" && onClear() : undefined}
-      debounceMs={150}
-      size={size}
-      variant="filled"
-      allowClear={true}
-    />
   );
 }
 

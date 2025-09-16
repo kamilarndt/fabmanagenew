@@ -35,40 +35,13 @@ function generateNumer(created_at?: string): string {
 }
 
 export async function listProjects(): Promise<Project[]> {
-  const [projects, clients, tiles, tileMaterials, materials] =
-    await Promise.all([
-      api.get<any[]>("/api/projects"),
-      api.get<any[]>("/api/clients").catch(() => []), // Fallback if clients endpoint fails
-      api.get<any[]>("/api/tiles").catch(() => []), // Load tiles for projects
-      api.get<any[]>("/api/tile-materials").catch(() => []), // Load tile materials
-      api.get<any[]>("/api/materials").catch(() => []), // Load materials
-    ]);
+  const [projects, clients] = await Promise.all([
+    api.get<any[]>("/api/projects"),
+    api.get<any[]>("/api/clients").catch(() => []), // Fallback if clients endpoint fails
+  ]);
 
   const clientMap = new Map<string, string>();
   for (const c of clients) clientMap.set(c.id, c.name);
-
-  const materialMap = new Map<string, any>();
-  for (const m of materials) materialMap.set(m.id, m);
-
-  // Group tiles by project_id
-  const tilesByProject = new Map<string, any[]>();
-  for (const tile of tiles) {
-    const projectId = tile.project_id;
-    if (!tilesByProject.has(projectId)) {
-      tilesByProject.set(projectId, []);
-    }
-    tilesByProject.get(projectId)!.push(tile);
-  }
-
-  // Group tile materials by tile_id
-  const materialsByTile = new Map<string, any[]>();
-  for (const tm of tileMaterials) {
-    const tileId = tm.tile_id;
-    if (!materialsByTile.has(tileId)) {
-      materialsByTile.set(tileId, []);
-    }
-    materialsByTile.get(tileId)!.push(tm);
-  }
 
   const mapped: Project[] = (projects as any[]).map((p) => ({
     id: p.id,
@@ -94,29 +67,6 @@ export async function listProjects(): Promise<Project[]> {
     progress: 0,
     groups: [],
     modules: p.modules ? (JSON.parse(p.modules) as ProjectModule[]) : [],
-    // Add tiles to project with materials
-    tiles:
-      tilesByProject.get(p.id)?.map((tile) => {
-        const tileMaterials = materialsByTile.get(tile.id) || [];
-        const materials = tileMaterials.map((tm) => ({
-          id: tm.material_id,
-          name: materialMap.get(tm.material_id)?.name || "Unknown Material",
-          quantity: tm.quantity,
-          unit: materialMap.get(tm.material_id)?.unit || "szt",
-        }));
-
-        return {
-          id: tile.id,
-          name: tile.name,
-          status: tile.status,
-          projectId: tile.project_id,
-          createdAt: tile.created_at,
-          updatedAt: tile.created_at, // Use created_at as fallback
-          materials: materials,
-          quantity: materials.reduce((sum, m) => sum + (m.quantity || 0), 0),
-          dimensions: undefined,
-        };
-      }) || [],
   }));
 
   return mapped;

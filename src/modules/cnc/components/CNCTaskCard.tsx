@@ -1,21 +1,14 @@
 import {
   CheckCircleOutlined,
-  // ExclamationCircleOutlined,
+  ExclamationCircleOutlined,
   PauseCircleOutlined,
   PlayCircleOutlined,
 } from "@ant-design/icons";
-import { Typography } from "antd";
-import type { BaseEntity } from "../../../components/shared/BaseCard";
-import { BaseCard } from "../../../components/shared/BaseCard";
-import {
-  AppButton,
-  AppProgress,
-  AppSpace,
-  AppTag,
-} from "../../../components/ui";
+import { Button, Card, Progress, Space, Tag, Typography } from "antd";
+import { FadeIn } from "../../../components/ui/FadeIn";
 import type { CNCTask } from "../types";
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 interface CNCTaskCardProps {
   task: CNCTask;
@@ -68,150 +61,160 @@ export function CNCTaskCard({
     }
   };
 
-  // Helper function for future use
-  // const getStatusIcon = (status: string) => {
-  //   switch (status) {
-  //     case "queued":
-  //       return <PlayCircleOutlined />;
-  //     case "in_progress":
-  //       return <PlayCircleOutlined />;
-  //     case "completed":
-  //       return <CheckCircleOutlined />;
-  //     case "paused":
-  //       return <PauseCircleOutlined />;
-  //     case "failed":
-  //       return <ExclamationCircleOutlined />;
-  //     default:
-  //       return null;
-  //   }
-  // };
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "queued":
+        return <PlayCircleOutlined />;
+      case "in_progress":
+        return <PlayCircleOutlined />;
+      case "completed":
+        return <CheckCircleOutlined />;
+      case "paused":
+        return <PauseCircleOutlined />;
+      case "failed":
+        return <ExclamationCircleOutlined />;
+      default:
+        return null;
+    }
+  };
 
   const progress = task.actualDuration
     ? Math.round((task.actualDuration / task.estimatedDuration) * 100)
     : 0;
 
-  // Convert CNCTask to BaseEntity format
-  const baseEntity: BaseEntity = {
-    id: task.id,
-    name: task.tileName,
-    description: `Project: ${task.projectId}`,
-    status: task.status,
-    priority: task.priority,
-    assignedTo: task.assignedTo,
-    projectId: task.projectId,
-    createdAt: task.createdAt,
-    updatedAt: task.updatedAt,
-  };
+  return (
+    <FadeIn>
+      <Card
+        hoverable
+        actions={[
+          <Button key="view" type="text" onClick={() => onView?.(task)}>
+            View
+          </Button>,
+          ...(task.status === "queued" || task.status === "paused"
+            ? [
+                <Button
+                  key="start"
+                  type="text"
+                  icon={<PlayCircleOutlined />}
+                  onClick={handleStart}
+                >
+                  Start
+                </Button>,
+              ]
+            : []),
+          ...(task.status === "in_progress"
+            ? [
+                <Button
+                  key="pause"
+                  type="text"
+                  icon={<PauseCircleOutlined />}
+                  onClick={handlePause}
+                >
+                  Pause
+                </Button>,
+                <Button
+                  key="complete"
+                  type="text"
+                  icon={<CheckCircleOutlined />}
+                  onClick={handleComplete}
+                >
+                  Complete
+                </Button>,
+              ]
+            : []),
+        ]}
+        style={{ height: "100%" }}
+      >
+        <div style={{ marginBottom: 16 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              marginBottom: 8,
+            }}
+          >
+            <Title level={4} style={{ margin: 0, flex: 1 }}>
+              {task.tileName}
+            </Title>
+            <Tag
+              color={getStatusColor(task.status)}
+              icon={getStatusIcon(task.status)}
+            >
+              {task.status.replace("_", " ").toUpperCase()}
+            </Tag>
+          </div>
 
-  const customFields = (
-    <div style={{ marginBottom: 16 }}>
-      <div style={{ marginBottom: 16 }}>
-        <AppSpace wrap>
-          <AppTag color="blue">{task.material}</AppTag>
-          {task.tooling && <AppTag color="cyan">{task.tooling}</AppTag>}
-        </AppSpace>
-      </div>
+          <Text type="secondary" style={{ fontSize: "14px" }}>
+            Project: {task.projectId}
+          </Text>
+        </div>
 
-      <div style={{ marginBottom: 16 }}>
-        <Text strong>Dimensions: </Text>
-        <Text type="secondary">
-          {task.dimensions.width} × {task.dimensions.height} ×{" "}
-          {task.dimensions.depth} mm
-        </Text>
-      </div>
+        <div style={{ marginBottom: 16 }}>
+          <Space wrap>
+            <Tag color={getPriorityColor(task.priority)}>
+              {task.priority.toUpperCase()}
+            </Tag>
+            <Tag color="blue">{task.material}</Tag>
+            {task.assignedTo && <Tag color="purple">{task.assignedTo}</Tag>}
+            {task.tooling && <Tag color="cyan">{task.tooling}</Tag>}
+          </Space>
+        </div>
 
-      <div style={{ marginBottom: 16 }}>
+        <div style={{ marginBottom: 16 }}>
+          <Text strong>Dimensions: </Text>
+          <Text type="secondary">
+            {task.dimensions.width} × {task.dimensions.height} ×{" "}
+            {task.dimensions.depth} mm
+          </Text>
+        </div>
+
+        <div style={{ marginBottom: 16 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 8,
+            }}
+          >
+            <Text strong>Progress</Text>
+            <Text type="secondary">
+              {task.actualDuration || 0} / {task.estimatedDuration} min
+            </Text>
+          </div>
+          <Progress
+            percent={Math.min(progress, 100)}
+            status={task.status === "failed" ? "exception" : "active"}
+            showInfo={false}
+          />
+        </div>
+
+        {task.errors && task.errors.length > 0 && (
+          <div style={{ marginBottom: 16 }}>
+            <Text type="danger" strong>
+              Errors: {task.errors.length}
+            </Text>
+          </div>
+        )}
+
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 8,
           }}
         >
-          <Text strong>Progress</Text>
           <Text type="secondary">
-            {task.actualDuration || 0} / {task.estimatedDuration} min
+            Created: {new Date(task.createdAt).toLocaleDateString()}
           </Text>
+          {task.startedAt && (
+            <Text type="secondary">
+              Started: {new Date(task.startedAt).toLocaleDateString()}
+            </Text>
+          )}
         </div>
-        <AppProgress
-          percent={Math.min(progress, 100)}
-          status={task.status === "failed" ? "exception" : "active"}
-          showInfo={false}
-        />
-      </div>
-
-      {task.errors && task.errors.length > 0 && (
-        <div style={{ marginBottom: 16 }}>
-          <Text type="danger" strong>
-            Errors: {task.errors.length}
-          </Text>
-        </div>
-      )}
-
-      {task.startedAt && (
-        <div style={{ marginBottom: 16 }}>
-          <Text type="secondary">
-            Started: {new Date(task.startedAt).toLocaleDateString()}
-          </Text>
-        </div>
-      )}
-    </div>
-  );
-
-  const actions = [
-    <AppButton key="view" type="text" onClick={() => onView?.(task)}>
-      View
-    </AppButton>,
-    ...(task.status === "queued" || task.status === "paused"
-      ? [
-          <AppButton
-            key="start"
-            type="text"
-            icon={<PlayCircleOutlined />}
-            onClick={handleStart}
-          >
-            Start
-          </AppButton>,
-        ]
-      : []),
-    ...(task.status === "in_progress"
-      ? [
-          <AppButton
-            key="pause"
-            type="text"
-            icon={<PauseCircleOutlined />}
-            onClick={handlePause}
-          >
-            Pause
-          </AppButton>,
-          <AppButton
-            key="complete"
-            type="text"
-            icon={<CheckCircleOutlined />}
-            onClick={handleComplete}
-          >
-            Complete
-          </AppButton>,
-        ]
-      : []),
-  ];
-
-  // Create adapters to convert BaseEntity back to CNCTask
-  const handleView = (_entity: BaseEntity) => {
-    onView?.(task);
-  };
-
-  return (
-    <BaseCard
-      entity={baseEntity}
-      onView={handleView}
-      onEdit={() => {}} // CNC tasks don't have edit action
-      onDelete={() => {}} // CNC tasks don't have delete action
-      statusColorMap={getStatusColor}
-      priorityColorMap={getPriorityColor}
-      customFields={customFields}
-      actions={actions}
-    />
+      </Card>
+    </FadeIn>
   );
 }

@@ -128,20 +128,7 @@ export function AppTable<T extends Record<string, any>>({
   );
 
   return (
-    <div
-      data-testid="app-table"
-      data-component="AppTable"
-      data-variant={
-        exportable && columnManagement
-          ? "full-featured"
-          : exportable
-          ? "with-export"
-          : columnManagement
-          ? "with-columns"
-          : "basic"
-      }
-      data-state={searchable ? "searchable" : "static"}
-    >
+    <div data-testid="app-table">
       {toolbar}
       <Table
         columns={processedColumns}

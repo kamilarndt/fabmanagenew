@@ -1,5 +1,4 @@
-import React, { useMemo } from "react";
-import { FixedSizeList, type ListChildComponentProps } from "react-window";
+import React from "react";
 
 interface VirtualizedListProps<T> {
   items: readonly T[];
@@ -15,29 +14,29 @@ export function VirtualizedList<T>({
   itemHeight,
   height,
   width = "100%",
-  overscanCount = 4,
   renderItem,
 }: VirtualizedListProps<T>) {
-  const itemData = useMemo(() => ({ items, renderItem }), [items, renderItem]);
-
-  const Row = ({ index, style, data }: ListChildComponentProps) => {
-    const d = data as {
-      items: readonly T[];
-      renderItem: (item: T, index: number) => React.ReactNode;
-    };
-    return <div style={style}>{d.renderItem(d.items[index], index)}</div>;
-  };
-
+  // Simplified implementation without react-window for now
   return (
-    <FixedSizeList
-      height={height}
-      itemCount={items.length}
-      itemSize={itemHeight}
-      width={width}
-      itemData={itemData}
-      overscanCount={overscanCount}
+    <div
+      style={{
+        height,
+        width,
+        overflow: "auto",
+      }}
     >
-      {Row}
-    </FixedSizeList>
+      {items.map((item, index) => (
+        <div
+          key={index}
+          style={{
+            height: itemHeight,
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          {renderItem(item, index)}
+        </div>
+      ))}
+    </div>
   );
 }

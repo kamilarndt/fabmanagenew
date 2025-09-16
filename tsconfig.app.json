@@ -24,12 +24,5 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["src"],
-  "exclude": [
-    "src/components/Ui/**",
-    "src/archive/**",
-    "src/components/ui/__tests__/**",
-    "**/*.stories.tsx",
-    "**/*.test.tsx",
-    "**/*.spec.tsx"
-  ]
+  "exclude": ["src/components/Ui/**"]
 }
