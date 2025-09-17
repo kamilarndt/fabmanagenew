@@ -1,0 +1,475 @@
+{
+  "materials": {
+    "steel_materials": [
+      {
+        "id": "MAT-001",
+        "name": "Steel Beam 200x100",
+        "code": "SB-200x100",
+        "category": "steel",
+        "unit": "meter",
+        "unit_price": 150.00,
+        "supplier_id": "SUP-001",
+        "stock_quantity": 50,
+        "min_stock_level": 10,
+        "max_stock_level": 100,
+        "location": "Warehouse A-1"
+      },
+      {
+        "id": "MAT-002",
+        "name": "Steel Plate 10mm",
+        "code": "SP-10MM",
+        "category": "steel",
+        "unit": "square_meter",
+        "unit_price": 85.50,
+        "supplier_id": "SUP-001",
+        "stock_quantity": 25,
+        "min_stock_level": 5,
+        "max_stock_level": 50,
+        "location": "Warehouse A-2"
+      }
+    ],
+    "wood_materials": [
+      {
+        "id": "MAT-003",
+        "name": "Oak Plank 2x4",
+        "code": "OP-2X4",
+        "category": "wood",
+        "unit": "meter",
+        "unit_price": 45.00,
+        "supplier_id": "SUP-002",
+        "stock_quantity": 100,
+        "min_stock_level": 20,
+        "max_stock_level": 200,
+        "location": "Warehouse B-1"
+      }
+    ],
+    "suppliers": [
+      {
+        "id": "SUP-001",
+        "name": "Premium Steel Ltd",
+        "contact_email": "orders@premiumsteel.com",
+        "contact_phone": "+1-555-0123",
+        "address": "123 Industrial Ave, Steel City, SC 12345",
+        "website": "https://premiumsteel.com",
+        "rating": 4.5,
+        "is_active": true
+      },
+      {
+        "id": "SUP-002",
+        "name": "Quality Wood Supply",
+        "contact_email": "sales@qualitywood.com",
+        "contact_phone": "+1-555-0456",
+        "address": "456 Forest Rd, Woodville, WV 67890",
+        "website": "https://qualitywood.com",
+        "rating": 4.2,
+        "is_active": true
+      }
+    ]
+  },
+  "projects": {
+    "active_projects": [
+      {
+        "id": "PROJ-001",
+        "name": "Conference Stage Setup",
+        "description": "Main stage setup for tech conference",
+        "start_date": "2024-02-01",
+        "end_date": "2024-02-15",
+        "budget": 50000.00,
+        "status": "in_progress",
+        "project_manager": "PM-001",
+        "team_members": ["TM-001", "TM-002", "TM-003"]
+      },
+      {
+        "id": "PROJ-002",
+        "name": "Exhibition Booth Design",
+        "description": "Custom booth design for trade show",
+        "start_date": "2024-02-10",
+        "end_date": "2024-02-25",
+        "budget": 25000.00,
+        "status": "planning",
+        "project_manager": "PM-002",
+        "team_members": ["TM-004", "TM-005"]
+      }
+    ],
+    "bom_items": [
+      {
+        "id": "BOM-001",
+        "project_id": "PROJ-001",
+        "material_id": "MAT-001",
+        "quantity": 10,
+        "unit_cost": 150.00,
+        "total_cost": 1500.00,
+        "notes": "Main structural support"
+      },
+      {
+        "id": "BOM-002",
+        "project_id": "PROJ-001",
+        "material_id": "MAT-002",
+        "quantity": 20,
+        "unit_cost": 85.50,
+        "total_cost": 1710.00,
+        "notes": "Flooring material"
+      }
+    ]
+  },
+  "tiles": {
+    "kanban_columns": [
+      {
+        "id": "col-1",
+        "title": "To Do",
+        "tiles": [
+          {
+            "id": "tile-1",
+            "title": "Design Review",
+            "description": "Review initial design concepts",
+            "assignee": "TM-001",
+            "priority": "high",
+            "due_date": "2024-02-05",
+            "tags": ["design", "review"]
+          },
+          {
+            "id": "tile-2",
+            "title": "Material Procurement",
+            "description": "Order required materials",
+            "assignee": "TM-002",
+            "priority": "medium",
+            "due_date": "2024-02-08",
+            "tags": ["procurement", "materials"]
+          }
+        ]
+      },
+      {
+        "id": "col-2",
+        "title": "In Progress",
+        "tiles": [
+          {
+            "id": "tile-3",
+            "title": "Site Preparation",
+            "description": "Prepare construction site",
+            "assignee": "TM-003",
+            "priority": "high",
+            "due_date": "2024-02-06",
+            "tags": ["construction", "site"]
+          }
+        ]
+      },
+      {
+        "id": "col-3",
+        "title": "Review",
+        "tiles": []
+      },
+      {
+        "id": "col-4",
+        "title": "Done",
+        "tiles": [
+          {
+            "id": "tile-4",
+            "title": "Project Planning",
+            "description": "Complete project planning phase",
+            "assignee": "PM-001",
+            "priority": "high",
+            "due_date": "2024-02-01",
+            "tags": ["planning", "complete"]
+          }
+        ]
+      }
+    ]
+  },
+  "logistics": {
+    "vehicles": [
+      {
+        "id": "VEH-001",
+        "type": "truck",
+        "capacity": "5_ton",
+        "driver": "DRV-001",
+        "status": "available",
+        "location": "Depot A"
+      },
+      {
+        "id": "VEH-002",
+        "type": "van",
+        "capacity": "1_ton",
+        "driver": "DRV-002",
+        "status": "in_transit",
+        "location": "Route 101"
+      }
+    ],
+    "routes": [
+      {
+        "id": "ROUTE-001",
+        "name": "City Center Route",
+        "start_location": "Depot A",
+        "end_location": "Conference Center",
+        "distance": 15.5,
+        "estimated_time": 45,
+        "status": "active"
+      }
+    ],
+    "shipments": [
+      {
+        "id": "SHIP-001",
+        "project_id": "PROJ-001",
+        "vehicle_id": "VEH-001",
+        "route_id": "ROUTE-001",
+        "status": "in_transit",
+        "pickup_date": "2024-02-05",
+        "delivery_date": "2024-02-05",
+        "items": [
+          {
+            "material_id": "MAT-001",
+            "quantity": 10,
+            "weight": 500
+          }
+        ]
+      }
+    ]
+  },
+  "accommodation": {
+    "hotels": [
+      {
+        "id": "HOTEL-001",
+        "name": "Grand Plaza Hotel",
+        "location": "Downtown",
+        "rating": 4.5,
+        "price_per_night": 150.00,
+        "amenities": ["wifi", "parking", "restaurant", "gym"],
+        "availability": true
+      },
+      {
+        "id": "HOTEL-002",
+        "name": "Business Inn",
+        "location": "Business District",
+        "rating": 4.0,
+        "price_per_night": 120.00,
+        "amenities": ["wifi", "business_center", "restaurant"],
+        "availability": true
+      }
+    ],
+    "bookings": [
+      {
+        "id": "BOOK-001",
+        "project_id": "PROJ-001",
+        "hotel_id": "HOTEL-001",
+        "guest_name": "John Smith",
+        "check_in": "2024-02-10",
+        "check_out": "2024-02-15",
+        "room_type": "standard",
+        "total_cost": 750.00,
+        "status": "confirmed"
+      }
+    ]
+  },
+  "files": {
+    "file_categories": [
+      {
+        "id": "CAT-001",
+        "name": "Design Documents",
+        "description": "Architectural and design files"
+      },
+      {
+        "id": "CAT-002",
+        "name": "Technical Specifications",
+        "description": "Technical documentation and specs"
+      },
+      {
+        "id": "CAT-003",
+        "name": "Project Photos",
+        "description": "Progress and completion photos"
+      }
+    ],
+    "sample_files": [
+      {
+        "id": "FILE-001",
+        "name": "Stage Design v2.1.dwg",
+        "category_id": "CAT-001",
+        "project_id": "PROJ-001",
+        "file_size": 2048576,
+        "file_type": "dwg",
+        "uploaded_by": "TM-001",
+        "upload_date": "2024-02-01",
+        "version": "2.1"
+      },
+      {
+        "id": "FILE-002",
+        "name": "Material Specifications.pdf",
+        "category_id": "CAT-002",
+        "project_id": "PROJ-001",
+        "file_size": 1024000,
+        "file_type": "pdf",
+        "uploaded_by": "TM-002",
+        "upload_date": "2024-02-02",
+        "version": "1.0"
+      }
+    ]
+  },
+  "concepts": {
+    "concept_categories": [
+      {
+        "id": "CONCEPT-CAT-001",
+        "name": "Design Concepts",
+        "description": "Initial design ideas and concepts"
+      },
+      {
+        "id": "CONCEPT-CAT-002",
+        "name": "Technical Solutions",
+        "description": "Technical approach concepts"
+      }
+    ],
+    "sample_concepts": [
+      {
+        "id": "CONCEPT-001",
+        "title": "Modular Stage Design",
+        "description": "Concept for modular stage that can be reconfigured",
+        "category_id": "CONCEPT-CAT-001",
+        "project_id": "PROJ-001",
+        "status": "under_review",
+        "created_by": "TM-001",
+        "created_date": "2024-02-01",
+        "approval_workflow": {
+          "current_step": "design_review",
+          "approvers": ["PM-001", "TM-002"],
+          "deadline": "2024-02-08"
+        }
+      }
+    ]
+  },
+  "documents": {
+    "document_categories": [
+      {
+        "id": "DOC-CAT-001",
+        "name": "Contracts",
+        "description": "Legal contracts and agreements"
+      },
+      {
+        "id": "DOC-CAT-002",
+        "name": "Reports",
+        "description": "Project and progress reports"
+      },
+      {
+        "id": "DOC-CAT-003",
+        "name": "Manuals",
+        "description": "Equipment and process manuals"
+      }
+    ],
+    "sample_documents": [
+      {
+        "id": "DOC-001",
+        "title": "Project Contract - Conference Stage",
+        "category_id": "DOC-CAT-001",
+        "project_id": "PROJ-001",
+        "file_path": "/documents/contracts/proj-001-contract.pdf",
+        "file_size": 512000,
+        "created_by": "PM-001",
+        "created_date": "2024-01-15",
+        "tags": ["contract", "legal", "project"]
+      }
+    ]
+  },
+  "messaging": {
+    "chat_rooms": [
+      {
+        "id": "ROOM-001",
+        "name": "Project Conference Stage",
+        "project_id": "PROJ-001",
+        "participants": ["PM-001", "TM-001", "TM-002", "TM-003"],
+        "created_by": "PM-001",
+        "created_date": "2024-02-01"
+      }
+    ],
+    "sample_messages": [
+      {
+        "id": "MSG-001",
+        "room_id": "ROOM-001",
+        "sender_id": "PM-001",
+        "content": "Good morning team! Let's start with the daily standup.",
+        "timestamp": "2024-02-05T09:00:00Z",
+        "message_type": "text"
+      },
+      {
+        "id": "MSG-002",
+        "room_id": "ROOM-001",
+        "sender_id": "TM-001",
+        "content": "I've completed the design review. Files uploaded to the project folder.",
+        "timestamp": "2024-02-05T09:15:00Z",
+        "message_type": "text"
+      }
+    ]
+  },
+  "users": {
+    "test_users": [
+      {
+        "id": "PM-001",
+        "name": "Sarah Johnson",
+        "email": "sarah.johnson@company.com",
+        "role": "project_manager",
+        "permissions": ["project_management", "team_management", "budget_approval"]
+      },
+      {
+        "id": "TM-001",
+        "name": "Mike Chen",
+        "email": "mike.chen@company.com",
+        "role": "designer",
+        "permissions": ["design_creation", "file_upload", "task_management"]
+      },
+      {
+        "id": "TM-002",
+        "name": "Lisa Rodriguez",
+        "email": "lisa.rodriguez@company.com",
+        "role": "procurement_specialist",
+        "permissions": ["material_management", "supplier_management", "inventory_tracking"]
+      },
+      {
+        "id": "TM-003",
+        "name": "David Kim",
+        "email": "david.kim@company.com",
+        "role": "field_supervisor",
+        "permissions": ["task_execution", "progress_reporting", "mobile_access"]
+      }
+    ]
+  },
+  "test_scenarios": {
+    "common_workflows": [
+      {
+        "name": "Complete Project Setup",
+        "description": "End-to-end project creation and setup",
+        "steps": [
+          "Create new project",
+          "Assign team members",
+          "Create BOM",
+          "Plan logistics",
+          "Book accommodation",
+          "Set up communication channels"
+        ],
+        "expected_duration": "30 minutes",
+        "success_criteria": "All project components configured and team notified"
+      },
+      {
+        "name": "Material Procurement Process",
+        "description": "Complete material ordering and tracking",
+        "steps": [
+          "Search for materials",
+          "Add to BOM",
+          "Place orders with suppliers",
+          "Track deliveries",
+          "Update inventory",
+          "Generate procurement report"
+        ],
+        "expected_duration": "15 minutes",
+        "success_criteria": "Materials ordered and tracked successfully"
+      },
+      {
+        "name": "Daily Project Management",
+        "description": "Daily project monitoring and updates",
+        "steps": [
+          "Check project dashboard",
+          "Update task progress",
+          "Review team communications",
+          "Check budget status",
+          "Generate daily report"
+        ],
+        "expected_duration": "10 minutes",
+        "success_criteria": "Project status updated and team informed"
+      }
+    ]
+  }
+}

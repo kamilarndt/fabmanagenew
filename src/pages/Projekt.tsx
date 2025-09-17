@@ -1,4 +1,3 @@
-import { Button, Card, Result } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -6,6 +5,9 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import EditProjectModal from "../components/EditProjectModal";
 import TileEditDrawer from "../components/Tiles/tile-edit-drawer";
 import { showToast } from "../lib/notifications";
+import { Button } from "../new-ui/atoms/Button/Button";
+import { Result } from "../new-ui/atoms/Result/Result";
+import { Card } from "../new-ui/molecules/Card/Card";
 import { useProjectsStore } from "../stores/projectsStore";
 import { useTilesStore, type Tile } from "../stores/tilesStore";
 import type { Project } from "../types/projects.types";

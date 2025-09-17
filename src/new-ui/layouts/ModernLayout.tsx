@@ -112,12 +112,31 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
 
   const header = (
     <div className="flex items-center gap-4">
-      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg">
-        <span className="text-xl font-bold text-white">F</span>
+      <div
+        className="flex h-12 w-12 items-center justify-center rounded-xl"
+        style={{
+          backgroundColor: "var(--color-foreground-primary)",
+          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <span
+          className="text-xl font-bold"
+          style={{ color: "var(--color-background-default)" }}
+        >
+          F
+        </span>
       </div>
       <div>
-        <div className="text-lg font-bold text-white">FabManage</div>
-        <div className="text-xs text-gray-400">
+        <div
+          className="text-lg font-bold"
+          style={{ color: "var(--color-foreground-primary)" }}
+        >
+          FabManage
+        </div>
+        <div
+          className="text-xs"
+          style={{ color: "var(--color-foreground-muted)" }}
+        >
           System Zarządzania Produkcją
         </div>
       </div>
@@ -125,9 +144,18 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
   );
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div
+      className="flex h-screen"
+      style={{
+        background:
+          "linear-gradient(135deg, var(--color-background-default) 0%, var(--color-background-secondary) 50%, var(--color-background-default) 100%)",
+      }}
+    >
       {/* Sidebar */}
-      <div className="glass-sidebar w-64 flex-shrink-0">
+      <div
+        className="w-64 flex-shrink-0"
+        style={{ backgroundColor: "var(--color-sidebar-DEFAULT)" }}
+      >
         <Sidebar
           items={sidebarItems}
           activeItem={getActiveItem()}
@@ -140,19 +168,53 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="glass-card m-4 mb-0 p-6">
+        <header
+          className="m-4 mb-0 p-6"
+          style={{
+            backgroundColor: "var(--color-background-card)",
+            border: "1px solid var(--color-border-default)",
+            borderRadius: "var(--radius-md)",
+          }}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-gray-400">Dashboard</span>
-              <Icon name="chevron-right" className="w-4 h-4 text-gray-400" />
-              <span className="text-white font-medium">Przegląd</span>
+              <span style={{ color: "var(--color-foreground-muted)" }}>
+                Dashboard
+              </span>
+              <Icon
+                name="chevron-right"
+                className="w-4 h-4"
+                style={{ color: "var(--color-foreground-muted)" }}
+              />
+              <span
+                className="font-medium"
+                style={{ color: "var(--color-foreground-primary)" }}
+              >
+                Przegląd
+              </span>
             </div>
             <div className="flex items-center space-x-3">
-              <button className="glass-button px-4 py-2 flex items-center space-x-2 hover-lift">
+              <button
+                className="px-4 py-2 flex items-center space-x-2 hover-lift"
+                style={{
+                  backgroundColor: "var(--color-background-muted)",
+                  color: "var(--color-foreground-primary)",
+                  border: "1px solid var(--color-border-default)",
+                  borderRadius: "var(--radius-sm)",
+                }}
+              >
                 <Icon name="bell" className="w-4 h-4" />
                 <span>Powiadomienia</span>
               </button>
-              <button className="neu-button px-4 py-2 flex items-center space-x-2 hover-lift">
+              <button
+                className="px-4 py-2 flex items-center space-x-2 hover-lift"
+                style={{
+                  backgroundColor: "var(--color-background-accent)",
+                  color: "var(--color-foreground-accent)",
+                  border: "1px solid var(--color-border-default)",
+                  borderRadius: "var(--radius-sm)",
+                }}
+              >
                 <Icon name="user" className="w-4 h-4" />
                 <span>Profil</span>
               </button>

@@ -1,22 +1,47 @@
-import { createClient } from '@supabase/supabase-js'
+// Supabase client configuration for FabManage-Clean
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
-const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
+// Environment variables
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-export const isSupabaseConfigured = Boolean(url && key)
+// Check if Supabase is configured
+export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey)
 
-export const supabase = isSupabaseConfigured
-    ? createClient(url!, key!)
-    : (null as any)
-
-export async function testBackendConnection(): Promise<boolean> {
-    if (!isSupabaseConfigured) return false
-    try {
-        const { error } = await supabase.from('projects').select('id', { count: 'exact', head: true })
-        return !error
-    } catch {
-        return false
-    }
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables')
 }
 
+// Create Supabase client
+export const supabase: SupabaseClient = createClient(
+  supabaseUrl,
+  supabaseAnonKey,
+  {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true
+    }
+  }
+)
 
+// Auth helpers
+export const auth = {
+  signUp: async (email: string, password: string) => {
+    return await supabase.auth.signUp({ email, password })
+  },
+  
+  signIn: async (email: string, password: string) => {
+    return await supabase.auth.signInWithPassword({ email, password })
+  },
+  
+  signOut: async () => {
+    return await supabase.auth.signOut()
+  },
+  
+  getCurrentUser: () => {
+    return supabase.auth.getUser()
+  }
+}
+
+export default supabase

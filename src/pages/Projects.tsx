@@ -7,13 +7,16 @@ import { showToast } from "../lib/notifications";
 import { useProjectsStore } from "../stores/projectsStore";
 import { useTilesStore } from "../stores/tilesStore";
 // zod removed after AntD Form migration
+import EditProjectModal from "../components/EditProjectModal";
 import {
   Button,
   Card,
   Col,
+  DatePicker,
   Dropdown,
   Form,
   Input,
+  Modal,
   Pagination,
   Row,
   Segmented,
@@ -21,10 +24,13 @@ import {
   Space,
   Table,
   Tag,
-} from "antd";
-import EditProjectModal from "../components/EditProjectModal";
-import { ProjectForm } from "../new-ui/organisms/Forms/ProjectForm";
-import type { Project, ProjectWithStats } from "../types/projects.types";
+} from "../new-ui";
+import { createClient } from "../services/clients";
+import type {
+  Project,
+  ProjectModule,
+  ProjectWithStats,
+} from "../types/projects.types";
 
 export default function Projects() {
   const navigate = useNavigate();
@@ -37,7 +43,7 @@ export default function Projects() {
   const isLoading = useProjectsStore((s) => s.isLoading);
   const isInitialized = useProjectsStore((s) => s.isInitialized);
   const tiles = useTilesStore((s) => s.tiles);
-  const setTileStatus = useTilesStore((s) => s.setStatus);
+  const moveTile = useTilesStore((s) => s.moveTile);
 
   // Debug logging removed for performance
 
@@ -67,6 +73,20 @@ export default function Projects() {
     id: string | null;
   }>({ open: false, x: 0, y: 0, id: null });
   const [createOpen, setCreateOpen] = useState(false);
+  const [createForm, setCreateForm] = useState<Omit<Project, "id">>({
+    numer: "P-2025/01/NEW",
+    name: "",
+    typ: "Inne",
+    lokalizacja: "",
+    clientId: "C-NEW",
+    client: "",
+    status: "Nowy",
+    data_utworzenia: new Date().toISOString().slice(0, 10),
+    deadline: new Date().toISOString().slice(0, 10),
+    postep: 0,
+    groups: [],
+    modules: ["wycena", "koncepcja"] as ProjectModule[],
+  });
 
   // Legacy validation schema not used after AntD migration
 
@@ -110,7 +130,9 @@ export default function Projects() {
   // Calculate modules and tiles count for each project
   const projectsWithStats = useMemo((): ProjectWithStats[] => {
     return projects.map((project) => {
-      const projectTiles = tiles.filter((tile) => tile.project === project.id);
+      const projectTiles = tiles.filter(
+        (tile) => tile.project_id === project.id
+      );
       const modulesCount = project.modules?.length || 0;
       const tilesCount = projectTiles.length;
 
@@ -712,7 +734,7 @@ export default function Projects() {
                       <div className="text-muted small">{p.id}</div>
                       <div className="text-muted small">
                         {p.modules?.length || 0} modułów •{" "}
-                        {tiles.filter((t) => t.project === p.id).length}{" "}
+                        {tiles.filter((t) => t.project_id === p.id).length}{" "}
                         elementów
                       </div>
                     </div>
@@ -859,13 +881,13 @@ export default function Projects() {
                     if (id) {
                       update(id, { status: colStatus });
                       // propagate to tiles for this project id
-                      const related = tiles.filter((t) => t.project === id);
+                      const related = tiles.filter((t) => t.project_id === id);
                       if (colStatus === "Zakończony") {
-                        related.forEach((t) => setTileStatus(t.id, "WYCIĘTE"));
+                        related.forEach((t) => moveTile(t.id, "done"));
                       } else if (colStatus === "W realizacji") {
                         related.forEach((t) => {
-                          if (t.status !== "WYCIĘTE")
-                            setTileStatus(t.id, "W KOLEJCE");
+                          if (t.status !== "done")
+                            moveTile(t.id, "in_progress");
                         });
                       }
                       showToast(
@@ -1011,16 +1033,139 @@ export default function Projects() {
         onClose={() => setEditId(null)}
       />
 
-      {/* Create Project Form */}
-      <ProjectForm
+      {/* Create Project Modal */}
+      <Modal
+        title="Nowy Projekt"
         open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onSuccess={() => {
-          setCreateOpen(false);
+        onCancel={() => setCreateOpen(false)}
+        onOk={async () => {
+          // Ensure client exists; if no clientId but client name provided, create backend client
+          let clientId = createForm.clientId;
+          if (!clientId && createForm.client.trim()) {
+            try {
+              const c = await createClient({ name: createForm.client.trim() });
+              clientId = c.id;
+            } catch {
+              clientId = `c-${Date.now()}`;
+            }
+          }
+          await add({ ...createForm, clientId });
           showToast("Projekt utworzony", "success");
-          // The form will handle adding to the store internally
+          setCreateOpen(false);
+          setCreateForm({
+            numer: "P-2025/01/NEW",
+            name: "",
+            typ: "Inne",
+            lokalizacja: "",
+            clientId: "C-NEW",
+            client: "",
+            status: "Nowy",
+            data_utworzenia: new Date().toISOString().slice(0, 10),
+            deadline: new Date().toISOString().slice(0, 10),
+            postep: 0,
+            groups: [],
+            modules: ["wycena", "koncepcja"],
+          });
         }}
-      />
+        okText="Zapisz"
+        cancelText="Anuluj"
+      >
+        <Form layout="vertical">
+          <Form.Item label="Nazwa" required>
+            <Input
+              value={createForm.name}
+              onChange={(e) =>
+                setCreateForm({ ...createForm, name: e.target.value })
+              }
+            />
+          </Form.Item>
+          <Row gutter={[12, 12]}>
+            <Col xs={24} md={12}>
+              <Form.Item label="Nazwa klienta">
+                <Input
+                  value={createForm.client}
+                  placeholder="np. Teatr Narodowy"
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, client: e.target.value })
+                  }
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item label="ID klienta (opcjonalnie)">
+                <Input
+                  value={createForm.clientId}
+                  placeholder="Wypełni się po utworzeniu klienta"
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, clientId: e.target.value })
+                  }
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item label="Deadline">
+                <DatePicker
+                  style={{ width: "100%" }}
+                  onChange={(_, v) =>
+                    setCreateForm({
+                      ...createForm,
+                      deadline: (v as string) || "",
+                    })
+                  }
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item label="Moduły projektu">
+                <Select
+                  mode="multiple"
+                  value={createForm.modules as ProjectModule[]}
+                  onChange={(vals) =>
+                    setCreateForm({
+                      ...createForm,
+                      modules: vals as ProjectModule[],
+                    })
+                  }
+                  options={[
+                    { value: "wycena", label: "Wycena" },
+                    { value: "koncepcja", label: "Koncepcja" },
+                    { value: "projektowanie", label: "Projektowanie" },
+                    {
+                      value: "projektowanie_techniczne",
+                      label: "Projektowanie techniczne",
+                    },
+                    { value: "produkcja", label: "Produkcja" },
+                    { value: "materialy", label: "Materiały" },
+                    { value: "logistyka", label: "Logistyka" },
+                    { value: "logistyka_montaz", label: "Logistyka + Montaż" },
+                    { value: "zakwaterowanie", label: "Zakwaterowanie" },
+                    { value: "montaz", label: "Montaż" },
+                    { value: "model_3d", label: "Model 3D" },
+                  ]}
+                  placeholder="Wybierz moduły (np. Model 3D)"
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item label="Status">
+                <Select
+                  value={createForm.status}
+                  onChange={(v) =>
+                    setCreateForm({ ...createForm, status: v as any })
+                  }
+                  options={[
+                    { value: "Nowy", label: "Nowy" },
+                    { value: "Wyceniany", label: "Wyceniany" },
+                    { value: "W realizacji", label: "W realizacji" },
+                    { value: "Zakończony", label: "Zakończony" },
+                    { value: "Wstrzymany", label: "Wstrzymany" },
+                  ]}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
     </div>
   );
 }

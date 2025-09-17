@@ -1,48 +1,79 @@
 import { cn } from "@/new-ui/utils/cn";
 import * as React from "react";
 
-export interface EmptyProps extends React.HTMLAttributes<HTMLDivElement> {
-  description?: string;
+export interface EmptyProps {
+  description?: React.ReactNode;
   image?: React.ReactNode;
+  imageStyle?: React.CSSProperties;
   children?: React.ReactNode;
+  className?: string;
 }
 
 export function Empty({
-  className,
-  description = "No data",
+  description = "No Data",
   image,
+  imageStyle,
   children,
-  ...props
+  className,
 }: EmptyProps): React.ReactElement {
+  const defaultImage = (
+    <svg
+      width="64"
+      height="64"
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={imageStyle}
+    >
+      <rect width="64" height="64" fill="#F3F4F6" />
+      <path
+        d="M20 20H44V44H20V20Z"
+        stroke="#9CA3AF"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M28 32L36 24L44 32"
+        stroke="#9CA3AF"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center py-12 px-4 text-center",
+        "empty-container flex flex-col items-center justify-center p-8",
         className
       )}
-      {...props}
+      style={{
+        color: "var(--color-foreground-secondary)",
+      }}
     >
-      {image || (
-        <div className="mb-4 h-24 w-24 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-          <svg
-            className="h-12 w-12 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
+      {/* Image */}
+      <div className="mb-4">
+        {image || defaultImage}
+      </div>
+
+      {/* Description */}
+      {description && (
+        <div
+          className="text-sm text-center mb-4"
+          style={{ color: "var(--color-foreground-secondary)" }}
+        >
+          {description}
         </div>
       )}
-      <p className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-        {description}
-      </p>
-      {children}
+
+      {/* Children (usually action buttons) */}
+      {children && (
+        <div className="flex flex-col items-center space-y-2">
+          {children}
+        </div>
+      )}
     </div>
   );
 }

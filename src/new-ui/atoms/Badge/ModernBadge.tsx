@@ -1,5 +1,5 @@
+import { cn } from "@/new-ui/utils/cn";
 import React from "react";
-import { cn } from "../../../lib/utils";
 
 export interface ModernBadgeProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "success" | "warning" | "error" | "info" | "outline";
@@ -23,14 +23,14 @@ const ModernBadge = React.forwardRef<HTMLDivElement, ModernBadgeProps>(
       <div
         ref={ref}
         className={cn(
-          "inline-flex items-center gap-1.5 rounded-full font-medium",
+          "modern-badge",
           {
-            "bg-primary-100 text-primary-800": variant === "default",
-            "status-success": variant === "success",
-            "status-warning": variant === "warning",
-            "status-error": variant === "error",
-            "status-info": variant === "info",
-            "border border-medium text-primary": variant === "outline",
+            "badge-default": variant === "default",
+            "badge-success": variant === "success",
+            "badge-warning": variant === "warning",
+            "badge-error": variant === "error",
+            "badge-info": variant === "info",
+            "badge-outline": variant === "outline",
           },
           {
             "px-2 py-0.5 text-xs": size === "sm",
@@ -43,7 +43,7 @@ const ModernBadge = React.forwardRef<HTMLDivElement, ModernBadgeProps>(
       >
         {dot && (
           <div
-            className={cn("h-1.5 w-1.5 rounded-full", {
+            className={cn("modern-badge-dot", {
               "bg-primary-600": variant === "default",
               "bg-success-600": variant === "success",
               "bg-warning-600": variant === "warning",

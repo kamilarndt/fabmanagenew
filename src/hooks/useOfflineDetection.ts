@@ -55,7 +55,7 @@ export function useOfflineDetection() {
       window.removeEventListener("offline", handleOffline);
 
       // Hide offline message when component unmounts
-      message.destroy();
+      message.destroy("offline-warning");
     };
   }, []);
 

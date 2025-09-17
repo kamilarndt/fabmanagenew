@@ -1,9 +1,13 @@
-import { Button, Card, Col, Row, Space, Tag, Typography } from "antd";
 import { useCallback, useMemo, useState } from "react";
 import { useDrag } from "react-dnd";
 import TileEditDrawer from "../components/Tiles/tile-edit-drawer";
 import { PageHeader } from "../components/shared/PageHeader";
 import { Toolbar } from "../components/ui/Toolbar";
+import { Button } from "../new-ui/atoms/Button/Button";
+import { Space } from "../new-ui/atoms/Space/Space";
+import { Tag } from "../new-ui/atoms/Tag/Tag";
+import { Typography } from "../new-ui/atoms/Typography/Typography";
+import { Card } from "../new-ui/molecules/Card/Card";
 import { useTilesStore } from "../stores/tilesStore";
 
 export default function CNC() {
@@ -127,10 +131,10 @@ export default function CNC() {
                   m.status === "Praca"
                     ? "success"
                     : m.status === "Postój"
-                    ? "warning"
-                    : m.status === "Awaria"
-                    ? "error"
-                    : "processing"
+                      ? "warning"
+                      : m.status === "Awaria"
+                        ? "error"
+                        : "processing"
                 }
                 style={{ marginRight: 6 }}
               />
@@ -212,15 +216,15 @@ export default function CNC() {
                             i % 3 === 0
                               ? "error"
                               : i % 3 === 1
-                              ? "warning"
-                              : "default"
+                                ? "warning"
+                                : "default"
                           }
                         >
                           {i % 3 === 0
                             ? "High"
                             : i % 3 === 1
-                            ? "Medium"
-                            : "Normal"}
+                              ? "Medium"
+                              : "Normal"}
                         </Tag>
                       </td>
                     </tr>

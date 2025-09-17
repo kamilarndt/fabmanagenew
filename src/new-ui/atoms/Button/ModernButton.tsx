@@ -1,5 +1,5 @@
+import { cn } from "@/new-ui/utils/cn";
 import React from "react";
-import { cn } from "../../../lib/utils";
 
 export interface ModernButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {

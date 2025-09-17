@@ -9,19 +9,6 @@ import {
   FilterOutlined,
   SortAscendingOutlined,
 } from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Checkbox,
-  Col,
-  Empty,
-  Modal,
-  Row,
-  Segmented,
-  Select,
-  Space,
-  Tag,
-} from "antd";
 import CategorySidebar from "../components/Magazyn/CategorySidebar";
 import { MaterialCard } from "../components/Magazyn/MaterialCard";
 import OperationForm from "../components/Magazyn/OperationForm";
@@ -30,6 +17,15 @@ import { PageHeader } from "../components/shared/PageHeader";
 import { Toolbar } from "../components/ui/Toolbar";
 import { usePageSearch } from "../contexts/SearchContext";
 import { showToast } from "../lib/notifications";
+import { Button } from "../new-ui/atoms/Button/Button";
+import { Checkbox } from "../new-ui/atoms/Checkbox/Checkbox";
+import { Empty } from "../new-ui/atoms/Empty/Empty";
+import { Segmented } from "../new-ui/atoms/Segmented/Segmented";
+import { Space } from "../new-ui/atoms/Space/Space";
+import { Tag } from "../new-ui/atoms/Tag/Tag";
+import { Card } from "../new-ui/molecules/Card/Card";
+import { Modal } from "../new-ui/molecules/Modal/Modal";
+import { Select } from "../new-ui/molecules/Select/Select";
 
 export default function MagazynNew() {
   // Stan główny
@@ -509,14 +505,14 @@ export default function MagazynNew() {
                             ratio < 0.5
                               ? "error"
                               : ratio < 1
-                              ? "warning"
-                              : "success";
+                                ? "warning"
+                                : "success";
                           const label =
                             ratio < 0.5
                               ? "Krytyczny"
                               : ratio < 1
-                              ? "Niski"
-                              : "OK";
+                                ? "Niski"
+                                : "OK";
                           return <Tag color={color as any}>{label}</Tag>;
                         },
                       },

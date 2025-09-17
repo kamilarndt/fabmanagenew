@@ -1,25 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/frappe-gantt/dist/frappe-gantt.css"
-    />
-    <title>FabrykaManage</title>
-  </head>
+    <meta name="description" content="FabManage - Production Management System for Scenography and Decor Projects" />
+    <meta name="keywords" content="production management, scenography, decor, project management, BOM, materials" />
+    <meta name="author" content="FabManage Team" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://fabmanage.com/" />
+    <meta property="og:title" content="FabManage - Production Management System" />
+    <meta property="og:description" content="Modern production management system for scenography and decor projects" />
+    <meta property="og:image" content="/og-image.png" />
 
-  <body class="dark">
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://fabmanage.com/" />
+    <meta property="twitter:title" content="FabManage - Production Management System" />
+    <meta property="twitter:description" content="Modern production management system for scenography and decor projects" />
+    <meta property="twitter:image" content="/og-image.png" />
+
+    <!-- Theme color -->
+    <meta name="theme-color" content="#1677ff" />
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/fonts/inter.woff2" as="font" type="font/woff2" crossorigin />
+    
+    <title>FabManage - Production Management System</title>
+  </head>
+  <body>
     <div id="root"></div>
-    <script src="https://cdn.jsdelivr.net/npm/frappe-gantt/dist/frappe-gantt.umd.js"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

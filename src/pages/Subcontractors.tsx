@@ -1,20 +1,16 @@
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Input,
-  Row,
-  Select,
-  Space,
-  Tabs,
-  Typography,
-} from "antd";
 import { useEffect, useState } from "react";
 import OrdersKanban from "../components/Subcontractors/OrdersKanban";
 import SubcontractorCard from "../components/Subcontractors/SubcontractorCard";
 import SubcontractorProfile from "../components/Subcontractors/SubcontractorProfile";
 import { PageHeader } from "../components/shared/PageHeader";
+import { Button } from "../new-ui/atoms/Button/Button";
+import { Input } from "../new-ui/atoms/Input/Input";
+import { Space } from "../new-ui/atoms/Space/Space";
+import { Tabs } from "../new-ui/atoms/Tabs/Tabs";
+import { Typography } from "../new-ui/atoms/Typography/Typography";
+import { Card } from "../new-ui/molecules/Card/Card";
+import { Select } from "../new-ui/molecules/Select/Select";
 import { useSubcontractorsStore } from "../stores/subcontractorsStore";
 
 const { Search } = Input;

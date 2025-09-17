@@ -1,114 +1,98 @@
 import { cn } from "@/new-ui/utils/cn";
 import * as React from "react";
 
-export interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface TabItem {
+  key: string;
+  label: React.ReactNode;
   children: React.ReactNode;
-  defaultValue?: string;
-  value?: string;
-  onValueChange?: (value: string) => void;
+  disabled?: boolean;
+}
+
+export interface TabsProps {
+  items: TabItem[];
+  activeKey?: string;
+  onChange?: (activeKey: string) => void;
+  defaultActiveKey?: string;
+  className?: string;
+  tabBarStyle?: React.CSSProperties;
+  tabPaneStyle?: React.CSSProperties;
 }
 
 export function Tabs({
+  items,
+  activeKey,
+  onChange,
+  defaultActiveKey,
   className,
-  children,
-  defaultValue,
-  value,
-  onValueChange,
-  ...props
+  tabBarStyle,
+  tabPaneStyle,
 }: TabsProps): React.ReactElement {
-  const [activeTab, setActiveTab] = React.useState(defaultValue || "");
+  const [internalActiveKey, setInternalActiveKey] = React.useState(
+    activeKey || defaultActiveKey || items[0]?.key || ""
+  );
 
-  const currentValue = value ?? activeTab;
+  const currentActiveKey = activeKey !== undefined ? activeKey : internalActiveKey;
 
-  const handleTabChange = (newValue: string) => {
-    if (value === undefined) {
-      setActiveTab(newValue);
+  const handleTabClick = (key: string) => {
+    if (activeKey === undefined) {
+      setInternalActiveKey(key);
     }
-    onValueChange?.(newValue);
+    onChange?.(key);
   };
 
+  const activeTab = items.find((item) => item.key === currentActiveKey);
+
   return (
-    <div className={cn("w-full", className)} {...props}>
+    <div className={cn("w-full", className)}>
+      {/* Tab Bar */}
       <div
-        className="tabs-context"
-        data-value={currentValue}
-        data-on-change={handleTabChange}
+        className="flex border-b"
+        style={{
+          borderColor: "var(--color-border-primary)",
+          ...tabBarStyle,
+        }}
       >
-        {children}
+        {items.map((item) => (
+          <button
+            key={item.key}
+            onClick={() => !item.disabled && handleTabClick(item.key)}
+            disabled={item.disabled}
+            className={cn(
+              "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+              "hover:bg-gray-50 dark:hover:bg-gray-800",
+              "disabled:opacity-50 disabled:cursor-not-allowed",
+              currentActiveKey === item.key
+                ? "border-[var(--color-foreground-primary)] text-[var(--color-foreground-primary)]"
+                : "border-transparent text-[var(--color-foreground-secondary)] hover:text-[var(--color-foreground-primary)]"
+            )}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab Content */}
+      <div
+        className="p-4"
+        style={{
+          color: "var(--color-foreground-primary)",
+          ...tabPaneStyle,
+        }}
+      >
+        {activeTab?.children}
       </div>
     </div>
   );
 }
 
-export interface TabsListProps extends React.HTMLAttributes<HTMLDivElement> {
+// Individual Tab Pane Component
+export interface TabPaneProps {
+  tab: React.ReactNode;
+  key: string;
   children: React.ReactNode;
+  disabled?: boolean;
 }
 
-export function TabsList({
-  className,
-  children,
-  ...props
-}: TabsListProps): React.ReactElement {
-  return (
-    <div
-      className={cn(
-        "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-}
-
-export interface TabsTriggerProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  children: React.ReactNode;
-  value: string;
-}
-
-export function TabsTrigger({
-  className,
-  children,
-  value,
-  ...props
-}: TabsTriggerProps): React.ReactElement {
-  return (
-    <button
-      className={cn(
-        "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-        className
-      )}
-      data-state="inactive"
-      {...props}
-    >
-      {children}
-    </button>
-  );
-}
-
-export interface TabsContentProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
-  value: string;
-}
-
-export function TabsContent({
-  className,
-  children,
-  value,
-  ...props
-}: TabsContentProps): React.ReactElement {
-  return (
-    <div
-      className={cn(
-        "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        className
-      )}
-      data-state="inactive"
-      {...props}
-    >
-      {children}
-    </div>
-  );
+export function TabPane({ children }: TabPaneProps): React.ReactElement {
+  return <>{children}</>;
 }

@@ -1,47 +1,64 @@
-import { cn } from "@/new-ui/utils/cn";
-import * as React from "react";
+import React from "react";
+import { cn } from "@/lib/utils";
 
-export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
-  src?: string;
-  alt?: string;
+interface AvatarProps {
   children?: React.ReactNode;
-  size?: "sm" | "md" | "lg";
+  src?: string;
+  icon?: React.ReactNode;
+  shape?: "circle" | "square";
+  size?: number | "small" | "default" | "large";
+  className?: string;
+  style?: React.CSSProperties;
 }
 
-export function Avatar({
-  className,
-  src,
-  alt,
+export const Avatar: React.FC<AvatarProps> = ({
   children,
-  size = "md",
-  ...props
-}: AvatarProps): React.ReactElement {
-  const sizeClasses = {
-    sm: "h-8 w-8",
-    md: "h-10 w-10",
-    lg: "h-12 w-12",
+  src,
+  icon,
+  shape = "circle",
+  size = "default",
+  className,
+  style,
+}) => {
+  const getSizeClass = () => {
+    if (typeof size === "number") {
+      return "";
+    }
+    const sizeMap = {
+      small: "w-8 h-8 text-xs",
+      default: "w-10 h-10 text-sm",
+      large: "w-12 h-12 text-base",
+    };
+    return sizeMap[size];
   };
+
+  const getShapeClass = () => {
+    return shape === "circle" ? "rounded-full" : "rounded-md";
+  };
+
+  const sizeStyle = typeof size === "number" ? { width: size, height: size } : {};
 
   return (
     <div
       className={cn(
-        "relative flex shrink-0 overflow-hidden rounded-full",
-        sizeClasses[size],
+        "flex items-center justify-center bg-gray-300 text-gray-600 font-medium",
+        getSizeClass(),
+        getShapeClass(),
         className
       )}
-      {...props}
+      style={{ ...sizeStyle, ...style }}
     >
       {src ? (
         <img
           src={src}
-          alt={alt}
-          className="aspect-square h-full w-full object-cover"
+          alt="Avatar"
+          className={cn("w-full h-full object-cover", getShapeClass())}
         />
+      ) : icon ? (
+        icon
       ) : (
-        <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
-          {children || "?"}
-        </div>
+        children
       )}
     </div>
   );
-}
+};

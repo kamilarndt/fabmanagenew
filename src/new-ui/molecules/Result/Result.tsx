@@ -84,7 +84,7 @@ export const Result: React.FC<ResultProps> = ({
       )}
 
       {subTitle && (
-        <Typography variant="body" className="text-gray-600 mb-6">
+        <Typography variant="p" className="text-gray-600 mb-6">
           {subTitle}
         </Typography>
       )}

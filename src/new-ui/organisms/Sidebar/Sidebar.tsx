@@ -98,11 +98,19 @@ export function Sidebar({
             onClick={() => handleItemClick(item)}
             className={cn(
               "flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm transition-all duration-200 hover-lift",
-              level > 0 && "pl-8",
-              isActive
-                ? "bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-white border border-indigo-500/30"
-                : "text-gray-300 hover:bg-white/5 hover:text-white"
+              level > 0 && "pl-8"
             )}
+            style={{
+              backgroundColor: isActive
+                ? "var(--color-sidebar-accent)"
+                : "transparent",
+              color: isActive
+                ? "var(--color-sidebar-accent-foreground)"
+                : "var(--color-sidebar-foreground)",
+              border: isActive
+                ? "1px solid var(--color-sidebar-border)"
+                : "none",
+            }}
           >
             {itemContent}
           </Link>
@@ -111,11 +119,19 @@ export function Sidebar({
             onClick={() => handleItemClick(item)}
             className={cn(
               "flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm transition-all duration-200 hover-lift",
-              level > 0 && "pl-8",
-              isActive
-                ? "bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-white border border-indigo-500/30"
-                : "text-gray-300 hover:bg-white/5 hover:text-white"
+              level > 0 && "pl-8"
             )}
+            style={{
+              backgroundColor: isActive
+                ? "var(--color-sidebar-accent)"
+                : "transparent",
+              color: isActive
+                ? "var(--color-sidebar-accent-foreground)"
+                : "var(--color-sidebar-foreground)",
+              border: isActive
+                ? "1px solid var(--color-sidebar-border)"
+                : "none",
+            }}
           >
             {itemContent}
           </button>

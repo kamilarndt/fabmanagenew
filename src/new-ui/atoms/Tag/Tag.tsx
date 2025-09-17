@@ -4,6 +4,7 @@ import * as React from "react";
 export interface TagProps extends React.HTMLAttributes<HTMLSpanElement> {
   children: React.ReactNode;
   color?: "default" | "primary" | "success" | "warning" | "error" | "info";
+  variant?: "default" | "primary" | "success" | "warning" | "error" | "info";
   closable?: boolean;
   onClose?: () => void;
 }
@@ -12,10 +13,12 @@ export function Tag({
   className,
   children,
   color = "default",
+  variant,
   closable = false,
   onClose,
   ...props
 }: TagProps): React.ReactElement {
+  const tagColor = variant || color;
   const colorClasses = {
     default: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
     primary:
@@ -32,7 +35,7 @@ export function Tag({
     <span
       className={cn(
         "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-        colorClasses[color],
+        colorClasses[tagColor],
         className
       )}
       {...props}

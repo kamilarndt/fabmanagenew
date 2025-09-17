@@ -77,3 +77,23 @@ class NotificationManager {
 }
 
 export const notification = new NotificationManager();
+
+// Convenience function to match Ant Design's message API
+export const showToast = (
+  content: string,
+  type: NotificationType = "info",
+  duration?: number
+) => {
+  const options = duration ? { duration } : undefined;
+  switch (type) {
+    case "success":
+      return notification.success(content, undefined, options);
+    case "error":
+      return notification.error(content, undefined, options);
+    case "warning":
+      return notification.warning(content, undefined, options);
+    case "info":
+    default:
+      return notification.info(content, undefined, options);
+  }
+};

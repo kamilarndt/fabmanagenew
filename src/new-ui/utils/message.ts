@@ -70,6 +70,15 @@ class MessageManager {
   info(content: string, options?: MessageOptions) {
     return this.addMessage("info", content, options);
   }
+
+  destroy(key?: string) {
+    if (key) {
+      this.removeMessage(key);
+    } else {
+      this.messages = [];
+      this.notify();
+    }
+  }
 }
 
 export const message = new MessageManager();

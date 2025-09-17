@@ -3,62 +3,61 @@ import * as React from "react";
 export interface ConfigProviderProps {
   children: React.ReactNode;
   theme?: {
-    token?: {
-      colorPrimary?: string;
-      colorSuccess?: string;
-      colorWarning?: string;
-      colorError?: string;
-      colorInfo?: string;
-      borderRadius?: number;
-      wireframe?: boolean;
-    };
+    primaryColor?: string;
+    borderRadius?: number;
+    fontFamily?: string;
+    fontSize?: number;
   };
   locale?: string;
   direction?: "ltr" | "rtl";
+  componentSize?: "small" | "middle" | "large";
+  space?: {
+    size?: number;
+  };
+  form?: {
+    validateMessages?: any;
+    requiredMark?: boolean;
+  };
+  renderEmpty?: (componentName?: string) => React.ReactNode;
 }
+
+const ConfigContext = React.createContext<ConfigProviderProps>({});
 
 export function ConfigProvider({
   children,
   theme,
-  locale = "en",
+  locale = "en-US",
   direction = "ltr",
+  componentSize = "middle",
+  space,
+  form,
+  renderEmpty,
 }: ConfigProviderProps): React.ReactElement {
-  // Apply theme tokens to CSS variables
-  React.useEffect(() => {
-    if (theme?.token) {
-      const root = document.documentElement;
-      const tokens = theme.token;
+  const config: ConfigProviderProps = {
+    theme,
+    locale,
+    direction,
+    componentSize,
+    space,
+    form,
+    renderEmpty,
+  };
 
-      if (tokens.colorPrimary) {
-        root.style.setProperty("--color-primary", tokens.colorPrimary);
-      }
-      if (tokens.colorSuccess) {
-        root.style.setProperty("--color-success", tokens.colorSuccess);
-      }
-      if (tokens.colorWarning) {
-        root.style.setProperty("--color-warning", tokens.colorWarning);
-      }
-      if (tokens.colorError) {
-        root.style.setProperty("--color-error", tokens.colorError);
-      }
-      if (tokens.colorInfo) {
-        root.style.setProperty("--color-info", tokens.colorInfo);
-      }
-      if (tokens.borderRadius) {
-        root.style.setProperty("--radius", `${tokens.borderRadius}px`);
-      }
-    }
-  }, [theme]);
+  return (
+    <ConfigContext.Provider value={config}>
+      <div
+        dir={direction}
+        style={{
+          fontFamily: theme?.fontFamily,
+          fontSize: theme?.fontSize,
+        }}
+      >
+        {children}
+      </div>
+    </ConfigContext.Provider>
+  );
+}
 
-  // Apply direction
-  React.useEffect(() => {
-    document.documentElement.dir = direction;
-  }, [direction]);
-
-  // Apply locale
-  React.useEffect(() => {
-    document.documentElement.lang = locale;
-  }, [locale]);
-
-  return <>{children}</>;
+export function useConfig(): ConfigProviderProps {
+  return React.useContext(ConfigContext);
 }

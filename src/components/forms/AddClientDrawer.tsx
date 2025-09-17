@@ -1,13 +1,18 @@
-import { CloseOutlined, UserAddOutlined } from "@ant-design/icons";
-import { Button, Drawer, Form, Input, Space, message } from "antd";
 import React, { useState } from "react";
+import { showToast } from "../../lib/notifications";
+import { cn } from "../../lib/utils";
+import { Button } from "../../new-ui/atoms/Button/Button";
+import { Icon } from "../../new-ui/atoms/Icon/Icon";
+import { Input } from "../../new-ui/atoms/Input/Input";
+import { Space } from "../../new-ui/atoms/Space/Space";
+import { Drawer } from "../../new-ui/molecules/Drawer/Drawer";
 import { clientSchema, type ClientFormData } from "../../schemas/client.schema";
 import { clientsService } from "../../services/clients";
 
 interface AddClientDrawerProps {
   open: boolean;
   onClose: () => void;
-  onSuccess: (client: any) => void;
+  onSuccess: (client: unknown) => void;
 }
 
 /**
@@ -26,54 +31,68 @@ export const AddClientDrawer: React.FC<AddClientDrawerProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const [form] = Form.useForm<ClientFormData>();
+  const [formData, setFormData] = useState<ClientFormData>({
+    name: "",
+    email: "",
+    phone: "",
+    companyName: "",
+    address: "",
+    notes: "",
+  });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleSubmit = async (values: ClientFormData) => {
+  const handleSubmit = async () => {
     setLoading(true);
     setErrors({});
 
     try {
       // Validate with Zod
-      const validatedData = clientSchema.parse(values);
+      const validatedData = clientSchema.parse(formData);
 
       // Create client via service
       const newClient = await clientsService.create(validatedData);
 
       // Success feedback
-      message.success("Klient został pomyślnie dodany!");
+      showToast("Klient został pomyślnie dodany!", "success");
 
       // Call success callback
       onSuccess(newClient);
 
       // Reset form and close
-      form.resetFields();
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        companyName: "",
+        address: "",
+        notes: "",
+      });
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating client:", error);
 
-      if (error.name === "ZodError") {
+      if (error && typeof error === 'object' && 'name' in error && error.name === "ZodError") {
         // Handle Zod validation errors
         const fieldErrors: Record<string, string> = {};
-        error.errors.forEach((err: any) => {
-          if (err.path.length > 0) {
-            fieldErrors[err.path[0]] = err.message;
-          }
-        });
+        if ('errors' in error && Array.isArray(error.errors)) {
+          error.errors.forEach((err: unknown) => {
+            if (err && typeof err === 'object' && 'path' in err && 'message' in err) {
+              const path = err.path as unknown[];
+              if (Array.isArray(path) && path.length > 0) {
+                fieldErrors[String(path[0])] = String(err.message);
+              }
+            }
+          });
+        }
         setErrors(fieldErrors);
-
-        // Set form field errors
-        const formErrors = error.errors.map((err: any) => ({
-          name: err.path,
-          errors: [err.message],
-        }));
-        form.setFields(formErrors);
+        showToast("Proszę poprawić błędy w formularzu", "danger");
       } else {
         // Handle API errors
-        message.error(
-          error.message || "Wystąpił błąd podczas dodawania klienta"
-        );
+        const errorMessage = error && typeof error === 'object' && 'message' in error 
+          ? String(error.message) 
+          : "Wystąpił błąd podczas dodawania klienta";
+        showToast(errorMessage, "danger");
       }
     } finally {
       setLoading(false);
@@ -81,213 +100,177 @@ export const AddClientDrawer: React.FC<AddClientDrawerProps> = ({
   };
 
   const handleCancel = () => {
-    form.resetFields();
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      companyName: "",
+      address: "",
+      notes: "",
+    });
     setErrors({});
     onClose();
+  };
+
+  const handleInputChange = (field: keyof ClientFormData, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({
+        ...prev,
+        [field]: "",
+      }));
+    }
   };
 
   return (
     <Drawer
       title={
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            color: "var(--color-foreground-default)",
-          }}
-        >
-          <UserAddOutlined />
-          Dodaj nowego klienta
+        <div className="flex items-center gap-2">
+          <Icon name="user-plus" className="w-5 h-5 text-primary" />
+          <span>Dodaj nowego klienta</span>
         </div>
       }
-      width={480}
       open={open}
       onClose={handleCancel}
       placement="right"
-      closable={false}
-      data-testid="add-client-drawer"
-      extra={
-        <Button
-          type="text"
-          icon={<CloseOutlined />}
-          onClick={handleCancel}
-          style={{ color: "var(--color-foreground-muted)" }}
-        />
-      }
-      style={{
-        backgroundColor: "var(--color-background-card)",
-        borderLeft: "1px solid var(--color-border-default)",
-      }}
-      bodyStyle={{
-        padding: "24px",
-        backgroundColor: "var(--color-background-card)",
-      }}
+      width={480}
+      destroyOnClose
+      className="modern-drawer"
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        disabled={loading}
-        requiredMark={false}
-        style={{ height: "100%" }}
-      >
-        <Space direction="vertical" size="large" style={{ width: "100%" }}>
-          {/* Client Name - Required */}
-          <Form.Item
-            label="Nazwa klienta"
-            name="name"
-            required
-            validateStatus={errors.name ? "error" : ""}
-            help={errors.name}
-          >
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-4">
+          {/* Name Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Imię i nazwisko *
+            </label>
             <Input
-              placeholder="Wprowadź nazwę klienta"
-              size="large"
-              style={{
-                backgroundColor: "var(--color-background-default)",
-                borderColor: "var(--color-border-default)",
-                color: "var(--color-foreground-default)",
-              }}
+              value={formData.name}
+              onChange={(e) => handleInputChange("name", e.target.value)}
+              placeholder="Wprowadź imię i nazwisko"
+              error={errors.name}
+              className="w-full"
             />
-          </Form.Item>
+            {errors.name && (
+              <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+            )}
+          </div>
 
-          {/* Company Name - Optional */}
-          <Form.Item
-            label="Nazwa firmy"
-            name="companyName"
-            validateStatus={errors.companyName ? "error" : ""}
-            help={errors.companyName}
-          >
-            <Input
-              placeholder="Wprowadź nazwę firmy (opcjonalnie)"
-              size="large"
-              style={{
-                backgroundColor: "var(--color-background-default)",
-                borderColor: "var(--color-border-default)",
-                color: "var(--color-foreground-default)",
-              }}
-            />
-          </Form.Item>
-
-          {/* Email - Optional */}
-          <Form.Item
-            label="Email"
-            name="email"
-            validateStatus={errors.email ? "error" : ""}
-            help={errors.email}
-          >
+          {/* Email Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email *
+            </label>
             <Input
               type="email"
-              placeholder="Wprowadź adres email (opcjonalnie)"
-              size="large"
-              style={{
-                backgroundColor: "var(--color-background-default)",
-                borderColor: "var(--color-border-default)",
-                color: "var(--color-foreground-default)",
-              }}
+              value={formData.email}
+              onChange={(e) => handleInputChange("email", e.target.value)}
+              placeholder="Wprowadź adres email"
+              error={errors.email}
+              className="w-full"
             />
-          </Form.Item>
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+            )}
+          </div>
 
-          {/* Phone - Optional */}
-          <Form.Item
-            label="Telefon"
-            name="phone"
-            validateStatus={errors.phone ? "error" : ""}
-            help={errors.phone}
-          >
+          {/* Phone Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Telefon
+            </label>
             <Input
-              placeholder="Wprowadź numer telefonu (opcjonalnie)"
-              size="large"
-              style={{
-                backgroundColor: "var(--color-background-default)",
-                borderColor: "var(--color-border-default)",
-                color: "var(--color-foreground-default)",
-              }}
+              value={formData.phone}
+              onChange={(e) => handleInputChange("phone", e.target.value)}
+              placeholder="Wprowadź numer telefonu"
+              error={errors.phone}
+              className="w-full"
             />
-          </Form.Item>
+            {errors.phone && (
+              <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+            )}
+          </div>
 
-          {/* Address - Optional */}
-          <Form.Item
-            label="Adres"
-            name="address"
-            validateStatus={errors.address ? "error" : ""}
-            help={errors.address}
-          >
-            <Input.TextArea
-              placeholder="Wprowadź adres (opcjonalnie)"
+          {/* Company Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Firma
+            </label>
+            <Input
+              value={formData.companyName}
+              onChange={(e) => handleInputChange("companyName", e.target.value)}
+              placeholder="Wprowadź nazwę firmy"
+              error={errors.companyName}
+              className="w-full"
+            />
+            {errors.companyName && (
+              <p className="text-red-500 text-xs mt-1">{errors.companyName}</p>
+            )}
+          </div>
+
+          {/* Address Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Adres
+            </label>
+            <Input
+              value={formData.address}
+              onChange={(e) => handleInputChange("address", e.target.value)}
+              placeholder="Wprowadź adres"
+              error={errors.address}
+              className="w-full"
+            />
+            {errors.address && (
+              <p className="text-red-500 text-xs mt-1">{errors.address}</p>
+            )}
+          </div>
+
+          {/* Notes Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Notatki
+            </label>
+            <textarea
+              value={formData.notes}
+              onChange={(e) => handleInputChange("notes", e.target.value)}
+              placeholder="Dodatkowe informacje o kliencie"
+              className={cn(
+                "flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                errors.notes && "border-red-500 text-red-700 focus-visible:ring-red-500"
+              )}
               rows={3}
-              style={{
-                backgroundColor: "var(--color-background-default)",
-                borderColor: "var(--color-border-default)",
-                color: "var(--color-foreground-default)",
-              }}
             />
-          </Form.Item>
+            {errors.notes && (
+              <p className="text-red-500 text-xs mt-1">{errors.notes}</p>
+            )}
+          </div>
+        </div>
 
-          {/* Notes - Optional */}
-          <Form.Item
-            label="Notatki"
-            name="notes"
-            validateStatus={errors.notes ? "error" : ""}
-            help={errors.notes}
-          >
-            <Input.TextArea
-              placeholder="Dodatkowe notatki (opcjonalnie)"
-              rows={3}
-              style={{
-                backgroundColor: "var(--color-background-default)",
-                borderColor: "var(--color-border-default)",
-                color: "var(--color-foreground-default)",
-              }}
-            />
-          </Form.Item>
-        </Space>
-
-        {/* Submit Buttons */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            padding: "24px",
-            borderTop: "1px solid var(--color-border-default)",
-            backgroundColor: "var(--color-background-card)",
-            display: "flex",
-            gap: "16px",
-            justifyContent: "flex-end",
-          }}
-        >
+        {/* Action Buttons */}
+        <Space className="w-full justify-end pt-4 border-t border-gray-200">
           <Button
-            size="large"
+            variant="secondary"
             onClick={handleCancel}
             disabled={loading}
-            style={{
-              backgroundColor: "var(--color-background-default)",
-              borderColor: "var(--color-border-default)",
-              color: "var(--color-foreground-default)",
-            }}
           >
+            <Icon name="x" className="w-4 h-4 mr-2" />
             Anuluj
           </Button>
           <Button
-            type="primary"
-            size="large"
-            htmlType="submit"
+            variant="primary"
+            onClick={handleSubmit}
             loading={loading}
-            style={{
-              backgroundColor: "var(--color-brand-primary)",
-              borderColor: "var(--color-brand-primary)",
-              color: "var(--color-white)",
-            }}
+            disabled={loading}
           >
-            {loading ? "Dodawanie..." : "Dodaj klienta"}
+            <Icon name="user-plus" className="w-4 h-4 mr-2" />
+            Dodaj klienta
           </Button>
-        </div>
-      </Form>
+        </Space>
+      </form>
     </Drawer>
   );
 };
-
-export default AddClientDrawer;

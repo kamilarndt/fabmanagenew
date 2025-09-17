@@ -1,22 +1,18 @@
-import {
-  Button,
-  Card,
-  Col,
-  Empty,
-  Progress,
-  Row,
-  Select,
-  Space,
-  Tabs,
-  Tag,
-  Typography,
-} from "antd";
 import { useMemo, useState } from "react";
 import type { Column } from "../components/shared/EntityTable";
 import { EntityTable } from "../components/shared/EntityTable";
 import { KanbanBoardGeneric } from "../components/shared/KanbanBoardGeneric";
 import { PageHeader } from "../components/shared/PageHeader";
 import { Toolbar } from "../components/ui/Toolbar";
+import { Button } from "../new-ui/atoms/Button/Button";
+import { Empty } from "../new-ui/atoms/Empty/Empty";
+import { Progress } from "../new-ui/atoms/Progress/Progress";
+import { Space } from "../new-ui/atoms/Space/Space";
+import { Tabs } from "../new-ui/atoms/Tabs/Tabs";
+import { Tag } from "../new-ui/atoms/Tag/Tag";
+import { Typography } from "../new-ui/atoms/Typography/Typography";
+import { Card } from "../new-ui/molecules/Card/Card";
+import { Select } from "../new-ui/molecules/Select/Select";
 import { useTilesStore } from "../stores/tilesStore";
 import type { Tile } from "../types/tiles.types";
 

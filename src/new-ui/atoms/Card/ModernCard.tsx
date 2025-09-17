@@ -1,5 +1,5 @@
+import { cn } from "@/new-ui/utils/cn";
 import React from "react";
-import { cn } from "../../../lib/utils";
 
 export interface ModernCardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "elevated" | "glass" | "outlined";
@@ -23,7 +23,7 @@ const ModernCard = React.forwardRef<HTMLDivElement, ModernCardProps>(
       <div
         ref={ref}
         className={cn(
-          "card",
+          "modern-card",
           {
             "bg-elevated": variant === "elevated",
             "bg-glass": variant === "glass",
@@ -55,12 +55,16 @@ const ModernCardHeader = React.forwardRef<
   ModernCardHeaderProps
 >(({ className, title, description, action, children, ...props }, ref) => {
   return (
-    <div ref={ref} className={cn("card-header", className)} {...props}>
+    <div ref={ref} className={cn("modern-card-header", className)} {...props}>
       {(title || description || action) && (
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            {title && <h3 className="card-title">{title}</h3>}
-            {description && <p className="card-description">{description}</p>}
+            {title && (
+              <h3 className="text-lg font-semibold text-primary">{title}</h3>
+            )}
+            {description && (
+              <p className="text-sm text-secondary">{description}</p>
+            )}
           </div>
           {action && <div className="flex-shrink-0">{action}</div>}
         </div>
@@ -84,7 +88,7 @@ const ModernCardContent = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "card-content",
+        "modern-card-content",
         {
           "p-0": padding === "none",
           "p-4": padding === "sm",
@@ -114,7 +118,7 @@ const ModernCardFooter = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "card-footer",
+        "modern-card-footer",
         {
           "justify-start": justify === "start",
           "justify-center": justify === "center",

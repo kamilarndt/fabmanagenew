@@ -84,7 +84,8 @@
 }
 
 .modern-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
@@ -103,6 +104,13 @@
 
 .modern-card-content.padding-lg {
   padding: 2rem;
+}
+
+.modern-card-footer {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  border-top: 1px solid var(--color-border-default);
+  display: flex;
+  align-items: center;
 }
 
 /* === MODERN BUTTON COMPONENT === */
@@ -157,12 +165,12 @@
 
 /* Button variants */
 .btn-primary {
-  background-color: var(--color-brand-primary);
-  color: var(--color-white);
+  background-color: var(--color-foreground-primary);
+  color: var(--color-background-default);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: var(--color-brand-primary);
+  background-color: var(--color-foreground-primary);
   opacity: 0.9;
 }
 
@@ -226,30 +234,39 @@
 
 /* Badge variants */
 .badge-success {
-  background-color: #10b981;
-  color: white;
+  background-color: var(--color-background-success);
+  color: var(--color-foreground-success);
 }
 
 .badge-success .modern-badge-dot {
-  background-color: white;
+  background-color: var(--color-foreground-success);
 }
 
 .badge-info {
-  background-color: #3b82f6;
-  color: white;
+  background-color: var(--color-background-accent);
+  color: var(--color-foreground-accent);
 }
 
 .badge-info .modern-badge-dot {
-  background-color: white;
+  background-color: var(--color-foreground-accent);
 }
 
 .badge-warning {
-  background-color: #f59e0b;
-  color: white;
+  background-color: var(--color-background-warning);
+  color: var(--color-foreground-warning);
 }
 
 .badge-warning .modern-badge-dot {
-  background-color: white;
+  background-color: var(--color-foreground-warning);
+}
+
+.badge-error {
+  background-color: var(--color-background-destructive);
+  color: var(--color-foreground-destructive);
+}
+
+.badge-error .modern-badge-dot {
+  background-color: var(--color-foreground-destructive);
 }
 
 .badge-default {
@@ -507,8 +524,8 @@
 }
 
 .transition-colors {
-  transition-property: color, background-color, border-color,
-    text-decoration-color, fill, stroke;
+  transition-property:
+    color, background-color, border-color, text-decoration-color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }

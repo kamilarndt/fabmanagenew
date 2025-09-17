@@ -1,21 +1,18 @@
-import { PlusOutlined, UserOutlined } from "@ant-design/icons";
-import {
-  Alert,
-  Avatar,
-  Breadcrumb,
-  Button,
-  Card,
-  Col,
-  Empty,
-  Input,
-  Row,
-  Space,
-  Spin,
-  Typography,
-} from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AddClientDrawer } from "../components/forms/AddClientDrawer";
+import { Avatar } from "../new-ui/atoms/Avatar/Avatar";
+import { Button } from "../new-ui/atoms/Button/Button";
+import { Empty } from "../new-ui/atoms/Empty/Empty";
+import { Icon } from "../new-ui/atoms/Icon/Icon";
+import { Input } from "../new-ui/atoms/Input/Input";
+import { Space } from "../new-ui/atoms/Space/Space";
+import { Spin } from "../new-ui/atoms/Spin/Spin";
+import { Typography } from "../new-ui/atoms/Typography/Typography";
+import { Alert } from "../new-ui/molecules/Alert/Alert";
+import { Breadcrumb } from "../new-ui/molecules/Breadcrumb/Breadcrumb";
+import { Card } from "../new-ui/molecules/Card/Card";
+import { Grid } from "../new-ui/molecules/Grid/Grid";
 import { useClientDataStore } from "../stores/clientDataStore";
 import type { ProcessedClient } from "../types/clientData.types";
 
@@ -52,8 +49,8 @@ export default function Klienci() {
         }}
       >
         <Space direction="vertical" align="center">
-          <Spin size="large" />
-          <Typography.Text type="secondary">
+          <Spin size="lg" />
+          <Typography.Text variant="secondary">
             Ładowanie klientów...
           </Typography.Text>
         </Space>
@@ -64,11 +61,10 @@ export default function Klienci() {
     return (
       <div style={{ maxWidth: 720, margin: "24px auto" }}>
         <Alert
-          type="error"
-          showIcon
-          message="Błąd ładowania danych"
+          variant="error"
+          title="Błąd ładowania danych"
           description={error}
-          action={<a onClick={loadData}>Spróbuj ponownie</a>}
+          action={<button onClick={loadData}>Spróbuj ponownie</button>}
         />
       </div>
     );
@@ -88,30 +84,26 @@ export default function Klienci() {
           <Input.Search
             allowClear
             placeholder="Szukaj klienta..."
-            style={{ maxWidth: 520 }}
+            className="max-w-lg"
             onSearch={() => {
               /* TODO: wire search */
             }}
           />
           <Button
-            type="primary"
-            icon={<PlusOutlined />}
+            variant="primary"
+            icon={<Icon name="plus" />}
             onClick={() => setIsAddClientDrawerOpen(true)}
-            style={{
-              backgroundColor: "var(--color-brand-primary)",
-              borderColor: "var(--color-brand-primary)",
-              color: "var(--color-white)",
-            }}
+            className="bg-brand-primary border-brand-primary text-white"
           >
             Dodaj klienta
           </Button>
         </Space>
       </div>
 
-      <Typography.Title level={4} style={{ marginTop: 0 }}>
+      <Typography.Title variant="h4" className="mt-0">
         Lista Klientów
       </Typography.Title>
-      <Typography.Paragraph type="secondary" style={{ marginTop: 4 }}>
+      <Typography.Paragraph variant="secondary" className="mt-1">
         Zarządzaj swoimi klientami i przeglądaj ich szczegóły
       </Typography.Paragraph>
 
@@ -120,50 +112,43 @@ export default function Klienci() {
           <Empty description="Brak klientów" />
         </div>
       ) : (
-        <Row gutter={[16, 16]}>
+        <Grid.Row gutter={[16, 16]}>
           {data.map((client: ProcessedClient) => {
             const initials = (client.companyName || "")
               .substring(0, 2)
               .toUpperCase();
             return (
-              <Col key={client.id} xs={24} sm={12} md={12} lg={8} xl={6}>
+              <Grid.Col key={client.id} xs={24} sm={12} md={12} lg={8} xl={6}>
                 <Card
                   hoverable
                   onClick={() => handleClientClick(client)}
-                  styles={{
-                    body: {
-                      background: "var(--bg-card)",
-                      color: "var(--text-primary)",
-                    },
-                  }}
+                  className="bg-card text-primary"
                 >
                   <Space
                     direction="vertical"
                     align="center"
-                    style={{ width: "100%", color: "var(--text-primary)" }}
+                    className="w-full text-primary"
                   >
                     {client.logoUrl ? (
                       <Avatar
                         shape="square"
                         size={64}
                         src={client.logoUrl}
-                        icon={<UserOutlined />}
+                        icon={<Icon name="user" />}
                       />
                     ) : (
-                      <Avatar shape="square" size={64} icon={<UserOutlined />}>
+                      <Avatar
+                        shape="square"
+                        size={64}
+                        icon={<Icon name="user" />}
+                      >
                         {initials}
                       </Avatar>
                     )}
                     <Typography.Text strong>
                       {client.companyName}
                     </Typography.Text>
-                    <div
-                      style={{
-                        width: "100%",
-                        color: "var(--text-secondary)",
-                        fontSize: 12,
-                      }}
-                    >
+                    <div className="w-full text-secondary text-xs">
                       <div>
                         <b>NIP:</b> {client.nip}
                       </div>
@@ -177,21 +162,18 @@ export default function Klienci() {
                     {client.description && (
                       <Typography.Paragraph
                         ellipsis={{ rows: 2 }}
-                        type="secondary"
-                        style={{
-                          marginBottom: 0,
-                          color: "var(--text-secondary)",
-                        }}
+                        variant="secondary"
+                        className="mb-0 text-secondary"
                       >
                         {client.description}
                       </Typography.Paragraph>
                     )}
                   </Space>
                 </Card>
-              </Col>
+              </Grid.Col>
             );
           })}
-        </Row>
+        </Grid.Row>
       )}
 
       <AddClientDrawer

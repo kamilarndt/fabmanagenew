@@ -1,257 +1,377 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
+import type {
+  Driver,
+  RouteOptimization,
+  TransportJob,
+  TransportRoute,
+  Vehicle,
+} from "../types/logistics.types";
 
-export interface PackingList {
-  id: string
-  projectId: string
-  itemName: string
-  quantity: number
-  unit: string
-  packedBy: string
-  packedAt: number
-  status: 'packed' | 'in_transit' | 'delivered' | 'unpacked'
-  notes?: string
+interface LogisticsState {
+  routes: TransportRoute[];
+  vehicles: Vehicle[];
+  drivers: Driver[];
+  jobs: TransportJob[];
+  optimizations: RouteOptimization[];
+
+  isLoading: boolean;
+  error: string | null;
+
+  // Actions
+  fetchRoutes: () => Promise<void>;
+  addRoute: (
+    route: Omit<TransportRoute, "id" | "created_at" | "updated_at">
+  ) => Promise<void>;
+  updateRoute: (id: string, route: Partial<TransportRoute>) => Promise<void>;
+  deleteRoute: (id: string) => Promise<void>;
+
+  fetchVehicles: () => Promise<void>;
+  addVehicle: (
+    vehicle: Omit<Vehicle, "id" | "created_at" | "updated_at">
+  ) => Promise<void>;
+  updateVehicle: (id: string, vehicle: Partial<Vehicle>) => Promise<void>;
+  deleteVehicle: (id: string) => Promise<void>;
+
+  fetchDrivers: () => Promise<void>;
+  addDriver: (
+    driver: Omit<Driver, "id" | "created_at" | "updated_at">
+  ) => Promise<void>;
+  updateDriver: (id: string, driver: Partial<Driver>) => Promise<void>;
+  deleteDriver: (id: string) => Promise<void>;
+
+  fetchJobs: () => Promise<void>;
+  addJob: (
+    job: Omit<TransportJob, "id" | "created_at" | "updated_at">
+  ) => Promise<void>;
+  updateJob: (id: string, job: Partial<TransportJob>) => Promise<void>;
+  deleteJob: (id: string) => Promise<void>;
+
+  optimizeRoutes: (routeIds: string[]) => Promise<RouteOptimization>;
+  calculateRouteCost: (routeId: string) => Promise<number>;
 }
 
-export interface RoutePlanning {
-  id: string
-  projectId: string
-  fromLocation: string
-  toLocation: string
-  distance: number // km
-  estimatedTime: number // minutes
-  vehicleType: string
-  driver: string
-  plannedDate: number
-  status: 'planned' | 'in_progress' | 'completed' | 'cancelled'
-  actualDeparture?: number
-  actualArrival?: number
-  notes?: string
-}
+export const useLogisticsStore = create<LogisticsState>()(
+  immer((set) => ({
+    routes: [],
+    vehicles: [],
+    drivers: [],
+    jobs: [],
+    optimizations: [],
 
-export interface SiteInstallation {
-  id: string
-  projectId: string
-  taskName: string
-  location: string
-  plannedStart: number
-  plannedEnd: number
-  assignedTo: string
-  priority: 'low' | 'medium' | 'high'
-  status: 'planned' | 'in_progress' | 'completed' | 'delayed'
-  actualStart?: number
-  actualEnd?: number
-  notes?: string
-}
+    isLoading: false,
+    error: null,
 
-export interface PunchListItem {
-  id: string
-  projectId: string
-  itemDescription: string
-  location: string
-  category: 'electrical' | 'mechanical' | 'structural' | 'cosmetic' | 'other'
-  priority: 'low' | 'medium' | 'high' | 'critical'
-  assignedTo: string
-  status: 'open' | 'in_progress' | 'completed' | 'verified'
-  createdAt: number
-  completedAt?: number
-  verifiedAt?: number
-  notes?: string
-}
+    fetchRoutes: async () => {
+      set((state) => {
+        state.isLoading = true;
+        state.error = null;
+      });
 
-export interface SignOff {
-  id: string
-  projectId: string
-  documentType: 'installation' | 'testing' | 'commissioning' | 'handover' | 'other'
-  documentName: string
-  signedBy: string
-  signedAt: number
-  status: 'pending' | 'signed' | 'rejected'
-  rejectionReason?: string
-  documentUrl?: string
-  notes?: string
-}
+      try {
+        const response = await fetch("/api/logistics/routes");
+        const routes = await response.json();
 
-interface LogisticsStore {
-  packingLists: PackingList[]
-  routePlanning: RoutePlanning[]
-  siteInstallations: SiteInstallation[]
-  punchListItems: PunchListItem[]
-  signOffs: SignOff[]
+        set((state) => {
+          state.routes = routes;
+          state.isLoading = false;
+        });
+      } catch (error) {
+        set((state) => {
+          state.error =
+            error instanceof Error ? error.message : "Unknown error";
+          state.isLoading = false;
+        });
+      }
+    },
 
-  // Initialize with realistic data
-  initialize: () => Promise<void>
+    addRoute: async (routeData) => {
+      try {
+        const response = await fetch("/api/logistics/routes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(routeData),
+        });
+        const route = await response.json();
 
-  // Packing Lists
-  addPackingItem: (item: Omit<PackingList, 'id' | 'packedAt'>) => void
-  updatePackingItem: (id: string, updates: Partial<PackingList>) => void
-  removePackingItem: (id: string) => void
-  getPackingListByProject: (projectId: string) => PackingList[]
+        set((state) => {
+          state.routes.push(route);
+        });
+      } catch (error) {
+        throw error;
+      }
+    },
 
-  // Route Planning
-  addRoute: (route: Omit<RoutePlanning, 'id'>) => void
-  updateRoute: (id: string, updates: Partial<RoutePlanning>) => void
-  removeRoute: (id: string) => void
-  getRoutesByProject: (projectId: string) => RoutePlanning[]
+    updateRoute: async (id, routeData) => {
+      try {
+        const response = await fetch(`/api/logistics/routes/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(routeData),
+        });
+        const route = await response.json();
 
-  // Site Installation
-  addInstallationTask: (task: Omit<SiteInstallation, 'id'>) => void
-  updateInstallationTask: (id: string, updates: Partial<SiteInstallation>) => void
-  removeInstallationTask: (id: string) => void
-  getInstallationTasksByProject: (projectId: string) => SiteInstallation[]
-
-  // Punch List
-  addPunchListItem: (item: Omit<PunchListItem, 'id' | 'createdAt'>) => void
-  updatePunchListItem: (id: string, updates: Partial<PunchListItem>) => void
-  removePunchListItem: (id: string) => void
-  getPunchListByProject: (projectId: string) => PunchListItem[]
-
-  // Sign Offs
-  addSignOff: (signOff: Omit<SignOff, 'id'>) => void
-  updateSignOff: (id: string, updates: Partial<SignOff>) => void
-  removeSignOff: (id: string) => void
-  getSignOffsByProject: (projectId: string) => SignOff[]
-}
-
-export const useLogisticsStore = create<LogisticsStore>()(
-  persist(
-    (set, get) => ({
-      packingLists: [],
-      routePlanning: [],
-      siteInstallations: [],
-      punchListItems: [],
-      signOffs: [],
-
-      // Initialize with realistic data
-      initialize: async () => {
-        try {
-          const { config } = await import('../lib/config')
-
-          if (config.useMockData) {
-            const { realLogisticsData } = await import('../data/development')
-
-            set({
-              routePlanning: realLogisticsData.routePlanning,
-              packingLists: realLogisticsData.packingLists
-            })
-
-            console.warn('🚛 Loaded realistic logistics data')
+        set((state) => {
+          const index = state.routes.findIndex((r) => r.id === id);
+          if (index !== -1) {
+            state.routes[index] = { ...state.routes[index], ...route };
           }
-        } catch (error) {
-          console.warn('Failed to load logistics data:', error)
-        }
-      },
+        });
+      } catch (error) {
+        throw error;
+      }
+    },
 
-      // Packing Lists
-      addPackingItem: (item) => set((state) => ({
-        packingLists: [...state.packingLists, {
-          ...item,
-          id: crypto.randomUUID(),
-          packedAt: Date.now()
-        }]
-      })),
+    deleteRoute: async (id) => {
+      try {
+        const response = await fetch(`/api/logistics/routes/${id}`, {
+          method: "DELETE",
+        });
 
-      updatePackingItem: (id, updates) => set((state) => ({
-        packingLists: state.packingLists.map(item =>
-          item.id === id ? { ...item, ...updates } : item
-        )
-      })),
+        if (!response.ok) throw new Error("Failed to delete route");
 
-      removePackingItem: (id) => set((state) => ({
-        packingLists: state.packingLists.filter(item => item.id !== id)
-      })),
+        set((state) => {
+          state.routes = state.routes.filter((r) => r.id !== id);
+        });
+      } catch (error) {
+        throw error;
+      }
+    },
 
-      getPackingListByProject: (projectId) =>
-        get().packingLists.filter(item => item.projectId === projectId),
+    fetchVehicles: async () => {
+      try {
+        const response = await fetch("/api/logistics/vehicles");
+        const vehicles = await response.json();
 
-      // Route Planning
-      addRoute: (route) => set((state) => ({
-        routePlanning: [...state.routePlanning, {
-          ...route,
-          id: crypto.randomUUID()
-        }]
-      })),
+        set((state) => {
+          state.vehicles = vehicles;
+        });
+      } catch (error) {
+        set((state) => {
+          state.error =
+            error instanceof Error ? error.message : "Unknown error";
+        });
+      }
+    },
 
-      updateRoute: (id, updates) => set((state) => ({
-        routePlanning: state.routePlanning.map(route =>
-          route.id === id ? { ...route, ...updates } : route
-        )
-      })),
+    addVehicle: async (vehicleData) => {
+      try {
+        const response = await fetch("/api/logistics/vehicles", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(vehicleData),
+        });
+        const vehicle = await response.json();
 
-      removeRoute: (id) => set((state) => ({
-        routePlanning: state.routePlanning.filter(route => route.id !== id)
-      })),
+        set((state) => {
+          state.vehicles.push(vehicle);
+        });
+      } catch (error) {
+        throw error;
+      }
+    },
 
-      getRoutesByProject: (projectId) =>
-        get().routePlanning.filter(route => route.projectId === projectId),
+    updateVehicle: async (id, vehicleData) => {
+      try {
+        const response = await fetch(`/api/logistics/vehicles/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(vehicleData),
+        });
+        const vehicle = await response.json();
 
-      // Site Installation
-      addInstallationTask: (task) => set((state) => ({
-        siteInstallations: [...state.siteInstallations, {
-          ...task,
-          id: crypto.randomUUID()
-        }]
-      })),
+        set((state) => {
+          const index = state.vehicles.findIndex((v) => v.id === id);
+          if (index !== -1) {
+            state.vehicles[index] = { ...state.vehicles[index], ...vehicle };
+          }
+        });
+      } catch (error) {
+        throw error;
+      }
+    },
 
-      updateInstallationTask: (id, updates) => set((state) => ({
-        siteInstallations: state.siteInstallations.map(task =>
-          task.id === id ? { ...task, ...updates } : task
-        )
-      })),
+    deleteVehicle: async (id) => {
+      try {
+        const response = await fetch(`/api/logistics/vehicles/${id}`, {
+          method: "DELETE",
+        });
 
-      removeInstallationTask: (id) => set((state) => ({
-        siteInstallations: state.siteInstallations.filter(task => task.id !== id)
-      })),
+        if (!response.ok) throw new Error("Failed to delete vehicle");
 
-      getInstallationTasksByProject: (projectId) =>
-        get().siteInstallations.filter(task => task.projectId === projectId),
+        set((state) => {
+          state.vehicles = state.vehicles.filter((v) => v.id !== id);
+        });
+      } catch (error) {
+        throw error;
+      }
+    },
 
-      // Punch List
-      addPunchListItem: (item) => set((state) => ({
-        punchListItems: [...state.punchListItems, {
-          ...item,
-          id: crypto.randomUUID(),
-          createdAt: Date.now()
-        }]
-      })),
+    fetchDrivers: async () => {
+      try {
+        const response = await fetch("/api/logistics/drivers");
+        const drivers = await response.json();
 
-      updatePunchListItem: (id, updates) => set((state) => ({
-        punchListItems: state.punchListItems.map(item =>
-          item.id === id ? { ...item, ...updates } : item
-        )
-      })),
+        set((state) => {
+          state.drivers = drivers;
+        });
+      } catch (error) {
+        set((state) => {
+          state.error =
+            error instanceof Error ? error.message : "Unknown error";
+        });
+      }
+    },
 
-      removePunchListItem: (id) => set((state) => ({
-        punchListItems: state.punchListItems.filter(item => item.id !== id)
-      })),
+    addDriver: async (driverData) => {
+      try {
+        const response = await fetch("/api/logistics/drivers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(driverData),
+        });
+        const driver = await response.json();
 
-      getPunchListByProject: (projectId) =>
-        get().punchListItems.filter(item => item.projectId === projectId),
+        set((state) => {
+          state.drivers.push(driver);
+        });
+      } catch (error) {
+        throw error;
+      }
+    },
 
-      // Sign Offs
-      addSignOff: (signOff) => set((state) => ({
-        signOffs: [...state.signOffs, {
-          ...signOff,
-          id: crypto.randomUUID()
-        }]
-      })),
+    updateDriver: async (id, driverData) => {
+      try {
+        const response = await fetch(`/api/logistics/drivers/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(driverData),
+        });
+        const driver = await response.json();
 
-      updateSignOff: (id, updates) => set((state) => ({
-        signOffs: state.signOffs.map(signOff =>
-          signOff.id === id ? { ...signOff, ...updates } : signOff
-        )
-      })),
+        set((state) => {
+          const index = state.drivers.findIndex((d) => d.id === id);
+          if (index !== -1) {
+            state.drivers[index] = { ...state.drivers[index], ...driver };
+          }
+        });
+      } catch (error) {
+        throw error;
+      }
+    },
 
-      removeSignOff: (id) => set((state) => ({
-        signOffs: state.signOffs.filter(signOff => signOff.id !== id)
-      })),
+    deleteDriver: async (id) => {
+      try {
+        const response = await fetch(`/api/logistics/drivers/${id}`, {
+          method: "DELETE",
+        });
 
-      getSignOffsByProject: (projectId) =>
-        get().signOffs.filter(signOff => signOff.projectId === projectId),
-    }),
-    {
-      name: 'logistics-store',
-      version: 1,
-    }
-  )
-)
+        if (!response.ok) throw new Error("Failed to delete driver");
+
+        set((state) => {
+          state.drivers = state.drivers.filter((d) => d.id !== id);
+        });
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    fetchJobs: async () => {
+      try {
+        const response = await fetch("/api/logistics/jobs");
+        const jobs = await response.json();
+
+        set((state) => {
+          state.jobs = jobs;
+        });
+      } catch (error) {
+        set((state) => {
+          state.error =
+            error instanceof Error ? error.message : "Unknown error";
+        });
+      }
+    },
+
+    addJob: async (jobData) => {
+      try {
+        const response = await fetch("/api/logistics/jobs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(jobData),
+        });
+        const job = await response.json();
+
+        set((state) => {
+          state.jobs.push(job);
+        });
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    updateJob: async (id, jobData) => {
+      try {
+        const response = await fetch(`/api/logistics/jobs/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(jobData),
+        });
+        const job = await response.json();
+
+        set((state) => {
+          const index = state.jobs.findIndex((j) => j.id === id);
+          if (index !== -1) {
+            state.jobs[index] = { ...state.jobs[index], ...job };
+          }
+        });
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    deleteJob: async (id) => {
+      try {
+        const response = await fetch(`/api/logistics/jobs/${id}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) throw new Error("Failed to delete job");
+
+        set((state) => {
+          state.jobs = state.jobs.filter((j) => j.id !== id);
+        });
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    optimizeRoutes: async (routeIds) => {
+      try {
+        const response = await fetch("/api/logistics/optimize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ routeIds }),
+        });
+        const optimization = await response.json();
+
+        set((state) => {
+          state.optimizations.push(optimization);
+        });
+
+        return optimization;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    calculateRouteCost: async (routeId) => {
+      try {
+        const response = await fetch(`/api/logistics/routes/${routeId}/cost`);
+        const { cost } = await response.json();
+        return cost;
+      } catch (error) {
+        throw error;
+      }
+    },
+  }))
+);

@@ -1,263 +1,237 @@
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Input,
-  Row,
-  Select,
-  Space,
-  Typography,
-  message,
-} from "antd";
-import { useEffect, useMemo, useState } from "react";
-import TileCard from "../components/Tiles/TileCard";
-import TileEditDrawer from "../components/Tiles/tile-edit-drawer";
-import { PageHeader } from "../components/shared/PageHeader";
-import { useAuthStore } from "../stores/authStore";
-import { useProjectsStore } from "../stores/projectsStore";
+import { FilterOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Form, Input, InputNumber, Modal, Select, message } from "antd";
+import React, { useEffect, useState } from "react";
+import KanbanBoard from "../components/Tiles/KanbanBoard";
 import { useTilesStore } from "../stores/tilesStore";
-import type { Tile } from "../types/tiles.types";
+import { Tile } from "../types/tiles.types";
 
 const { Search } = Input;
-const { Title } = Typography;
 
-export default function TilesPage() {
-  const { tiles, initialize, addTile, updateTile, refresh } = useTilesStore();
-  const { projects } = useProjectsStore();
-  const { roles } = useAuthStore();
-  const canManage = roles.includes("manager");
-  const canDesign = roles.includes("designer") || canManage;
-
-  const [editModalOpen, setEditModalOpen] = useState(false);
+const Tiles: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTile, setEditingTile] = useState<Tile | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("All");
-  const [projectFilter, setProjectFilter] = useState<string>("All");
+  const [form] = Form.useForm();
+
+  const {
+    tiles,
+    isLoading,
+    error,
+    fetchTiles,
+    addTile,
+    updateTile,
+    deleteTile,
+    moveTile,
+  } = useTilesStore();
 
   useEffect(() => {
-    initialize();
-  }, [initialize]);
+    fetchTiles();
+  }, [fetchTiles]);
 
-  const filteredTiles = useMemo(() => {
-    return tiles.filter((tile) => {
-      const matchesSearch = tile.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      const matchesStatus =
-        statusFilter === "All" || tile.status === statusFilter;
-      const matchesProject =
-        projectFilter === "All" || tile.project === projectFilter;
-      return matchesSearch && matchesStatus && matchesProject;
-    });
-  }, [tiles, searchQuery, statusFilter, projectFilter]);
+  const filteredTiles = tiles.filter(
+    (tile) =>
+      tile.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tile.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tile.assignee?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const handleEdit = (tile: Tile) => {
+  const handleAddTile = () => {
+    setEditingTile(null);
+    form.resetFields();
+    setIsModalOpen(true);
+  };
+
+  const handleEditTile = (tile: Tile) => {
     setEditingTile(tile);
-    setEditModalOpen(true);
+    form.setFieldsValue(tile);
+    setIsModalOpen(true);
   };
 
-  const handleView = (tile: Tile) => {
-    // Navigate to tile details or open in drawer
-    console.warn("TODO: View tile:", tile);
-  };
-
-  const handleAssign = (tile: Tile) => {
-    // Open assign designer modal
-    console.warn("TODO: Assign tile:", tile);
-  };
-
-  const handleSaveTile = async (tileData: Omit<Tile, "id">) => {
+  const handleDeleteTile = async (tile: Tile) => {
     try {
-      if (editingTile) {
-        await updateTile(editingTile.id, tileData);
-        message.success("Kafelek zaktualizowany");
-      } else {
-        await addTile({ ...tileData, id: crypto.randomUUID() });
-        message.success("Kafelek dodany");
-      }
-      setEditModalOpen(false);
-      setEditingTile(null);
-    } catch {
-      message.error("Błąd podczas zapisywania kafelka");
+      await deleteTile(tile.id);
+      message.success("Tile deleted successfully");
+    } catch (error) {
+      message.error("Failed to delete tile");
     }
   };
 
-  const handleAddNew = () => {
-    setEditingTile(null);
-    setEditModalOpen(true);
+  const handleSubmit = async (values: any) => {
+    try {
+      if (editingTile) {
+        await updateTile(editingTile.id, values);
+        message.success("Tile updated successfully");
+      } else {
+        await addTile(values);
+        message.success("Tile added successfully");
+      }
+      setIsModalOpen(false);
+      form.resetFields();
+    } catch (error) {
+      message.error("Failed to save tile");
+    }
   };
 
-  return (
-    <div className="container-fluid py-3">
-      <PageHeader
-        title="Elementy (Kafelki)"
-        subtitle="Wizualny inwentarz wszystkich komponentów projektu"
-      />
+  const handleMoveTile = async (tileId: string, newStatus: string) => {
+    try {
+      await moveTile(tileId, newStatus);
+      message.success("Tile moved successfully");
+    } catch (error) {
+      message.error("Failed to move tile");
+    }
+  };
 
-      {/* Filtry i wyszukiwanie */}
-      <Card style={{ marginBottom: 16 }}>
-        <Row gutter={16} align="middle">
-          <Col xs={24} sm={12} md={8}>
-            <Search
-              placeholder="Szukaj kafelków..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              prefix={<SearchOutlined />}
-            />
-          </Col>
-          <Col xs={24} sm={6} md={4}>
-            <Select
-              value={statusFilter}
-              onChange={setStatusFilter}
-              style={{ width: "100%" }}
-              placeholder="Status"
-            >
-              <Select.Option value="All">Wszystkie statusy</Select.Option>
-              <Select.Option value="W KOLEJCE">W kolejce</Select.Option>
-              <Select.Option value="Projektowanie">Projektowanie</Select.Option>
-              <Select.Option value="W trakcie projektowania">
-                W trakcie projektowania
-              </Select.Option>
-              <Select.Option value="Do akceptacji">Do akceptacji</Select.Option>
-              <Select.Option value="Zaakceptowane">Zaakceptowane</Select.Option>
-              <Select.Option value="W TRAKCIE CIĘCIA">
-                W trakcie cięcia
-              </Select.Option>
-              <Select.Option value="W produkcji CNC">
-                W produkcji CNC
-              </Select.Option>
-              <Select.Option value="WYCIĘTE">Wycięte</Select.Option>
-              <Select.Option value="Gotowy do montażu">
-                Gotowy do montażu
-              </Select.Option>
-              <Select.Option value="Zakończony">Zakończony</Select.Option>
-            </Select>
-          </Col>
-          <Col xs={24} sm={6} md={4}>
-            <Select
-              value={projectFilter}
-              onChange={setProjectFilter}
-              style={{ width: "100%" }}
-              placeholder="Projekt"
-            >
-              <Select.Option value="All">Wszystkie projekty</Select.Option>
-              {projects.map((project) => (
-                <Select.Option key={project.id} value={project.id}>
-                  {project.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Col>
-          <Col xs={24} sm={12} md={8}>
-            <Space>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={handleAddNew}
-                disabled={!canDesign}
-              >
-                Dodaj Nowy Kafelek
-              </Button>
-              <Button onClick={refresh}>Odśwież</Button>
-            </Space>
-          </Col>
-        </Row>
-      </Card>
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "high":
+        return "red";
+      case "medium":
+        return "orange";
+      case "low":
+        return "green";
+      default:
+        return "default";
+    }
+  };
 
-      {/* Statystyki */}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col xs={24} sm={6}>
-          <Card size="small">
-            <div style={{ textAlign: "center" }}>
-              <Title level={3} style={{ margin: 0, color: "#1890ff" }}>
-                {filteredTiles.length}
-              </Title>
-              <div>Wszystkich kafelków</div>
-            </div>
-          </Card>
-        </Col>
-        <Col xs={24} sm={6}>
-          <Card size="small">
-            <div style={{ textAlign: "center" }}>
-              <Title level={3} style={{ margin: 0, color: "#52c41a" }}>
-                {
-                  filteredTiles.filter(
-                    (t) => (t.status as any) === "Zakończony"
-                  ).length
-                }
-              </Title>
-              <div>Zakończonych</div>
-            </div>
-          </Card>
-        </Col>
-        <Col xs={24} sm={6}>
-          <Card size="small">
-            <div style={{ textAlign: "center" }}>
-              <Title level={3} style={{ margin: 0, color: "#faad14" }}>
-                {
-                  filteredTiles.filter(
-                    (t) =>
-                      t.status === "W trakcie projektowania" ||
-                      t.status === "Projektowanie"
-                  ).length
-                }
-              </Title>
-              <div>W projektowaniu</div>
-            </div>
-          </Card>
-        </Col>
-        <Col xs={24} sm={6}>
-          <Card size="small">
-            <div style={{ textAlign: "center" }}>
-              <Title level={3} style={{ margin: 0, color: "#f5222d" }}>
-                {
-                  filteredTiles.filter((t) => t.status === "Wymagają poprawek")
-                    .length
-                }
-              </Title>
-              <div>Wymagają poprawek</div>
-            </div>
-          </Card>
-        </Col>
-      </Row>
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "todo":
+        return "default";
+      case "in_progress":
+        return "blue";
+      case "review":
+        return "orange";
+      case "done":
+        return "green";
+      default:
+        return "default";
+    }
+  };
 
-      {/* Kafelki */}
-      <Row gutter={[16, 16]}>
-        {filteredTiles.map((tile) => (
-          <Col key={tile.id} xs={24} sm={12} lg={8} xl={6}>
-            <TileCard
-              tile={tile}
-              onEdit={handleEdit}
-              onView={handleView}
-              onAssign={handleAssign}
-            />
-          </Col>
-        ))}
-      </Row>
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading tiles...</p>
+        </div>
+      </div>
+    );
+  }
 
-      {filteredTiles.length === 0 && (
-        <Card style={{ textAlign: "center", padding: 40 }}>
-          <Title level={4} type="secondary">
-            Brak kafelków
-          </Title>
-          <p>Nie znaleziono kafelków spełniających kryteria wyszukiwania.</p>
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleAddNew}>
-            Dodaj pierwszy kafelek
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-red-600">Error loading tiles: {error}</p>
+          <Button onClick={() => fetchTiles()} className="mt-2">
+            Try Again
           </Button>
-        </Card>
-      )}
+        </div>
+      </div>
+    );
+  }
 
-      {/* Modal edycji */}
-      <TileEditDrawer
-        open={editModalOpen}
-        onClose={() => {
-          setEditModalOpen(false);
-          setEditingTile(null);
-        }}
-        onSave={handleSaveTile}
-        tile={editingTile || undefined}
+  return (
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Project Tiles</h1>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleAddTile}>
+          Add Tile
+        </Button>
+      </div>
+
+      <div className="mb-4 flex space-x-4">
+        <Search
+          placeholder="Search tiles..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ width: 300 }}
+        />
+        <Button icon={<FilterOutlined />}>Filter</Button>
+      </div>
+
+      <KanbanBoard
+        tiles={filteredTiles}
+        onMoveTile={handleMoveTile}
+        onEditTile={handleEditTile}
+        onDeleteTile={handleDeleteTile}
       />
+
+      <Modal
+        title={editingTile ? "Edit Tile" : "Add Tile"}
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        onOk={() => form.submit()}
+        width={600}
+      >
+        <Form form={form} layout="vertical" onFinish={handleSubmit}>
+          <Form.Item
+            name="title"
+            label="Title"
+            rules={[{ required: true, message: "Please enter tile title" }]}
+          >
+            <Input placeholder="e.g., Design Review" />
+          </Form.Item>
+
+          <Form.Item name="description" label="Description">
+            <Input.TextArea rows={3} placeholder="Tile description" />
+          </Form.Item>
+
+          <Form.Item
+            name="status"
+            label="Status"
+            rules={[{ required: true, message: "Please select status" }]}
+          >
+            <Select placeholder="Select status">
+              <Select.Option value="todo">To Do</Select.Option>
+              <Select.Option value="in_progress">In Progress</Select.Option>
+              <Select.Option value="review">Review</Select.Option>
+              <Select.Option value="done">Done</Select.Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="priority"
+            label="Priority"
+            rules={[{ required: true, message: "Please select priority" }]}
+          >
+            <Select placeholder="Select priority">
+              <Select.Option value="low">Low</Select.Option>
+              <Select.Option value="medium">Medium</Select.Option>
+              <Select.Option value="high">High</Select.Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item name="assignee" label="Assignee">
+            <Input placeholder="e.g., John Doe" />
+          </Form.Item>
+
+          <Form.Item name="due_date" label="Due Date">
+            <Input type="date" />
+          </Form.Item>
+
+          <Form.Item name="estimated_hours" label="Estimated Hours">
+            <InputNumber
+              min={0}
+              step={0.5}
+              style={{ width: "100%" }}
+              placeholder="0"
+            />
+          </Form.Item>
+
+          <Form.Item name="tags" label="Tags">
+            <Select
+              mode="tags"
+              placeholder="Add tags"
+              style={{ width: "100%" }}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
-}
+};
+
+export default Tiles;

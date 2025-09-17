@@ -2,7 +2,7 @@ import { cn } from "@/new-ui/utils/cn";
 import * as React from "react";
 
 export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "info" | "success" | "warning" | "danger";
+  variant?: "info" | "success" | "warning" | "danger" | "error";
   title?: string;
   description?: string;
   showIcon?: boolean;
@@ -40,6 +40,8 @@ export function Alert({
       "bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-200",
     danger:
       "bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200",
+    error:
+      "bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200",
   };
 
   const iconClasses = {
@@ -47,6 +49,7 @@ export function Alert({
     success: "text-green-400",
     warning: "text-yellow-400",
     danger: "text-red-400",
+    error: "text-red-400",
   };
 
   const icons = {
@@ -54,6 +57,7 @@ export function Alert({
     success: "✓",
     warning: "⚠",
     danger: "✕",
+    error: "✕",
   };
 
   return (
