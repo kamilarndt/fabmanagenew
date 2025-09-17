@@ -340,6 +340,26 @@ export function TimelineControls({
           >
             Animated
           </button>
+          <button
+            onClick={() => onRenderModeChange("mobile")}
+            style={{
+              padding: "4px 8px",
+              border: `1px solid ${theme.colors.border}`,
+              borderRadius: "4px",
+              backgroundColor:
+                renderMode === "mobile"
+                  ? theme.colors.primary
+                  : theme.colors.background,
+              color:
+                renderMode === "mobile"
+                  ? theme.colors.background
+                  : theme.colors.text,
+              cursor: "pointer",
+              fontSize: "12px",
+            }}
+          >
+            Mobile
+          </button>
         </div>
       )}
 

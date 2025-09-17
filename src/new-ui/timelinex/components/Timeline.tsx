@@ -23,6 +23,7 @@ import { TimelineLazy } from "./TimelineLazy";
 import { TimelineTouch } from "./TimelineTouch";
 import { TimelineAnimated } from "./TimelineAnimated";
 import { TimelineMobile } from "./TimelineMobile";
+import { TimelineAccessible } from "./TimelineAccessible";
 
 export const Timeline = memo(function Timeline({
   // Data
@@ -87,7 +88,7 @@ export const Timeline = memo(function Timeline({
   const [isInitialized, setIsInitialized] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<TimelineItem | null>(null);
   const [focusedItem, setFocusedItem] = useState<TimelineItem | null>(null);
-  const [renderMode, setRenderMode] = useState<"canvas" | "svg" | "webgl" | "virtual" | "lazy" | "touch" | "animated" | "mobile">("canvas");
+  const [renderMode, setRenderMode] = useState<"canvas" | "svg" | "webgl" | "virtual" | "lazy" | "touch" | "animated" | "mobile" | "accessible">("canvas");
   const [contextMenu, setContextMenu] = useState<{
     item: TimelineItem | null;
     position: { x: number; y: number } | null;
@@ -451,7 +452,36 @@ export const Timeline = memo(function Timeline({
       {...props}
     >
        {/* High-performance rendering with multiple backends */}
-       {renderMode === "mobile" ? (
+       {renderMode === "accessible" ? (
+         <TimelineAccessible
+           items={visibleItems}
+           groups={state.groups}
+           viewport={state.viewport}
+           theme={state.theme}
+           settings={state.settings}
+           width={typeof width === "number" ? width : 800}
+           height={typeof height === "number" ? height : 400}
+           mode={state.mode}
+           onItemClick={handleItemClick}
+           onItemDoubleClick={handleItemDoubleClick}
+           onItemHover={handleItemHover}
+           onViewportChange={handleViewportChange}
+           onZoom={handleZoom}
+           onPan={handlePan}
+           accessibilityOptions={{
+             enableKeyboardNavigation: true,
+             enableScreenReaderSupport: true,
+             enableHighContrast: true,
+             enableReducedMotion: true,
+             enableFocusManagement: true,
+             enableARIALabels: true,
+             enableLiveRegions: true,
+             enableSkipLinks: true,
+             enableColorBlindSupport: true,
+             enableVoiceControl: true,
+           }}
+         />
+       ) : renderMode === "mobile" ? (
          <TimelineMobile
            items={visibleItems}
            groups={state.groups}
