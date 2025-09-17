@@ -11,28 +11,27 @@ import { connectionMonitor } from "./lib/connectionMonitor";
 import { useProjectsStore } from "./stores/projectsStore";
 
 // Layouts
-import BrandedLayout from "./layouts/BrandedLayout";
 import NewUILayout from "./layouts/NewUILayout";
 
-// Pages with Bootstrap layout
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Projects = lazy(() => import("./pages/Projects"));
-const Projekt = lazy(() => import("./pages/Projekt"));
-const AddProject = lazy(() => import("./pages/AddProject"));
-const Projektowanie = lazy(() => import("./pages/Projektowanie"));
-const CNC = lazy(() => import("./pages/CNC"));
-const Produkcja = lazy(() => import("./pages/Produkcja"));
-const Magazyn = lazy(() => import("./pages/MagazynUmms"));
-const MagazynDashboard = lazy(() => import("./pages/MagazynDashboard"));
-const Demands = lazy(() => import("./pages/Demands"));
-const Tiles = lazy(() => import("./pages/Tiles"));
-const DesignerDashboard = lazy(() => import("./pages/DesignerDashboard"));
-const CalendarPage = lazy(() => import("./pages/CalendarPage"));
-const CalendarProjects = lazy(() => import("./pages/CalendarProjects"));
-const CalendarDesigners = lazy(() => import("./pages/CalendarDesigners"));
-const CalendarTeams = lazy(() => import("./pages/CalendarTeams"));
-const Subcontractors = lazy(() => import("./pages/Subcontractors"));
-const Settings = lazy(() => import("./pages/Settings"));
+// Pages with Bootstrap layout (kept for compatibility)
+// const Dashboard = lazy(() => import("./pages/Dashboard"));
+// const Projects = lazy(() => import("./pages/Projects"));
+// const Projekt = lazy(() => import("./pages/Projekt"));
+// const AddProject = lazy(() => import("./pages/AddProject"));
+// const Projektowanie = lazy(() => import("./pages/Projektowanie"));
+// const CNC = lazy(() => import("./pages/CNC"));
+// const Produkcja = lazy(() => import("./pages/Produkcja"));
+// const Magazyn = lazy(() => import("./pages/MagazynUmms"));
+// const MagazynDashboard = lazy(() => import("./pages/MagazynDashboard"));
+// const Demands = lazy(() => import("./pages/Demands"));
+// const Tiles = lazy(() => import("./pages/Tiles"));
+// const DesignerDashboard = lazy(() => import("./pages/DesignerDashboard"));
+// const CalendarPage = lazy(() => import("./pages/CalendarPage"));
+// const CalendarProjects = lazy(() => import("./pages/CalendarProjects"));
+// const CalendarDesigners = lazy(() => import("./pages/CalendarDesigners"));
+// const CalendarTeams = lazy(() => import("./pages/CalendarTeams"));
+// const Subcontractors = lazy(() => import("./pages/Subcontractors"));
+// const Settings = lazy(() => import("./pages/Settings"));
 
 // Pages with Figma layout (prototypes)
 const Klienci = lazy(() => import("./pages/Klienci"));
@@ -121,8 +120,8 @@ function App() {
               <Route path="migration" element={<MigrationDashboard />} />
             </Route>
 
-            {/* Clients under main layout for consistent navigation */}
-            <Route path="/klienci" element={<BrandedLayout />}>
+            {/* Clients under modern layout for consistent navigation */}
+            <Route path="/klienci" element={<ModernLayout />}>
               <Route index element={<Klienci />} />
               <Route path=":id" element={<Klient />} />
             </Route>

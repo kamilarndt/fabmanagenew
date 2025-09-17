@@ -1,4 +1,4 @@
-import { tailwindTokens } from "./src/new-ui/tokens/tailwind-tokens.js";
+import { tailwindTokens } from "./src/new-ui/tokens/tailwind-tokens.ts";
 
 /** @type {import('tailwindcss').Config} */
 export default {

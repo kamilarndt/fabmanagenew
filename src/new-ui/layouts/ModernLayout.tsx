@@ -117,7 +117,7 @@ const ModernLayout: React.FC = () => {
         activeItem={getActiveItem()}
         onItemClick={handleItemClick}
         header={header}
-        className="tw-w-64 tw-bg-sidebar tw-border-r tw-border-sidebar-border"
+        className="tw-w-64 tw-bg-sidebar tw-border-r tw-border-sidebar-border tw-flex-shrink-0"
       />
 
       {/* Main Content */}

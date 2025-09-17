@@ -1,8 +1,8 @@
 import { Button } from "@/new-ui/atoms/Button/Button";
 import { Icon } from "@/new-ui/atoms/Icon/Icon";
 import { cn } from "@/new-ui/utils/cn";
-import { Link, useLocation } from "react-router-dom";
 import * as React from "react";
+import { Link, useLocation } from "react-router-dom";
 
 export interface SidebarItem {
   id: string;
@@ -57,7 +57,8 @@ export function Sidebar({
   };
 
   const renderItem = (item: SidebarItem, level = 0) => {
-    const isActive = activeItem === item.id || (item.href && location.pathname === item.href);
+    const isActive =
+      activeItem === item.id || (item.href && location.pathname === item.href);
     const isExpanded = expandedItems.has(item.id);
     const hasChildren = item.children && item.children.length > 0;
 
@@ -91,7 +92,9 @@ export function Sidebar({
             onClick={() => handleItemClick(item)}
             className={cn(
               "tw-flex tw-w-full tw-items-center tw-gap-2 tw-rounded-md tw-px-3 tw-py-2 tw-text-left tw-text-sm tw-transition-colors",
-              isActive ? "tw-bg-sidebar-primary tw-text-sidebar-primary-foreground" : "tw-text-sidebar-foreground hover:tw-bg-sidebar-accent hover:tw-text-sidebar-accent-foreground",
+              isActive
+                ? "tw-bg-sidebar-primary tw-text-sidebar-primary-foreground"
+                : "tw-text-sidebar-foreground hover:tw-bg-sidebar-accent hover:tw-text-sidebar-accent-foreground",
               level > 0 && "tw-pl-6"
             )}
           >
@@ -102,7 +105,9 @@ export function Sidebar({
             onClick={() => handleItemClick(item)}
             className={cn(
               "tw-flex tw-w-full tw-items-center tw-gap-2 tw-rounded-md tw-px-3 tw-py-2 tw-text-left tw-text-sm tw-transition-colors",
-              isActive ? "tw-bg-sidebar-primary tw-text-sidebar-primary-foreground" : "tw-text-sidebar-foreground hover:tw-bg-sidebar-accent hover:tw-text-sidebar-accent-foreground",
+              isActive
+                ? "tw-bg-sidebar-primary tw-text-sidebar-primary-foreground"
+                : "tw-text-sidebar-foreground hover:tw-bg-sidebar-accent hover:tw-text-sidebar-accent-foreground",
               level > 0 && "tw-pl-6"
             )}
           >
