@@ -1,6 +1,11 @@
-import { FilterOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  ArrowLeftOutlined,
+  FilterOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import { Button, Form, Input, InputNumber, Modal, Select, message } from "antd";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import KanbanBoard from "../components/Tiles/KanbanBoard";
 import { useTilesStore } from "../stores/tilesStore";
 import { Tile } from "../types/tiles.types";
@@ -8,6 +13,7 @@ import { Tile } from "../types/tiles.types";
 const { Search } = Input;
 
 const Tiles: React.FC = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTile, setEditingTile] = useState<Tile | null>(null);
@@ -15,8 +21,8 @@ const Tiles: React.FC = () => {
 
   const {
     tiles,
-    isLoading,
-    error,
+    tilesLoading,
+    tilesError,
     fetchTiles,
     addTile,
     updateTile,
@@ -30,9 +36,9 @@ const Tiles: React.FC = () => {
 
   const filteredTiles = tiles.filter(
     (tile) =>
-      tile.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tile.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       tile.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tile.assignee?.toLowerCase().includes(searchTerm.toLowerCase())
+      tile.assignee?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAddTile = () => {
@@ -47,9 +53,9 @@ const Tiles: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteTile = async (tile: Tile) => {
+  const handleDeleteTile = async (tileId: string) => {
     try {
-      await deleteTile(tile.id);
+      await deleteTile(tileId);
       message.success("Tile deleted successfully");
     } catch (error) {
       message.error("Failed to delete tile");
@@ -74,7 +80,7 @@ const Tiles: React.FC = () => {
 
   const handleMoveTile = async (tileId: string, newStatus: string) => {
     try {
-      await moveTile(tileId, newStatus);
+      await moveTile(tileId, newStatus as any);
       message.success("Tile moved successfully");
     } catch (error) {
       message.error("Failed to move tile");
@@ -109,7 +115,7 @@ const Tiles: React.FC = () => {
     }
   };
 
-  if (isLoading) {
+  if (tilesLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
@@ -120,11 +126,11 @@ const Tiles: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (tilesError) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-red-600">Error loading tiles: {error}</p>
+          <p className="text-red-600">Error loading tiles: {tilesError}</p>
           <Button onClick={() => fetchTiles()} className="mt-2">
             Try Again
           </Button>
@@ -133,10 +139,24 @@ const Tiles: React.FC = () => {
     );
   }
 
+  const handleBackToDashboard = () => {
+    navigate("/");
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Project Tiles</h1>
+        <div className="flex items-center gap-4">
+          <Button
+            type="text"
+            icon={<ArrowLeftOutlined />}
+            onClick={handleBackToDashboard}
+            className="flex items-center gap-2"
+          >
+            Back to Dashboard
+          </Button>
+          <h1 className="text-2xl font-bold">Project Tiles</h1>
+        </div>
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAddTile}>
           Add Tile
         </Button>
@@ -153,8 +173,6 @@ const Tiles: React.FC = () => {
       </div>
 
       <KanbanBoard
-        tiles={filteredTiles}
-        onMoveTile={handleMoveTile}
         onEditTile={handleEditTile}
         onDeleteTile={handleDeleteTile}
       />
@@ -168,9 +186,9 @@ const Tiles: React.FC = () => {
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Form.Item
-            name="title"
-            label="Title"
-            rules={[{ required: true, message: "Please enter tile title" }]}
+            name="name"
+            label="Name"
+            rules={[{ required: true, message: "Please enter tile name" }]}
           >
             <Input placeholder="e.g., Design Review" />
           </Form.Item>
@@ -204,8 +222,8 @@ const Tiles: React.FC = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item name="assignee" label="Assignee">
-            <Input placeholder="e.g., John Doe" />
+          <Form.Item name="assignee_id" label="Assignee ID">
+            <Input placeholder="e.g., user-123" />
           </Form.Item>
 
           <Form.Item name="due_date" label="Due Date">

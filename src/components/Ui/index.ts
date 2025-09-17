@@ -38,3 +38,4 @@ export {
   H5,
   Label,
 } from "./Typography";
+export { Toolbar } from "./Toolbar";

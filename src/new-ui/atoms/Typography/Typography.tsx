@@ -25,6 +25,7 @@ export interface TypographyProps extends React.HTMLAttributes<HTMLElement> {
   ellipsis?:
     | boolean
     | { rows?: number; expandable?: boolean; onExpand?: () => void };
+  style?: React.CSSProperties;
 }
 
 export function Typography({

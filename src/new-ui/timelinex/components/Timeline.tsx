@@ -24,6 +24,10 @@ import { TimelineTouch } from "./TimelineTouch";
 import { TimelineAnimated } from "./TimelineAnimated";
 import { TimelineMobile } from "./TimelineMobile";
 import { TimelineAccessible } from "./TimelineAccessible";
+import { TimelineCollaborative } from "./TimelineCollaborative";
+import { PluginMarketplace } from "./PluginMarketplace";
+import { TimelineSmartSuggestions } from "./TimelineSmartSuggestions";
+import { useTimelineAI } from "../hooks/useTimelineAI";
 
 export const Timeline = memo(function Timeline({
   // Data
@@ -88,7 +92,7 @@ export const Timeline = memo(function Timeline({
   const [isInitialized, setIsInitialized] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<TimelineItem | null>(null);
   const [focusedItem, setFocusedItem] = useState<TimelineItem | null>(null);
-  const [renderMode, setRenderMode] = useState<"canvas" | "svg" | "webgl" | "virtual" | "lazy" | "touch" | "animated" | "mobile" | "accessible">("canvas");
+  const [renderMode, setRenderMode] = useState<"canvas" | "svg" | "webgl" | "virtual" | "lazy" | "touch" | "animated" | "mobile" | "accessible" | "collaborative">("canvas");
   const [contextMenu, setContextMenu] = useState<{
     item: TimelineItem | null;
     position: { x: number; y: number } | null;
@@ -100,6 +104,27 @@ export const Timeline = memo(function Timeline({
     width: number;
     height: number;
   } | null>(null);
+  const [isPluginMarketplaceOpen, setIsPluginMarketplaceOpen] = useState(false);
+
+  // AI features
+  const {
+    suggestions,
+    isLoading: isAILoading,
+    error: aiError,
+    isSmartSuggestionsOpen,
+    setIsSmartSuggestionsOpen,
+    loadSuggestions,
+    autoSchedule,
+    optimizeTimeline,
+    predictCompletion,
+    applySuggestion,
+    getSuggestionStats,
+  } = useTimelineAI({
+    items: visibleItems,
+    groups: state.groups,
+    autoRefresh: true,
+    refreshInterval: 60000, // 1 minute
+  });
 
   // Store
   const { state, actions, utils } = useTimeline();
@@ -314,6 +339,34 @@ export const Timeline = memo(function Timeline({
     [actions, onItemDelete, pushAction, state.items]
   );
 
+  // AI suggestion handlers
+  const handleApplySuggestion = useCallback(
+    (suggestion: any) => {
+      applySuggestion(suggestion);
+    },
+    [applySuggestion]
+  );
+
+  const handleAutoSchedule = useCallback(
+    async (scheduledItems: any[]) => {
+      // Update items with new schedule
+      scheduledItems.forEach(item => {
+        actions.updateItem(item.id, item);
+      });
+    },
+    [actions]
+  );
+
+  const handleOptimize = useCallback(
+    async (optimizedItems: any[]) => {
+      // Apply optimizations
+      optimizedItems.forEach(item => {
+        actions.updateItem(item.id, item);
+      });
+    },
+    [actions]
+  );
+
   const handleGroupToggle = useCallback(
     (group: TimelineGroup, collapsed: boolean) => {
       actions.updateGroup(group.id, { collapsed });
@@ -452,7 +505,41 @@ export const Timeline = memo(function Timeline({
       {...props}
     >
        {/* High-performance rendering with multiple backends */}
-       {renderMode === "accessible" ? (
+       {renderMode === "collaborative" ? (
+         <TimelineCollaborative
+           items={visibleItems}
+           groups={state.groups}
+           viewport={state.viewport}
+           theme={state.theme}
+           settings={state.settings}
+           width={typeof width === "number" ? width : 800}
+           height={typeof height === "number" ? height : 400}
+           mode={state.mode}
+           onItemClick={handleItemClick}
+           onItemDoubleClick={handleItemDoubleClick}
+           onItemHover={handleItemHover}
+           onViewportChange={handleViewportChange}
+           onZoom={handleZoom}
+           onPan={handlePan}
+           collaborationOptions={{
+             enableRealtimeSync: true,
+             enableUserPresence: true,
+             enableCursorSharing: true,
+             enableSelectionSharing: true,
+             enableConflictResolution: true,
+             enableOfflineMode: true,
+             enableOptimisticUpdates: true,
+             enableEventBatching: true,
+             enableCompression: true,
+             enableEncryption: false,
+             maxRetries: 3,
+             retryDelay: 1000,
+             heartbeatInterval: 30000,
+             eventBatchSize: 10,
+             eventBatchDelay: 100,
+           }}
+         />
+       ) : renderMode === "accessible" ? (
          <TimelineAccessible
            items={visibleItems}
            groups={state.groups}
@@ -780,6 +867,8 @@ export const Timeline = memo(function Timeline({
             canRedo={canRedo}
             onUndo={undo}
             onRedo={redo}
+            onOpenPluginMarketplace={() => setIsPluginMarketplaceOpen(true)}
+            onOpenSmartSuggestions={() => setIsSmartSuggestionsOpen(true)}
           />
         ))}
 
@@ -870,11 +959,40 @@ export const Timeline = memo(function Timeline({
         />
       )}
 
-      {/* Children */}
-      {children}
-    </div>
-  );
-});
+       {/* Children */}
+       {children}
+
+      {/* Plugin Marketplace */}
+      <PluginMarketplace
+        isOpen={isPluginMarketplaceOpen}
+        onClose={() => setIsPluginMarketplaceOpen(false)}
+        onPluginInstall={(plugin) => {
+          console.log('Plugin installed:', plugin);
+        }}
+        onPluginUninstall={(plugin) => {
+          console.log('Plugin uninstalled:', plugin);
+        }}
+        onPluginActivate={(plugin) => {
+          console.log('Plugin activated:', plugin);
+        }}
+        onPluginDeactivate={(plugin) => {
+          console.log('Plugin deactivated:', plugin);
+        }}
+      />
+
+      {/* Smart Suggestions */}
+      <TimelineSmartSuggestions
+        items={visibleItems}
+        groups={state.groups}
+        isOpen={isSmartSuggestionsOpen}
+        onClose={() => setIsSmartSuggestionsOpen(false)}
+        onApplySuggestion={handleApplySuggestion}
+        onAutoSchedule={handleAutoSchedule}
+        onOptimize={handleOptimize}
+      />
+     </div>
+   );
+ });
 
 // Export default
 export default Timeline;

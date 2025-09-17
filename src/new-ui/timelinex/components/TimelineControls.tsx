@@ -22,12 +22,36 @@ export interface TimelineControlsProps {
   onPan: (pan: { x: number; y: number }) => void;
   onExport: (format: string, data: any) => void;
   onImport: (data: any) => void;
-  renderMode?: "canvas" | "svg" | "webgl" | "virtual" | "lazy" | "touch" | "animated" | "mobile";
-  onRenderModeChange?: (mode: "canvas" | "svg" | "webgl" | "virtual" | "lazy" | "touch" | "animated" | "mobile") => void;
+  renderMode?:
+    | "canvas"
+    | "svg"
+    | "webgl"
+    | "virtual"
+    | "lazy"
+    | "touch"
+    | "animated"
+    | "mobile"
+    | "accessible"
+    | "collaborative";
+  onRenderModeChange?: (
+    mode:
+      | "canvas"
+      | "svg"
+      | "webgl"
+      | "virtual"
+      | "lazy"
+      | "touch"
+      | "animated"
+      | "mobile"
+      | "accessible"
+      | "collaborative"
+  ) => void;
   canUndo?: boolean;
   canRedo?: boolean;
   onUndo?: () => void;
   onRedo?: () => void;
+  onOpenPluginMarketplace?: () => void;
+  onOpenSmartSuggestions?: () => void;
 }
 
 export function TimelineControls({
@@ -48,6 +72,8 @@ export function TimelineControls({
   canRedo = false,
   onUndo,
   onRedo,
+  onOpenPluginMarketplace,
+  onOpenSmartSuggestions,
 }: TimelineControlsProps) {
   const handleZoomIn = () => {
     const newZoom = Math.min(10, viewport.zoom * 1.2);
@@ -360,6 +386,46 @@ export function TimelineControls({
           >
             Mobile
           </button>
+          <button
+            onClick={() => onRenderModeChange("accessible")}
+            style={{
+              padding: "4px 8px",
+              border: `1px solid ${theme.colors.border}`,
+              borderRadius: "4px",
+              backgroundColor:
+                renderMode === "accessible"
+                  ? theme.colors.primary
+                  : theme.colors.background,
+              color:
+                renderMode === "accessible"
+                  ? theme.colors.background
+                  : theme.colors.text,
+              cursor: "pointer",
+              fontSize: "12px",
+            }}
+          >
+            Accessible
+          </button>
+          <button
+            onClick={() => onRenderModeChange("collaborative")}
+            style={{
+              padding: "4px 8px",
+              border: `1px solid ${theme.colors.border}`,
+              borderRadius: "4px",
+              backgroundColor:
+                renderMode === "collaborative"
+                  ? theme.colors.primary
+                  : theme.colors.background,
+              color:
+                renderMode === "collaborative"
+                  ? theme.colors.background
+                  : theme.colors.text,
+              cursor: "pointer",
+              fontSize: "12px",
+            }}
+          >
+            Collaborative
+          </button>
         </div>
       )}
 
@@ -450,6 +516,38 @@ export function TimelineControls({
             }}
           >
             ↷ Redo
+          </button>
+        </div>
+      )}
+
+      {/* Plugin Marketplace */}
+      {onOpenPluginMarketplace && (
+        <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+          <button
+            onClick={onOpenPluginMarketplace}
+            style={{
+              ...buttonStyle,
+              backgroundColor: theme.colors.purple || "#8b5cf6",
+              color: theme.colors.background,
+            }}
+          >
+            🔌 Plugins
+          </button>
+        </div>
+      )}
+
+      {/* Smart Suggestions */}
+      {onOpenSmartSuggestions && (
+        <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+          <button
+            onClick={onOpenSmartSuggestions}
+            style={{
+              ...buttonStyle,
+              backgroundColor: theme.colors.blue || "#3b82f6",
+              color: theme.colors.background,
+            }}
+          >
+            🤖 AI
           </button>
         </div>
       )}

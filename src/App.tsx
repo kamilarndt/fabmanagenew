@@ -10,6 +10,7 @@ import {
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 // Lazy load pages for better performance
+const Dashboard = React.lazy(() => import("./pages/Dashboard"));
 const Materials = React.lazy(() => import("./pages/SimpleMaterials"));
 const Tiles = React.lazy(() => import("./pages/Tiles"));
 const Pricing = React.lazy(() => import("./pages/Pricing"));
@@ -56,11 +57,8 @@ const App: React.FC = () => {
             <Layout>
               <Suspense fallback={<LoadingSpinner />}>
                 <Routes>
-                  {/* Default route */}
-                  <Route
-                    path="/"
-                    element={<Navigate to="/materials" replace />}
-                  />
+                  {/* Default route - Main Dashboard */}
+                  <Route path="/" element={<Dashboard />} />
 
                   {/* Module routes */}
                   <Route path="/materials" element={<Materials />} />
@@ -74,10 +72,7 @@ const App: React.FC = () => {
                   <Route path="/messaging" element={<Messaging />} />
 
                   {/* 404 route */}
-                  <Route
-                    path="*"
-                    element={<Navigate to="/materials" replace />}
-                  />
+                  <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Suspense>
             </Layout>

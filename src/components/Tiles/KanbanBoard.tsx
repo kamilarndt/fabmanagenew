@@ -1,6 +1,5 @@
 import React from "react";
-// import { DndProvider, useDrag, useDrop } from 'react-dnd';
-// import { HTML5Backend } from 'react-dnd-html5-backend';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button } from "../../new-ui/atoms/Button/Button";
 import { Space } from "../../new-ui/atoms/Space/Space";
@@ -31,53 +30,66 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   onEditTile,
   onDeleteTile,
 }) => {
-  // const [, drop] = useDrop({
-  //   accept: 'tile',
-  //   drop: (item: { id: string }) => {
-  //     onMoveTile(item.id, status);
-  //   },
-  // });
-
   return (
-    <div
-      // ref={drop}
-      style={{
-        minHeight: "500px",
-        backgroundColor: "#f5f5f5",
-        borderRadius: "8px",
-        padding: "16px",
-        margin: "0 8px",
-        flex: 1,
-      }}
-    >
-      <div
-        style={{ marginBottom: "16px", display: "flex", alignItems: "center" }}
-      >
+    <Droppable droppableId={status}>
+      {(provided, snapshot) => (
         <div
+          ref={provided.innerRef}
+          {...provided.droppableProps}
           style={{
-            width: "12px",
-            height: "12px",
-            backgroundColor: color,
-            borderRadius: "50%",
-            marginRight: "8px",
+            minHeight: "500px",
+            backgroundColor: snapshot.isDraggingOver ? "#e6f7ff" : "#f5f5f5",
+            borderRadius: "8px",
+            padding: "16px",
+            margin: "0 8px",
+            flex: 1,
+            transition: "background-color 0.2s ease",
           }}
-        />
-        <Title level={5} style={{ margin: 0 }}>
-          {title} ({tiles.length})
-        </Title>
-      </div>
+        >
+          <div
+            style={{ marginBottom: "16px", display: "flex", alignItems: "center" }}
+          >
+            <div
+              style={{
+                width: "12px",
+                height: "12px",
+                backgroundColor: color,
+                borderRadius: "50%",
+                marginRight: "8px",
+              }}
+            />
+            <Title level={5} style={{ margin: 0 }}>
+              {title} ({tiles.length})
+            </Title>
+          </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        {tiles.map((tile) => (
-          <TileCard
-            key={tile.id}
-            tile={tile}
-            onEdit={onEditTile}
-            onDelete={onDeleteTile}
-          />
-        ))}
-      </div>
-    </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {tiles.map((tile, index) => (
+              <Draggable key={tile.id} draggableId={tile.id} index={index}>
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    style={{
+                      ...provided.draggableProps.style,
+                      opacity: snapshot.isDragging ? 0.8 : 1,
+                    }}
+                  >
+                    <TileCard
+                      tile={tile}
+                      onEdit={onEditTile}
+                      onDelete={onDeleteTile}
+                    />
+                  </div>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
+          </div>
+        </div>
+      )}
+    </Droppable>
   );
 };
 
@@ -88,14 +100,6 @@ interface TileCardProps {
 }
 
 const TileCard: React.FC<TileCardProps> = ({ tile, onEdit, onDelete }) => {
-  // const [{ isDragging }, drag] = useDrag({
-  //   type: 'tile',
-  //   item: { id: tile.id },
-  //   collect: (monitor) => ({
-  //     isDragging: monitor.isDragging(),
-  //   }),
-  // });
-
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "urgent":
@@ -113,12 +117,11 @@ const TileCard: React.FC<TileCardProps> = ({ tile, onEdit, onDelete }) => {
 
   return (
     <Card
-      // ref={drag}
       size="small"
       style={{
-        // opacity: isDragging ? 0.5 : 1,
-        cursor: "move",
+        cursor: "grab",
         marginBottom: "8px",
+        transition: "all 0.2s ease",
       }}
       actions={[
         <Button
@@ -250,9 +253,29 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
     }
   };
 
+  const onDragEnd = (result: DropResult) => {
+    const { destination, source, draggableId } = result;
+
+    // If dropped outside a valid drop zone
+    if (!destination) {
+      return;
+    }
+
+    // If dropped in the same position
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+
+    // Move the tile to the new status
+    const newStatus = destination.droppableId as TileStatus;
+    handleMoveTile(draggableId, newStatus);
+  };
+
   return (
-    <div>
-      {/* <DndProvider backend={HTML5Backend}> */}
+    <DragDropContext onDragEnd={onDragEnd}>
       <div style={{ display: "flex", overflowX: "auto", padding: "16px 0" }}>
         {columns.map((column) => (
           <KanbanColumn
@@ -267,8 +290,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
           />
         ))}
       </div>
-      {/* </DndProvider> */}
-    </div>
+    </DragDropContext>
   );
 };
 

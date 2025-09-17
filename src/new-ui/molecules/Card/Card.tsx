@@ -1,17 +1,39 @@
 import { cn } from "@/new-ui/utils/cn";
 import * as React from "react";
 
-export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  actions?: React.ReactNode[];
+  size?: "small" | "default";
+}
 
-export function Card({ className, ...props }: CardProps): React.ReactElement {
+export function Card({
+  className,
+  actions,
+  size = "default",
+  children,
+  ...props
+}: CardProps): React.ReactElement {
+  const sizeClasses = {
+    small: "p-3",
+    default: "p-4",
+  };
+
   return (
     <div
       className={cn(
-        "tw-rounded-lg tw-border tw-bg-card tw-text-card-foreground tw-shadow-sm",
+        "rounded-lg border bg-white text-gray-900 shadow-sm",
+        sizeClasses[size],
         className
       )}
       {...props}
-    />
+    >
+      {children}
+      {actions && actions.length > 0 && (
+        <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-gray-200">
+          {actions}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -23,7 +45,7 @@ export function CardHeader({
 }: CardHeaderProps): React.ReactElement {
   return (
     <div
-      className={cn("tw-flex tw-flex-col tw-space-y-1.5 tw-p-6", className)}
+      className={cn("flex flex-col space-y-1.5 p-6", className)}
       {...props}
     />
   );
@@ -39,7 +61,7 @@ export function CardTitle({
   return (
     <h3
       className={cn(
-        "tw-text-2xl tw-font-semibold tw-leading-none tw-tracking-tight",
+        "text-2xl font-semibold leading-none tracking-tight",
         className
       )}
       {...props}
@@ -54,12 +76,7 @@ export function CardDescription({
   className,
   ...props
 }: CardDescriptionProps): React.ReactElement {
-  return (
-    <p
-      className={cn("tw-text-sm tw-text-muted-foreground", className)}
-      {...props}
-    />
-  );
+  return <p className={cn("text-sm text-gray-500", className)} {...props} />;
 }
 
 export interface CardContentProps
@@ -69,7 +86,7 @@ export function CardContent({
   className,
   ...props
 }: CardContentProps): React.ReactElement {
-  return <div className={cn("tw-p-6 tw-pt-0", className)} {...props} />;
+  return <div className={cn("p-6 pt-0", className)} {...props} />;
 }
 
 export interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
@@ -79,9 +96,6 @@ export function CardFooter({
   ...props
 }: CardFooterProps): React.ReactElement {
   return (
-    <div
-      className={cn("tw-flex tw-items-center tw-p-6 tw-pt-0", className)}
-      {...props}
-    />
+    <div className={cn("flex items-center p-6 pt-0", className)} {...props} />
   );
 }

@@ -3,10 +3,21 @@ import * as React from "react";
 
 export interface TagProps extends React.HTMLAttributes<HTMLSpanElement> {
   children: React.ReactNode;
-  color?: "default" | "primary" | "success" | "warning" | "error" | "info";
+  color?:
+    | "default"
+    | "primary"
+    | "success"
+    | "warning"
+    | "error"
+    | "info"
+    | "red"
+    | "orange"
+    | "blue"
+    | "green";
   variant?: "default" | "primary" | "success" | "warning" | "error" | "info";
   closable?: boolean;
   onClose?: () => void;
+  size?: "small" | "default";
 }
 
 export function Tag({
@@ -16,6 +27,7 @@ export function Tag({
   variant,
   closable = false,
   onClose,
+  size = "default",
   ...props
 }: TagProps): React.ReactElement {
   const tagColor = variant || color;
@@ -29,13 +41,24 @@ export function Tag({
       "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
     error: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
     info: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+    red: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+    orange:
+      "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+    blue: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+    green: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+  };
+
+  const sizeClasses = {
+    small: "px-2 py-0.5 text-xs",
+    default: "px-2.5 py-0.5 text-xs",
   };
 
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+        "inline-flex items-center rounded-full font-medium",
         colorClasses[tagColor],
+        sizeClasses[size],
         className
       )}
       {...props}

@@ -1,4 +1,7 @@
-// TimelineX Storybook Stories
+/**
+ * TimelineX Storybook Stories
+ */
+
 import type { Meta, StoryObj } from '@storybook/react';
 import { Timeline } from '../components/Timeline';
 import { TimelineItem, TimelineGroup } from '../types';
@@ -8,26 +11,37 @@ const meta: Meta<typeof Timeline> = {
   component: Timeline,
   parameters: {
     layout: 'fullscreen',
+    docs: {
+      description: {
+        component: 'A powerful timeline component with advanced features and customization options.',
+      },
+    },
   },
   argTypes: {
+    height: {
+      control: { type: 'range', min: 200, max: 1000, step: 50 },
+      description: 'Height of the timeline in pixels',
+    },
+    width: {
+      control: { type: 'range', min: 400, max: 2000, step: 100 },
+      description: 'Width of the timeline in pixels',
+    },
     mode: {
       control: { type: 'select' },
-      options: ['horizontal', 'vertical', 'alternating', 'spiral', 'masonry', 'gantt'],
-    },
-    readonly: {
-      control: { type: 'boolean' },
-    },
-    selectable: {
-      control: { type: 'boolean' },
-    },
-    editable: {
-      control: { type: 'boolean' },
+      options: ['horizontal', 'vertical'],
+      description: 'Timeline orientation',
     },
     draggable: {
       control: { type: 'boolean' },
+      description: 'Enable item dragging',
     },
     resizable: {
       control: { type: 'boolean' },
+      description: 'Enable item resizing',
+    },
+    selectable: {
+      control: { type: 'boolean' },
+      description: 'Enable item selection',
     },
   },
 };
@@ -39,202 +53,448 @@ type Story = StoryObj<typeof Timeline>;
 const sampleItems: TimelineItem[] = [
   {
     id: '1',
-    title: 'Project Kickoff',
-    start: new Date('2024-01-01'),
-    end: new Date('2024-01-05'),
-    description: 'Initial project planning and team setup',
+    title: 'Project Planning',
+    start: new Date('2024-01-01T09:00:00Z'),
+    end: new Date('2024-01-05T17:00:00Z'),
+    groupId: 'planning',
+    color: '#3b82f6',
+    priority: 'high',
     progress: 100,
-    color: '#3B82F6',
+    description: 'Initial project planning and requirements gathering',
   },
   {
     id: '2',
     title: 'Design Phase',
-    start: new Date('2024-01-06'),
-    end: new Date('2024-01-20'),
+    start: new Date('2024-01-06T09:00:00Z'),
+    end: new Date('2024-01-15T17:00:00Z'),
+    groupId: 'design',
+    color: '#10b981',
+    priority: 'high',
+    progress: 80,
     description: 'UI/UX design and prototyping',
-    progress: 75,
-    color: '#10B981',
   },
   {
     id: '3',
-    title: 'Development',
-    start: new Date('2024-01-21'),
-    end: new Date('2024-02-15'),
-    description: 'Core development and feature implementation',
-    progress: 50,
-    color: '#F59E0B',
+    title: 'Development Sprint 1',
+    start: new Date('2024-01-16T09:00:00Z'),
+    end: new Date('2024-01-30T17:00:00Z'),
+    groupId: 'development',
+    color: '#f59e0b',
+    priority: 'medium',
+    progress: 60,
+    description: 'First development sprint with core features',
   },
   {
     id: '4',
-    title: 'Testing',
-    start: new Date('2024-02-16'),
-    end: new Date('2024-02-28'),
+    title: 'Testing Phase',
+    start: new Date('2024-01-31T09:00:00Z'),
+    end: new Date('2024-02-10T17:00:00Z'),
+    groupId: 'testing',
+    color: '#ef4444',
+    priority: 'medium',
+    progress: 30,
     description: 'Quality assurance and testing',
-    progress: 25,
-    color: '#EF4444',
   },
   {
     id: '5',
-    title: 'Launch',
-    start: new Date('2024-03-01'),
-    end: new Date('2024-03-05'),
-    description: 'Production deployment and launch',
+    title: 'Deployment',
+    start: new Date('2024-02-11T09:00:00Z'),
+    end: new Date('2024-02-15T17:00:00Z'),
+    groupId: 'deployment',
+    color: '#8b5cf6',
+    priority: 'high',
     progress: 0,
-    color: '#8B5CF6',
+    description: 'Production deployment and launch',
   },
 ];
 
 const sampleGroups: TimelineGroup[] = [
   {
     id: 'planning',
-    title: 'Planning Phase',
-    items: sampleItems.slice(0, 2),
-    color: '#3B82F6',
+    title: 'Planning',
+    color: '#3b82f6',
+    collapsed: false,
   },
   {
-    id: 'execution',
-    title: 'Execution Phase',
-    items: sampleItems.slice(2, 4),
-    color: '#10B981',
+    id: 'design',
+    title: 'Design',
+    color: '#10b981',
+    collapsed: false,
   },
   {
-    id: 'delivery',
-    title: 'Delivery Phase',
-    items: sampleItems.slice(4),
-    color: '#8B5CF6',
+    id: 'development',
+    title: 'Development',
+    color: '#f59e0b',
+    collapsed: false,
+  },
+  {
+    id: 'testing',
+    title: 'Testing',
+    color: '#ef4444',
+    collapsed: false,
+  },
+  {
+    id: 'deployment',
+    title: 'Deployment',
+    color: '#8b5cf6',
+    collapsed: false,
   },
 ];
 
+// Basic Timeline
 export const Default: Story = {
   args: {
     items: sampleItems,
-    width: '100%',
-    height: '400px',
+    groups: sampleGroups,
+    height: 400,
+    width: 800,
+    mode: 'horizontal',
+    draggable: true,
+    resizable: true,
+    selectable: true,
   },
 };
 
-export const WithGroups: Story = {
+// Large Timeline
+export const Large: Story = {
   args: {
     items: sampleItems,
     groups: sampleGroups,
-    width: '100%',
-    height: '500px',
-  },
-};
-
-export const Horizontal: Story = {
-  args: {
-    items: sampleItems,
+    height: 600,
+    width: 1200,
     mode: 'horizontal',
-    width: '100%',
-    height: '300px',
+    draggable: true,
+    resizable: true,
+    selectable: true,
   },
 };
 
+// Vertical Timeline
 export const Vertical: Story = {
   args: {
     items: sampleItems,
+    groups: sampleGroups,
+    height: 600,
+    width: 400,
     mode: 'vertical',
-    width: '100%',
-    height: '600px',
-  },
-};
-
-export const Alternating: Story = {
-  args: {
-    items: sampleItems,
-    mode: 'alternating',
-    width: '100%',
-    height: '500px',
-  },
-};
-
-export const Spiral: Story = {
-  args: {
-    items: sampleItems,
-    mode: 'spiral',
-    width: '100%',
-    height: '500px',
-  },
-};
-
-export const Gantt: Story = {
-  args: {
-    items: sampleItems,
-    groups: sampleGroups,
-    mode: 'gantt',
-    width: '100%',
-    height: '400px',
-  },
-};
-
-export const Readonly: Story = {
-  args: {
-    items: sampleItems,
-    groups: sampleGroups,
-    readonly: true,
-    width: '100%',
-    height: '400px',
-  },
-};
-
-export const Interactive: Story = {
-  args: {
-    items: sampleItems,
-    groups: sampleGroups,
-    selectable: true,
-    editable: true,
     draggable: true,
     resizable: true,
-    width: '100%',
-    height: '400px',
+    selectable: true,
   },
 };
 
-export const LargeDataset: Story = {
+// Minimal Timeline
+export const Minimal: Story = {
   args: {
-    items: Array.from({ length: 100 }, (_, i) => ({
-      id: `item-${i}`,
-      title: `Item ${i + 1}`,
-      start: new Date(2024, 0, 1 + i),
-      end: new Date(2024, 0, 2 + i),
-      description: `Description for item ${i + 1}`,
-      progress: Math.floor(Math.random() * 100),
-      color: `hsl(${Math.floor(Math.random() * 360)}, 70%, 50%)`,
-    })),
-    width: '100%',
-    height: '600px',
+    items: sampleItems.slice(0, 2),
+    groups: sampleGroups.slice(0, 2),
+    height: 300,
+    width: 600,
+    mode: 'horizontal',
+    draggable: false,
+    resizable: false,
+    selectable: false,
   },
 };
 
+// Many Items
+export const ManyItems: Story = {
+  args: {
+    items: Array.from({ length: 50 }, (_, i) => ({
+      id: `item-${i}`,
+      title: `Task ${i + 1}`,
+      start: new Date(`2024-01-${(i % 30) + 1}T09:00:00Z`),
+      end: new Date(`2024-01-${(i % 30) + 1}T17:00:00Z`),
+      groupId: `group-${i % 5}`,
+      color: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][i % 5],
+      priority: ['low', 'medium', 'high'][i % 3],
+      progress: Math.floor(Math.random() * 100),
+    })),
+    groups: Array.from({ length: 5 }, (_, i) => ({
+      id: `group-${i}`,
+      title: `Group ${i + 1}`,
+      color: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][i],
+      collapsed: false,
+    })),
+    height: 500,
+    width: 1000,
+    mode: 'horizontal',
+    draggable: true,
+    resizable: true,
+    selectable: true,
+  },
+};
+
+// Custom Theme
 export const CustomTheme: Story = {
   args: {
     items: sampleItems,
     groups: sampleGroups,
+    height: 400,
+    width: 800,
+    mode: 'horizontal',
+    draggable: true,
+    resizable: true,
+    selectable: true,
     theme: {
-      primaryColor: '#FF6B6B',
-      secondaryColor: '#4ECDC4',
-      backgroundColor: '#F8F9FA',
-      itemColor: '#FFE66D',
-      groupColor: '#A8E6CF',
+      colors: {
+        primary: '#ff6b6b',
+        secondary: '#4ecdc4',
+        background: '#f8f9fa',
+        text: '#2c3e50',
+        textSecondary: '#7f8c8d',
+        border: '#e9ecef',
+        success: '#28a745',
+        warning: '#ffc107',
+        error: '#dc3545',
+      },
+      spacing: {
+        xs: 4,
+        sm: 8,
+        md: 16,
+        lg: 24,
+        xl: 32,
+      },
+      typography: {
+        fontFamily: 'Inter, sans-serif',
+        fontSize: {
+          xs: 12,
+          sm: 14,
+          md: 16,
+          lg: 18,
+          xl: 20,
+        },
+        fontWeight: {
+          normal: 400,
+          medium: 500,
+          semibold: 600,
+          bold: 700,
+        },
+      },
+      borderRadius: {
+        sm: 4,
+        md: 8,
+        lg: 12,
+      },
+      shadows: {
+        sm: '0 1px 2px rgba(0, 0, 0, 0.05)',
+        md: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        lg: '0 10px 15px rgba(0, 0, 0, 0.1)',
+      },
     },
-    width: '100%',
-    height: '400px',
   },
 };
 
-export const WithEvents: Story = {
+// Interactive Timeline
+export const Interactive: Story = {
   args: {
     items: sampleItems,
     groups: sampleGroups,
-    onItemClick: (item) => console.log('Item clicked:', item),
-    onItemDoubleClick: (item) => console.log('Item double clicked:', item),
-    onItemHover: (item) => console.log('Item hovered:', item),
-    onSelectionChange: (items, groups) => console.log('Selection changed:', items, groups),
-    onViewportChange: (viewport) => console.log('Viewport changed:', viewport),
-    onZoom: (zoom, center) => console.log('Zoomed:', zoom, center),
-    onPan: (pan) => console.log('Panned:', pan),
-    width: '100%',
-    height: '400px',
+    height: 400,
+    width: 800,
+    mode: 'horizontal',
+    draggable: true,
+    resizable: true,
+    selectable: true,
+    onItemClick: (item) => {
+      console.log('Item clicked:', item);
+    },
+    onItemDoubleClick: (item) => {
+      console.log('Item double-clicked:', item);
+    },
+    onItemHover: (item) => {
+      console.log('Item hovered:', item);
+    },
+    onItemUpdate: (item) => {
+      console.log('Item updated:', item);
+    },
+    onItemDelete: (itemId) => {
+      console.log('Item deleted:', itemId);
+    },
+    onGroupToggle: (group, collapsed) => {
+      console.log('Group toggled:', group, collapsed);
+    },
+    onZoom: (zoom) => {
+      console.log('Zoom changed:', zoom);
+    },
+    onPan: (x, y) => {
+      console.log('Pan changed:', x, y);
+    },
+  },
+};
+
+// Custom Renderers
+export const CustomRenderers: Story = {
+  args: {
+    items: sampleItems,
+    groups: sampleGroups,
+    height: 400,
+    width: 800,
+    mode: 'horizontal',
+    draggable: true,
+    resizable: true,
+    selectable: true,
+    renderItem: (item) => (
+      <div style={{
+        padding: '8px',
+        borderRadius: '4px',
+        backgroundColor: item.color,
+        color: 'white',
+        fontSize: '12px',
+        fontWeight: '500',
+      }}>
+        <div style={{ marginBottom: '4px' }}>{item.title}</div>
+        <div style={{ fontSize: '10px', opacity: 0.8 }}>
+          {item.progress}% complete
+        </div>
+      </div>
+    ),
+    renderTooltip: (item) => (
+      <div style={{
+        padding: '8px',
+        backgroundColor: '#333',
+        color: 'white',
+        borderRadius: '4px',
+        fontSize: '12px',
+      }}>
+        <div style={{ fontWeight: 'bold' }}>{item.title}</div>
+        <div style={{ marginTop: '4px' }}>{item.description}</div>
+        <div style={{ marginTop: '4px', fontSize: '10px' }}>
+          Priority: {item.priority} | Progress: {item.progress}%
+        </div>
+      </div>
+    ),
+  },
+};
+
+// Different Render Modes
+export const CanvasMode: Story = {
+  args: {
+    items: sampleItems,
+    groups: sampleGroups,
+    height: 400,
+    width: 800,
+    mode: 'horizontal',
+    renderMode: 'canvas',
+  },
+};
+
+export const SVGMode: Story = {
+  args: {
+    items: sampleItems,
+    groups: sampleGroups,
+    height: 400,
+    width: 800,
+    mode: 'horizontal',
+    renderMode: 'svg',
+  },
+};
+
+export const WebGLMode: Story = {
+  args: {
+    items: sampleItems,
+    groups: sampleGroups,
+    height: 400,
+    width: 800,
+    mode: 'horizontal',
+    renderMode: 'webgl',
+  },
+};
+
+export const VirtualMode: Story = {
+  args: {
+    items: Array.from({ length: 1000 }, (_, i) => ({
+      id: `item-${i}`,
+      title: `Task ${i + 1}`,
+      start: new Date(`2024-01-${(i % 30) + 1}T09:00:00Z`),
+      end: new Date(`2024-01-${(i % 30) + 1}T17:00:00Z`),
+      groupId: `group-${i % 10}`,
+      color: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][i % 5],
+    })),
+    groups: Array.from({ length: 10 }, (_, i) => ({
+      id: `group-${i}`,
+      title: `Group ${i + 1}`,
+      color: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][i],
+      collapsed: false,
+    })),
+    height: 500,
+    width: 1000,
+    mode: 'horizontal',
+    renderMode: 'virtual',
+  },
+};
+
+export const TouchMode: Story = {
+  args: {
+    items: sampleItems,
+    groups: sampleGroups,
+    height: 400,
+    width: 800,
+    mode: 'horizontal',
+    renderMode: 'touch',
+  },
+};
+
+export const MobileMode: Story = {
+  args: {
+    items: sampleItems,
+    groups: sampleGroups,
+    height: 400,
+    width: 800,
+    mode: 'horizontal',
+    renderMode: 'mobile',
+  },
+};
+
+export const AccessibleMode: Story = {
+  args: {
+    items: sampleItems,
+    groups: sampleGroups,
+    height: 400,
+    width: 800,
+    mode: 'horizontal',
+    renderMode: 'accessible',
+  },
+};
+
+export const CollaborativeMode: Story = {
+  args: {
+    items: sampleItems,
+    groups: sampleGroups,
+    height: 400,
+    width: 800,
+    mode: 'horizontal',
+    renderMode: 'collaborative',
+  },
+};
+
+// Performance Test
+export const PerformanceTest: Story = {
+  args: {
+    items: Array.from({ length: 10000 }, (_, i) => ({
+      id: `item-${i}`,
+      title: `Task ${i + 1}`,
+      start: new Date(`2024-01-${(i % 30) + 1}T09:00:00Z`),
+      end: new Date(`2024-01-${(i % 30) + 1}T17:00:00Z`),
+      groupId: `group-${i % 100}`,
+      color: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][i % 5],
+    })),
+    groups: Array.from({ length: 100 }, (_, i) => ({
+      id: `group-${i}`,
+      title: `Group ${i + 1}`,
+      color: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][i % 5],
+      collapsed: false,
+    })),
+    height: 600,
+    width: 1200,
+    mode: 'horizontal',
+    renderMode: 'virtual',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Performance test with 10,000 items using virtual scrolling.',
+      },
+    },
   },
 };
