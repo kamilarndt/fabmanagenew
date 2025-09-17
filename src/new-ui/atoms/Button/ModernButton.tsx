@@ -39,7 +39,7 @@ const ModernButton = React.forwardRef<HTMLButtonElement, ModernButtonProps>(
             "btn-secondary": variant === "secondary",
             "btn-ghost": variant === "ghost",
             "btn-destructive": variant === "destructive",
-            "btn-secondary": variant === "outline",
+            "btn-outline": variant === "outline",
           },
           {
             "btn-sm": size === "sm",

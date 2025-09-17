@@ -15,7 +15,14 @@
     "build-storybook": "storybook build",
     "tokens:process": "node scripts/process-figma-tokens.js",
     "tokens:validate": "node scripts/validate-tokens.js",
-    "tokens:sync": "npm run tokens:process && npm run tokens:validate"
+    "tokens:sync": "npm run tokens:process && npm run tokens:validate",
+    "figma:export": "node scripts/export-to-figma.mjs",
+    "figma:import": "npm run figma:export && echo 'Import the generated files to Figma'",
+    "figma:sync": "node scripts/sync-with-figma.mjs",
+    "figma:sync:from": "node scripts/sync-with-figma.mjs from-figma",
+    "figma:sync:to": "node scripts/sync-with-figma.mjs to-figma",
+    "figma:sync:full": "node scripts/sync-with-figma.mjs full",
+    "figma:status": "node scripts/sync-with-figma.mjs status"
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.2",

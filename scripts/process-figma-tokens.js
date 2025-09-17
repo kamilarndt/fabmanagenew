@@ -123,6 +123,18 @@ function extractColors(tokens, allTokens) {
     });
   }
 
+  // Sidebar colors
+  if (tokens.sidebar) {
+    colors.sidebar = {};
+    Object.entries(tokens.sidebar).forEach(([key, token]) => {
+      if (token.default) {
+        colors.sidebar[key] = resolveTokenValue(token.default.value, allTokens);
+      } else if (token.value) {
+        colors.sidebar[key] = resolveTokenValue(token.value, allTokens);
+      }
+    });
+  }
+
   return colors;
 }
 

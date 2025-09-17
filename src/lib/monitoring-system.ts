@@ -489,8 +489,8 @@ export class MonitoringSystem {
    * Determine trend for metric
    */
   private determineTrend(
-    metric: string,
-    currentValue: number
+    _metric: string,
+    _currentValue: number
   ): PerformanceAlert["trend"] {
     // Simulate trend determination
     const trend = Math.random();

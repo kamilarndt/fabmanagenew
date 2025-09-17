@@ -1,6 +1,7 @@
 import { Button } from "@/new-ui/atoms/Button/Button";
 import { Icon } from "@/new-ui/atoms/Icon/Icon";
 import { cn } from "@/new-ui/utils/cn";
+import { Link, useLocation } from "react-router-dom";
 import * as React from "react";
 
 export interface SidebarItem {
@@ -34,6 +35,7 @@ export function Sidebar({
   header,
   footer,
 }: SidebarProps): React.ReactElement {
+  const location = useLocation();
   const [expandedItems, setExpandedItems] = React.useState<Set<string>>(
     new Set()
   );
@@ -55,38 +57,58 @@ export function Sidebar({
   };
 
   const renderItem = (item: SidebarItem, level = 0) => {
-    const isActive = activeItem === item.id;
+    const isActive = activeItem === item.id || (item.href && location.pathname === item.href);
     const isExpanded = expandedItems.has(item.id);
     const hasChildren = item.children && item.children.length > 0;
 
+    const itemContent = (
+      <>
+        {item.icon && <Icon name={item.icon} className="tw-h-4 tw-w-4" />}
+        {!collapsed && (
+          <>
+            <span className="tw-flex-1">{item.label}</span>
+            {item.badge && (
+              <span className="tw-rounded-full tw-bg-primary tw-px-2 tw-py-0.5 tw-text-xs tw-text-primary-foreground">
+                {item.badge}
+              </span>
+            )}
+            {hasChildren && (
+              <Icon
+                name={isExpanded ? "chevron-down" : "chevron-right"}
+                className="tw-h-4 tw-w-4"
+              />
+            )}
+          </>
+        )}
+      </>
+    );
+
     return (
       <div key={item.id} className="tw-space-y-1">
-        <button
-          onClick={() => handleItemClick(item)}
-          className={cn(
-            "tw-flex tw-w-full tw-items-center tw-gap-2 tw-rounded-md tw-px-3 tw-py-2 tw-text-left tw-text-sm tw-transition-colors hover:tw-bg-accent hover:tw-text-accent-foreground",
-            isActive && "tw-bg-accent tw-text-accent-foreground",
-            level > 0 && "tw-pl-6"
-          )}
-        >
-          {item.icon && <Icon name={item.icon} className="tw-h-4 tw-w-4" />}
-          {!collapsed && (
-            <>
-              <span className="tw-flex-1">{item.label}</span>
-              {item.badge && (
-                <span className="tw-rounded-full tw-bg-primary tw-px-2 tw-py-0.5 tw-text-xs tw-text-primary-foreground">
-                  {item.badge}
-                </span>
-              )}
-              {hasChildren && (
-                <Icon
-                  name={isExpanded ? "chevron-down" : "chevron-right"}
-                  className="tw-h-4 tw-w-4"
-                />
-              )}
-            </>
-          )}
-        </button>
+        {item.href ? (
+          <Link
+            to={item.href}
+            onClick={() => handleItemClick(item)}
+            className={cn(
+              "tw-flex tw-w-full tw-items-center tw-gap-2 tw-rounded-md tw-px-3 tw-py-2 tw-text-left tw-text-sm tw-transition-colors",
+              isActive ? "tw-bg-sidebar-primary tw-text-sidebar-primary-foreground" : "tw-text-sidebar-foreground hover:tw-bg-sidebar-accent hover:tw-text-sidebar-accent-foreground",
+              level > 0 && "tw-pl-6"
+            )}
+          >
+            {itemContent}
+          </Link>
+        ) : (
+          <button
+            onClick={() => handleItemClick(item)}
+            className={cn(
+              "tw-flex tw-w-full tw-items-center tw-gap-2 tw-rounded-md tw-px-3 tw-py-2 tw-text-left tw-text-sm tw-transition-colors",
+              isActive ? "tw-bg-sidebar-primary tw-text-sidebar-primary-foreground" : "tw-text-sidebar-foreground hover:tw-bg-sidebar-accent hover:tw-text-sidebar-accent-foreground",
+              level > 0 && "tw-pl-6"
+            )}
+          >
+            {itemContent}
+          </button>
+        )}
 
         {hasChildren && isExpanded && !collapsed && (
           <div className="tw-space-y-1">
@@ -100,22 +122,27 @@ export function Sidebar({
   return (
     <div
       className={cn(
-        "tw-flex tw-h-full tw-flex-col tw-border-r tw-bg-background",
+        "tw-flex tw-h-full tw-flex-col tw-border-r tw-bg-sidebar tw-border-sidebar-border",
         collapsed ? "tw-w-16" : "tw-w-64",
         className
       )}
+      data-testid="sidebar"
     >
       {/* Header */}
-      {header && <div className="tw-border-b tw-p-4">{header}</div>}
+      {header && (
+        <div className="tw-border-b tw-border-sidebar-border tw-p-4">
+          {header}
+        </div>
+      )}
 
       {/* Toggle Button */}
       {onToggleCollapse && (
-        <div className="tw-border-b tw-p-2">
+        <div className="tw-border-b tw-border-sidebar-border tw-p-2">
           <Button
             variant="ghost"
             size="icon"
             onClick={onToggleCollapse}
-            className="tw-w-full"
+            className="tw-w-full tw-text-sidebar-foreground hover:tw-bg-sidebar-accent hover:tw-text-sidebar-accent-foreground"
           >
             <Icon
               name={collapsed ? "chevron-right" : "chevron-left"}
@@ -131,7 +158,11 @@ export function Sidebar({
       </nav>
 
       {/* Footer */}
-      {footer && <div className="tw-border-t tw-p-4">{footer}</div>}
+      {footer && (
+        <div className="tw-border-t tw-border-sidebar-border tw-p-4">
+          {footer}
+        </div>
+      )}
     </div>
   );
 }

@@ -13,6 +13,15 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        // Sidebar colors - use CSS variables for dynamic theming
+        "sidebar": "var(--color-sidebar-DEFAULT)",
+        "sidebar-foreground": "var(--color-sidebar-foreground)",
+        "sidebar-primary": "var(--color-sidebar-primary)",
+        "sidebar-primary-foreground": "var(--color-sidebar-primary-foreground)",
+        "sidebar-accent": "var(--color-sidebar-accent)",
+        "sidebar-accent-foreground": "var(--color-sidebar-accent-foreground)",
+        "sidebar-border": "var(--color-sidebar-border)",
+        "sidebar-ring": "var(--color-sidebar-ring)",
       },
       spacing: tailwindTokens.spacing,
       borderRadius: {

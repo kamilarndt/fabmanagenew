@@ -1,84 +1,63 @@
-// Tailwind CSS configuration extension for redesigned OKLCH design tokens
-// Modern color system with better perceptual uniformity
+// Tailwind CSS configuration extension for Figma design tokens
+// Add this to your tailwind.config.js extend section
 
 export const tailwindTokens = {
   colors: {
-    foreground: "oklch(0.141 0.005 285.823)",
-    background: "oklch(1 0 0)",
-    card: "oklch(1 0 0)",
-    "card-foreground": "oklch(0.141 0.005 285.823)",
-    popover: "oklch(1 0 0)",
-    "popover-foreground": "oklch(0.141 0.005 285.823)",
-    primary: {
-      DEFAULT: "oklch(0.723 0.219 149.579)",
-      foreground: "oklch(0.982 0.018 155.826)",
+    "foreground": "#fafafaff",
+    "background": "#09090bff",
+    "card": "#09090bff",
+    "popover": "#09090bff",
+    "primary": {
+        "DEFAULT": "#fafafaff",
+        "foreground": "#18181bff"
     },
-    secondary: {
-      DEFAULT: "oklch(0.967 0.001 286.375)",
-      foreground: "oklch(0.21 0.006 285.885)",
+    "secondary": {
+        "DEFAULT": "#27272aff",
+        "foreground": "#f4f4f5ff"
     },
-    destructive: {
-      DEFAULT: "oklch(0.577 0.245 27.325)",
-      foreground: "oklch(0.982 0.018 155.826)",
+    "destructive": {
+        "DEFAULT": "#991b1bff",
+        "foreground": "#7f1d1dff"
     },
-    success: {
-      DEFAULT: "oklch(0.696 0.17 162.48)",
-      foreground: "oklch(0.982 0.018 155.826)",
+    "success": {
+        "DEFAULT": "#065f46ff",
+        "foreground": "#059669ff"
     },
-    warning: {
-      DEFAULT: "oklch(0.646 0.222 41.116)",
-      foreground: "oklch(0.982 0.018 155.826)",
+    "warning": {
+        "DEFAULT": "#eab308ff",
+        "foreground": "#ca8a04ff"
     },
-    muted: {
-      DEFAULT: "oklch(0.967 0.001 286.375)",
-      foreground: "oklch(0.552 0.016 285.938)",
+    "muted": {
+        "DEFAULT": "#27272aff",
+        "foreground": "#a1a1aaff"
     },
-    accent: {
-      DEFAULT: "oklch(0.967 0.001 286.375)",
-      foreground: "oklch(0.21 0.006 285.885)",
+    "accent": {
+        "DEFAULT": "#27272aff",
+        "foreground": "#fafafaff"
     },
-    border: "oklch(0.92 0.004 286.32)",
-    input: "oklch(0.92 0.004 286.32)",
-    ring: "oklch(0.723 0.219 149.579)",
-    chart: {
-      "1": "oklch(0.646 0.222 41.116)",
-      "2": "oklch(0.6 0.118 184.704)",
-      "3": "oklch(0.398 0.07 227.392)",
-      "4": "oklch(0.828 0.189 84.429)",
-      "5": "oklch(0.769 0.188 70.08)",
-    },
-    sidebar: {
-      DEFAULT: "oklch(0.985 0 0)",
-      foreground: "oklch(0.141 0.005 285.823)",
-      primary: "oklch(0.723 0.219 149.579)",
-      "primary-foreground": "oklch(0.982 0.018 155.826)",
-      accent: "oklch(0.967 0.001 286.375)",
-      "accent-foreground": "oklch(0.21 0.006 285.885)",
-      border: "oklch(0.92 0.004 286.32)",
-      ring: "oklch(0.723 0.219 149.579)",
-    },
-  },
+    "border": "#3f3f46ff",
+    "input": "#3f3f46ff"
+},
   spacing: {
-    none: "0px",
-    xxs: "2px",
-    xs: "4px",
-    sm: "8px",
-    md: "12px",
-    lg: "16px",
-    xl: "24px",
-    xxl: "32px",
+    "none": "0px",
+    "xxs": "2px",
+    "xs": "4px",
+    "sm": "8px",
+    "md": "12px",
+    "lg": "16px",
+    "xl": "24px",
+    "xxl": "32px",
     "3xl": "40px",
-    "4xl": "48px",
-  },
+    "4xl": "40px"
+},
   borderRadius: {
-    none: "0px",
-    xs: "2px",
-    sm: "4px",
-    md: "8px",
-    lg: "12px",
-    xl: "16px",
-    xxl: "24px",
-    full: "400px",
-    default: "0.65rem",
-  },
+    "none": "0px",
+    "xs": "2px",
+    "sm": "4px",
+    "md": "8px",
+    "lg": "12px",
+    "xl": "16px",
+    "xxl": "24px",
+    "full": "400px"
+},
 };

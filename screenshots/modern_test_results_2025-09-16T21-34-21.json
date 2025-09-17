@@ -1,0 +1,12 @@
+{
+  "baseUrl": "http://localhost:5174",
+  "timestamp": "2025-09-16T21-34-21",
+  "tests": [
+    {
+      "test": "error",
+      "status": "error",
+      "error": "page.waitForTimeout is not a function"
+    }
+  ],
+  "screenshots": []
+}

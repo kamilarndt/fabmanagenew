@@ -49,7 +49,7 @@ const ModernBadge = React.forwardRef<HTMLDivElement, ModernBadgeProps>(
               "bg-warning-600": variant === "warning",
               "bg-error-600": variant === "error",
               "bg-info-600": variant === "info",
-              "bg-primary-600": variant === "outline",
+              "bg-outline-600": variant === "outline",
             })}
           />
         )}

@@ -45,8 +45,14 @@ const MaterialsV2 = lazy(() => import("./pages/v2/MaterialsV2"));
 const TilesV2 = lazy(() => import("./pages/v2/TilesV2"));
 const SettingsV2 = lazy(() => import("./pages/v2/SettingsV2"));
 
+// Modern UI Layout
+const ModernLayout = lazy(() => import("./new-ui/layouts/ModernLayout"));
+
 // Modern UI Pages
 const ModernDashboard = lazy(() => import("./new-ui/pages/ModernDashboard"));
+const ModernProjects = lazy(() => import("./new-ui/pages/ModernProjects"));
+const ModernMaterials = lazy(() => import("./new-ui/pages/ModernMaterials"));
+const ModernSettings = lazy(() => import("./new-ui/pages/ModernSettings"));
 
 // Migration Dashboard
 const MigrationDashboard = lazy(() => import("./pages/MigrationDashboard"));
@@ -87,34 +93,31 @@ function App() {
       <DndProvider backend={HTML5Backend}>
         <Suspense fallback={<PageLoading />}>
           <Routes>
-            {/* Routes with Branded Layout */}
-            <Route path="/" element={<BrandedLayout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="projects" element={<Projects />} />
-              <Route path="projects/new" element={<AddProject />} />
-              <Route path="projekty" element={<Projects />} />
-              <Route path="projekty/nowy" element={<AddProject />} />
-              <Route path="project/:id" element={<Projekt />} />
-              <Route path="projekt/:id" element={<Projekt />} />
-              <Route path="projektowanie" element={<Projektowanie />} />
-              <Route path="cnc" element={<CNC />} />
-              <Route path="produkcja" element={<Produkcja />} />
-              <Route path="magazyn">
-                <Route index element={<MagazynDashboard />} />
-                <Route path="lista" element={<Magazyn />} />
-              </Route>
-              <Route path="kafelki" element={<Tiles />} />
-              <Route path="designer" element={<DesignerDashboard />} />
-              <Route path="calendar" element={<CalendarPage />} />
-              <Route path="calendar/projects" element={<CalendarProjects />} />
+            {/* Routes with Modern Layout */}
+            <Route path="/" element={<ModernLayout />}>
+              <Route index element={<ModernDashboard />} />
+              <Route path="projects" element={<ModernProjects />} />
+              <Route path="projects/new" element={<ModernProjects />} />
+              <Route path="projekty" element={<ModernProjects />} />
+              <Route path="projekty/nowy" element={<ModernProjects />} />
+              <Route path="project/:id" element={<ModernProjects />} />
+              <Route path="projekt/:id" element={<ModernProjects />} />
+              <Route path="projektowanie" element={<ModernProjects />} />
+              <Route path="cnc" element={<ModernProjects />} />
+              <Route path="produkcja" element={<ModernProjects />} />
+              <Route path="magazyn" element={<ModernMaterials />} />
+              <Route path="kafelki" element={<ModernProjects />} />
+              <Route path="designer" element={<ModernProjects />} />
+              <Route path="calendar" element={<ModernProjects />} />
+              <Route path="calendar/projects" element={<ModernProjects />} />
               <Route
                 path="calendar/designers"
-                element={<CalendarDesigners />}
+                element={<ModernProjects />}
               />
-              <Route path="calendar/teams" element={<CalendarTeams />} />
-              <Route path="subcontractors" element={<Subcontractors />} />
-              <Route path="demands" element={<Demands />} />
-              <Route path="settings" element={<Settings />} />
+              <Route path="calendar/teams" element={<ModernProjects />} />
+              <Route path="subcontractors" element={<ModernProjects />} />
+              <Route path="demands" element={<ModernProjects />} />
+              <Route path="settings" element={<ModernSettings />} />
               <Route path="migration" element={<MigrationDashboard />} />
             </Route>
 
@@ -153,7 +156,12 @@ function App() {
             )}
 
             {/* Modern UI Routes - Latest Design */}
-            <Route path="/modern" element={<ModernDashboard />} />
+            <Route path="/modern" element={<ModernLayout />}>
+              <Route index element={<ModernDashboard />} />
+              <Route path="projects" element={<ModernProjects />} />
+              <Route path="materials" element={<ModernMaterials />} />
+              <Route path="settings" element={<ModernSettings />} />
+            </Route>
           </Routes>
         </Suspense>
       </DndProvider>

@@ -58,9 +58,20 @@ export function Icon({
     // Objects
     square: "⬜",
     circle: "⭕",
-    package: "📦",
     "dollar-sign": "$",
     activity: "📊",
+
+    // Sidebar Icons (z Figmy)
+    house: "🏠",
+    files: "📁",
+    users: "👥",
+    "calendar-days": "📅",
+    "pencil-ruler": "📏",
+    drill: "🔧",
+    factory: "🏭",
+    warehouse: "🏪",
+    "hard-hat": "⛑️",
+    package: "📦",
   };
 
   const iconContent = iconMap[name] || "?";

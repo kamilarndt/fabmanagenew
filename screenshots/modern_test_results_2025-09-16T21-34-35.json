@@ -1,0 +1,21 @@
+{
+  "baseUrl": "http://localhost:5174",
+  "timestamp": "2025-09-16T21-34-35",
+  "tests": [
+    {
+      "test": "modern_dashboard",
+      "status": "success",
+      "title": "Dashboard",
+      "statsCards": 4,
+      "projectCards": 3
+    },
+    {
+      "test": "error",
+      "status": "error",
+      "error": "SyntaxError: Failed to execute 'querySelectorAll' on 'Document': 'button:has-text(\"Active\"), button:has-text(\"Planning\"), button:has-text(\"Completed\")' is not a valid selector."
+    }
+  ],
+  "screenshots": [
+    "modern_dashboard_2025-09-16T21-34-35.png"
+  ]
+}

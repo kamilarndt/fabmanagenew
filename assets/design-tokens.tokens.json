@@ -1566,6 +1566,128 @@
           }
         }
       }
+    },
+    "sidebar": {
+      "DEFAULT": {
+        "default": {
+          "description": "Sidebar background color",
+          "type": "color",
+          "value": "#141414",
+          "extensions": {
+            "org.lukasoppermann.figmaDesignTokens": {
+              "collection": "Tokens",
+              "scopes": ["FRAME_FILL"],
+              "variableId": "VariableID:999:1",
+              "exportKey": "variables"
+            }
+          }
+        }
+      },
+      "foreground": {
+        "default": {
+          "description": "Sidebar foreground color",
+          "type": "color",
+          "value": "#fafafa",
+          "extensions": {
+            "org.lukasoppermann.figmaDesignTokens": {
+              "collection": "Tokens",
+              "scopes": ["TEXT_FILL"],
+              "variableId": "VariableID:999:2",
+              "exportKey": "variables"
+            }
+          }
+        }
+      },
+      "primary": {
+        "default": {
+          "description": "Sidebar primary color",
+          "type": "color",
+          "value": "#f2f2f2",
+          "extensions": {
+            "org.lukasoppermann.figmaDesignTokens": {
+              "collection": "Tokens",
+              "scopes": ["FRAME_FILL"],
+              "variableId": "VariableID:999:3",
+              "exportKey": "variables"
+            }
+          }
+        }
+      },
+      "primary-foreground": {
+        "default": {
+          "description": "Sidebar primary foreground color",
+          "type": "color",
+          "value": "#18181b",
+          "extensions": {
+            "org.lukasoppermann.figmaDesignTokens": {
+              "collection": "Tokens",
+              "scopes": ["TEXT_FILL"],
+              "variableId": "VariableID:999:4",
+              "exportKey": "variables"
+            }
+          }
+        }
+      },
+      "accent": {
+        "default": {
+          "description": "Sidebar accent color",
+          "type": "color",
+          "value": "#27272a",
+          "extensions": {
+            "org.lukasoppermann.figmaDesignTokens": {
+              "collection": "Tokens",
+              "scopes": ["FRAME_FILL"],
+              "variableId": "VariableID:999:5",
+              "exportKey": "variables"
+            }
+          }
+        }
+      },
+      "accent-foreground": {
+        "default": {
+          "description": "Sidebar accent foreground color",
+          "type": "color",
+          "value": "#fafafa",
+          "extensions": {
+            "org.lukasoppermann.figmaDesignTokens": {
+              "collection": "Tokens",
+              "scopes": ["TEXT_FILL"],
+              "variableId": "VariableID:999:6",
+              "exportKey": "variables"
+            }
+          }
+        }
+      },
+      "border": {
+        "default": {
+          "description": "Sidebar border color",
+          "type": "color",
+          "value": "#3f3f46",
+          "extensions": {
+            "org.lukasoppermann.figmaDesignTokens": {
+              "collection": "Tokens",
+              "scopes": ["STROKE_COLOR"],
+              "variableId": "VariableID:999:7",
+              "exportKey": "variables"
+            }
+          }
+        }
+      },
+      "ring": {
+        "default": {
+          "description": "Sidebar ring color",
+          "type": "color",
+          "value": "#fafafa",
+          "extensions": {
+            "org.lukasoppermann.figmaDesignTokens": {
+              "collection": "Tokens",
+              "scopes": ["STROKE_COLOR"],
+              "variableId": "VariableID:999:8",
+              "exportKey": "variables"
+            }
+          }
+        }
+      }
     }
   },
   "primitives": {

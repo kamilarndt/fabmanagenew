@@ -1,0 +1,29 @@
+{
+  "baseUrl": "http://localhost:5174",
+  "timestamp": "2025-09-16T21-34-57",
+  "tests": [
+    {
+      "test": "modern_dashboard",
+      "status": "success",
+      "title": "Dashboard",
+      "statsCards": 4,
+      "projectCards": 3
+    },
+    {
+      "test": "modern_projects",
+      "status": "success",
+      "title": "Projects",
+      "hasSearch": true,
+      "filterButtons": 26
+    },
+    {
+      "test": "error",
+      "status": "error",
+      "error": "Error: failed to find element matching selector \"h1\""
+    }
+  ],
+  "screenshots": [
+    "modern_dashboard_2025-09-16T21-34-57.png",
+    "modern_projects_2025-09-16T21-34-57.png"
+  ]
+}
