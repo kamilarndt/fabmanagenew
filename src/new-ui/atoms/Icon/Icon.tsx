@@ -13,9 +13,9 @@ export function Icon({
   size = "md",
 }: IconProps): React.ReactElement {
   const sizeClasses = {
-    sm: "tw-h-3 tw-w-3",
-    md: "tw-h-4 tw-w-4",
-    lg: "tw-h-6 tw-w-6",
+    sm: "h-3 w-3",
+    md: "h-4 w-4",
+    lg: "h-6 w-6",
   };
 
   // Simple icon mapping - in a real app, you'd use a proper icon library like Lucide React
@@ -81,6 +81,10 @@ export function Icon({
     "arrow-trending-down": "📉",
     cog: "⚙️",
     "shopping-cart": "🛒",
+
+    // Theme Icons
+    sun: "☀️",
+    moon: "🌙",
   };
 
   const iconContent = iconMap[name] || "?";

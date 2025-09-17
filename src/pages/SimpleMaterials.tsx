@@ -1,8 +1,10 @@
-import { PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Space, Table, Typography } from "antd";
 import React, { useState } from "react";
-
-const { Title } = Typography;
+import { Plus } from "lucide-react";
+import { Button } from "../new-ui/atoms/Button/Button";
+import { Card } from "../new-ui/molecules/Card/Card";
+import { Space } from "../new-ui/atoms/Space/Space";
+import { Table } from "../new-ui/molecules/Table/Table";
+import { Typography } from "../new-ui/atoms/Typography/Typography";
 
 // Mock data
 const mockMaterials = [
@@ -33,6 +35,24 @@ const mockMaterials = [
     inventory_level: 50,
     supplier: "TimberCo",
   },
+  {
+    id: "4",
+    code: "MAT004",
+    name: "Aluminum Sheet",
+    category: "Metal",
+    unit_price: 80.0,
+    inventory_level: 15,
+    supplier: "MetalWorks",
+  },
+  {
+    id: "5",
+    code: "MAT005",
+    name: "Glass Panel",
+    category: "Glass",
+    unit_price: 120.0,
+    inventory_level: 8,
+    supplier: "GlassCorp",
+  },
 ];
 
 const SimpleMaterials: React.FC = () => {
@@ -61,7 +81,7 @@ const SimpleMaterials: React.FC = () => {
       render: (price: number) => `$${price.toFixed(2)}`,
     },
     {
-      title: "Stock",
+      title: "Inventory",
       dataIndex: "inventory_level",
       key: "inventory_level",
     },
@@ -70,50 +90,25 @@ const SimpleMaterials: React.FC = () => {
       dataIndex: "supplier",
       key: "supplier",
     },
-    {
-      title: "Actions",
-      key: "actions",
-      render: () => (
-        <Space>
-          <Button size="small">Edit</Button>
-          <Button size="small" danger>
-            Delete
-          </Button>
-        </Space>
-      ),
-    },
   ];
 
   return (
-    <div style={{ padding: "24px" }}>
-      <Card>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "16px",
-          }}
-        >
-          <Title level={2} style={{ margin: 0 }}>
-            Materials Management
-          </Title>
-          <Button type="primary" icon={<PlusOutlined />}>
-            Add Material
-          </Button>
-        </div>
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <Typography.Title level={2} className="mb-0">
+          Materials Management
+        </Typography.Title>
+        <Button variant="primary" icon={<Plus />}>
+          Add Material
+        </Button>
+      </div>
 
+      <Card>
         <Table
           columns={columns}
           dataSource={materials}
           rowKey="id"
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} items`,
-          }}
+          pagination={{ pageSize: 10 }}
         />
       </Card>
     </div>

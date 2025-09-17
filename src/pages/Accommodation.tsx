@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Table, Button, Input, Select, Modal, Form, InputNumber, message, Space, Tag, DatePicker, Image } from 'antd';
-import { PlusOutlined, SearchOutlined, BuildOutlined, HomeOutlined, CalendarOutlined, StarOutlined } from '@ant-design/icons';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Plus, Search, Building, Home, Calendar, Star } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { useAccommodationStore } from '../stores/accommodationStore';
 import { Hotel, Room, Booking, BookingSearch } from '../types/accommodation.types';
-
-const { Search } = Input;
-const { Option } = Select;
-const { RangePicker } = DatePicker;
 
 const Accommodation: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,7 +26,24 @@ const Accommodation: React.FC = () => {
     guests: 1,
     rooms: 1,
   });
-  const [form] = Form.useForm();
+
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      city: '',
+      address: '',
+      description: '',
+      rating: 0,
+      price_per_night: 0,
+      amenities: '',
+      room_type: '',
+      capacity: 1,
+      check_in: '',
+      check_out: '',
+      guests: 1,
+      rooms: 1
+    }
+  });
   
   const {
     hotels,
@@ -66,9 +89,9 @@ const Accommodation: React.FC = () => {
   const handleDelete = async (item: any, deleteFn: (id: string) => Promise<void>) => {
     try {
       await deleteFn(item.id);
-      message.success('Item deleted successfully');
+      toast.success('Item deleted successfully');
     } catch (error) {
-      message.error('Failed to delete item');
+      toast.error('Failed to delete item');
     }
   };
   
@@ -78,31 +101,31 @@ const Accommodation: React.FC = () => {
         const updateFn = activeTab === 'hotels' ? updateHotel : 
                         activeTab === 'rooms' ? updateRoom : updateBooking;
         await updateFn(editingItem.id, values);
-        message.success('Item updated successfully');
+        toast.success('Item updated successfully');
       } else {
         const addFn = activeTab === 'hotels' ? addHotel : 
                      activeTab === 'rooms' ? addRoom : addBooking;
         await addFn(values);
-        message.success('Item added successfully');
+        toast.success('Item added successfully');
       }
       setIsModalOpen(false);
-      form.resetFields();
+      form.reset();
     } catch (error) {
-      message.error('Failed to save item');
+      toast.error('Failed to save item');
     }
   };
   
   const handleSearch = async () => {
     if (!searchParams.city || !searchParams.check_in || !searchParams.check_out) {
-      message.warning('Please fill in all search parameters');
+      toast.warning('Please fill in all search parameters');
       return;
     }
     
     try {
       await searchHotels(searchParams);
-      message.success('Search completed');
+      toast.success('Search completed');
     } catch (error) {
-      message.error('Search failed');
+      toast.error('Search failed');
     }
   };
   
@@ -124,9 +147,9 @@ const Accommodation: React.FC = () => {
       };
       
       await bookHotel(bookingData);
-      message.success('Booking created successfully');
+      toast.success('Booking created successfully');
     } catch (error) {
-      message.error('Failed to create booking');
+      toast.error('Failed to create booking');
     }
   };
   

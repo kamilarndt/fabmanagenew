@@ -1,6 +1,21 @@
-import React from "react";
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  useDroppable,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import React from "react";
 import { Button } from "../../new-ui/atoms/Button/Button";
 import { Space } from "../../new-ui/atoms/Space/Space";
 import { Tag } from "../../new-ui/atoms/Tag/Tag";
@@ -30,66 +45,57 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   onEditTile,
   onDeleteTile,
 }) => {
-  return (
-    <Droppable droppableId={status}>
-      {(provided, snapshot) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.droppableProps}
-          style={{
-            minHeight: "500px",
-            backgroundColor: snapshot.isDraggingOver ? "#e6f7ff" : "#f5f5f5",
-            borderRadius: "8px",
-            padding: "16px",
-            margin: "0 8px",
-            flex: 1,
-            transition: "background-color 0.2s ease",
-          }}
-        >
-          <div
-            style={{ marginBottom: "16px", display: "flex", alignItems: "center" }}
-          >
-            <div
-              style={{
-                width: "12px",
-                height: "12px",
-                backgroundColor: color,
-                borderRadius: "50%",
-                marginRight: "8px",
-              }}
-            />
-            <Title level={5} style={{ margin: 0 }}>
-              {title} ({tiles.length})
-            </Title>
-          </div>
+  const { setNodeRef, isOver } = useDroppable({
+    id: status,
+  });
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {tiles.map((tile, index) => (
-              <Draggable key={tile.id} draggableId={tile.id} index={index}>
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    style={{
-                      ...provided.draggableProps.style,
-                      opacity: snapshot.isDragging ? 0.8 : 1,
-                    }}
-                  >
-                    <TileCard
-                      tile={tile}
-                      onEdit={onEditTile}
-                      onDelete={onDeleteTile}
-                    />
-                  </div>
-                )}
-              </Draggable>
-            ))}
-            {provided.placeholder}
-          </div>
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        minHeight: "500px",
+        backgroundColor: isOver ? "#e6f7ff" : "#f5f5f5",
+        borderRadius: "8px",
+        padding: "16px",
+        margin: "0 8px",
+        flex: 1,
+        border: isOver ? "2px dashed #1890ff" : "2px solid transparent",
+        transition: "all 0.2s ease",
+      }}
+    >
+      <div
+        style={{ marginBottom: "16px", display: "flex", alignItems: "center" }}
+      >
+        <div
+          style={{
+            width: "12px",
+            height: "12px",
+            backgroundColor: color,
+            borderRadius: "50%",
+            marginRight: "8px",
+          }}
+        />
+        <Title level={5} style={{ margin: 0 }}>
+          {title} ({tiles.length})
+        </Title>
+      </div>
+
+      <SortableContext
+        items={tiles.map((tile) => tile.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {tiles.map((tile) => (
+            <SortableTileCard
+              key={tile.id}
+              tile={tile}
+              onEdit={onEditTile}
+              onDelete={onDeleteTile}
+            />
+          ))}
         </div>
-      )}
-    </Droppable>
+      </SortableContext>
+    </div>
   );
 };
 
@@ -98,6 +104,33 @@ interface TileCardProps {
   onEdit: (tile: Tile) => void;
   onDelete: (tileId: string) => void;
 }
+
+const SortableTileCard: React.FC<TileCardProps> = ({
+  tile,
+  onEdit,
+  onDelete,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: tile.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <TileCard tile={tile} onEdit={onEdit} onDelete={onDelete} />
+    </div>
+  );
+};
 
 const TileCard: React.FC<TileCardProps> = ({ tile, onEdit, onDelete }) => {
   const getPriorityColor = (priority: string) => {
@@ -231,6 +264,14 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
   onDeleteTile,
 }) => {
   const { tiles, moveTile } = useTilesStore();
+  const [activeId, setActiveId] = React.useState<string | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
 
   const columns = [
     { id: "backlog" as TileStatus, title: "Backlog", color: "#8c8c8c" },
@@ -253,29 +294,43 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
     }
   };
 
-  const onDragEnd = (result: DropResult) => {
-    const { destination, source, draggableId } = result;
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
 
-    // If dropped outside a valid drop zone
-    if (!destination) {
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveId(null);
+
+    if (!over) {
       return;
     }
 
-    // If dropped in the same position
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
-      return;
-    }
+    const activeId = active.id as string;
+    const overId = over.id as string;
 
-    // Move the tile to the new status
-    const newStatus = destination.droppableId as TileStatus;
-    handleMoveTile(draggableId, newStatus);
+    // Find the tile and its current status
+    const tile = tiles.find((t) => t.id === activeId);
+    if (!tile) return;
+
+    // Find the target column based on the over element
+    const targetColumn = columns.find(
+      (col) =>
+        overId === col.id ||
+        getTilesByStatus(col.id).some((t) => t.id === overId)
+    );
+
+    if (targetColumn && tile.status !== targetColumn.id) {
+      handleMoveTile(activeId, targetColumn.id);
+    }
   };
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
       <div style={{ display: "flex", overflowX: "auto", padding: "16px 0" }}>
         {columns.map((column) => (
           <KanbanColumn
@@ -290,7 +345,16 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
           />
         ))}
       </div>
-    </DragDropContext>
+      <DragOverlay>
+        {activeId ? (
+          <TileCard
+            tile={tiles.find((t) => t.id === activeId)!}
+            onEdit={onEditTile}
+            onDelete={onDeleteTile}
+          />
+        ) : null}
+      </DragOverlay>
+    </DndContext>
   );
 };
 

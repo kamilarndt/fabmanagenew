@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { fetchWithMockFallback, mockData } from "../lib/api";
 import type {
   Driver,
   RouteOptimization,
@@ -69,8 +70,10 @@ export const useLogisticsStore = create<LogisticsState>()(
       });
 
       try {
-        const response = await fetch("/api/logistics/routes");
-        const routes = await response.json();
+        const routes = await fetchWithMockFallback(
+          "/api/logistics/routes",
+          mockData.logistics.routes
+        );
 
         set((state) => {
           state.routes = routes;
@@ -140,8 +143,10 @@ export const useLogisticsStore = create<LogisticsState>()(
 
     fetchVehicles: async () => {
       try {
-        const response = await fetch("/api/logistics/vehicles");
-        const vehicles = await response.json();
+        const vehicles = await fetchWithMockFallback(
+          "/api/logistics/vehicles",
+          mockData.logistics.vehicles
+        );
 
         set((state) => {
           state.vehicles = vehicles;
@@ -209,8 +214,10 @@ export const useLogisticsStore = create<LogisticsState>()(
 
     fetchDrivers: async () => {
       try {
-        const response = await fetch("/api/logistics/drivers");
-        const drivers = await response.json();
+        const drivers = await fetchWithMockFallback(
+          "/api/logistics/drivers",
+          mockData.logistics.drivers
+        );
 
         set((state) => {
           state.drivers = drivers;
@@ -278,8 +285,10 @@ export const useLogisticsStore = create<LogisticsState>()(
 
     fetchJobs: async () => {
       try {
-        const response = await fetch("/api/logistics/jobs");
-        const jobs = await response.json();
+        const jobs = await fetchWithMockFallback(
+          "/api/logistics/jobs",
+          mockData.logistics.jobs
+        );
 
         set((state) => {
           state.jobs = jobs;

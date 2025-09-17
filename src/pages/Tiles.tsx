@@ -1,23 +1,30 @@
-import {
-  ArrowLeftOutlined,
-  FilterOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
-import { Button, Form, Input, InputNumber, Modal, Select, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Filter, Plus } from "lucide-react";
 import KanbanBoard from "../components/Tiles/KanbanBoard";
 import { useTilesStore } from "../stores/tilesStore";
 import { Tile } from "../types/tiles.types";
-
-const { Search } = Input;
+import { Button } from "../new-ui/atoms/Button/Button";
+import { Input } from "../new-ui/atoms/Input/Input";
+import { Modal } from "../new-ui/atoms/Modal/Modal";
+import { Form, FormItem, FormLabel } from "../new-ui/atoms/Form/Form";
+import { Select } from "../new-ui/molecules/Select/Select";
+import { showToast } from "../lib/notifications";
 
 const Tiles: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTile, setEditingTile] = useState<Tile | null>(null);
-  const [form] = Form.useForm();
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    status: "todo",
+    priority: "medium",
+    assignee_id: "",
+    due_date: "",
+    estimated_hours: 0,
+  });
 
   const {
     tiles,
@@ -34,56 +41,80 @@ const Tiles: React.FC = () => {
     fetchTiles();
   }, [fetchTiles]);
 
-  const filteredTiles = tiles.filter(
-    (tile) =>
-      tile.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tile.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tile.assignee?.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   const handleAddTile = () => {
     setEditingTile(null);
-    form.resetFields();
+    setFormData({
+      name: "",
+      description: "",
+      status: "todo",
+      priority: "medium",
+      assignee_id: "",
+      due_date: "",
+      estimated_hours: 0,
+    });
     setIsModalOpen(true);
   };
 
   const handleEditTile = (tile: Tile) => {
     setEditingTile(tile);
-    form.setFieldsValue(tile);
+    setFormData({
+      name: tile.name,
+      description: tile.description || "",
+      status: tile.status,
+      priority: tile.priority || "medium",
+      assignee_id: tile.assignee_id || "",
+      due_date: tile.due_date || "",
+      estimated_hours: tile.estimated_hours || 0,
+    });
     setIsModalOpen(true);
   };
 
   const handleDeleteTile = async (tileId: string) => {
     try {
       await deleteTile(tileId);
-      message.success("Tile deleted successfully");
+      showToast("Tile deleted successfully", "success");
     } catch (error) {
-      message.error("Failed to delete tile");
+      showToast("Failed to delete tile", "error");
     }
   };
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.name.trim()) {
+      showToast("Please enter tile name", "error");
+      return;
+    }
+
     try {
+      const tileData = {
+        ...formData,
+        project: "current-project", // TODO: Get from context
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
       if (editingTile) {
-        await updateTile(editingTile.id, values);
-        message.success("Tile updated successfully");
+        await updateTile(editingTile.id, tileData);
+        showToast("Tile updated successfully", "success");
       } else {
-        await addTile(values);
-        message.success("Tile added successfully");
+        await addTile(tileData);
+        showToast("Tile added successfully", "success");
       }
+      
       setIsModalOpen(false);
-      form.resetFields();
+      setEditingTile(null);
     } catch (error) {
-      message.error("Failed to save tile");
+      showToast("Failed to save tile", "error");
     }
   };
 
   const handleMoveTile = async (tileId: string, newStatus: string) => {
     try {
       await moveTile(tileId, newStatus as any);
-      message.success("Tile moved successfully");
+      showToast("Tile moved successfully", "success");
     } catch (error) {
-      message.error("Failed to move tile");
+      showToast("Failed to move tile", "error");
     }
   };
 
@@ -115,6 +146,16 @@ const Tiles: React.FC = () => {
     }
   };
 
+  const handleBackToDashboard = () => {
+    navigate("/");
+  };
+
+  const filteredTiles = tiles.filter((tile) =>
+    tile.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tile.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tile.assignee?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (tilesLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -139,17 +180,13 @@ const Tiles: React.FC = () => {
     );
   }
 
-  const handleBackToDashboard = () => {
-    navigate("/");
-  };
-
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-4">
           <Button
-            type="text"
-            icon={<ArrowLeftOutlined />}
+            variant="ghost"
+            icon={<ArrowLeft />}
             onClick={handleBackToDashboard}
             className="flex items-center gap-2"
           >
@@ -157,95 +194,108 @@ const Tiles: React.FC = () => {
           </Button>
           <h1 className="text-2xl font-bold">Project Tiles</h1>
         </div>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAddTile}>
+        <Button variant="primary" icon={<Plus />} onClick={handleAddTile}>
           Add Tile
         </Button>
       </div>
 
       <div className="mb-4 flex space-x-4">
-        <Search
+        <Input.Search
           placeholder="Search tiles..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ width: 300 }}
         />
-        <Button icon={<FilterOutlined />}>Filter</Button>
+        <Button icon={<Filter />}>Filter</Button>
       </div>
 
       <KanbanBoard
         onEditTile={handleEditTile}
         onDeleteTile={handleDeleteTile}
+        onMoveTile={handleMoveTile}
       />
 
       <Modal
         title={editingTile ? "Edit Tile" : "Add Tile"}
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
-        onOk={() => form.submit()}
+        onOk={handleSubmit}
         width={600}
       >
-        <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Form.Item
-            name="name"
-            label="Name"
-            rules={[{ required: true, message: "Please enter tile name" }]}
-          >
-            <Input placeholder="e.g., Design Review" />
-          </Form.Item>
-
-          <Form.Item name="description" label="Description">
-            <Input.TextArea rows={3} placeholder="Tile description" />
-          </Form.Item>
-
-          <Form.Item
-            name="status"
-            label="Status"
-            rules={[{ required: true, message: "Please select status" }]}
-          >
-            <Select placeholder="Select status">
-              <Select.Option value="todo">To Do</Select.Option>
-              <Select.Option value="in_progress">In Progress</Select.Option>
-              <Select.Option value="review">Review</Select.Option>
-              <Select.Option value="done">Done</Select.Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="priority"
-            label="Priority"
-            rules={[{ required: true, message: "Please select priority" }]}
-          >
-            <Select placeholder="Select priority">
-              <Select.Option value="low">Low</Select.Option>
-              <Select.Option value="medium">Medium</Select.Option>
-              <Select.Option value="high">High</Select.Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item name="assignee_id" label="Assignee ID">
-            <Input placeholder="e.g., user-123" />
-          </Form.Item>
-
-          <Form.Item name="due_date" label="Due Date">
-            <Input type="date" />
-          </Form.Item>
-
-          <Form.Item name="estimated_hours" label="Estimated Hours">
-            <InputNumber
-              min={0}
-              step={0.5}
-              style={{ width: "100%" }}
-              placeholder="0"
+        <Form onSubmit={handleSubmit}>
+          <FormItem>
+            <FormLabel>Name *</FormLabel>
+            <Input 
+              placeholder="e.g., Design Review" 
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
             />
-          </Form.Item>
+          </FormItem>
 
-          <Form.Item name="tags" label="Tags">
-            <Select
-              mode="tags"
-              placeholder="Add tags"
-              style={{ width: "100%" }}
+          <FormItem>
+            <FormLabel>Description</FormLabel>
+            <Input 
+              placeholder="Tile description" 
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              multiline
+              rows={3}
             />
-          </Form.Item>
+          </FormItem>
+
+          <FormItem>
+            <FormLabel>Status *</FormLabel>
+            <Select 
+              value={formData.status}
+              onChange={(value) => setFormData({ ...formData, status: value })}
+            >
+              <option value="todo">To Do</option>
+              <option value="in_progress">In Progress</option>
+              <option value="review">Review</option>
+              <option value="done">Done</option>
+            </Select>
+          </FormItem>
+
+          <FormItem>
+            <FormLabel>Priority *</FormLabel>
+            <Select 
+              value={formData.priority}
+              onChange={(value) => setFormData({ ...formData, priority: value })}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </Select>
+          </FormItem>
+
+          <FormItem>
+            <FormLabel>Assignee ID</FormLabel>
+            <Input 
+              placeholder="e.g., user-123" 
+              value={formData.assignee_id}
+              onChange={(e) => setFormData({ ...formData, assignee_id: e.target.value })}
+            />
+          </FormItem>
+
+          <FormItem>
+            <FormLabel>Due Date</FormLabel>
+            <Input 
+              type="date" 
+              value={formData.due_date}
+              onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
+            />
+          </FormItem>
+
+          <FormItem>
+            <FormLabel>Estimated Hours</FormLabel>
+            <Input 
+              type="number"
+              min="0"
+              value={formData.estimated_hours}
+              onChange={(e) => setFormData({ ...formData, estimated_hours: Number(e.target.value) })}
+            />
+          </FormItem>
         </Form>
       </Modal>
     </div>

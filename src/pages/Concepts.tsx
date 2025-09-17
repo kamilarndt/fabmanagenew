@@ -1,21 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Table, Button, Input, Select, Modal, Form, InputNumber, message, Space, Tag, Progress, Steps, Timeline, Avatar } from 'antd';
-import { PlusOutlined, SearchOutlined, EyeOutlined, EditOutlined, DeleteOutlined, CheckOutlined, CloseOutlined, MessageOutlined, ClockCircleOutlined, UserOutlined } from '@ant-design/icons';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Check, Delete, Edit, Eye, Plus, User, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { useConceptStore } from '../stores/conceptStore';
-import { Concept, ConceptApproval, ConceptComment } from '../types/concept.types';
-
-const { Search } = Input;
-const { Option } = Select;
-const { TextArea } = Input;
-const { Step } = Steps;
+import { Concept } from '../types/concept.types';
 
 const Concepts: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingConcept, setEditingConcept] = useState<Concept | null>(null);
   const [selectedConcept, setSelectedConcept] = useState<Concept | null>(null);
-  const [activeTab, setActiveTab] = useState('concepts');
-  const [form] = Form.useForm();
+
+  const form = useForm({
+    defaultValues: {
+      title: '',
+      description: '',
+      category: '',
+      priority: 'medium',
+      estimated_cost: 0,
+      estimated_duration: 1,
+      tags: '',
+      notes: ''
+    }
+  });
   
   const {
     concepts,
@@ -48,22 +65,20 @@ const Concepts: React.FC = () => {
   
   const handleAdd = () => {
     setEditingConcept(null);
-    form.resetFields();
     setIsModalOpen(true);
   };
   
   const handleEdit = (concept: Concept) => {
     setEditingConcept(concept);
-    form.setFieldsValue(concept);
     setIsModalOpen(true);
   };
   
   const handleDelete = async (concept: Concept) => {
     try {
       await deleteConcept(concept.id);
-      message.success('Concept deleted successfully');
+      toast.success('Concept deleted successfully');
     } catch (error) {
-      message.error('Failed to delete concept');
+      toast.error('Failed to delete concept');
     }
   };
   
@@ -71,42 +86,41 @@ const Concepts: React.FC = () => {
     try {
       if (editingConcept) {
         await updateConcept(editingConcept.id, values);
-        message.success('Concept updated successfully');
+        toast.success('Concept updated successfully');
       } else {
         await addConcept(values);
-        message.success('Concept added successfully');
+        toast.success('Concept added successfully');
       }
       setIsModalOpen(false);
-      form.resetFields();
     } catch (error) {
-      message.error('Failed to save concept');
+      toast.error('Failed to save concept');
     }
   };
   
   const handleSubmitConcept = async (concept: Concept) => {
     try {
       await submitConcept(concept.id);
-      message.success('Concept submitted for approval');
+      toast.success('Concept submitted for approval');
     } catch (error) {
-      message.error('Failed to submit concept');
+      toast.error('Failed to submit concept');
     }
   };
   
   const handleApprove = async (concept: Concept) => {
     try {
       await approveConcept(concept.id, 'current-user', 'Approved');
-      message.success('Concept approved');
+      toast.success('Concept approved');
     } catch (error) {
-      message.error('Failed to approve concept');
+      toast.error('Failed to approve concept');
     }
   };
   
   const handleReject = async (concept: Concept) => {
     try {
       await rejectConcept(concept.id, 'current-user', 'Rejected');
-      message.success('Concept rejected');
+      toast.success('Concept rejected');
     } catch (error) {
-      message.error('Failed to reject concept');
+      toast.error('Failed to reject concept');
     }
   };
   
@@ -126,116 +140,46 @@ const Concepts: React.FC = () => {
         author_name: 'Current User',
         content,
       });
-      message.success('Comment added');
+      toast.success('Comment added');
     } catch (error) {
-      message.error('Failed to add comment');
+      toast.error('Failed to add comment');
     }
   };
   
-  const getStatusColor = (status: string) => {
+  const getStatusVariant = (status: string) => {
     switch (status) {
       case 'draft':
-        return 'default';
+        return 'secondary';
       case 'submitted':
-        return 'blue';
-      case 'under_review':
-        return 'orange';
-      case 'approved':
-        return 'green';
-      case 'rejected':
-        return 'red';
-      case 'archived':
-        return 'gray';
-      default:
         return 'default';
+      case 'under_review':
+        return 'secondary';
+      case 'approved':
+        return 'default';
+      case 'rejected':
+        return 'destructive';
+      case 'archived':
+        return 'outline';
+      default:
+        return 'secondary';
     }
   };
   
-  const getPriorityColor = (priority: string) => {
+  const getPriorityVariant = (priority: string) => {
     switch (priority) {
       case 'low':
-        return 'green';
+        return 'outline';
       case 'medium':
-        return 'blue';
-      case 'high':
-        return 'orange';
-      case 'urgent':
-        return 'red';
-      default:
         return 'default';
+      case 'high':
+        return 'secondary';
+      case 'urgent':
+        return 'destructive';
+      default:
+        return 'secondary';
     }
   };
   
-  const conceptColumns = [
-    {
-      title: 'Title',
-      dataIndex: 'title',
-      key: 'title',
-      width: 200,
-    },
-    {
-      title: 'Category',
-      dataIndex: 'category',
-      key: 'category',
-      width: 120,
-      render: (category: string) => <Tag>{category}</Tag>,
-    },
-    {
-      title: 'Priority',
-      dataIndex: 'priority',
-      key: 'priority',
-      width: 100,
-      render: (priority: string) => <Tag color={getPriorityColor(priority)}>{priority}</Tag>,
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      width: 120,
-      render: (status: string) => <Tag color={getStatusColor(status)}>{status}</Tag>,
-    },
-    {
-      title: 'Estimated Cost',
-      dataIndex: 'estimated_cost',
-      key: 'estimated_cost',
-      width: 120,
-      render: (cost: number) => `$${cost.toFixed(2)}`,
-    },
-    {
-      title: 'Duration (days)',
-      dataIndex: 'estimated_duration',
-      key: 'estimated_duration',
-      width: 120,
-    },
-    {
-      title: 'Created',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      width: 120,
-      render: (date: string) => new Date(date).toLocaleDateString(),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 200,
-      render: (_: any, record: Concept) => (
-        <Space>
-          <Button type="text" icon={<EyeOutlined />} onClick={() => handleViewDetails(record)} />
-          <Button type="text" icon={<EditOutlined />} onClick={() => handleEdit(record)} />
-          {record.status === 'draft' && (
-            <Button type="text" onClick={() => handleSubmitConcept(record)}>Submit</Button>
-          )}
-          {record.status === 'submitted' && (
-            <>
-              <Button type="text" icon={<CheckOutlined />} onClick={() => handleApprove(record)}>Approve</Button>
-              <Button type="text" icon={<CloseOutlined />} onClick={() => handleReject(record)}>Reject</Button>
-            </>
-          )}
-          <Button type="text" icon={<DeleteOutlined />} danger onClick={() => handleDelete(record)} />
-        </Space>
-      ),
-    },
-  ];
   
   if (isLoading) {
     return (
@@ -265,190 +209,395 @@ const Concepts: React.FC = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Concept Management</h1>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleAdd}
-        >
+        <Button onClick={handleAdd}>
+          <Plus className="h-4 w-4 mr-2" />
           Add Concept
         </Button>
       </div>
       
       <div className="mb-4">
-        <Search
+        <Input
           placeholder="Search concepts..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: 300 }}
+          className="w-80"
         />
       </div>
       
-      <Table
-        columns={conceptColumns}
-        dataSource={filteredConcepts}
-        rowKey="id"
-        pagination={{ pageSize: 20 }}
-        scroll={{ x: 1000 }}
-      />
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Title</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Priority</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Estimated Cost</TableHead>
+              <TableHead>Duration (days)</TableHead>
+              <TableHead>Created</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredConcepts.map((concept) => (
+              <TableRow key={concept.id}>
+                <TableCell className="font-medium">{concept.title}</TableCell>
+                <TableCell>
+                  <Badge variant="secondary">{concept.category}</Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={getPriorityVariant(concept.priority)}>
+                    {concept.priority}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={getStatusVariant(concept.status)}>
+                    {concept.status}
+                  </Badge>
+                </TableCell>
+                <TableCell>${concept.estimated_cost.toFixed(2)}</TableCell>
+                <TableCell>{concept.estimated_duration}</TableCell>
+                <TableCell>{new Date(concept.created_at).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleViewDetails(concept)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEdit(concept)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    {concept.status === 'draft' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleSubmitConcept(concept)}
+                      >
+                        Submit
+                      </Button>
+                    )}
+                    {concept.status === 'submitted' && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleApprove(concept)}
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleReject(concept)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDelete(concept)}
+                    >
+                      <Delete className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
       
-      <Modal
-        title={editingConcept ? 'Edit Concept' : 'Add Concept'}
-        open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
-        onOk={() => form.submit()}
-        width={600}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-        >
-          <Form.Item name="title" label="Title" rules={[{ required: true }]}>
-            <Input placeholder="e.g., New Design Concept" />
-          </Form.Item>
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {editingConcept ? 'Edit Concept' : 'Add Concept'}
+            </DialogTitle>
+          </DialogHeader>
           
-          <Form.Item name="description" label="Description" rules={[{ required: true }]}>
-            <TextArea rows={4} placeholder="Describe the concept" />
-          </Form.Item>
-          
-          <Form.Item name="category" label="Category" rules={[{ required: true }]}>
-            <Select placeholder="Select category">
-              <Option value="design">Design</Option>
-              <Option value="engineering">Engineering</Option>
-              <Option value="logistics">Logistics</Option>
-              <Option value="marketing">Marketing</Option>
-              <Option value="other">Other</Option>
-            </Select>
-          </Form.Item>
-          
-          <Form.Item name="priority" label="Priority" rules={[{ required: true }]}>
-            <Select placeholder="Select priority">
-              <Option value="low">Low</Option>
-              <Option value="medium">Medium</Option>
-              <Option value="high">High</Option>
-              <Option value="urgent">Urgent</Option>
-            </Select>
-          </Form.Item>
-          
-          <Form.Item name="estimated_cost" label="Estimated Cost" rules={[{ required: true }]}>
-            <InputNumber min={0} step={0.01} style={{ width: '100%' }} />
-          </Form.Item>
-          
-          <Form.Item name="estimated_duration" label="Estimated Duration (days)" rules={[{ required: true }]}>
-            <InputNumber min={1} style={{ width: '100%' }} />
-          </Form.Item>
-          
-          <Form.Item name="tags" label="Tags">
-            <Select mode="tags" placeholder="Add tags">
-              <Option value="innovation">Innovation</Option>
-              <Option value="cost-effective">Cost Effective</Option>
-              <Option value="sustainable">Sustainable</Option>
-              <Option value="urgent">Urgent</Option>
-            </Select>
-          </Form.Item>
-          
-          <Form.Item name="notes" label="Notes">
-            <TextArea rows={3} placeholder="Additional notes" />
-          </Form.Item>
-        </Form>
-      </Modal>
-      
-      <Modal
-        title="Concept Details"
-        open={!!selectedConcept}
-        onCancel={() => setSelectedConcept(null)}
-        footer={null}
-        width={800}
-      >
-        {selectedConcept && (
-          <div className="space-y-6">
-            <Card title="Concept Information">
-              <Row gutter={16}>
-                <Col span={12}>
-                  <p><strong>Title:</strong> {selectedConcept.title}</p>
-                  <p><strong>Category:</strong> <Tag>{selectedConcept.category}</Tag></p>
-                  <p><strong>Priority:</strong> <Tag color={getPriorityColor(selectedConcept.priority)}>{selectedConcept.priority}</Tag></p>
-                  <p><strong>Status:</strong> <Tag color={getStatusColor(selectedConcept.status)}>{selectedConcept.status}</Tag></p>
-                </Col>
-                <Col span={12}>
-                  <p><strong>Estimated Cost:</strong> ${selectedConcept.estimated_cost.toFixed(2)}</p>
-                  <p><strong>Duration:</strong> {selectedConcept.estimated_duration} days</p>
-                  <p><strong>Created:</strong> {new Date(selectedConcept.created_at).toLocaleDateString()}</p>
-                  <p><strong>Updated:</strong> {new Date(selectedConcept.updated_at).toLocaleDateString()}</p>
-                </Col>
-              </Row>
-              <div className="mt-4">
-                <p><strong>Description:</strong></p>
-                <p>{selectedConcept.description}</p>
-              </div>
-              {selectedConcept.tags.length > 0 && (
-                <div className="mt-4">
-                  <p><strong>Tags:</strong></p>
-                  <Space wrap>
-                    {selectedConcept.tags.map((tag, index) => (
-                      <Tag key={index}>{tag}</Tag>
-                    ))}
-                  </Space>
-                </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., New Design Concept" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </Card>
+            />
             
-            <Card title="Approval Progress">
-              <Progress
-                percent={getApprovalProgress(selectedConcept.id).percentage}
-                status={selectedConcept.status === 'rejected' ? 'exception' : 'active'}
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Describe the concept" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <FormControl>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="design">Design</SelectItem>
+                          <SelectItem value="engineering">Engineering</SelectItem>
+                          <SelectItem value="logistics">Logistics</SelectItem>
+                          <SelectItem value="marketing">Marketing</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <div className="mt-4">
-                <Steps
-                  current={approvals.filter(a => a.status !== 'pending').length}
-                  size="small"
-                >
-                  {approvals.map((approval, index) => (
-                    <Step
-                      key={approval.id}
-                      title={approval.approver_name}
-                      status={approval.status === 'approved' ? 'finish' : approval.status === 'rejected' ? 'error' : 'wait'}
-                    />
-                  ))}
-                </Steps>
-              </div>
-            </Card>
+              
+              <FormField
+                control={form.control}
+                name="priority"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Priority</FormLabel>
+                    <FormControl>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select priority" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="urgent">Urgent</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             
-            <Card title="Comments">
-              <div className="space-y-4">
-                {comments.map((comment) => (
-                  <div key={comment.id} className="border-b pb-4 mb-4">
-                    <div className="flex items-start space-x-3">
-                      <Avatar icon={<UserOutlined />} />
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <span className="font-medium">{comment.author_name}</span>
-                          <span className="text-gray-500 text-sm">{new Date(comment.created_at).toLocaleString()}</span>
-                        </div>
-                        <div className="text-gray-700">{comment.content}</div>
-                      </div>
+            <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="estimated_cost"
+              render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Estimated Cost</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        min="0" 
+                        step="0.01" 
+                        placeholder="0.00" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+            <FormField
+              control={form.control}
+              name="estimated_duration"
+              render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Estimated Duration (days)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        min="1" 
+                        placeholder="1" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tags</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Add tags (comma separated)" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notes</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Additional notes" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <DialogFooter>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setIsModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">
+                {editingConcept ? 'Update Concept' : 'Add Concept'}
+              </Button>
+            </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={!!selectedConcept} onOpenChange={() => setSelectedConcept(null)}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Concept Details</DialogTitle>
+          </DialogHeader>
+          
+          {selectedConcept && (
+            <div className="space-y-6">
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Concept Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <p><strong>Title:</strong> {selectedConcept.title}</p>
+                    <p><strong>Category:</strong> <Badge variant="secondary">{selectedConcept.category}</Badge></p>
+                    <p><strong>Priority:</strong> <Badge variant={getPriorityVariant(selectedConcept.priority)}>{selectedConcept.priority}</Badge></p>
+                    <p><strong>Status:</strong> <Badge variant={getStatusVariant(selectedConcept.status)}>{selectedConcept.status}</Badge></p>
+                  </div>
+                  <div className="space-y-2">
+                    <p><strong>Estimated Cost:</strong> ${selectedConcept.estimated_cost.toFixed(2)}</p>
+                    <p><strong>Duration:</strong> {selectedConcept.estimated_duration} days</p>
+                    <p><strong>Created:</strong> {new Date(selectedConcept.created_at).toLocaleDateString()}</p>
+                    <p><strong>Updated:</strong> {new Date(selectedConcept.updated_at).toLocaleDateString()}</p>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <p><strong>Description:</strong></p>
+                  <p className="text-gray-700">{selectedConcept.description}</p>
+                </div>
+                {selectedConcept.tags && selectedConcept.tags.length > 0 && (
+                  <div className="mt-4">
+                    <p><strong>Tags:</strong></p>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {selectedConcept.tags.map((tag, index) => (
+                        <Badge key={index} variant="outline">{tag}</Badge>
+                      ))}
                     </div>
                   </div>
-                ))}
-                <div className="flex items-start space-x-3">
-                  <Avatar icon={<UserOutlined />} />
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Add a comment..."
-                      onPressEnter={(e) => {
-                        if (e.currentTarget.value.trim()) {
-                          handleAddComment(e.currentTarget.value);
-                          e.currentTarget.value = '';
-                        }
-                      }}
-                    />
+                )}
+              </Card>
+              
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Approval Progress</h3>
+                <Progress 
+                  value={getApprovalProgress(selectedConcept.id).percentage}
+                  className="mb-4"
+                />
+                <div className="space-y-2">
+                  {approvals.map((approval) => (
+                    <div key={approval.id} className="flex items-center space-x-2">
+                      <div className={`w-2 h-2 rounded-full ${
+                        approval.status === 'approved' ? 'bg-green-500' : 
+                        approval.status === 'rejected' ? 'bg-red-500' : 'bg-gray-300'
+                      }`} />
+                      <span className="text-sm">{approval.approver_name}</span>
+                      <Badge variant={approval.status === 'approved' ? 'default' : approval.status === 'rejected' ? 'destructive' : 'secondary'}>
+                        {approval.status}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+              
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Comments</h3>
+                <div className="space-y-4">
+                  {comments.map((comment) => (
+                    <div key={comment.id} className="border-b pb-4 mb-4">
+                      <div className="flex items-start space-x-3">
+                        <Avatar>
+                          <AvatarFallback>
+                            <User className="h-4 w-4" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <span className="font-medium">{comment.author_name}</span>
+                            <span className="text-gray-500 text-sm">{new Date(comment.created_at).toLocaleString()}</span>
+                          </div>
+                          <div className="text-gray-700">{comment.content}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="flex items-start space-x-3">
+                    <Avatar>
+                      <AvatarFallback>
+                        <User className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <Input
+                        placeholder="Add a comment..."
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                            handleAddComment(e.currentTarget.value);
+                            e.currentTarget.value = '';
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Card>
-          </div>
-        )}
-      </Modal>
+              </Card>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

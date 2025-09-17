@@ -1,29 +1,15 @@
-import {
-  CalculatorOutlined,
-  DollarOutlined,
-  DownloadOutlined,
-  RiseOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Input,
-  Progress,
-  Row,
-  Select,
-  Space,
-  Statistic,
-  Table,
-  Tag,
-  message,
-} from "antd";
+import { Calculator, DollarSign, Download, TrendingUp } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { usePricingStore } from "../stores/pricingStore";
 import { PricingCalculation } from "../types/pricing.types";
-
-const { Search } = Input;
-const { Option } = Select;
+import { Button } from "@/new-ui/atoms/Button/Button";
+import { Card } from "@/new-ui/molecules/Card/Card";
+import { Input } from "@/new-ui/atoms/Input/Input";
+import { Progress } from "@/new-ui/atoms/Progress/Progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/new-ui/atoms/Select/Select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/new-ui/molecules/Table/Table";
+import { Badge } from "@/new-ui/atoms/Badge/Badge";
+import { toast } from "sonner";
 
 const Pricing: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -42,7 +28,7 @@ const Pricing: React.FC = () => {
     fetchCalculations();
   }, [fetchCalculations]);
 
-  const filteredCalculations = calculations.filter(
+  const filteredCalculations = (calculations || []).filter(
     (calc) =>
       calc.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       calc.description?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -51,18 +37,18 @@ const Pricing: React.FC = () => {
   const handleCalculatePricing = async (projectId: string) => {
     try {
       await calculateProjectPricing(projectId);
-      message.success("Pricing calculated successfully");
+      toast.success("Pricing calculated successfully");
     } catch (error) {
-      message.error("Failed to calculate pricing");
+      toast.error("Failed to calculate pricing");
     }
   };
 
   const handleExportPricing = async (calculationId: string) => {
     try {
       await exportPricing(calculationId);
-      message.success("Pricing exported successfully");
+      toast.success("Pricing exported successfully");
     } catch (error) {
-      message.error("Failed to export pricing");
+      toast.error("Failed to export pricing");
     }
   };
 
@@ -83,113 +69,22 @@ const Pricing: React.FC = () => {
       : 0;
   };
 
-  const columns = [
-    {
-      title: "Project",
-      dataIndex: "project_name",
-      key: "project_name",
-      width: 200,
-    },
-    {
-      title: "Description",
-      dataIndex: "description",
-      key: "description",
-      width: 250,
-    },
-    {
-      title: "Materials",
-      dataIndex: "materials_cost",
-      key: "materials_cost",
-      width: 100,
-      render: (cost: number) => `$${cost.toFixed(2)}`,
-    },
-    {
-      title: "Labor",
-      dataIndex: "labor_cost",
-      key: "labor_cost",
-      width: 100,
-      render: (cost: number) => `$${cost.toFixed(2)}`,
-    },
-    {
-      title: "Equipment",
-      dataIndex: "equipment_cost",
-      key: "equipment_cost",
-      width: 100,
-      render: (cost: number) => `$${cost.toFixed(2)}`,
-    },
-    {
-      title: "Transport",
-      dataIndex: "transport_cost",
-      key: "transport_cost",
-      width: 100,
-      render: (cost: number) => `$${cost.toFixed(2)}`,
-    },
-    {
-      title: "Accommodation",
-      dataIndex: "accommodation_cost",
-      key: "accommodation_cost",
-      width: 120,
-      render: (cost: number) => `$${cost.toFixed(2)}`,
-    },
-    {
-      title: "Total Cost",
-      key: "total_cost",
-      width: 100,
-      render: (_: any, record: PricingCalculation) =>
-        `$${getTotalCost(record).toFixed(2)}`,
-    },
-    {
-      title: "Selling Price",
-      dataIndex: "selling_price",
-      key: "selling_price",
-      width: 120,
-      render: (price: number) => `$${price.toFixed(2)}`,
-    },
-    {
-      title: "Profit Margin",
-      key: "profit_margin",
-      width: 120,
-      render: (_: any, record: PricingCalculation) => {
-        const margin = getProfitMargin(record);
-        const color = margin > 20 ? "green" : margin > 10 ? "orange" : "red";
-        return <Tag color={color}>{margin.toFixed(1)}%</Tag>;
-      },
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      width: 100,
-      render: (status: string) => {
-        const color =
-          status === "approved"
-            ? "green"
-            : status === "pending"
-            ? "orange"
-            : "default";
-        return <Tag color={color}>{status}</Tag>;
-      },
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 120,
-      render: (_: any, record: PricingCalculation) => (
-        <Space>
-          <Button
-            type="text"
-            icon={<CalculatorOutlined />}
-            onClick={() => handleCalculatePricing(record.project_id)}
-          />
-          <Button
-            type="text"
-            icon={<DownloadOutlined />}
-            onClick={() => handleExportPricing(record.id)}
-          />
-        </Space>
-      ),
-    },
-  ];
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case "approved":
+        return "success";
+      case "pending":
+        return "warning";
+      default:
+        return "secondary";
+    }
+  };
+
+  const getProfitMarginVariant = (margin: number) => {
+    if (margin > 20) return "success";
+    if (margin > 10) return "warning";
+    return "destructive";
+  };
 
   if (isLoading) {
     return (
@@ -215,22 +110,22 @@ const Pricing: React.FC = () => {
     );
   }
 
-  const totalProjects = calculations.length;
-  const approvedProjects = calculations.filter(
+  const totalProjects = (calculations || []).length;
+  const approvedProjects = (calculations || []).filter(
     (calc) => calc.status === "approved"
   ).length;
-  const totalRevenue = calculations.reduce(
+  const totalRevenue = (calculations || []).reduce(
     (sum, calc) => sum + calc.selling_price,
     0
   );
-  const totalCosts = calculations.reduce(
+  const totalCosts = (calculations || []).reduce(
     (sum, calc) => sum + getTotalCost(calc),
     0
   );
   const averageProfitMargin =
-    calculations.length > 0
-      ? calculations.reduce((sum, calc) => sum + getProfitMargin(calc), 0) /
-        calculations.length
+    (calculations || []).length > 0
+      ? (calculations || []).reduce((sum, calc) => sum + getProfitMargin(calc), 0) /
+        (calculations || []).length
       : 0;
 
   return (
@@ -239,201 +134,251 @@ const Pricing: React.FC = () => {
         <h1 className="text-2xl font-bold mb-4">Pricing Management</h1>
 
         <div className="flex space-x-4 mb-4">
-          <Search
+          <Input
             placeholder="Search projects..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ width: 300 }}
+            className="w-80"
           />
-          <Select
-            value={selectedProject}
-            onChange={setSelectedProject}
-            style={{ width: 200 }}
-          >
-            <Option value="all">All Projects</Option>
-            <Option value="approved">Approved</Option>
-            <Option value="pending">Pending</Option>
-            <Option value="draft">Draft</Option>
+          <Select value={selectedProject} onValueChange={setSelectedProject}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Select project status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Projects</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+            </SelectContent>
           </Select>
         </div>
       </div>
 
       {/* Statistics Cards */}
-      <Row gutter={16} className="mb-6">
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="Total Projects"
-              value={totalProjects}
-              prefix={<CalculatorOutlined />}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <Card className="p-6">
+          <div className="flex items-center space-x-2">
+            <Calculator className="h-4 w-4 text-blue-600" />
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Projects</p>
+              <p className="text-2xl font-bold">{totalProjects}</p>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-6">
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Approved Projects</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {approvedProjects} / {totalProjects}
+                </p>
+              </div>
+            </div>
+            <Progress 
+              value={totalProjects > 0 ? (approvedProjects / totalProjects) * 100 : 0}
+              className="h-2"
             />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="Approved Projects"
-              value={approvedProjects}
-              suffix={`/ ${totalProjects}`}
-              valueStyle={{ color: "#3f8600" }}
-            />
-            <Progress
-              percent={
-                totalProjects > 0 ? (approvedProjects / totalProjects) * 100 : 0
-              }
-              size="small"
-              className="mt-2"
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="Total Revenue"
-              value={totalRevenue}
-              prefix={<DollarOutlined />}
-              precision={2}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="Average Profit Margin"
-              value={averageProfitMargin}
-              suffix="%"
-              prefix={<RiseOutlined />}
-              valueStyle={{
-                color:
-                  averageProfitMargin > 20
-                    ? "#3f8600"
-                    : averageProfitMargin > 10
-                    ? "#faad14"
-                    : "#cf1322",
-              }}
-            />
-          </Card>
-        </Col>
-      </Row>
+          </div>
+        </Card>
+        
+        <Card className="p-6">
+          <div className="flex items-center space-x-2">
+            <DollarSign className="h-4 w-4 text-green-600" />
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Revenue</p>
+              <p className="text-2xl font-bold">${totalRevenue.toFixed(2)}</p>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-6">
+          <div className="flex items-center space-x-2">
+            <TrendingUp className="h-4 w-4 text-purple-600" />
+            <div>
+              <p className="text-sm font-medium text-gray-600">Average Profit Margin</p>
+              <p className={`text-2xl font-bold ${
+                averageProfitMargin > 20 ? "text-green-600" :
+                averageProfitMargin > 10 ? "text-yellow-600" : "text-red-600"
+              }`}>
+                {averageProfitMargin.toFixed(1)}%
+              </p>
+            </div>
+          </div>
+        </Card>
+      </div>
 
       {/* Cost Breakdown */}
-      <Row gutter={16} className="mb-6">
-        <Col span={12}>
-          <Card title="Cost Breakdown" size="small">
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>Materials:</span>
-                <span>
-                  $
-                  {calculations
-                    .reduce((sum, calc) => sum + calc.materials_cost, 0)
-                    .toFixed(2)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Labor:</span>
-                <span>
-                  $
-                  {calculations
-                    .reduce((sum, calc) => sum + calc.labor_cost, 0)
-                    .toFixed(2)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Equipment:</span>
-                <span>
-                  $
-                  {calculations
-                    .reduce((sum, calc) => sum + calc.equipment_cost, 0)
-                    .toFixed(2)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Transport:</span>
-                <span>
-                  $
-                  {calculations
-                    .reduce((sum, calc) => sum + calc.transport_cost, 0)
-                    .toFixed(2)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Accommodation:</span>
-                <span>
-                  $
-                  {calculations
-                    .reduce((sum, calc) => sum + calc.accommodation_cost, 0)
-                    .toFixed(2)}
-                </span>
-              </div>
-              <div className="flex justify-between font-bold border-t pt-2">
-                <span>Total Costs:</span>
-                <span>${totalCosts.toFixed(2)}</span>
-              </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Cost Breakdown</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span>Materials:</span>
+              <span className="font-medium">
+                $
+                {(calculations || [])
+                  .reduce((sum, calc) => sum + calc.materials_cost, 0)
+                  .toFixed(2)}
+              </span>
             </div>
-          </Card>
-        </Col>
-        <Col span={12}>
-          <Card title="Profit Analysis" size="small">
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>Total Revenue:</span>
-                <span>${totalRevenue.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Total Costs:</span>
-                <span>${totalCosts.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between font-bold border-t pt-2">
-                <span>Net Profit:</span>
-                <span
-                  className={
-                    totalRevenue - totalCosts > 0
+            <div className="flex justify-between">
+              <span>Labor:</span>
+              <span className="font-medium">
+                $
+                {(calculations || [])
+                  .reduce((sum, calc) => sum + calc.labor_cost, 0)
+                  .toFixed(2)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Equipment:</span>
+              <span className="font-medium">
+                $
+                {(calculations || [])
+                  .reduce((sum, calc) => sum + calc.equipment_cost, 0)
+                  .toFixed(2)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Transport:</span>
+              <span className="font-medium">
+                $
+                {(calculations || [])
+                  .reduce((sum, calc) => sum + calc.transport_cost, 0)
+                  .toFixed(2)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Accommodation:</span>
+              <span className="font-medium">
+                $
+                {(calculations || [])
+                  .reduce((sum, calc) => sum + calc.accommodation_cost, 0)
+                  .toFixed(2)}
+              </span>
+            </div>
+            <div className="flex justify-between font-bold border-t pt-3">
+              <span>Total Costs:</span>
+              <span>${totalCosts.toFixed(2)}</span>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Profit Analysis</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span>Total Revenue:</span>
+              <span className="font-medium">${totalRevenue.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Total Costs:</span>
+              <span className="font-medium">${totalCosts.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between font-bold border-t pt-3">
+              <span>Net Profit:</span>
+              <span
+                className={
+                  totalRevenue - totalCosts > 0
+                    ? "text-green-600"
+                    : "text-red-600"
+                }
+              >
+                ${(totalRevenue - totalCosts).toFixed(2)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Profit Margin:</span>
+              <span
+                className={
+                  totalRevenue > 0
+                    ? ((totalRevenue - totalCosts) / totalRevenue) * 100 > 20
                       ? "text-green-600"
-                      : "text-red-600"
-                  }
-                >
-                  ${(totalRevenue - totalCosts).toFixed(2)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Profit Margin:</span>
-                <span
-                  className={
-                    totalRevenue > 0
-                      ? ((totalRevenue - totalCosts) / totalRevenue) * 100 > 20
-                        ? "text-green-600"
-                        : "text-orange-600"
-                      : "text-red-600"
-                  }
-                >
-                  {totalRevenue > 0
-                    ? (
-                        ((totalRevenue - totalCosts) / totalRevenue) *
-                        100
-                      ).toFixed(1)
-                    : 0}
-                  %
-                </span>
-              </div>
+                      : "text-orange-600"
+                    : "text-red-600"
+                }
+              >
+                {totalRevenue > 0
+                  ? (
+                      ((totalRevenue - totalCosts) / totalRevenue) *
+                      100
+                    ).toFixed(1)
+                  : 0}
+                %
+              </span>
             </div>
-          </Card>
-        </Col>
-      </Row>
+          </div>
+        </Card>
+      </div>
 
       {/* Pricing Table */}
-      <Card title="Project Pricing">
-        <Table
-          columns={columns}
-          dataSource={filteredCalculations}
-          rowKey="id"
-          pagination={{
-            pageSize: 20,
-            showSizeChanger: true,
-            showQuickJumper: true,
-          }}
-          scroll={{ x: 1200 }}
-        />
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">Project Pricing</h3>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Project</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead>Materials</TableHead>
+                <TableHead>Labor</TableHead>
+                <TableHead>Equipment</TableHead>
+                <TableHead>Transport</TableHead>
+                <TableHead>Accommodation</TableHead>
+                <TableHead>Total Cost</TableHead>
+                <TableHead>Selling Price</TableHead>
+                <TableHead>Profit Margin</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredCalculations.map((calc) => (
+                <TableRow key={calc.id}>
+                  <TableCell className="font-medium">{calc.project_name}</TableCell>
+                  <TableCell>{calc.description}</TableCell>
+                  <TableCell>${calc.materials_cost.toFixed(2)}</TableCell>
+                  <TableCell>${calc.labor_cost.toFixed(2)}</TableCell>
+                  <TableCell>${calc.equipment_cost.toFixed(2)}</TableCell>
+                  <TableCell>${calc.transport_cost.toFixed(2)}</TableCell>
+                  <TableCell>${calc.accommodation_cost.toFixed(2)}</TableCell>
+                  <TableCell>${getTotalCost(calc).toFixed(2)}</TableCell>
+                  <TableCell>${calc.selling_price.toFixed(2)}</TableCell>
+                  <TableCell>
+                    <Badge variant={getProfitMarginVariant(getProfitMargin(calc))}>
+                      {getProfitMargin(calc).toFixed(1)}%
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={getStatusVariant(calc.status)}>
+                      {calc.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleCalculatePricing(calc.project_id)}
+                      >
+                        <Calculator className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleExportPricing(calc.id)}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </Card>
     </div>
   );

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { fetchWithMockFallback, mockData } from '../lib/api';
 import type { Document, DocumentCategory, DocumentTemplate, DocumentVersion, DocumentComment, DocumentSearch } from '../types/documents.types';
 
 interface DocumentsState {
@@ -63,8 +64,10 @@ export const useDocumentsStore = create<DocumentsState>()(
       });
       
       try {
-        const response = await fetch('/api/documents');
-        const documents = await response.json();
+        const documents = await fetchWithMockFallback(
+          '/api/documents',
+          mockData.documents.documents
+        );
         
         set((state) => {
           state.documents = documents;

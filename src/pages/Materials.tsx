@@ -1,32 +1,20 @@
-import {
-  DeleteOutlined,
-  EditOutlined,
-  EyeOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Select,
-  Space,
-  Table,
-  Tag,
-  message,
-} from "antd";
+import { Delete, Edit, Eye, Plus } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useMaterialStore } from "../stores/materialStore";
 import { Material } from "../types/materials.types";
-
-const { Search } = Input;
+import { Button } from "@/new-ui/atoms/Button/Button";
+import { Input } from "@/new-ui/atoms/Input/Input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/new-ui/atoms/Select/Select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/new-ui/molecules/Table/Table";
+import { Badge } from "@/new-ui/atoms/Badge/Badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/new-ui/molecules/Dialog/Dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/new-ui/molecules/Form/Form";
+import { toast } from "sonner";
 
 const Materials: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
-  const [form] = Form.useForm();
 
   const {
     materials,
@@ -54,22 +42,20 @@ const Materials: React.FC = () => {
 
   const handleAddMaterial = () => {
     setEditingMaterial(null);
-    form.resetFields();
     setIsModalOpen(true);
   };
 
   const handleEditMaterial = (material: Material) => {
     setEditingMaterial(material);
-    form.setFieldsValue(material);
     setIsModalOpen(true);
   };
 
   const handleDeleteMaterial = async (material: Material) => {
     try {
       await deleteMaterial(material.id);
-      message.success("Material deleted successfully");
+      toast.success("Material deleted successfully");
     } catch (error) {
-      message.error("Failed to delete material");
+      toast.error("Failed to delete material");
     }
   };
 
@@ -77,104 +63,22 @@ const Materials: React.FC = () => {
     try {
       if (editingMaterial) {
         await updateMaterial(editingMaterial.id, values);
-        message.success("Material updated successfully");
+        toast.success("Material updated successfully");
       } else {
         await createMaterial(values);
-        message.success("Material added successfully");
+        toast.success("Material added successfully");
       }
       setIsModalOpen(false);
-      form.resetFields();
     } catch (error) {
-      message.error("Failed to save material");
+      toast.error("Failed to save material");
     }
   };
 
-  const columns = [
-    {
-      title: "Code",
-      dataIndex: "code",
-      key: "code",
-      width: 100,
-    },
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-      width: 200,
-    },
-    {
-      title: "Category",
-      dataIndex: "category",
-      key: "category",
-      width: 120,
-      render: (category: string) => <Tag color="blue">{category}</Tag>,
-    },
-    {
-      title: "Unit",
-      dataIndex: "unit",
-      key: "unit",
-      width: 80,
-    },
-    {
-      title: "Unit Price",
-      dataIndex: "unit_price",
-      key: "unit_price",
-      width: 100,
-      render: (price: number) => `$${price.toFixed(2)}`,
-    },
-    {
-      title: "Stock",
-      dataIndex: "stock_quantity",
-      key: "stock_quantity",
-      width: 100,
-      render: (quantity: number, record: Material) => {
-        const isLowStock = quantity <= record.min_stock_level;
-        const isOverstock = quantity >= record.max_stock_level;
-
-        return (
-          <span
-            className={
-              isLowStock ? "text-red-600" : isOverstock ? "text-orange-600" : ""
-            }
-          >
-            {quantity}
-          </span>
-        );
-      },
-    },
-    {
-      title: "Supplier",
-      dataIndex: "supplier",
-      key: "supplier",
-      width: 150,
-      render: (supplier: any) => supplier?.name || "N/A",
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 120,
-      render: (_: any, record: Material) => (
-        <Space>
-          <Button
-            type="text"
-            icon={<EyeOutlined />}
-            onClick={() => message.info("View details coming soon")}
-          />
-          <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => handleEditMaterial(record)}
-          />
-          <Button
-            type="text"
-            icon={<DeleteOutlined />}
-            danger
-            onClick={() => handleDeleteMaterial(record)}
-          />
-        </Space>
-      ),
-    },
-  ];
+  const getStockStatus = (quantity: number, minLevel: number, maxLevel: number) => {
+    if (quantity <= minLevel) return { variant: "destructive" as const, text: "Low Stock" };
+    if (quantity >= maxLevel) return { variant: "warning" as const, text: "Overstock" };
+    return { variant: "success" as const, text: "In Stock" };
+  };
 
   if (isLoading) {
     return (
@@ -204,143 +108,331 @@ const Materials: React.FC = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Materials Management</h1>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleAddMaterial}
-        >
+        <Button onClick={handleAddMaterial}>
+          <Plus className="h-4 w-4 mr-2" />
           Add Material
         </Button>
       </div>
 
       <div className="mb-4">
-        <Search
+        <Input
           placeholder="Search materials..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: 300 }}
+          className="w-80"
         />
       </div>
 
-      <Table
-        columns={columns}
-        dataSource={filteredMaterials}
-        rowKey="id"
-        pagination={{
-          pageSize: 20,
-          showSizeChanger: true,
-          showQuickJumper: true,
-        }}
-        scroll={{ x: 1000 }}
-      />
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Code</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Unit</TableHead>
+              <TableHead>Unit Price</TableHead>
+              <TableHead>Stock</TableHead>
+              <TableHead>Supplier</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredMaterials.map((material) => {
+              const stockStatus = getStockStatus(
+                material.stock_quantity,
+                material.min_stock_level,
+                material.max_stock_level
+              );
+              
+              return (
+                <TableRow key={material.id}>
+                  <TableCell className="font-medium">{material.code}</TableCell>
+                  <TableCell>{material.name}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary">{material.category}</Badge>
+                  </TableCell>
+                  <TableCell>{material.unit}</TableCell>
+                  <TableCell>${material.unit_price.toFixed(2)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      <span className={stockStatus.variant === "destructive" ? "text-red-600" : stockStatus.variant === "warning" ? "text-orange-600" : ""}>
+                        {material.stock_quantity}
+                      </span>
+                      <Badge variant={stockStatus.variant}>
+                        {stockStatus.text}
+                      </Badge>
+                    </div>
+                  </TableCell>
+                  <TableCell>{material.supplier?.name || "N/A"}</TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toast.info("View details coming soon")}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditMaterial(material)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteMaterial(material)}
+                      >
+                        <Delete className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
 
-      <Modal
-        title={editingMaterial ? "Edit Material" : "Add Material"}
-        open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
-        onOk={() => form.submit()}
-        width={600}
-      >
-        <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Form.Item
-            name="code"
-            label="Material Code"
-            rules={[{ required: true, message: "Please enter material code" }]}
-          >
-            <Input placeholder="e.g., MAT-001" />
-          </Form.Item>
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {editingMaterial ? "Edit Material" : "Add Material"}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <Form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                name="code"
+                label="Material Code"
+                required
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Material Code</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., MAT-001" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <Form.Item
-            name="name"
-            label="Material Name"
-            rules={[{ required: true, message: "Please enter material name" }]}
-          >
-            <Input placeholder="e.g., Steel Beam" />
-          </Form.Item>
+              <FormField
+                name="name"
+                label="Material Name"
+                required
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Material Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Steel Beam" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-          <Form.Item name="description" label="Description">
-            <Input.TextArea rows={3} placeholder="Material description" />
-          </Form.Item>
-
-          <Form.Item
-            name="category"
-            label="Category"
-            rules={[{ required: true, message: "Please select category" }]}
-          >
-            <Select placeholder="Select category">
-              <Select.Option value="steel">Steel</Select.Option>
-              <Select.Option value="wood">Wood</Select.Option>
-              <Select.Option value="concrete">Concrete</Select.Option>
-              <Select.Option value="fabric">Fabric</Select.Option>
-              <Select.Option value="hardware">Hardware</Select.Option>
-              <Select.Option value="other">Other</Select.Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="unit"
-            label="Unit"
-            rules={[{ required: true, message: "Please enter unit" }]}
-          >
-            <Input placeholder="e.g., pcs, kg, m" />
-          </Form.Item>
-
-          <Form.Item
-            name="unit_price"
-            label="Unit Price"
-            rules={[{ required: true, message: "Please enter unit price" }]}
-          >
-            <InputNumber
-              min={0}
-              step={0.01}
-              style={{ width: "100%" }}
-              placeholder="0.00"
+            <FormField
+              name="description"
+              label="Description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Material description" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </Form.Item>
 
-          <Form.Item name="supplier_id" label="Supplier">
-            <Select placeholder="Select supplier" allowClear>
-              {suppliers.map((supplier) => (
-                <Select.Option key={supplier.id} value={supplier.id}>
-                  {supplier.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                name="category"
+                label="Category"
+                required
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <FormControl>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="steel">Steel</SelectItem>
+                          <SelectItem value="wood">Wood</SelectItem>
+                          <SelectItem value="concrete">Concrete</SelectItem>
+                          <SelectItem value="fabric">Fabric</SelectItem>
+                          <SelectItem value="hardware">Hardware</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <Form.Item
-            name="stock_quantity"
-            label="Stock Quantity"
-            rules={[{ required: true, message: "Please enter stock quantity" }]}
-          >
-            <InputNumber min={0} style={{ width: "100%" }} placeholder="0" />
-          </Form.Item>
+              <FormField
+                name="unit"
+                label="Unit"
+                required
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Unit</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., pcs, kg, m" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-          <Form.Item
-            name="min_stock_level"
-            label="Minimum Stock Level"
-            rules={[
-              { required: true, message: "Please enter minimum stock level" },
-            ]}
-          >
-            <InputNumber min={0} style={{ width: "100%" }} placeholder="0" />
-          </Form.Item>
+            <FormField
+              name="unit_price"
+              label="Unit Price"
+              required
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Unit Price</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      min="0" 
+                      step="0.01" 
+                      placeholder="0.00" 
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Form.Item
-            name="max_stock_level"
-            label="Maximum Stock Level"
-            rules={[
-              { required: true, message: "Please enter maximum stock level" },
-            ]}
-          >
-            <InputNumber min={0} style={{ width: "100%" }} placeholder="0" />
-          </Form.Item>
+            <FormField
+              name="supplier_id"
+              label="Supplier"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Supplier</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select supplier" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {suppliers.map((supplier) => (
+                          <SelectItem key={supplier.id} value={supplier.id}>
+                            {supplier.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Form.Item name="location" label="Location">
-            <Input placeholder="e.g., Warehouse A, Shelf 1" />
-          </Form.Item>
-        </Form>
-      </Modal>
+            <div className="grid grid-cols-3 gap-4">
+              <FormField
+                name="stock_quantity"
+                label="Stock Quantity"
+                required
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Stock Quantity</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        min="0" 
+                        placeholder="0" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="min_stock_level"
+                label="Min Stock Level"
+                required
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Min Stock Level</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        min="0" 
+                        placeholder="0" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="max_stock_level"
+                label="Max Stock Level"
+                required
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Max Stock Level</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        min="0" 
+                        placeholder="0" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              name="location"
+              label="Location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Location</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Warehouse A, Shelf 1" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex justify-end space-x-2 pt-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setIsModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">
+                {editingMaterial ? "Update Material" : "Add Material"}
+              </Button>
+            </div>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

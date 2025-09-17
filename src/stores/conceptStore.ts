@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { fetchWithMockFallback, mockData } from '../lib/api';
 import type { Concept, ConceptApproval, ConceptComment, ConceptWorkflow, WorkflowStep } from '../types/concept.types';
 
 interface ConceptState {
@@ -56,8 +57,10 @@ export const useConceptStore = create<ConceptState>()(
       });
       
       try {
-        const response = await fetch('/api/concepts');
-        const concepts = await response.json();
+        const concepts = await fetchWithMockFallback(
+          '/api/concepts',
+          mockData.concepts.concepts
+        );
         
         set((state) => {
           state.concepts = concepts;

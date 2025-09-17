@@ -37,8 +37,10 @@ export const config: AppConfig = {
   environment: getEnvironment(),
   apiBaseUrl:
     import.meta.env.VITE_API_BASE_URL ||
-    (getEnvironment() === "development" ? "/api" : "http://localhost:3001/api"),
-  useMockData: false,
+    (getEnvironment() === "development"
+      ? "http://localhost:54321"
+      : "http://localhost:3001/api"),
+  useMockData: shouldUseMockData(),
   enableRealtimeUpdates: import.meta.env.VITE_ENABLE_REALTIME !== "false",
   logLevel:
     import.meta.env.VITE_LOG_LEVEL ||

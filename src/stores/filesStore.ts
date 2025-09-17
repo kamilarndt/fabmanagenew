@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { fetchWithMockFallback, mockData } from '../lib/api';
 import type { FileItem, Folder, FileVersion, FileShare, FileUpload, FileSearch } from '../types/files.types';
 
 interface FilesState {
@@ -66,8 +67,10 @@ export const useFilesStore = create<FilesState>()(
         const url = folderId 
           ? `/api/files?folder_id=${folderId}`
           : '/api/files';
-        const response = await fetch(url);
-        const files = await response.json();
+        const files = await fetchWithMockFallback(
+          url,
+          mockData.files.files
+        );
         
         set((state) => {
           state.files = files;

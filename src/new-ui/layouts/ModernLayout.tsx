@@ -1,6 +1,8 @@
 import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useTheme } from "../../hooks/useTheme";
 import { Icon } from "../atoms/Icon/Icon";
+import { ThemeToggle } from "../atoms/ThemeToggle/ThemeToggle";
 import { Sidebar } from "../organisms/Sidebar";
 import type { SidebarItem } from "../organisms/Sidebar/Sidebar";
 
@@ -11,6 +13,7 @@ interface ModernLayoutProps {
 const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme, tokens } = useTheme();
 
   // Menu items zgodnie z Figmą - nowe ikony i nazwy
   const sidebarItems: SidebarItem[] = [
@@ -115,13 +118,13 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
       <div
         className="flex h-12 w-12 items-center justify-center rounded-xl"
         style={{
-          backgroundColor: "var(--color-foreground-primary)",
+          backgroundColor: "var(--color-sidebar-accent)",
           boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
         }}
       >
         <span
           className="text-xl font-bold"
-          style={{ color: "var(--color-background-default)" }}
+          style={{ color: "var(--color-sidebar-accent-foreground)" }}
         >
           F
         </span>
@@ -129,7 +132,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
       <div>
         <div
           className="text-lg font-bold"
-          style={{ color: "var(--color-foreground-primary)" }}
+          style={{ color: "var(--color-sidebar-foreground)" }}
         >
           FabManage
         </div>
@@ -178,7 +181,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span style={{ color: "var(--color-foreground-muted)" }}>
+              <span style={{ color: "var(--color-sidebar-foreground)" }}>
                 Dashboard
               </span>
               <Icon
@@ -188,17 +191,18 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
               />
               <span
                 className="font-medium"
-                style={{ color: "var(--color-foreground-primary)" }}
+                style={{ color: "var(--color-sidebar-foreground)" }}
               >
                 Przegląd
               </span>
             </div>
             <div className="flex items-center space-x-3">
+              <ThemeToggle size="md" />
               <button
                 className="px-4 py-2 flex items-center space-x-2 hover-lift"
                 style={{
                   backgroundColor: "var(--color-background-muted)",
-                  color: "var(--color-foreground-primary)",
+                  color: "var(--color-sidebar-foreground)",
                   border: "1px solid var(--color-border-default)",
                   borderRadius: "var(--radius-sm)",
                 }}

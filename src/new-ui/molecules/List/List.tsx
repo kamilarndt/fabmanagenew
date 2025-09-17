@@ -84,7 +84,10 @@ export function List({
         )}
         <div className="space-y-4 p-4">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="flex items-center space-x-4 animate-pulse">
+            <div
+              key={index}
+              className="flex items-center space-x-4 animate-pulse"
+            >
               <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full" />
               <div className="flex-1">
                 <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2" />
@@ -121,7 +124,7 @@ export function List({
           {header}
         </div>
       )}
-      
+
       <div
         className="divide-y"
         style={{
@@ -129,7 +132,9 @@ export function List({
           borderColor: split ? "var(--color-border-primary)" : "transparent",
         }}
       >
-        {dataSource.map((item, index) => renderListItem(item, index))}
+        {dataSource.map((item, index) => (
+          <div key={item.key || index}>{renderListItem(item, index)}</div>
+        ))}
       </div>
 
       {footer && (
@@ -145,7 +150,10 @@ export function List({
       )}
 
       {pagination && (
-        <div className="p-4 border-t" style={{ borderColor: "var(--color-border-primary)" }}>
+        <div
+          className="p-4 border-t"
+          style={{ borderColor: "var(--color-border-primary)" }}
+        >
           {pagination}
         </div>
       )}
@@ -164,6 +172,71 @@ export interface ListItemProps {
   className?: string;
   size?: "default" | "large" | "small";
   itemLayout?: "horizontal" | "vertical";
+}
+
+// List Item component
+export interface ListItemComponentProps
+  extends React.HTMLAttributes<HTMLDivElement> {
+  children?: React.ReactNode;
+}
+
+export function ListItem({
+  children,
+  className,
+  ...props
+}: ListItemComponentProps): React.ReactElement {
+  return (
+    <div className={cn("list-item", className)} {...props}>
+      {children}
+    </div>
+  );
+}
+
+// List Item Meta component
+export interface ListItemMetaProps {
+  avatar?: React.ReactNode;
+  title?: React.ReactNode;
+  description?: React.ReactNode;
+  className?: string;
+}
+
+export function ListItemMeta({
+  avatar,
+  title,
+  description,
+  className,
+}: ListItemMetaProps): React.ReactElement {
+  return (
+    <div className={cn("list-item-meta flex items-start space-x-3", className)}>
+      {avatar && (
+        <div className="flex-shrink-0">
+          {typeof avatar === "string" ? (
+            <img
+              src={avatar}
+              alt="Avatar"
+              className="w-8 h-8 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+              {avatar}
+            </div>
+          )}
+        </div>
+      )}
+      <div className="flex-1 min-w-0">
+        {title && (
+          <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+            {title}
+          </div>
+        )}
+        {description && (
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            {description}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export function ListItemComponent({
@@ -191,11 +264,7 @@ export function ListItemComponent({
   if (itemLayout === "vertical") {
     return (
       <div
-        className={cn(
-          "list-item-vertical",
-          getSizeClasses(),
-          className
-        )}
+        className={cn("list-item-vertical", getSizeClasses(), className)}
         style={{
           backgroundColor: "var(--color-card-background)",
           color: "var(--color-foreground-primary)",
@@ -234,7 +303,9 @@ export function ListItemComponent({
         {actions && actions.length > 0 && (
           <div className="flex items-center space-x-4">
             {actions.map((action, index) => (
-              <span key={index} className="text-sm">{action}</span>
+              <span key={index} className="text-sm">
+                {action}
+              </span>
             ))}
           </div>
         )}
@@ -295,10 +366,16 @@ export function ListItemComponent({
       {actions && actions.length > 0 && (
         <div className="flex-shrink-0 ml-4 flex items-center space-x-2">
           {actions.map((action, index) => (
-            <span key={index} className="text-sm">{action}</span>
+            <span key={index} className="text-sm">
+              {action}
+            </span>
           ))}
         </div>
       )}
     </div>
   );
 }
+
+// Attach Item and Meta to List for easier usage
+List.Item = ListItem;
+List.Item.Meta = ListItemMeta;

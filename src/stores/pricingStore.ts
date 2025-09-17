@@ -11,6 +11,11 @@ interface PricingState {
   pricingLoading: boolean;
   pricingError: string | null;
   
+  // Calculations
+  calculations: PricingCalculation[];
+  isLoading: boolean;
+  error: string | null;
+  
   // Actions
   fetchTemplates: () => Promise<void>;
   addTemplate: (template: Omit<PricingTemplate, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
@@ -21,6 +26,9 @@ interface PricingState {
   updateProjectPricing: (projectId: string, pricing: Partial<ProjectPricing>) => Promise<void>;
   
   // Calculations
+  fetchCalculations: () => Promise<void>;
+  calculateProjectPricing: (projectId: string) => Promise<void>;
+  exportPricing: (calculationId: string) => Promise<void>;
   calculatePricing: (items: PricingItem[], markupPercentage: number, taxPercentage: number) => PricingCalculation;
   calculateItemTotal: (quantity: number, unitCost: number) => number;
   calculateBreakdown: (items: PricingItem[]) => any;
@@ -35,6 +43,11 @@ export const usePricingStore = create<PricingState>()(
     projectPricing: {},
     pricingLoading: false,
     pricingError: null,
+    
+    // Calculations
+    calculations: [],
+    isLoading: false,
+    error: null,
     
     fetchTemplates: async () => {
       set((state) => {
@@ -215,6 +228,80 @@ export const usePricingStore = create<PricingState>()(
       });
       
       return breakdown;
+    },
+    
+    // New methods for calculations
+    fetchCalculations: async () => {
+      set((state) => {
+        state.isLoading = true;
+        state.error = null;
+      });
+      
+      try {
+        // Mock data for now - replace with actual API call
+        const mockCalculations: PricingCalculation[] = [
+          {
+            id: '1',
+            project_id: 'proj-1',
+            project_name: 'Sample Project 1',
+            description: 'Test project for pricing',
+            materials_cost: 1000,
+            labor_cost: 2000,
+            equipment_cost: 500,
+            transport_cost: 300,
+            accommodation_cost: 200,
+            selling_price: 4500,
+            status: 'approved',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          {
+            id: '2',
+            project_id: 'proj-2',
+            project_name: 'Sample Project 2',
+            description: 'Another test project',
+            materials_cost: 1500,
+            labor_cost: 3000,
+            equipment_cost: 800,
+            transport_cost: 400,
+            accommodation_cost: 300,
+            selling_price: 6500,
+            status: 'pending',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+        ];
+        
+        set((state) => {
+          state.calculations = mockCalculations;
+          state.isLoading = false;
+        });
+      } catch (error) {
+        set((state) => {
+          state.error = error instanceof Error ? error.message : 'Unknown error';
+          state.isLoading = false;
+        });
+      }
+    },
+    
+    calculateProjectPricing: async (projectId) => {
+      try {
+        // Mock implementation - replace with actual API call
+        console.log(`Calculating pricing for project ${projectId}`);
+        // In real implementation, this would call the API
+      } catch (error) {
+        throw error;
+      }
+    },
+    
+    exportPricing: async (calculationId) => {
+      try {
+        // Mock implementation - replace with actual API call
+        console.log(`Exporting pricing for calculation ${calculationId}`);
+        // In real implementation, this would generate and download a file
+      } catch (error) {
+        throw error;
+      }
     },
   }))
 );

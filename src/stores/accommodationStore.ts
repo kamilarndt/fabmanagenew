@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { fetchWithMockFallback, mockData } from "../lib/api";
 import type {
   Booking,
   BookingApiResponse,
@@ -205,8 +206,10 @@ export const useAccommodationStore = create<AccommodationState>()(
 
     fetchBookings: async () => {
       try {
-        const response = await fetch("/api/accommodation/bookings");
-        const bookings = await response.json();
+        const bookings = await fetchWithMockFallback(
+          "/api/accommodation/bookings",
+          mockData.accommodation.bookings
+        );
 
         set((state) => {
           state.bookings = bookings;

@@ -1,13 +1,14 @@
 import { useMemo } from "react";
-import { Button } from "../new-ui/atoms/Button/Button";
-import { Card } from "../new-ui/molecules/Card/Card";
-import { Progress } from "../new-ui/atoms/Progress/Progress";
-import { Tag } from "../new-ui/atoms/Tag/Tag";
-import { List } from "../new-ui/molecules/List/List";
-import { Statistic } from "../new-ui/atoms/Statistic/Statistic";
-import { Grid } from "../new-ui/molecules/Grid/Grid";
+import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../components/shared/PageHeader";
 import { Toolbar } from "../components/ui/Toolbar";
+import { Button } from "../new-ui/atoms/Button/Button";
+import { Progress } from "../new-ui/atoms/Progress/Progress";
+import { Statistic } from "../new-ui/atoms/Statistic/Statistic";
+import { Tag } from "../new-ui/atoms/Tag/Tag";
+import { Card } from "../new-ui/molecules/Card/Card";
+import { Grid } from "../new-ui/molecules/Grid/Grid";
+import { List } from "../new-ui/molecules/List/List";
 import { useProjectsStore } from "../stores/projectsStore";
 // import { useTilesStore } from '../stores/tilesStore' // Unused for now
 import { useTasksStore } from "../stores/tasksStore";
@@ -16,6 +17,7 @@ import { useTasksStore } from "../stores/tasksStore";
 // type DashboardTask = TaskItem
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { projects } = useProjectsStore();
   // const { tiles } = useTilesStore() // Unused for now
   const tasks = useTasksStore((s) => s.tasks);
@@ -30,6 +32,11 @@ export default function Dashboard() {
     [tasks]
   );
   const newInquiries = 2; // Mock data
+
+  const handleProjectClick = (projectName: string) => {
+    // Navigate to project details page
+    navigate(`/project/${projectName.toLowerCase().replace(/\s+/g, "-")}`);
+  };
 
   // Project timeline data
   const projectTimeline = [
@@ -165,10 +172,7 @@ export default function Dashboard() {
             <List
               dataSource={tasks}
               renderItem={(t) => (
-                <List.Item
-                  key={t.id}
-                  className="border-none px-0"
-                >
+                <List.Item key={t.id} className="border-none px-0">
                   <div className="w-4 h-4 mr-3">
                     <input
                       type="checkbox"
@@ -184,9 +188,7 @@ export default function Dashboard() {
                     >
                       {t.title}
                     </div>
-                    <div className="text-muted text-sm">
-                      {t.project}
-                    </div>
+                    <div className="text-muted text-sm">{t.project}</div>
                     <div className="mt-1">
                       <Tag
                         variant={
@@ -216,15 +218,16 @@ export default function Dashboard() {
             <List
               dataSource={projectTimeline}
               renderItem={(p) => (
-                <List.Item>
+                <List.Item key={p.name}>
                   <div className="w-full">
                     <div className="flex justify-between items-center mb-1">
-                      <div className="font-medium text-primary">
+                      <div
+                        className="font-medium text-primary cursor-pointer hover:underline"
+                        onClick={() => handleProjectClick(p.name)}
+                      >
                         {p.name}
                       </div>
-                      <span className="text-muted text-sm">
-                        {p.progress}%
-                      </span>
+                      <span className="text-muted text-sm">{p.progress}%</span>
                     </div>
                     <Progress
                       percent={p.progress}
@@ -256,9 +259,7 @@ export default function Dashboard() {
                       </span>
                     }
                     description={
-                      <span className="text-muted text-sm">
-                        {a.time}
-                      </span>
+                      <span className="text-muted text-sm">{a.time}</span>
                     }
                   />
                 </List.Item>

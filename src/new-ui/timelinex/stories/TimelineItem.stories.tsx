@@ -477,3 +477,4 @@ export const AllStates: Story = {
     onDelete: (itemId) => console.log('Deleted:', itemId),
   },
 };
+

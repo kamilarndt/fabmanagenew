@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { fetchWithMockFallback, mockData } from '../lib/api';
 import type { Message, ChatRoom, PresenceUser, TypingIndicator } from '../types/messaging.types';
 
 interface MessagingState {
@@ -52,8 +53,10 @@ export const useMessagingStore = create<MessagingState>()(
       });
       
       try {
-        const response = await fetch('/api/messaging/rooms');
-        const rooms = await response.json();
+        const rooms = await fetchWithMockFallback(
+          '/api/messaging/rooms',
+          mockData.messaging.chatRooms
+        );
         
         set((state) => {
           state.rooms = rooms;

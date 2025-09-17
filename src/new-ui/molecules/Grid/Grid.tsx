@@ -207,3 +207,7 @@ export interface GridProps {
 export function Grid({ children, className }: GridProps): React.ReactElement {
   return <div className={cn("grid", className)}>{children}</div>;
 }
+
+// Attach Row and Col to Grid for easier usage
+Grid.Row = Row;
+Grid.Col = Col;

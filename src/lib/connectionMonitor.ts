@@ -31,6 +31,12 @@ class ConnectionMonitor {
    * Sprawdza połączenie z API backendu
    */
   async checkApiConnection(): Promise<boolean> {
+    // If Supabase is not configured, don't try to connect
+    if (!config.supabaseUrl || !config.supabaseKey) {
+      console.warn("🔌 Supabase not configured, skipping API connection check");
+      return false;
+    }
+
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
