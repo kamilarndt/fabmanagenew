@@ -1,7 +1,5 @@
-import { Typography as AntTypography } from "antd";
+import { Typography as ModernTypography } from "@/new-ui/atoms/Typography/Typography";
 import React from "react";
-
-const { Title, Text, Paragraph } = AntTypography;
 
 interface TypographyBaseProps {
   children: React.ReactNode;
@@ -59,8 +57,8 @@ const getWeightStyle = (weight?: string): React.CSSProperties => {
 
 export function H1({ children, color, className, style }: HeadingProps) {
   return (
-    <Title
-      level={1}
+    <ModernTypography
+      variant="h1"
       className={className}
       style={{
         fontFamily: "var(--font-family)",
@@ -69,14 +67,14 @@ export function H1({ children, color, className, style }: HeadingProps) {
       }}
     >
       {children}
-    </Title>
+    </ModernTypography>
   );
 }
 
 export function H2({ children, color, className, style }: HeadingProps) {
   return (
-    <Title
-      level={2}
+    <ModernTypography
+      variant="h2"
       className={className}
       style={{
         fontFamily: "var(--font-family)",
@@ -85,14 +83,14 @@ export function H2({ children, color, className, style }: HeadingProps) {
       }}
     >
       {children}
-    </Title>
+    </ModernTypography>
   );
 }
 
 export function H3({ children, color, className, style }: HeadingProps) {
   return (
-    <Title
-      level={3}
+    <ModernTypography
+      variant="h3"
       className={className}
       style={{
         fontFamily: "var(--font-family)",
@@ -101,14 +99,14 @@ export function H3({ children, color, className, style }: HeadingProps) {
       }}
     >
       {children}
-    </Title>
+    </ModernTypography>
   );
 }
 
 export function H4({ children, color, className, style }: HeadingProps) {
   return (
-    <Title
-      level={4}
+    <ModernTypography
+      variant="h4"
       className={className}
       style={{
         fontFamily: "var(--font-family)",
@@ -117,14 +115,14 @@ export function H4({ children, color, className, style }: HeadingProps) {
       }}
     >
       {children}
-    </Title>
+    </ModernTypography>
   );
 }
 
 export function H5({ children, color, className, style }: HeadingProps) {
   return (
-    <Title
-      level={5}
+    <ModernTypography
+      variant="h5"
       className={className}
       style={{
         fontFamily: "var(--font-family)",
@@ -133,7 +131,7 @@ export function H5({ children, color, className, style }: HeadingProps) {
       }}
     >
       {children}
-    </Title>
+    </ModernTypography>
   );
 }
 
@@ -152,7 +150,8 @@ export function Body({
   };
 
   return (
-    <Text
+    <ModernTypography
+      variant="p"
       className={className}
       style={{
         fontFamily: "var(--font-family)",
@@ -164,7 +163,7 @@ export function Body({
       }}
     >
       {children}
-    </Text>
+    </ModernTypography>
   );
 }
 
@@ -175,7 +174,8 @@ export function Caption({
   style,
 }: TypographyBaseProps & { color?: string }) {
   return (
-    <Text
+    <ModernTypography
+      variant="span"
       className={className}
       style={{
         fontFamily: "var(--font-family)",
@@ -185,7 +185,7 @@ export function Caption({
       }}
     >
       {children}
-    </Text>
+    </ModernTypography>
   );
 }
 
@@ -197,7 +197,8 @@ export function Label({
   style,
 }: TextProps) {
   return (
-    <Text
+    <ModernTypography
+      variant="span"
       className={className}
       style={{
         fontFamily: "var(--font-family)",
@@ -208,7 +209,7 @@ export function Label({
       }}
     >
       {children}
-    </Text>
+    </ModernTypography>
   );
 }
 
@@ -220,7 +221,8 @@ export function AppParagraph({
   style,
 }: TextProps) {
   return (
-    <Paragraph
+    <ModernTypography
+      variant="p"
       className={className}
       style={{
         fontFamily: "var(--font-family)",
@@ -230,6 +232,6 @@ export function AppParagraph({
       }}
     >
       {children}
-    </Paragraph>
+    </ModernTypography>
   );
 }

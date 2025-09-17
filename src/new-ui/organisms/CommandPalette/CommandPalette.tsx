@@ -124,7 +124,6 @@ export function CommandPalette({
             className="tw-mr-2 tw-h-4 tw-w-4 tw-shrink-0 tw-opacity-50"
           />
           <Input
-            ref={inputRef}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={placeholder}

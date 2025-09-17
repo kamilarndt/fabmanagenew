@@ -1,8 +1,8 @@
-import * as AntIcons from "@ant-design/icons";
+import { Icon as ModernIcon } from "@/new-ui/atoms/Icon/Icon";
 import React from "react";
 
 interface IconProps {
-  name: keyof typeof AntIcons;
+  name: string;
   size?: number | string;
   color?: string;
   className?: string;
@@ -18,49 +18,59 @@ export function Icon({
   style,
   onClick,
 }: IconProps) {
-  const IconComponent = AntIcons[name] as React.ComponentType<any>;
-  if (!IconComponent) {
-    console.warn(`Icon "${String(name)}" not found in Ant Design icons`);
-    return null;
-  }
+  const sizeClass =
+    typeof size === "number"
+      ? size <= 12
+        ? "sm"
+        : size <= 20
+        ? "md"
+        : "lg"
+      : "md";
+
   const iconStyles: React.CSSProperties = {
-    fontSize: typeof size === "number" ? `${size}px` : size,
     color,
     cursor: onClick ? "pointer" : "default",
     ...style,
   };
+
   return (
-    <IconComponent className={className} style={iconStyles} onClick={onClick} />
+    <ModernIcon
+      name={name}
+      size={sizeClass as "sm" | "md" | "lg"}
+      className={className}
+      style={iconStyles}
+      onClick={onClick}
+    />
   );
 }
 
 export function LoadingIcon(props: Omit<IconProps, "name">) {
-  return <Icon name="LoadingOutlined" {...props} />;
+  return <Icon name="loader-2" {...props} />;
 }
 export function CheckIcon(props: Omit<IconProps, "name">) {
-  return <Icon name="CheckOutlined" {...props} />;
+  return <Icon name="check" {...props} />;
 }
 export function CloseIcon(props: Omit<IconProps, "name">) {
-  return <Icon name="CloseOutlined" {...props} />;
+  return <Icon name="x" {...props} />;
 }
 export function EditIcon(props: Omit<IconProps, "name">) {
-  return <Icon name="EditOutlined" {...props} />;
+  return <Icon name="edit" {...props} />;
 }
 export function DeleteIcon(props: Omit<IconProps, "name">) {
-  return <Icon name="DeleteOutlined" {...props} />;
+  return <Icon name="delete" {...props} />;
 }
 export function SearchIcon(props: Omit<IconProps, "name">) {
-  return <Icon name="SearchOutlined" {...props} />;
+  return <Icon name="search" {...props} />;
 }
 export function PlusIcon(props: Omit<IconProps, "name">) {
-  return <Icon name="PlusOutlined" {...props} />;
+  return <Icon name="plus" {...props} />;
 }
 export function DownloadIcon(props: Omit<IconProps, "name">) {
-  return <Icon name="DownloadOutlined" {...props} />;
+  return <Icon name="download" {...props} />;
 }
 export function UploadIcon(props: Omit<IconProps, "name">) {
-  return <Icon name="UploadOutlined" {...props} />;
+  return <Icon name="upload" {...props} />;
 }
 export function SettingsIcon(props: Omit<IconProps, "name">) {
-  return <Icon name="SettingOutlined" {...props} />;
+  return <Icon name="settings" {...props} />;
 }

@@ -1,4 +1,3 @@
-import { Icon } from "@/new-ui/atoms/Icon/Icon";
 import { cn } from "@/new-ui/utils/cn";
 import * as React from "react";
 
@@ -8,93 +7,69 @@ export interface SelectOption {
   disabled?: boolean;
 }
 
-export interface SelectProps {
+export interface SelectProps
+  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "onChange"> {
   options: SelectOption[];
-  value?: string;
-  onChange?: (value: string) => void;
   placeholder?: string;
-  className?: string;
-  disabled?: boolean;
-  error?: boolean;
+  error?: string;
+  label?: string;
+  required?: boolean;
+  onChange?: (value: string) => void;
 }
 
 export function Select({
-  options,
-  value,
-  onChange,
-  placeholder = "Select an option...",
   className,
-  disabled = false,
-  error = false,
+  options,
+  placeholder,
+  error,
+  label,
+  required = false,
+  onChange,
+  ...props
 }: SelectProps): React.ReactElement {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [selectedValue, setSelectedValue] = React.useState(value || "");
-
-  const selectedOption = options.find(
-    (option) => option.value === selectedValue
-  );
-
-  const handleSelect = (optionValue: string) => {
-    setSelectedValue(optionValue);
-    onChange?.(optionValue);
-    setIsOpen(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape") {
-      setIsOpen(false);
-    }
-  };
+  const id = React.useId();
+  const selectId = `select-${id}`;
 
   return (
-    <div className={cn("tw-relative", className)}>
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        onKeyDown={handleKeyDown}
-        disabled={disabled}
-        className={cn(
-          "tw-flex tw-h-10 tw-w-full tw-items-center tw-justify-between tw-rounded-md tw-border tw-border-input tw-bg-background tw-px-3 tw-py-2 tw-text-sm tw-ring-offset-background placeholder:tw-text-muted-foreground focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-ring focus:tw-ring-offset-2 disabled:tw-cursor-not-allowed disabled:tw-opacity-50",
-          error && "tw-border-destructive focus:tw-ring-destructive"
-        )}
-      >
-        <span
-          className={cn(
-            selectedOption ? "tw-text-foreground" : "tw-text-muted-foreground"
-          )}
+    <div className="space-y-2">
+      {label && (
+        <label
+          htmlFor={selectId}
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
-        <Icon
-          name={isOpen ? "chevron-up" : "chevron-down"}
-          className="tw-h-4 tw-w-4 tw-opacity-50"
-        />
-      </button>
-
-      {isOpen && (
-        <div className="tw-absolute tw-z-50 tw-mt-1 tw-w-full tw-rounded-md tw-border tw-bg-popover tw-p-1 tw-text-popover-foreground tw-shadow-md">
-          {options.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => handleSelect(option.value)}
-              disabled={option.disabled}
-              className={cn(
-                "tw-relative tw-flex tw-w-full tw-cursor-default tw-select-none tw-items-center tw-rounded-sm tw-py-1.5 tw-pl-8 tw-pr-2 tw-text-sm tw-outline-none focus:tw-bg-accent focus:tw-text-accent-foreground data-[disabled]:tw-pointer-events-none data-[disabled]:tw-opacity-50",
-                option.value === selectedValue &&
-                  "tw-bg-accent tw-text-accent-foreground"
-              )}
-            >
-              {option.value === selectedValue && (
-                <Icon
-                  name="check"
-                  className="tw-absolute tw-left-2 tw-h-4 tw-w-4"
-                />
-              )}
-              {option.label}
-            </button>
-          ))}
-        </div>
+          {label}
+          {required && <span className="ml-1 text-red-500">*</span>}
+        </label>
+      )}
+      <select
+        id={selectId}
+        className={cn(
+          "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+          error && "border-red-500 focus-visible:ring-red-500",
+          className
+        )}
+        onChange={(e) => onChange?.(e.target.value)}
+        {...props}
+      >
+        {placeholder && (
+          <option value="" disabled>
+            {placeholder}
+          </option>
+        )}
+        {options.map((option) => (
+          <option
+            key={option.value}
+            value={option.value}
+            disabled={option.disabled}
+          >
+            {option.label}
+          </option>
+        ))}
+      </select>
+      {error && (
+        <p className="text-sm text-red-500" role="alert">
+          {error}
+        </p>
       )}
     </div>
   );

@@ -1,36 +1,43 @@
 import { cn } from "@/new-ui/utils/cn";
-import { cva, type VariantProps } from "@/new-ui/utils/variants";
 import * as React from "react";
 
-const badgeVariants = cva(
-  "tw-inline-flex tw-items-center tw-rounded-md tw-border tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-semibold",
-  {
-    variants: {
-      variant: {
-        default: "tw-bg-secondary tw-text-secondary-foreground",
-        destructive:
-          "tw-border-transparent tw-bg-destructive tw-text-destructive-foreground",
-        outline: "tw-text-foreground",
-        success: "tw-bg-success tw-text-success-foreground",
-        warning: "tw-bg-warning tw-text-warning-foreground",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-);
-
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?:
+    | "default"
+    | "secondary"
+    | "destructive"
+    | "outline"
+    | "success"
+    | "warning";
+  children: React.ReactNode;
+}
 
 export function Badge({
   className,
-  variant,
+  variant = "default",
+  children,
   ...props
 }: BadgeProps): React.ReactElement {
+  const variantClasses = {
+    default: "bg-primary text-primary-foreground hover:bg-primary/80",
+    secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+    destructive:
+      "bg-destructive text-destructive-foreground hover:bg-destructive/80",
+    outline: "text-foreground border border-input",
+    success: "bg-green-500 text-white hover:bg-green-600",
+    warning: "bg-yellow-500 text-white hover:bg-yellow-600",
+  };
+
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <div
+      className={cn(
+        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+        variantClasses[variant],
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </div>
   );
 }

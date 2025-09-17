@@ -1,9 +1,14 @@
 import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Icon } from "../atoms/Icon/Icon";
 import { Sidebar } from "../organisms/Sidebar";
 import type { SidebarItem } from "../organisms/Sidebar/Sidebar";
 
-const ModernLayout: React.FC = () => {
+interface ModernLayoutProps {
+  children?: React.ReactNode;
+}
+
+const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -13,60 +18,70 @@ const ModernLayout: React.FC = () => {
       id: "dashboard",
       label: "Dashboard",
       icon: "house",
+      href: "/",
       onClick: () => navigate("/"),
     },
     {
       id: "projekty",
       label: "Projekty",
       icon: "files",
+      href: "/projects",
       onClick: () => navigate("/projects"),
     },
     {
       id: "klienci",
       label: "Klienci",
       icon: "users",
+      href: "/klienci",
       onClick: () => navigate("/klienci"),
     },
     {
       id: "kalendarz",
       label: "Kalendarz",
       icon: "calendar-days",
+      href: "/calendar",
       onClick: () => navigate("/calendar"),
     },
     {
       id: "dzial-projektowy",
       label: "Dział Projektowy",
       icon: "pencil-ruler",
+      href: "/projektowanie",
       onClick: () => navigate("/projektowanie"),
     },
     {
       id: "cnc",
       label: "CNC",
       icon: "drill",
+      href: "/cnc",
       onClick: () => navigate("/cnc"),
     },
     {
       id: "produkcja",
       label: "Produkcja",
       icon: "factory",
+      href: "/produkcja",
       onClick: () => navigate("/produkcja"),
     },
     {
       id: "magazyn",
       label: "Magazyn",
       icon: "warehouse",
+      href: "/magazyn",
       onClick: () => navigate("/magazyn"),
     },
     {
       id: "podwykonawcy",
       label: "Podwykonawcy",
       icon: "hard-hat",
+      href: "/subcontractors",
       onClick: () => navigate("/subcontractors"),
     },
     {
       id: "zapotrzebowania",
       label: "Zapotrzebowania",
       icon: "package",
+      href: "/demands",
       onClick: () => navigate("/demands"),
     },
   ];
@@ -74,17 +89,21 @@ const ModernLayout: React.FC = () => {
   // Określ aktywny element na podstawie aktualnej ścieżki
   const getActiveItem = () => {
     const path = location.pathname;
-    if (path === "/") return "dashboard";
-    if (path.startsWith("/projects")) return "projekty";
-    if (path.startsWith("/klienci")) return "klienci";
-    if (path.startsWith("/calendar")) return "kalendarz";
-    if (path.startsWith("/projektowanie")) return "dzial-projektowy";
-    if (path.startsWith("/cnc")) return "cnc";
-    if (path.startsWith("/produkcja")) return "produkcja";
-    if (path.startsWith("/magazyn")) return "magazyn";
-    if (path.startsWith("/subcontractors")) return "podwykonawcy";
-    if (path.startsWith("/demands")) return "zapotrzebowania";
-    return "dashboard";
+    const findActive = (items: SidebarItem[]): SidebarItem | undefined => {
+      for (const item of items) {
+        if (item.href === path) {
+          return item;
+        }
+        if (item.children) {
+          const activeChild = findActive(item.children);
+          if (activeChild) {
+            return activeChild;
+          }
+        }
+      }
+      return undefined;
+    };
+    return findActive(sidebarItems);
   };
 
   const handleItemClick = (item: SidebarItem) => {
@@ -92,17 +111,13 @@ const ModernLayout: React.FC = () => {
   };
 
   const header = (
-    <div className="tw-flex tw-items-center tw-gap-3 tw-px-2">
-      <div className="tw-flex tw-h-8 tw-w-8 tw-items-center tw-justify-center tw-rounded-lg tw-bg-sidebar-primary">
-        <span className="tw-text-sm tw-font-bold tw-text-sidebar-primary-foreground">
-          F
-        </span>
+    <div className="flex items-center gap-4">
+      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg">
+        <span className="text-xl font-bold text-white">F</span>
       </div>
       <div>
-        <div className="tw-text-base tw-font-semibold tw-text-sidebar-foreground">
-          FabManage
-        </div>
-        <div className="tw-text-xs tw-text-sidebar-accent-foreground">
+        <div className="text-lg font-bold text-white">FabManage</div>
+        <div className="text-xs text-gray-400">
           System Zarządzania Produkcją
         </div>
       </div>
@@ -110,37 +125,44 @@ const ModernLayout: React.FC = () => {
   );
 
   return (
-    <div className="tw-flex tw-h-screen tw-bg-background">
+    <div className="flex h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Sidebar */}
-      <Sidebar
-        items={sidebarItems}
-        activeItem={getActiveItem()}
-        onItemClick={handleItemClick}
-        header={header}
-        className="tw-w-64 tw-bg-sidebar tw-border-r tw-border-sidebar-border tw-flex-shrink-0"
-      />
+      <div className="glass-sidebar w-64 flex-shrink-0">
+        <Sidebar
+          items={sidebarItems}
+          activeItem={getActiveItem()}
+          onItemClick={handleItemClick}
+          header={header}
+          className="h-full"
+        />
+      </div>
 
       {/* Main Content */}
-      <div className="tw-flex-1 tw-flex tw-flex-col tw-overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="tw-h-18 tw-bg-background tw-border-b tw-border-border tw-px-6 tw-py-4">
-          <div className="tw-flex tw-items-center tw-justify-between">
-            <div className="tw-flex tw-items-center tw-gap-2">
-              <span className="tw-text-muted-foreground">Title</span>
-              <span className="tw-text-muted-foreground">›</span>
-              <span className="tw-text-muted-foreground">Title</span>
-              <span className="tw-text-muted-foreground">›</span>
-              <span className="tw-text-foreground">Title</span>
+        <header className="glass-card m-4 mb-0 p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-gray-400">Dashboard</span>
+              <Icon name="chevron-right" className="w-4 h-4 text-gray-400" />
+              <span className="text-white font-medium">Przegląd</span>
             </div>
-            <button className="tw-rounded-md tw-bg-primary tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-primary-foreground hover:tw-bg-primary/90">
-              Documentation Link
-            </button>
+            <div className="flex items-center space-x-3">
+              <button className="glass-button px-4 py-2 flex items-center space-x-2 hover-lift">
+                <Icon name="bell" className="w-4 h-4" />
+                <span>Powiadomienia</span>
+              </button>
+              <button className="neu-button px-4 py-2 flex items-center space-x-2 hover-lift">
+                <Icon name="user" className="w-4 h-4" />
+                <span>Profil</span>
+              </button>
+            </div>
           </div>
         </header>
 
         {/* Main Content Area */}
-        <main className="tw-flex-1 tw-overflow-y-auto tw-bg-background">
-          <Outlet />
+        <main className="flex-1 overflow-y-auto p-4">
+          <div className="animate-fade-in">{children || <Outlet />}</div>
         </main>
       </div>
     </div>

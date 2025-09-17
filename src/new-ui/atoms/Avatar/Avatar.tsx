@@ -4,39 +4,43 @@ import * as React from "react";
 export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   src?: string;
   alt?: string;
-  fallback?: string;
-  size?: number;
+  children?: React.ReactNode;
+  size?: "sm" | "md" | "lg";
 }
 
 export function Avatar({
+  className,
   src,
   alt,
-  fallback,
-  size = 32,
-  className,
+  children,
+  size = "md",
   ...props
 }: AvatarProps): React.ReactElement {
-  const dimension = { width: size, height: size } as const;
+  const sizeClasses = {
+    sm: "h-8 w-8",
+    md: "h-10 w-10",
+    lg: "h-12 w-12",
+  };
+
   return (
     <div
       className={cn(
-        "tw-inline-flex tw-items-center tw-justify-center tw-rounded-full tw-bg-muted tw-text-foreground tw-overflow-hidden",
+        "relative flex shrink-0 overflow-hidden rounded-full",
+        sizeClasses[size],
         className
       )}
-      style={dimension}
       {...props}
     >
       {src ? (
-        // eslint-disable-next-line jsx-a11y/img-redundant-alt
         <img
           src={src}
-          alt={alt ?? "avatar"}
-          className="tw-h-full tw-w-full tw-object-cover"
+          alt={alt}
+          className="aspect-square h-full w-full object-cover"
         />
       ) : (
-        <span className="tw-text-xs tw-font-medium">
-          {fallback?.slice(0, 2).toUpperCase()}
-        </span>
+        <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+          {children || "?"}
+        </div>
       )}
     </div>
   );

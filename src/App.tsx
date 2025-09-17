@@ -45,7 +45,7 @@ const TilesV2 = lazy(() => import("./pages/v2/TilesV2"));
 const SettingsV2 = lazy(() => import("./pages/v2/SettingsV2"));
 
 // Modern UI Layout
-const ModernLayout = lazy(() => import("./new-ui/layouts/ModernLayout"));
+import ModernLayout from "./new-ui/layouts/ModernLayout";
 
 // Modern UI Pages
 const ModernDashboard = lazy(() => import("./new-ui/pages/ModernDashboard"));
@@ -109,10 +109,7 @@ function App() {
               <Route path="designer" element={<ModernProjects />} />
               <Route path="calendar" element={<ModernProjects />} />
               <Route path="calendar/projects" element={<ModernProjects />} />
-              <Route
-                path="calendar/designers"
-                element={<ModernProjects />}
-              />
+              <Route path="calendar/designers" element={<ModernProjects />} />
               <Route path="calendar/teams" element={<ModernProjects />} />
               <Route path="subcontractors" element={<ModernProjects />} />
               <Route path="demands" element={<ModernProjects />} />

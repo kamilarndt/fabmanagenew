@@ -64,7 +64,7 @@ export function SearchBox({
         {internalValue && (
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={handleClear}
             className="tw-absolute tw-right-2 tw-top-1/2 tw-h-6 tw-w-6 tw--translate-y-1/2 tw-p-0"
           >

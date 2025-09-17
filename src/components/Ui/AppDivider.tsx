@@ -1,11 +1,14 @@
-import type { DividerProps } from "antd";
-import { ConfigProvider, Divider } from "antd";
+import { AppDivider as ModernAppDivider } from "@/new-ui/atoms/AppDivider/AppDivider";
 import React from "react";
 
-interface AppDividerProps extends DividerProps {
+interface AppDividerProps {
   variant?: "solid" | "dashed" | "dotted";
   spacing?: "sm" | "md" | "lg";
   color?: string;
+  children?: React.ReactNode;
+  type?: "horizontal" | "vertical";
+  style?: React.CSSProperties;
+  className?: string;
 }
 
 export function AppDivider({
@@ -16,24 +19,16 @@ export function AppDivider({
   type = "horizontal",
   ...props
 }: AppDividerProps) {
-  const spacingMap: Record<string, React.CSSProperties> = {
-    sm: type === "horizontal" ? { margin: "8px 0" } : { margin: "0 8px" },
-    md: type === "horizontal" ? { margin: "16px 0" } : { margin: "0 16px" },
-    lg: type === "horizontal" ? { margin: "24px 0" } : { margin: "0 24px" },
-  };
-
-  const dividerStyles: React.CSSProperties = {
-    fontFamily: "var(--font-family)",
-    ...spacingMap[spacing],
-    ...(variant ? { borderStyle: variant as any } : {}),
-  };
-
   return (
-    <ConfigProvider>
-      <Divider type={type} style={dividerStyles} {...props}>
-        {children}
-      </Divider>
-    </ConfigProvider>
+    <ModernAppDivider
+      type={type}
+      color={color}
+      variant={variant}
+      spacing={spacing}
+      {...props}
+    >
+      {children}
+    </ModernAppDivider>
   );
 }
 

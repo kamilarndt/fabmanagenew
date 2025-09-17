@@ -1,72 +1,91 @@
 import { cn } from "@/new-ui/utils/cn";
-import { cva, type VariantProps } from "@/new-ui/utils/variants";
 import * as React from "react";
 
-const alertVariants = cva(
-  "tw-relative tw-w-full tw-rounded-lg tw-border tw-p-4 [&>svg~*]:tw-pl-7 [&>svg+div]:tw-translate-y-[-3px] [&>svg]:tw-absolute [&>svg]:tw-left-4 [&>svg]:tw-top-4 [&>svg]:tw-text-foreground",
-  {
-    variants: {
-      variant: {
-        default: "tw-bg-background tw-text-foreground",
-        destructive:
-          "tw-border-destructive/50 tw-text-destructive dark:tw-border-destructive [&>svg]:tw-text-destructive",
-        success: "tw-border-success/50 tw-text-success [&>svg]:tw-text-success",
-        warning: "tw-border-warning/50 tw-text-warning [&>svg]:tw-text-warning",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-);
-
-export interface AlertProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof alertVariants> {}
+export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "info" | "success" | "warning" | "danger";
+  title?: string;
+  description?: string;
+  showIcon?: boolean;
+  closable?: boolean;
+  onClose?: () => void;
+}
 
 export function Alert({
   className,
-  variant,
+  variant = "info",
+  title,
+  description,
+  showIcon = true,
+  closable = false,
+  onClose,
+  children,
   ...props
 }: AlertProps): React.ReactElement {
+  const [isVisible, setIsVisible] = React.useState(true);
+
+  const handleClose = () => {
+    setIsVisible(false);
+    onClose?.();
+  };
+
+  if (!isVisible) {
+    return <></>;
+  }
+
+  const variantClasses = {
+    info: "bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-200",
+    success:
+      "bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-200",
+    warning:
+      "bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-200",
+    danger:
+      "bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200",
+  };
+
+  const iconClasses = {
+    info: "text-blue-400",
+    success: "text-green-400",
+    warning: "text-yellow-400",
+    danger: "text-red-400",
+  };
+
+  const icons = {
+    info: "ℹ",
+    success: "✓",
+    warning: "⚠",
+    danger: "✕",
+  };
+
   return (
     <div
-      role="alert"
-      className={cn(alertVariants({ variant }), className)}
-      {...props}
-    />
-  );
-}
-
-export interface AlertTitleProps
-  extends React.HTMLAttributes<HTMLHeadingElement> {}
-
-export function AlertTitle({
-  className,
-  ...props
-}: AlertTitleProps): React.ReactElement {
-  return (
-    <h5
       className={cn(
-        "tw-mb-1 tw-font-medium tw-leading-none tw-tracking-tight",
+        "rounded-lg border p-4",
+        variantClasses[variant],
         className
       )}
       {...props}
-    />
-  );
-}
-
-export interface AlertDescriptionProps
-  extends React.HTMLAttributes<HTMLDivElement> {}
-
-export function AlertDescription({
-  className,
-  ...props
-}: AlertDescriptionProps): React.ReactElement {
-  return (
-    <div
-      className={cn("tw-text-sm [&_p]:tw-leading-relaxed", className)}
-      {...props}
-    />
+    >
+      <div className="flex">
+        {showIcon && (
+          <div className={cn("mr-3 flex-shrink-0", iconClasses[variant])}>
+            <span className="text-lg">{icons[variant]}</span>
+          </div>
+        )}
+        <div className="flex-1">
+          {title && <h3 className="text-sm font-medium mb-1">{title}</h3>}
+          {description && <p className="text-sm">{description}</p>}
+          {children}
+        </div>
+        {closable && (
+          <button
+            onClick={handleClose}
+            className="ml-3 flex-shrink-0 text-gray-400 hover:text-gray-600"
+          >
+            <span className="sr-only">Close</span>
+            <span className="text-lg">×</span>
+          </button>
+        )}
+      </div>
+    </div>
   );
 }

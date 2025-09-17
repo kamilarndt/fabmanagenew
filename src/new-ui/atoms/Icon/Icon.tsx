@@ -72,6 +72,15 @@ export function Icon({
     warehouse: "🏪",
     "hard-hat": "⛑️",
     package: "📦",
+
+    // Dashboard Icons
+    "check-circle": "✅",
+    clock: "🕐",
+    "currency-dollar": "💰",
+    "arrow-trending-up": "📈",
+    "arrow-trending-down": "📉",
+    cog: "⚙️",
+    "shopping-cart": "🛒",
   };
 
   const iconContent = iconMap[name] || "?";

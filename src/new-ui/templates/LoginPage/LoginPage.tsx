@@ -95,7 +95,7 @@ export function LoginPage({
               <div className="tw-flex tw-items-center tw-justify-between">
                 <Button
                   type="button"
-                  variant="link"
+                  variant="ghost"
                   size="sm"
                   onClick={onForgotPassword}
                   className="tw-p-0 tw-h-auto"

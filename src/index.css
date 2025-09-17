@@ -8,7 +8,11 @@
 @import "tailwindcss";
 
 @import "./styles/design-tokens.css";
+@import "./styles/css-variables.css";
 @import "./styles/modern-ui.css";
+@import "./styles/glassmorphism.css";
+@import "./styles/neumorphism.css";
+@import "./styles/animations.css";
 
 /* ========================================
    SPECYFICZNE STYLE DLA INDEX.HTML

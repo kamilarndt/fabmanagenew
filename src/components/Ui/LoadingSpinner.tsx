@@ -1,7 +1,6 @@
-import { Card, ConfigProvider, Spin } from "antd";
+import { Card as ModernCard } from "@/new-ui/atoms/Card/Card";
+import { LoadingSpinner as ModernLoadingSpinner } from "@/new-ui/atoms/LoadingSpinner/LoadingSpinner";
 import React from "react";
-import { LoadingIcon } from "./Icon";
-import { Caption } from "./Typography";
 
 interface LoadingSpinnerProps {
   message?: string;
@@ -18,9 +17,11 @@ export function LoadingSpinner({
   style,
   className,
 }: LoadingSpinnerProps) {
-  const icon = (
-    <LoadingIcon size={size === "large" ? 24 : size === "small" ? 14 : 20} />
-  );
+  const sizeMap = {
+    small: "sm" as const,
+    default: "md" as const,
+    large: "lg" as const,
+  };
 
   if (type === "overlay") {
     return (
@@ -40,71 +41,33 @@ export function LoadingSpinner({
           ...style,
         }}
       >
-        <div style={{ textAlign: "center" }}>
-          <Spin indicator={icon} size={size} />
-          {message && (
-            <Caption
-              style={{
-                display: "block",
-                marginTop: 12,
-                fontSize: size === "small" ? 12 : 14,
-              }}
-            >
-              {message}
-            </Caption>
-          )}
-        </div>
+        <ModernLoadingSpinner size={sizeMap[size]} text={message} />
       </div>
     );
   }
 
   if (type === "card") {
     return (
-      <ConfigProvider>
-        <Card
-          className={className}
-          style={{
-            textAlign: "center",
-            padding: size === "large" ? 48 : 24,
-            ...style,
-          }}
-        >
-          <Spin indicator={icon} size={size} />
-          {message && (
-            <Caption
-              style={{
-                display: "block",
-                marginTop: 16,
-                fontSize: size === "small" ? 12 : 14,
-              }}
-            >
-              {message}
-            </Caption>
-          )}
-        </Card>
-      </ConfigProvider>
+      <ModernCard
+        className={className}
+        style={{
+          textAlign: "center",
+          padding: size === "large" ? 48 : 24,
+          ...style,
+        }}
+      >
+        <ModernLoadingSpinner size={sizeMap[size]} text={message} />
+      </ModernCard>
     );
   }
 
   return (
-    <div
+    <ModernLoadingSpinner
       className={className}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 12,
-        padding: size === "large" ? 32 : size === "small" ? 8 : 16,
-        ...style,
-      }}
-    >
-      <Spin indicator={icon} size={size} />
-      {message && (
-        <Caption style={{ fontSize: size === "small" ? 12 : 14 }}>
-          {message}
-        </Caption>
-      )}
-    </div>
+      size={sizeMap[size]}
+      text={message}
+      style={style}
+    />
   );
 }
 

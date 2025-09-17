@@ -114,7 +114,7 @@ export function Sheet({
             </div>
             <Button
               variant="ghost"
-              size="icon"
+              size="sm"
               onClick={() => onOpenChange(false)}
             >
               <Icon name="x" className="tw-h-4 tw-w-4" />

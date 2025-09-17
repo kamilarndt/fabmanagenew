@@ -1,5 +1,4 @@
-import { Tag } from "antd";
-import React from "react";
+import { Badge as ModernBadge } from "@/new-ui/atoms/Badge/Badge";
 import { getStatusColor } from "../../lib/statusUtils";
 
 interface StatusBadgeProps {
@@ -21,27 +20,38 @@ export function StatusBadge({
   const icon: string | undefined = undefined;
   const description = status;
 
-  const sizeStyles: Record<"sm" | "md" | "lg", React.CSSProperties> = {
-    sm: { fontSize: 12, paddingInline: 6, height: 22 },
-    md: { fontSize: 12, paddingInline: 8, height: 24 },
-    lg: { fontSize: 14, paddingInline: 10, height: 28 },
+  const getVariant = (color: string) => {
+    switch (color) {
+      case "success":
+      case "green":
+        return "success";
+      case "warning":
+      case "orange":
+        return "warning";
+      case "error":
+      case "red":
+        return "destructive";
+      case "blue":
+        return "secondary";
+      default:
+        return "default";
+    }
   };
 
   return (
-    <Tag
-      color={color}
+    <ModernBadge
+      variant={getVariant(color) as any}
       style={{
         borderRadius: 6,
         fontFamily: "var(--font-family)",
         fontWeight: 500,
-        ...sizeStyles[size],
       }}
       title={showTooltip ? description : undefined}
       className={className}
     >
       {showIcon && <i className={`${icon} me-1`} />}
       {status}
-    </Tag>
+    </ModernBadge>
   );
 }
 

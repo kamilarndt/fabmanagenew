@@ -1,33 +1,115 @@
 :root {
+  /* === MODERN SPACING SYSTEM (8-point grid) === */
   --spacing-0: 0px;
   --spacing-1: 4px;
   --spacing-2: 8px;
   --spacing-3: 12px;
   --spacing-4: 16px;
+  --spacing-5: 20px;
   --spacing-6: 24px;
   --spacing-8: 32px;
+  --spacing-10: 40px;
   --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-20: 80px;
+  --spacing-24: 96px;
 
-  --color-brand-primary: #1677ff;
-  --color-brand-primary-hover: #0958d9;
+  /* === MODERN BRAND COLORS 2024-2025 === */
+  --color-brand-primary: #6366f1;        /* Indigo - Modern, professional */
+  --color-brand-primary-hover: #4f46e5;  /* Darker indigo for hover */
+  --color-brand-primary-light: #a5b4fc;  /* Light indigo for backgrounds */
+  --color-brand-secondary: #8b5cf6;      /* Purple - Creative, innovative */
+  --color-brand-accent: #06b6d4;         /* Cyan - Fresh, technological */
+  --color-brand-accent-hover: #0891b2;   /* Darker cyan for hover */
 
-  --color-status-planning: #1677ff;
-  --color-status-design: #722ed1;
-  --color-status-approved: #52c41a;
-  --color-status-cutting: #fa8c16;
-  --color-status-assembly: #13c2c2;
-  --color-status-ready: #52c41a;
-  --color-status-shipped: #8c8c8c;
+  /* === SEMANTIC COLORS === */
+  --color-success: #10b981;              /* Emerald - Clear success */
+  --color-success-hover: #059669;        /* Darker emerald */
+  --color-success-light: #a7f3d0;        /* Light emerald */
+  --color-warning: #f59e0b;              /* Amber - Attention */
+  --color-warning-hover: #d97706;        /* Darker amber */
+  --color-warning-light: #fde68a;        /* Light amber */
+  --color-error: #ef4444;                /* Red - Clear error */
+  --color-error-hover: #dc2626;          /* Darker red */
+  --color-error-light: #fecaca;          /* Light red */
+  --color-info: #3b82f6;                 /* Blue - Informational */
+  --color-info-hover: #2563eb;           /* Darker blue */
+  --color-info-light: #bfdbfe;           /* Light blue */
 
-  --font-family-sans: "Inter", system-ui, sans-serif;
-  --font-size-xs: 12px;
-  --font-size-sm: 14px;
-  --font-size-base: 16px;
-  --font-size-lg: 18px;
+  /* === NEUTRAL PALETTE === */
+  --color-neutral-50: #f8fafc;           /* Lightest */
+  --color-neutral-100: #f1f5f9;
+  --color-neutral-200: #e2e8f0;
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-500: #64748b;
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1e293b;
+  --color-neutral-900: #0f172a;          /* Darkest */
 
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  --shadow-base: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  /* === STATUS COLORS (Enhanced) === */
+  --color-status-planning: #6366f1;      /* Indigo */
+  --color-status-design: #8b5cf6;        /* Purple */
+  --color-status-approved: #10b981;      /* Emerald */
+  --color-status-cutting: #f59e0b;       /* Amber */
+  --color-status-assembly: #06b6d4;      /* Cyan */
+  --color-status-ready: #10b981;         /* Emerald */
+  --color-status-shipped: #64748b;       /* Neutral */
+
+  /* === MODERN TYPOGRAPHY === */
+  --font-family-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: "JetBrains Mono", "Fira Code", Consolas, monospace;
+  --font-family-display: "Poppins", sans-serif;
+
+  /* Font Sizes (Modern Scale) */
+  --font-size-xs: 0.75rem;     /* 12px */
+  --font-size-sm: 0.875rem;    /* 14px */
+  --font-size-base: 1rem;      /* 16px */
+  --font-size-lg: 1.125rem;    /* 18px */
+  --font-size-xl: 1.25rem;     /* 20px */
+  --font-size-2xl: 1.5rem;     /* 24px */
+  --font-size-3xl: 1.875rem;   /* 30px */
+  --font-size-4xl: 2.25rem;    /* 36px */
+  --font-size-5xl: 3rem;       /* 48px */
+
+  /* Line Heights */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+
+  /* Font Weights */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* === MODERN SHADOWS === */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-base: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+
+  /* === GLASSMORPHISM EFFECTS === */
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-blur: blur(10px);
+  --glass-backdrop: backdrop-filter: var(--glass-blur);
+
+  /* === NEUMORPHISM EFFECTS === */
+  --neu-light: #ffffff;
+  --neu-dark: #d1d9e6;
+  --neu-shadow-light: 20px 20px 60px #bebebe;
+  --neu-shadow-dark: -20px -20px 60px #ffffff;
 }
 
 [data-theme="dark"] {

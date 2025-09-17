@@ -1,0 +1,120 @@
+name: Design Tokens Sync from Figma
+
+on:
+  schedule:
+    # Run every day at 9 AM UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force update even if no changes detected'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  FIGMA_API_TOKEN: ${{ secrets.FIGMA_API_TOKEN }}
+  FIGMA_FILE_KEY: ${{ secrets.FIGMA_FILE_KEY }}
+
+jobs:
+  sync-tokens:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch design tokens from Figma
+        run: |
+          node scripts/fetch-figma-tokens.js
+        env:
+          FIGMA_API_TOKEN: ${{ secrets.FIGMA_API_TOKEN }}
+          FIGMA_FILE_KEY: ${{ secrets.FIGMA_FILE_KEY }}
+
+      - name: Generate CSS variables
+        run: |
+          node scripts/generate-css-variables.js
+
+      - name: Generate TypeScript types
+        run: |
+          node scripts/generate-typescript-types.js
+
+      - name: Validate tokens
+        run: |
+          npm run validate-tokens
+
+      - name: Run tests
+        run: |
+          npm run test:design-system
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "no_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "no_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit changes
+        if: steps.changes.outputs.no_changes == 'false'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "chore: update design tokens from Figma [skip ci]"
+          git push
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.no_changes == 'false'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update design tokens from Figma"
+          title: "🔄 Design Tokens Update from Figma"
+          body: |
+            ## 🔄 Design Tokens Update
+            
+            This PR contains automatic updates to design tokens from Figma.
+            
+            ### Changes:
+            - Updated design tokens from Figma
+            - Regenerated CSS variables
+            - Updated TypeScript types
+            - Validated token consistency
+            
+            ### Files changed:
+            - `assets/design-tokens.tokens.json`
+            - `src/styles/design-tokens.css`
+            - `src/design-system/types/tokens.ts`
+            
+            ### Validation:
+            - ✅ Token validation passed
+            - ✅ TypeScript compilation successful
+            - ✅ Design system tests passed
+            
+            ---
+            *This PR was automatically created by the Design Tokens Sync workflow*
+          branch: design-tokens-update
+          delete-branch: true
+
+      - name: Notify on failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#design-system'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow

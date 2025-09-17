@@ -1,5 +1,11 @@
-import { Button, Card, Col, List, Progress, Row, Statistic, Tag } from "antd";
 import { useMemo } from "react";
+import { Button } from "../new-ui/atoms/Button/Button";
+import { Card } from "../new-ui/molecules/Card/Card";
+import { Progress } from "../new-ui/atoms/Progress/Progress";
+import { Tag } from "../new-ui/atoms/Tag/Tag";
+import { List } from "../new-ui/molecules/List/List";
+import { Statistic } from "../new-ui/atoms/Statistic/Statistic";
+import { Grid } from "../new-ui/molecules/Grid/Grid";
 import { PageHeader } from "../components/shared/PageHeader";
 import { Toolbar } from "../components/ui/Toolbar";
 import { useProjectsStore } from "../stores/projectsStore";
@@ -112,9 +118,9 @@ export default function Dashboard() {
         }
       />
 
-      <Row gutter={[24, 24]} style={{ marginBottom: 16 }}>
-        <Col xs={24} md={8}>
-          <Card bordered>
+      <Grid.Row gutter={[24, 24]} className="mb-4">
+        <Grid.Col xs={24} md={8}>
+          <Card className="border">
             <Statistic
               title="Aktywne Projekty"
               value={activeProjects}
@@ -122,9 +128,9 @@ export default function Dashboard() {
               prefix={<i className="ri-briefcase-line" />}
             />
           </Card>
-        </Col>
-        <Col xs={24} md={8}>
-          <Card bordered>
+        </Grid.Col>
+        <Grid.Col xs={24} md={8}>
+          <Card className="border">
             <Statistic
               title="Zadania po Terminie"
               value={overdueTasks}
@@ -132,9 +138,9 @@ export default function Dashboard() {
               prefix={<i className="ri-time-line" />}
             />
           </Card>
-        </Col>
-        <Col xs={24} md={8}>
-          <Card bordered>
+        </Grid.Col>
+        <Grid.Col xs={24} md={8}>
+          <Card className="border">
             <Statistic
               title="Nowe Zapytania"
               value={newInquiries}
@@ -142,55 +148,48 @@ export default function Dashboard() {
               prefix={<i className="ri-question-line" />}
             />
           </Card>
-        </Col>
-      </Row>
+        </Grid.Col>
+      </Grid.Row>
 
-      <Row gutter={[24, 24]}>
-        <Col xs={24} lg={12}>
+      <Grid.Row gutter={[24, 24]}>
+        <Grid.Col xs={24} lg={12}>
           <Card
             title="Moje Zadania"
             extra={
-              <Button size="small" type="primary">
+              <Button size="sm" variant="primary">
                 Dodaj
               </Button>
             }
-            bordered
+            className="border"
           >
             <List
               dataSource={tasks}
               renderItem={(t) => (
                 <List.Item
                   key={t.id}
-                  style={{ border: "none", paddingLeft: 0, paddingRight: 0 }}
+                  className="border-none px-0"
                 >
-                  <div style={{ width: 16, height: 16, marginRight: 12 }}>
+                  <div className="w-4 h-4 mr-3">
                     <input
                       type="checkbox"
                       checked={t.completed}
                       onChange={() => toggleTask(t.id)}
                     />
                   </div>
-                  <div style={{ flex: 1 }}>
+                  <div className="flex-1">
                     <div
-                      style={{
-                        opacity: t.completed ? 0.6 : 1,
-                        textDecoration: t.completed ? "line-through" : "none",
-                        color: "var(--text-primary)",
-                      }}
+                      className={`${
+                        t.completed ? "opacity-60 line-through" : ""
+                      } text-primary`}
                     >
                       {t.title}
                     </div>
-                    <div
-                      style={{
-                        color: "var(--text-muted)",
-                        fontSize: "0.875rem",
-                      }}
-                    >
+                    <div className="text-muted text-sm">
                       {t.project}
                     </div>
-                    <div style={{ marginTop: 4 }}>
+                    <div className="mt-1">
                       <Tag
-                        color={
+                        variant={
                           t.overdue && !t.completed
                             ? "error"
                             : t.completed
@@ -201,13 +200,7 @@ export default function Dashboard() {
                         {t.deadline}
                       </Tag>
                       {t.overdue && !t.completed && (
-                        <span
-                          style={{
-                            marginLeft: 8,
-                            color: "var(--accent-error)",
-                            fontSize: "0.875rem",
-                          }}
-                        >
+                        <span className="ml-2 text-error text-sm">
                           Opóźnione
                         </span>
                       )}
@@ -217,53 +210,29 @@ export default function Dashboard() {
               )}
             />
           </Card>
-        </Col>
-        <Col xs={24} lg={12}>
-          <Card title="Oś Czasu Projektów" bordered>
+        </Grid.Col>
+        <Grid.Col xs={24} lg={12}>
+          <Card title="Oś Czasu Projektów" className="border">
             <List
               dataSource={projectTimeline}
               renderItem={(p) => (
                 <List.Item>
-                  <div style={{ width: "100%" }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: 4,
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontWeight: 500,
-                          color: "var(--text-primary)",
-                        }}
-                      >
+                  <div className="w-full">
+                    <div className="flex justify-between items-center mb-1">
+                      <div className="font-medium text-primary">
                         {p.name}
                       </div>
-                      <span
-                        style={{
-                          color: "var(--text-muted)",
-                          fontSize: "0.875rem",
-                        }}
-                      >
+                      <span className="text-muted text-sm">
                         {p.progress}%
                       </span>
                     </div>
                     <Progress
                       percent={p.progress}
                       showInfo={false}
-                      strokeColor={"var(--primary-main)"}
-                      style={{ marginBottom: 8 }}
+                      strokeColor="var(--primary-main)"
+                      className="mb-2"
                     />
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        color: "var(--text-muted)",
-                        fontSize: "0.875rem",
-                      }}
-                    >
+                    <div className="flex justify-between text-muted text-sm">
                       <span>{p.startMonth}</span>
                       <span>{p.endMonth}</span>
                     </div>
@@ -272,9 +241,9 @@ export default function Dashboard() {
               )}
             />
           </Card>
-        </Col>
-        <Col xs={24}>
-          <Card title="Ostatnia Aktywność" bordered>
+        </Grid.Col>
+        <Grid.Col xs={24}>
+          <Card title="Ostatnia Aktywność" className="border">
             <List
               dataSource={recentActivity}
               renderItem={(a) => (
@@ -282,17 +251,12 @@ export default function Dashboard() {
                   <List.Item.Meta
                     avatar={null}
                     title={
-                      <span style={{ color: "var(--text-primary)" }}>
+                      <span className="text-primary">
                         {a.action} <strong>{a.item}</strong>
                       </span>
                     }
                     description={
-                      <span
-                        style={{
-                          color: "var(--text-muted)",
-                          fontSize: "0.875rem",
-                        }}
-                      >
+                      <span className="text-muted text-sm">
                         {a.time}
                       </span>
                     }
@@ -301,8 +265,8 @@ export default function Dashboard() {
               )}
             />
           </Card>
-        </Col>
-      </Row>
+        </Grid.Col>
+      </Grid.Row>
     </div>
   );
 }

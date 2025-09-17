@@ -11,11 +11,9 @@ import {
   Button,
   Card,
   Col,
-  DatePicker,
   Dropdown,
   Form,
   Input,
-  Modal,
   Pagination,
   Row,
   Segmented,
@@ -25,12 +23,8 @@ import {
   Tag,
 } from "antd";
 import EditProjectModal from "../components/EditProjectModal";
-import { createClient } from "../services/clients";
-import type {
-  Project,
-  ProjectModule,
-  ProjectWithStats,
-} from "../types/projects.types";
+import { ProjectForm } from "../new-ui/organisms/Forms/ProjectForm";
+import type { Project, ProjectWithStats } from "../types/projects.types";
 
 export default function Projects() {
   const navigate = useNavigate();
@@ -73,20 +67,6 @@ export default function Projects() {
     id: string | null;
   }>({ open: false, x: 0, y: 0, id: null });
   const [createOpen, setCreateOpen] = useState(false);
-  const [createForm, setCreateForm] = useState<Omit<Project, "id">>({
-    numer: "P-2025/01/NEW",
-    name: "",
-    typ: "Inne",
-    lokalizacja: "",
-    clientId: "C-NEW",
-    client: "",
-    status: "Nowy",
-    data_utworzenia: new Date().toISOString().slice(0, 10),
-    deadline: new Date().toISOString().slice(0, 10),
-    postep: 0,
-    groups: [],
-    modules: ["wycena", "koncepcja"] as ProjectModule[],
-  });
 
   // Legacy validation schema not used after AntD migration
 
@@ -1031,139 +1011,16 @@ export default function Projects() {
         onClose={() => setEditId(null)}
       />
 
-      {/* Create Project Modal */}
-      <Modal
-        title="Nowy Projekt"
+      {/* Create Project Form */}
+      <ProjectForm
         open={createOpen}
-        onCancel={() => setCreateOpen(false)}
-        onOk={async () => {
-          // Ensure client exists; if no clientId but client name provided, create backend client
-          let clientId = createForm.clientId;
-          if (!clientId && createForm.client.trim()) {
-            try {
-              const c = await createClient({ name: createForm.client.trim() });
-              clientId = c.id;
-            } catch {
-              clientId = `c-${Date.now()}`;
-            }
-          }
-          await add({ ...createForm, clientId });
-          showToast("Projekt utworzony", "success");
+        onClose={() => setCreateOpen(false)}
+        onSuccess={() => {
           setCreateOpen(false);
-          setCreateForm({
-            numer: "P-2025/01/NEW",
-            name: "",
-            typ: "Inne",
-            lokalizacja: "",
-            clientId: "C-NEW",
-            client: "",
-            status: "Nowy",
-            data_utworzenia: new Date().toISOString().slice(0, 10),
-            deadline: new Date().toISOString().slice(0, 10),
-            postep: 0,
-            groups: [],
-            modules: ["wycena", "koncepcja"],
-          });
+          showToast("Projekt utworzony", "success");
+          // The form will handle adding to the store internally
         }}
-        okText="Zapisz"
-        cancelText="Anuluj"
-      >
-        <Form layout="vertical">
-          <Form.Item label="Nazwa" required>
-            <Input
-              value={createForm.name}
-              onChange={(e) =>
-                setCreateForm({ ...createForm, name: e.target.value })
-              }
-            />
-          </Form.Item>
-          <Row gutter={[12, 12]}>
-            <Col xs={24} md={12}>
-              <Form.Item label="Nazwa klienta">
-                <Input
-                  value={createForm.client}
-                  placeholder="np. Teatr Narodowy"
-                  onChange={(e) =>
-                    setCreateForm({ ...createForm, client: e.target.value })
-                  }
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={12}>
-              <Form.Item label="ID klienta (opcjonalnie)">
-                <Input
-                  value={createForm.clientId}
-                  placeholder="Wypełni się po utworzeniu klienta"
-                  onChange={(e) =>
-                    setCreateForm({ ...createForm, clientId: e.target.value })
-                  }
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={12}>
-              <Form.Item label="Deadline">
-                <DatePicker
-                  style={{ width: "100%" }}
-                  onChange={(_, v) =>
-                    setCreateForm({
-                      ...createForm,
-                      deadline: (v as string) || "",
-                    })
-                  }
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={12}>
-              <Form.Item label="Moduły projektu">
-                <Select
-                  mode="multiple"
-                  value={createForm.modules as ProjectModule[]}
-                  onChange={(vals) =>
-                    setCreateForm({
-                      ...createForm,
-                      modules: vals as ProjectModule[],
-                    })
-                  }
-                  options={[
-                    { value: "wycena", label: "Wycena" },
-                    { value: "koncepcja", label: "Koncepcja" },
-                    { value: "projektowanie", label: "Projektowanie" },
-                    {
-                      value: "projektowanie_techniczne",
-                      label: "Projektowanie techniczne",
-                    },
-                    { value: "produkcja", label: "Produkcja" },
-                    { value: "materialy", label: "Materiały" },
-                    { value: "logistyka", label: "Logistyka" },
-                    { value: "logistyka_montaz", label: "Logistyka + Montaż" },
-                    { value: "zakwaterowanie", label: "Zakwaterowanie" },
-                    { value: "montaz", label: "Montaż" },
-                    { value: "model_3d", label: "Model 3D" },
-                  ]}
-                  placeholder="Wybierz moduły (np. Model 3D)"
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={12}>
-              <Form.Item label="Status">
-                <Select
-                  value={createForm.status}
-                  onChange={(v) =>
-                    setCreateForm({ ...createForm, status: v as any })
-                  }
-                  options={[
-                    { value: "Nowy", label: "Nowy" },
-                    { value: "Wyceniany", label: "Wyceniany" },
-                    { value: "W realizacji", label: "W realizacji" },
-                    { value: "Zakończony", label: "Zakończony" },
-                    { value: "Wstrzymany", label: "Wstrzymany" },
-                  ]}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
-      </Modal>
+      />
     </div>
   );
 }

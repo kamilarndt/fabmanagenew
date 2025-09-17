@@ -45,7 +45,7 @@ export function Header({
           {showMenuToggle && (
             <Button
               variant="ghost"
-              size="icon"
+              size="sm"
               onClick={onMenuToggle}
               className="tw-h-9 tw-w-9"
             >
@@ -78,7 +78,7 @@ export function Header({
           {notifications && (
             <Button
               variant="ghost"
-              size="icon"
+              size="sm"
               onClick={notifications.onClick}
               className="tw-relative tw-h-9 tw-w-9"
             >
