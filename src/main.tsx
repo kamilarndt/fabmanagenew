@@ -1,5 +1,4 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { App as AntdApp } from "antd";
 import "antd/dist/reset.css";
 import { StrictMode } from "react";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
@@ -8,7 +7,6 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
 import { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary";
-import { ThemeProvider } from "./components/providers/ThemeProvider";
 import { AppWithSkipLinks } from "./components/ui/SkipLink";
 import "./i18n";
 import "./index.css";
@@ -44,17 +42,13 @@ initSentry();
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AntdApp>
-          <BrowserRouter>
-            <ErrorBoundary>
-              <AppWithSkipLinks>
-                <App />
-              </AppWithSkipLinks>
-            </ErrorBoundary>
-          </BrowserRouter>
-        </AntdApp>
-      </ThemeProvider>
+      <BrowserRouter>
+        <ErrorBoundary>
+          <AppWithSkipLinks>
+            <App />
+          </AppWithSkipLinks>
+        </ErrorBoundary>
+      </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>
 );

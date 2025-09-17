@@ -247,6 +247,34 @@ export default defineConfig({
     },
   },
 
+  css: {
+    preprocessorOptions: {
+      less: {
+        modifyVars: {
+          // Ant Design core variables
+          "primary-color": "#1677FF",
+          "layout-body-background": "#09090b",
+          "component-background": "#141414",
+          "text-color": "#fafafa",
+          "text-color-secondary": "#666666",
+          "border-color-base": "#404040",
+          "border-radius-base": "6px",
+
+          // Sidebar variables from Figma tokens
+          "sidebar-background": "#141414",
+          "sidebar-foreground": "#fafafa",
+          "sidebar-primary": "#f2f2f2",
+          "sidebar-primary-foreground": "#18181b",
+          "sidebar-accent": "#27272a",
+          "sidebar-accent-foreground": "#fafafa",
+          "sidebar-border": "#3f3f46",
+          "sidebar-ring": "#fafafa",
+        },
+        javascriptEnabled: true,
+      },
+    },
+  },
+
   // Experimental features for better performance
   esbuild: {
     drop: process.env.NODE_ENV === "production" ? ["console", "debugger"] : [],

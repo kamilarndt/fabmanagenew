@@ -5,6 +5,8 @@
    Import nowego Design System dla index.html
    ======================================== */
 
+@import "tailwindcss";
+
 @import "./styles/design-tokens.css";
 @import "./styles/modern-ui.css";
 
