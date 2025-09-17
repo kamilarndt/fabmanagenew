@@ -2,8 +2,7 @@
  * Configuration management for FabManage application
  */
 
-// Import user segmentation for dynamic feature flags
-import { userSegmentation } from "./user-segments";
+// Feature flags configuration
 
 export type Environment = "development" | "production" | "test";
 
@@ -60,44 +59,17 @@ export const features = {
   debugLogs: isDevelopment || config.logLevel === "debug",
   errorReporting: isProduction,
   offlineSupport: true,
-  // New UI System - Dynamic based on user segmentation
-  newUI:
-    import.meta.env.VITE_ENABLE_NEW_UI === "true" ||
-    isDevelopment ||
-    userSegmentation.isFeatureEnabled("newUI"),
-  newUIDashboard:
-    import.meta.env.VITE_ENABLE_NEW_UI_DASHBOARD === "true" ||
-    isDevelopment ||
-    userSegmentation.isFeatureEnabled("newUIDashboard"),
-  newUIProjects:
-    import.meta.env.VITE_ENABLE_NEW_UI_PROJECTS === "true" ||
-    isDevelopment ||
-    userSegmentation.isFeatureEnabled("newUIProjects"),
-  newUIMaterials:
-    import.meta.env.VITE_ENABLE_NEW_UI_MATERIALS === "true" ||
-    isDevelopment ||
-    userSegmentation.isFeatureEnabled("newUIMaterials"),
-  newUITiles:
-    import.meta.env.VITE_ENABLE_NEW_UI_TILES === "true" ||
-    isDevelopment ||
-    userSegmentation.isFeatureEnabled("newUITiles"),
-  newUISettings:
-    import.meta.env.VITE_ENABLE_NEW_UI_SETTINGS === "true" ||
-    isDevelopment ||
-    userSegmentation.isFeatureEnabled("newUISettings"),
+  // New UI System - All enabled for migration
+  newUI: true,
+  newUIDashboard: true,
+  newUIProjects: true,
+  newUIMaterials: true,
+  newUITiles: true,
+  newUISettings: true,
   // Advanced features
-  newUINavigation:
-    import.meta.env.VITE_ENABLE_NEW_UI_NAVIGATION === "true" ||
-    isDevelopment ||
-    userSegmentation.isFeatureEnabled("newUINavigation"),
-  newUIForms:
-    import.meta.env.VITE_ENABLE_NEW_UI_FORMS === "true" ||
-    isDevelopment ||
-    userSegmentation.isFeatureEnabled("newUIForms"),
-  newUITables:
-    import.meta.env.VITE_ENABLE_NEW_UI_TABLES === "true" ||
-    isDevelopment ||
-    userSegmentation.isFeatureEnabled("newUITables"),
+  newUINavigation: true,
+  newUIForms: true,
+  newUITables: true,
 } as const;
 
 console.log("🔧 App Config:", {

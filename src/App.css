@@ -6,8 +6,7 @@
    starych styli na rzecz nowego systemu
    ======================================== */
 
-@import './styles/design-system.css';
-@import './styles/components.css';
+/* Legacy styles removed - using new design system */
 
 /* ========================================
    SPECYFICZNE STYLE DLA APP.TSX

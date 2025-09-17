@@ -1,7 +1,5 @@
-import { ConfigProvider, Layout } from "antd";
 import React from "react";
-
-const { Content } = Layout;
+import { cn } from "@/new-ui/utils/cn";
 
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -20,54 +18,38 @@ export function PageLayout({
   style,
   background = "default",
 }: PageLayoutProps) {
-  const getPaddingValue = (): string => {
-    const paddingMap = {
-      none: "0",
-      sm: "12px",
-      md: "24px",
-      lg: "32px",
-    };
-    return paddingMap[padding];
+  const paddingClasses = {
+    none: "tw-p-0",
+    sm: "tw-p-3",
+    md: "tw-p-6",
+    lg: "tw-p-8",
   };
 
-  const getBackgroundValue = (): string => {
-    const backgroundMap = {
-      default: "var(--bg-primary, #ffffff)",
-      secondary: "var(--bg-secondary, #fafafa)",
-      transparent: "transparent",
-    };
-    return backgroundMap[background];
-  };
-
-  const contentStyles: React.CSSProperties = {
-    padding: getPaddingValue(),
-    background: getBackgroundValue(),
-    minHeight: "100vh",
-    fontFamily: "var(--font-family)",
-    ...(maxWidth && {
-      maxWidth,
-      margin: "0 auto",
-      width: "100%",
-    }),
-    ...style,
+  const backgroundClasses = {
+    default: "tw-bg-background",
+    secondary: "tw-bg-muted",
+    transparent: "tw-bg-transparent",
   };
 
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Layout: {
-            bodyBg: getBackgroundValue(),
-            headerBg: getBackgroundValue(),
-            siderBg: getBackgroundValue(),
-          },
-        },
+    <div
+      className={cn(
+        "tw-min-h-screen tw-font-sans",
+        paddingClasses[padding],
+        backgroundClasses[background],
+        className
+      )}
+      style={{
+        ...(maxWidth && {
+          maxWidth,
+          margin: "0 auto",
+          width: "100%",
+        }),
+        ...style,
       }}
     >
-      <Content className={className} style={contentStyles}>
-        {children}
-      </Content>
-    </ConfigProvider>
+      {children}
+    </div>
   );
 }
 
@@ -90,36 +72,26 @@ export function MainLayout({
   className,
   style,
 }: MainLayoutProps) {
-  const layoutStyles: React.CSSProperties = {
-    minHeight: "100vh",
-    fontFamily: "var(--font-family)",
-    ...style,
-  };
-
-  const contentStyles: React.CSSProperties = {
-    marginLeft: sidebar && !sidebarCollapsed ? "280px" : sidebar ? "80px" : "0",
-    transition: "margin-left 0.2s",
-  };
-
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Layout: {
-            bodyBg: "var(--bg-primary, #ffffff)",
-          },
-        },
-      }}
+    <div
+      className={cn(
+        "tw-flex tw-min-h-screen tw-font-sans",
+        className
+      )}
+      style={style}
     >
-      <Layout className={className} style={layoutStyles}>
-        {sidebar}
-        <Layout style={contentStyles}>
-          {header}
-          <Content style={{ flex: 1 }}>{children}</Content>
-          {footer}
-        </Layout>
-      </Layout>
-    </ConfigProvider>
+      {sidebar}
+      <div
+        className={cn(
+          "tw-flex tw-flex-1 tw-flex-col tw-transition-all",
+          sidebar && !sidebarCollapsed ? "tw-ml-64" : sidebar ? "tw-ml-16" : "tw-ml-0"
+        )}
+      >
+        {header}
+        <main className="tw-flex-1">{children}</main>
+        {footer}
+      </div>
+    </div>
   );
 }
 

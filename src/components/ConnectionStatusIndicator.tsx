@@ -2,8 +2,9 @@
  * Component showing database connection status and allowing manual refresh
  */
 
-import { Badge, Tooltip, Button, Space } from 'antd'
-import { ReloadOutlined } from '@ant-design/icons'
+import { Button } from '@/new-ui/atoms/Button/Button';
+import { Badge } from '@/new-ui/atoms/Badge/Badge';
+import { cn } from '@/new-ui/utils/cn';
 import { useConnectionStatus } from '../lib/connectionMonitor'
 
 export default function ConnectionStatusIndicator() {
@@ -46,20 +47,25 @@ export default function ConnectionStatusIndicator() {
     }
 
     return (
-        <Tooltip title={getTooltipContent()} placement="bottomRight">
-            <Space size="small">
-                <Badge
-                    status={getStatusColor()}
-                    text={getStatusText()}
-                />
-                <Button
-                    type="text"
-                    size="small"
-                    icon={<ReloadOutlined />}
-                    onClick={forceCheck}
-                    style={{ padding: '0 4px' }}
-                />
-            </Space>
-        </Tooltip>
+        <div className="tw-flex tw-items-center tw-gap-2" title={getTooltipContent().toString()}>
+            <Badge
+                variant={getStatusColor() === 'success' ? 'default' : 'destructive'}
+                className={cn(
+                    getStatusColor() === 'success' && 'tw-bg-green-500',
+                    getStatusColor() === 'warning' && 'tw-bg-yellow-500',
+                    getStatusColor() === 'error' && 'tw-bg-red-500'
+                )}
+            >
+                {getStatusText()}
+            </Badge>
+            <Button
+                variant="ghost"
+                size="sm"
+                onClick={forceCheck}
+                className="tw-p-1"
+            >
+                ↻
+            </Button>
+        </div>
     )
 }
